@@ -1,5 +1,5 @@
 /* 
-Copyright (c) 2018, InCore Semiconductors Pvt. Ltd. All rights reserved.
+Copyright (c) 2018, IIT Madras All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted
 provided that the following conditions are met:
@@ -26,43 +26,6 @@ Author: Aditya Mathur
 Email id: aditya.mathur96@outlook.com
 Details:
 
-mmap-start
-slave_bound: 12 bytes
-
-schema-start
-module:
-    type: string
-    regex: ^plic$
-type:
-    type: string
-    regex: ^device$
-clusters:
-    type: list
-    schema:
-        type: string
-roles:
-    type: dict
-    schema:
-        master:
-            type: list
-            schema:
-                type: string
-                regex: ^(null$
-                nullable: True
-        slave:
-            type: list
-parameters:
-    type: dict
-    schema:
-        interrupt_levels:
-            type: integer
-        interrupt_pins:
-            type: integer
-        clock:
-            type: string
-            regex: ^null$
-            nullable: True
-schema-end
 --------------------------------------------------------------------------------------------------
 */
 package plic_template;
