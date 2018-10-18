@@ -28,6 +28,6 @@ package bootrom_template;
   module mkdummy(Empty);
     Ifc_bootrom_axi4#(32, 32, 0) boot <-mkbootrom_axi4('h1000);
     Ifc_bootrom_axi4lite#(32, 32, 0) bootlite <-mkbootrom_axi4lite('h1000);
-    Ifc_bootrom_TLU#(32, 8, 4) boottlu <- mkbootrom_TLU('h1000);
+//    Ifc_bootrom_TLU#(32, 8, 4) boottlu <- mkbootrom_TLU('h1000);
   endmodule
 endpackage

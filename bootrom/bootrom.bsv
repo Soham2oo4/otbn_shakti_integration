@@ -59,7 +59,7 @@ package bootrom;
 	import AXI4_Fabric  :: *;
 	import AXI4_Lite_Types   :: *;
 	import AXI4_Lite_Fabric  :: *;
-  import Tilelink_lite_Types::*;
+//  import Tilelink_lite_Types::*;
 	import BUtils::*;
   import GetPut::*;
   import device_common::*;
@@ -67,10 +67,10 @@ package bootrom;
 
   export mkbootrom_axi4;
   export mkbootrom_axi4lite;
-  export mkbootrom_TLU;
+//  export mkbootrom_TLU;
   export Ifc_bootrom_axi4   (..);
   export Ifc_bootrom_axi4lite (..);
-  export Ifc_bootrom_TLU  (..);
+//  export Ifc_bootrom_TLU  (..);
 
   interface UserInterface#(numeric type addr_width,  numeric type data_width);
     method Action read_request (Bit#(addr_width) addr, AccessSize size);
@@ -260,58 +260,58 @@ package bootrom;
   endmodule
 
   
-  interface Ifc_bootrom_TLU#(numeric type a, numeric type w, numeric type z);
-    interface Ifc_fabric_side_slave_link_lite#(a, w, z) slave; 
-  endinterface
-
-  (*mutually_exclusive="write_request_address_channel, read_response"*)
-  module mkbootrom_TLU#(parameter Integer slave_base)(Ifc_bootrom_TLU#(a, w, z))
-    provisos(Mul#(w, 8, data_width), 
-             Add#(data_width, e, 64), 
-             Mul#(8, a__,  data_width), 
-             Mul#(16, b__, data_width), 
-             Mul#(32, c__, data_width), 
-             Add#(d__, 2, z)); // to ensure that we are only operating upto 64 bits
-    UserInterface#(a, data_width) dut <- mkbootrom(slave_base);
-    Ifc_Slave_link_lite#(a, w, z)  s_xactor <- mkSlaveXactorLite(True, True);
-    Integer verbosity = `VERBOSITY;
-    Integer byte_offset = valueOf(TDiv#(data_width, 32));
-    Reg#(Bit#(z)) rg_size <-mkReg(3);
-    Reg#(Bit#(2)) rg_source <- mkReg(0);
-    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
-    Wire#(A_channel_lite#(a, w, z)) wr_request <- mkWire();
-
-    rule capture_request;
-      let req <- s_xactor.core_side.xactor_request.get;
-      wr_request<= req;
-    endrule
-    // If the request is single then simple send ERR. If it is a burst write request then change
-    // state to Burst and do not send response.
-    // TODO this will be obsolete if we iplemente master_route correctly. then the fabric itself
-    // will respond with an error without reaching the slave at all.
-    rule write_request_address_channel(wr_request.a_opcode==PutPartialData ||
-                                                                  wr_request.a_opcode==PutFullData);
-      let lv_resp = D_channel_lite{d_opcode: AccessAck, d_size: ?, d_source: wr_request.a_source,
-                                                      d_sink: ?, d_data: ?, d_error: True};
-	  	s_xactor.core_side.xactor_response.put(lv_resp);
-    endrule
-    // read first request and send it to the dut. If it is a burst request then change state to
-    // Burst. capture the request type and keep track of counter.
-    rule read_request_first(wr_request.a_opcode==Get_data);
-      dut.read_request(wr_request.a_address,unpack(truncate(wr_request.a_size)));
-      rg_size<= wr_request.a_size;
-      rg_offset<= wr_request.a_address[byte_offset:0];
-      rg_source<= wr_request.a_source;
-    endrule
-    // get data from the bootrom. shift,  truncate, duplicate based on the size and offset.
-    rule read_response;
-      let {err, data0}<-dut.read_response;
-      D_channel_lite#(w, z) lv_resp=D_channel_lite { d_opcode : AccessAckData, d_size : rg_size, 
-            d_source : rg_source, d_sink : ?, d_data : data0, d_error : False};
-  		if(verbosity!=0) 
-        $display($time, "\tBootROM : Responding Read Request with Data: %h ", data0);
-	  	s_xactor.core_side.xactor_response.put(lv_resp);
-    endrule
-    interface slave = s_xactor.fabric_side;
-  endmodule
+//  interface Ifc_bootrom_TLU#(numeric type a, numeric type w, numeric type z);
+//    interface Ifc_fabric_side_slave_link_lite#(a, w, z) slave; 
+//  endinterface
+//
+//  (*mutually_exclusive="write_request_address_channel, read_response"*)
+//  module mkbootrom_TLU#(parameter Integer slave_base)(Ifc_bootrom_TLU#(a, w, z))
+//    provisos(Mul#(w, 8, data_width), 
+//             Add#(data_width, e, 64), 
+//             Mul#(8, a__,  data_width), 
+//             Mul#(16, b__, data_width), 
+//             Mul#(32, c__, data_width), 
+//             Add#(d__, 2, z)); // to ensure that we are only operating upto 64 bits
+//    UserInterface#(a, data_width) dut <- mkbootrom(slave_base);
+//    Ifc_Slave_link_lite#(a, w, z)  s_xactor <- mkSlaveXactorLite(True, True);
+//    Integer verbosity = `VERBOSITY;
+//    Integer byte_offset = valueOf(TDiv#(data_width, 32));
+//    Reg#(Bit#(z)) rg_size <-mkReg(3);
+//    Reg#(Bit#(2)) rg_source <- mkReg(0);
+//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+//    Wire#(A_channel_lite#(a, w, z)) wr_request <- mkWire();
+//
+//    rule capture_request;
+//      let req <- s_xactor.core_side.xactor_request.get;
+//      wr_request<= req;
+//    endrule
+//    // If the request is single then simple send ERR. If it is a burst write request then change
+//    // state to Burst and do not send response.
+//    // TODO this will be obsolete if we iplemente master_route correctly. then the fabric itself
+//    // will respond with an error without reaching the slave at all.
+//    rule write_request_address_channel(wr_request.a_opcode==PutPartialData ||
+//                                                                  wr_request.a_opcode==PutFullData);
+//      let lv_resp = D_channel_lite{d_opcode: AccessAck, d_size: ?, d_source: wr_request.a_source,
+//                                                      d_sink: ?, d_data: ?, d_error: True};
+//	  	s_xactor.core_side.xactor_response.put(lv_resp);
+//    endrule
+//    // read first request and send it to the dut. If it is a burst request then change state to
+//    // Burst. capture the request type and keep track of counter.
+//    rule read_request_first(wr_request.a_opcode==Get_data);
+//      dut.read_request(wr_request.a_address,unpack(truncate(wr_request.a_size)));
+//      rg_size<= wr_request.a_size;
+//      rg_offset<= wr_request.a_address[byte_offset:0];
+//      rg_source<= wr_request.a_source;
+//    endrule
+//    // get data from the bootrom. shift,  truncate, duplicate based on the size and offset.
+//    rule read_response;
+//      let {err, data0}<-dut.read_response;
+//      D_channel_lite#(w, z) lv_resp=D_channel_lite { d_opcode : AccessAckData, d_size : rg_size, 
+//            d_source : rg_source, d_sink : ?, d_data : data0, d_error : False};
+//  		if(verbosity!=0) 
+//        $display($time, "\tBootROM : Responding Read Request with Data: %h ", data0);
+//	  	s_xactor.core_side.xactor_response.put(lv_resp);
+//    endrule
+//    interface slave = s_xactor.fabric_side;
+//  endmodule
 endpackage
