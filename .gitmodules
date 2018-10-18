@@ -1,3 +1,6 @@
 [submodule "fabrics"]
 	path = fabrics
 	url = https://gitlab.com/shaktiproject/uncore/fabrics.git
+[submodule "common_bsv"]
+	path = common_bsv
+	url = https://gitlab.com/shaktiproject/common_bsv.git
