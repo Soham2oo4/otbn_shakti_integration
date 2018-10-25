@@ -81,15 +81,25 @@ package uart;
       provisos(Mul#(16, a__, data_width),
               Add#(d__, 8, data_width),    
               Mul#(8, b__, data_width),
+              Mul#(4, f__, data_width),
               Add#(c__, 16, data_width), 
               Add#(2, e__, depth));
 
 		Reg#(Bit#(16)) baud_value <-mkReg(baudrate);
 		UART#(depth) uart <-mkUART(8,NONE,STOP_1,baud_value); // charasize,Parity,Stop Bits,BaudDIV
+    Wire#(Bit#(4)) wr_status <- mkWire();
+    rule capture_status;
+      let lv_status= {pack(uart.receiver_not_empty), pack(uart.receiver_not_full), 
+                                  pack(uart.transmittor_not_empty), pack(uart.transmission_done)};
+      wr_status<=lv_status;
+    endrule
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
-			if( addr[3:0]==`TxReg && size==Byte)begin
+      if( addr[3:0]==`StatusReg && size==Byte)begin
+        return tuple2(duplicate(wr_status),True);
+      end
+			else if( addr[3:0]==`TxReg && size==Byte)begin
 				Bit#(8) data<-uart.tx.get; 
 				return tuple2(duplicate(data),True);
 			end
@@ -131,6 +141,7 @@ package uart;
     provisos(Mul#(16, a__, data_width),
               Add#(d__, 8, data_width),    
               Mul#(8, b__, data_width),
+              Mul#(4, f__, data_width),
               Add#(c__, 16, data_width), 
               Add#(2, e__, depth));
 
@@ -236,6 +247,7 @@ package uart;
     provisos(Mul#(16, a__, data_width),
               Add#(d__, 8, data_width),    
               Mul#(8, b__, data_width),
+              Mul#(4, f__, data_width),
               Add#(c__, 16, data_width), 
               Add#(2, e__, depth));
 		Clock core_clock<-exposeCurrentClock;

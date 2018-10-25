@@ -5,6 +5,7 @@
 // 0x8: U R R R
 
 // Memory Map
-`define BaudReg 'h0		// 16-bit Register to change the baud-value of the UART.
-`define RxReg   'h4		// The 8-bit register to read the incoming value.
-`define TxReg   'h8		// The 8-bit register to be written to send data out.
+`define BaudReg     'h0		// 16-bit Register to change the baud-value of the UART.
+`define RxReg       'h4		// The 8-bit register to read the incoming value.
+`define TxReg       'h8		// The 8-bit register to be written to send data out.
+`define StatusReg   'hc		// The 4-bit register capturing the status of the rx/tx user side FIFOs

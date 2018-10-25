@@ -422,7 +422,7 @@ module mkUART( Bit#(4) charsize
    ////////////////////////////////////////////////////////////////////////////////
    /// Receive UART
    ////////////////////////////////////////////////////////////////////////////////
-   FIFOLevelIfc#(Bit#(8), d)                 fifoRecv              <- mkGFIFOLevel(True, False, True);
+   FIFOLevelIfc#(Bit#(8), d)                 fifoRecv              <- mkGFIFOLevel(True, True, True);
 
    Vector#(8, Reg#(Bit#(1)))                 vrRecvBuffer          <- replicateM(mkRegU);
 
@@ -441,7 +441,7 @@ module mkUART( Bit#(4) charsize
    ////////////////////////////////////////////////////////////////////////////////
    /// Transmit UART
    ////////////////////////////////////////////////////////////////////////////////
-   FIFOLevelIfc#(Bit#(8), d)                 fifoXmit              <- mkGFIFOLevel(False, False, True);
+   FIFOLevelIfc#(Bit#(8), d)                 fifoXmit              <- mkGFIFOLevel(True, False, True);
 
    Vector#(8, Reg#(Bit#(1)))                 vrXmitBuffer          <- replicateM(mkRegU);
 

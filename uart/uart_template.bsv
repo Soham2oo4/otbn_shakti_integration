@@ -37,8 +37,16 @@ import device_common::*;
 module mkdummy#(Clock uart_clock, Reset uart_reset)(Empty);
 	let core_clock<-exposeCurrentClock;
 	let core_reset<-exposeCurrentReset;
-	Ifc_uart_axi4lite#(32,16,0, 32) uart <- mkuart_axi4lite(uart_clock,uart_reset, 105);
+	//Ifc_uart_axi4lite#(32,16,0, 32) uart <- mkuart_axi4lite(uart_clock,uart_reset, 105);
 	Ifc_uart_axi4#(32,16,0, 3) uart1 <- mkuart_axi4(uart_clock,uart_reset, 35);
+endmodule
+
+(*synthesize*)
+module mktest(UserInterface#(32,64,16));
+  UserInterface#(32,64,16) uart<- mkuart_user(5);
+  interface io=uart.io;
+  method read_req=uart.read_req;
+  method write_req=uart.write_req;
 endmodule
 
 endpackage
