@@ -98,11 +98,11 @@ package clint;
 			Bit#(data_width) data=0;
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
       Bit#(64) temp=0;
-			if( addr[4:0]==`msipreg )
+			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
-      else if ( addr[4:0]>=`mtimecmpreg && addr[4:0]<`mtimereg )
+      else if ( addr[15:0]==`mtimecmpreg )
         temp=csr_mtimecmp;
-      else if( addr[4:0]>=`mtimereg && addr[4:0]<`mtimereg + 'h7 )
+      else if( addr[15:0]==`mtimereg)
         temp=rgmtime;
 		  else
 				success=False;	
@@ -131,9 +131,9 @@ package clint;
         Bit#(64) datamask=zeroExtend(data)&mask;
         let notmask=~mask;
     
-		  	if( addr[4:0]==`msipreg )
+		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
-        else if ( addr[4:0]>=`mtimecmpreg && addr[4:0]<`mtimereg )
+        else if ( addr[15:0]==`mtimecmpreg)
           csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
 		    else
 		  		success=False;	

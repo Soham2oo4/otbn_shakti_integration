@@ -11,6 +11,6 @@
 `define msip_size 1	
 
 // Memory Map
-`define msipreg 'h0		
-`define mtimecmpreg   'h8		
-`define mtimereg   'h10	
+`define msipreg 'h0000		
+`define mtimecmpreg   'h4000		
+`define mtimereg   'hbff8	
