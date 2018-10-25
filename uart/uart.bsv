@@ -63,8 +63,10 @@ package uart;
   export RS232             (..);
   export Ifc_uart_axi4lite (..);
   export Ifc_uart_axi4     (..);
+  export UserInterface     (..);
   export mkuart_axi4lite;
   export mkuart_axi4;
+  export mkuart_user;
 
 	interface UserInterface#(numeric type addr_width ,numeric type data_width,  numeric type depth);
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
