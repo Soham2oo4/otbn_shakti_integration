@@ -90,7 +90,7 @@ package uart;
     Wire#(Bit#(4)) wr_status <- mkWire();
     rule capture_status;
       let lv_status= {pack(uart.receiver_not_empty), pack(uart.receiver_not_full), 
-                                  pack(uart.transmittor_not_empty), pack(uart.transmission_done)};
+                                  pack(uart.transmittor_not_full), pack(uart.transmission_done)};
       wr_status<=lv_status;
     endrule
 

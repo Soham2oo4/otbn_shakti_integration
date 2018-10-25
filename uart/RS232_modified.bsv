@@ -747,8 +747,8 @@ module mkUART( Bit#(4) charsize
 	  return fifoRecv.notFull();
    endmethod
 
-   method Bool transmittor_not_empty;
-   	  return fifoXmit.notEmpty();
+   method Bool transmittor_not_full;
+   	  return fifoXmit.notFull();
    endmethod
 endmodule
 
