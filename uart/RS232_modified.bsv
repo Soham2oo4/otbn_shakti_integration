@@ -148,7 +148,7 @@ interface UART#(numeric type depth);
    method Bool transmission_done;
    method Bool receiver_not_empty;
    method Bool receiver_not_full;
-   method Bool transmittor_not_empty;
+   method Bool transmittor_not_full;
 endinterface
 
 
