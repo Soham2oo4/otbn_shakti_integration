@@ -52,21 +52,21 @@ package plic;
 		Access_type			 ld_st;
 	} UncachedMemReq#(numeric type paddr, numeric type data_width) deriving(Bits, Eq);
 
-	interface Ifc_global_interrupt;
+	interface IFC_GLOBAL_INTERRUPT_IO;
 		method Action irq_frm_gateway(Bool ir);
 	endinterface
 
-	interface Ifc_program_registers#(numeric type addr_width,numeric type data_width);
+	interface IFC_PROGRAM_REGISTERS#(numeric type addr_width,numeric type data_width);
 		method ActionValue#(Tuple2#(Bit#(data_width), Bool)) prog_reg(UncachedMemReq#(addr_width, data_width) mem_req, AccessSize size);
 	endinterface 	
 
 
 interface User_ifc#(numeric type addr_width,numeric type data_width,
       numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
-	interface Vector#(no_of_ir_pins,Ifc_global_interrupt) ifc_external_irq;
-	interface Ifc_program_registers#(addr_width,data_width) ifc_prog_reg;
-	method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note;
-	method ActionValue#(Bit#(64)) intrpt_completion;
+	interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
+	interface IFC_PROGRAM_REGISTERS#(addr_width,data_width) ifc_prog_reg;
+	interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
+	interface Get#(Bit#(64)) intrpt_completion_sb;
 endinterface
 
 //(*conflict_free = "rl_prioritise, prog_reg"*)
@@ -176,23 +176,22 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 		
 	endrule
 
-	Vector#(no_of_ir_pins, Ifc_global_interrupt) temp_ifc_irq;
+	Vector#(no_of_ir_pins, IFC_GLOBAL_INTERRUPT_IO) temp_ifc_irq;
 
 	for(Integer i = 0; i < v_no_of_ir_pins; i = i + 1) begin
 
-		temp_ifc_irq[i] = interface Ifc_global_interrupt
+		temp_ifc_irq[i] = interface IFC_GLOBAL_INTERRUPT_IO
 
 							method Action irq_frm_gateway(Bool ir);
 								`ifdef verbose $display("Interrupt id %d is pending", i);`endif
 								rg_ip[i][0] <= True;
 							endmethod
-
 						  endinterface;
 	end
 
-	interface ifc_external_irq = temp_ifc_irq;
+	interface ifc_external_irq_io = temp_ifc_irq;
 
-interface ifc_prog_reg = interface Ifc_program_registers;
+interface ifc_prog_reg = interface IFC_PROGRAM_REGISTER;
 
 							method ActionValue#(Tuple2#(Bit#(data_width),Bool)) prog_reg(UncachedMemReq#(addr_width, data_width) mem_req,AccessSize size);
 								//update memory mapped registers
@@ -207,7 +206,7 @@ interface ifc_prog_reg = interface Ifc_program_registers;
 								let dvalue=valueOf(data_width);
 								Bit#(6) shift_amt=zeroExtend(address[2:0])<<3;
 
-								if(address < 'h0C001000) begin
+								if(address < `base) begin
 									address = address >> 2;
 									if(mem_req.ld_st == Load) begin
 										source_id = address[v_msb_ir_bits:0];
@@ -226,7 +225,7 @@ interface ifc_prog_reg = interface Ifc_program_registers;
 										rg_priority[source_id] <= truncate(store_data);
 									end
 								end
-								else if(address < 'h0C002000) begin
+								else if(address < `base+'h1000) begin
 									if(mem_req.ld_st == Load) begin
 										source_id = address[v_msb_ir_bits:0];
 										// let shift=(loop==8)?3:(loop==16)?4:(loop==32)?5:6;
@@ -273,7 +272,7 @@ interface ifc_prog_reg = interface Ifc_program_registers;
 										end
 									end
 								end
-								else if(address < 'h0C020000)
+								else if(address < `base+'h20000)
 								begin
 									if(mem_req.ld_st == Load) 
 									begin
@@ -328,14 +327,14 @@ interface ifc_prog_reg = interface Ifc_program_registers;
 									
 									end
 								end
-								else if(address == 'hC200000) begin
+								else if(address == `base+200000) begin
 									if(mem_req.ld_st == Load) begin
 										temp = zeroExtend(rg_priority_threshold); 
 									end
 									else if(mem_req.ld_st == Store)
 										rg_priority_threshold <= mem_req.write_data[v_msb_priority:0];
 								end
-								else if(address == 'hC200004) begin
+								else if(address == `base+'h204000) begin
 									if(mem_req.ld_st == Load) begin
 										temp = zeroExtend(rg_interrupt_id); 
 										rg_ip[rg_interrupt_id][1] <= False;
@@ -365,29 +364,31 @@ interface ifc_prog_reg = interface Ifc_program_registers;
 
 						endinterface;
 
-							method ActionValue#(Bit#(64)) intrpt_completion if(isValid(rg_completion_id)); 
+							interface  intrpt_completion_sb= interface Get if(isValid(rg_completion_id))
+								method ActionValue#(ActionValue#(Bit#(64))) toget;
 								let completion_msg = validValue(rg_completion_id);
 								rg_completion_id <= tagged Invalid;
                                 `ifdef verbose $display("Sending Completion to SoC"); `endif
                                 // completion_msg=zeroExtend(completion_msg);
 								return zeroExtend(completion_msg);
-							endmethod
+							endinterface;
 
-							method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note;
+							interface intrpt_note_sb= interface Get
+								method ActionValue#(Tuple2#(Bool,Bool)) toget;
 								let v_no_nmi=valueOf(no_nmi);
 								Bool if_nmi = (rg_interrupt_id < fromInteger(v_no_nmi));
 								Bool valid_interrupt = rg_interrupt_valid;
 								rg_interrupt_valid <= False;
 								return tuple2(valid_interrupt, if_nmi);
-							endmethod
+							endinterface;
 endmodule
 
 	interface Ifc_plic_axi4lite#(numeric type addr_width,numeric type data_width,numeric type
       user_width, numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
 			interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
-			interface Vector#(no_of_ir_pins,Ifc_global_interrupt) ifc_external_irq;
-			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note;
-			method ActionValue#(Bit#(64)) intrpt_completion;
+			interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
+			interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
+			interface Get#(Bit#(64)) intrpt_completion_sb;
 	endinterface
 
 	module mkplic_axi4lite(Ifc_plic_axi4lite#(addr_width, data_width, user_width, no_of_ir_pins, 
@@ -442,17 +443,17 @@ endmodule
 			endrule
 
 			interface slave = s_xactor.axi_side;
-			interface ifc_external_irq = plic.ifc_external_irq;
-			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note = plic.intrpt_note;
-			method ActionValue#(Bit#(64)) intrpt_completion = plic.intrpt_completion;
+			interface ifc_external_irq_io = plic.ifc_external_irq_io;
+			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note_sb = plic.intrpt_note_sb;
+			method ActionValue#(Bit#(64)) intrpt_completion_sb = plic.intrpt_completion_sb;
 	endmodule
 
 	interface Ifc_plic_axi4#(numeric type addr_width, numeric type data_width, numeric type
       user_width, numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
-		interface Vector#(no_of_ir_pins,Ifc_global_interrupt) ifc_external_irq;
-		method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note;
-		method ActionValue#(Bit#(64)) intrpt_completion;
+		interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
+		interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
+		interface Get#(Bit#(64)) intrpt_completion_sb;
 	endinterface
 
 	module mkplic_axi4(Ifc_plic_axi4#(addr_width,data_width,user_width, no_of_ir_pins,no_of_ir_levels,
@@ -558,8 +559,8 @@ endmodule
 			endrule
 
 			interface slave = s_xactor.axi_side;
-			interface ifc_external_irq = plic.ifc_external_irq;
-			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note = plic.intrpt_note;
-			method ActionValue#(Bit#(64)) intrpt_completion = plic.intrpt_completion;		
+			interface ifc_external_irq_io = plic.ifc_external_irq_io;
+			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note_sb = plic.intrpt_note_sb;
+			method ActionValue#(Bit#(64)) intrpt_completion_sb = plic.intrpt_completion_sb;		
 	endmodule
 endpackage	
