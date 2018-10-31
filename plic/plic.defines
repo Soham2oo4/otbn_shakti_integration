@@ -11,3 +11,4 @@
 
 
 // Memory Map
+`define base 'hC0001000
