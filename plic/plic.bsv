@@ -1,5 +1,5 @@
 package plic;
-	import Vector::*;
+ 	import Vector::*;
 	import ConfigReg::*;
 	import Semi_FIFOF::*;
 	import AXI4_Lite_Types::*;
@@ -10,6 +10,7 @@ package plic;
 	import ConcatReg ::*;
 	import encoder ::*;
 	import device_common::*;
+	import GetPut ::*;
 
 	`include "plic.defines"
 
@@ -100,6 +101,7 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 	let v_data_width = valueOf(data_width);
 
 
+	Vector#(no_of_ir_pins,Reg#(Bool)) rg_gateway <- replicateM(mkReg(False));
 	Vector#(no_of_ir_pins,Array#(Reg#(Bool))) rg_ip <- replicateM(mkCReg(2,False));
 
 
@@ -176,22 +178,30 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 		
 	endrule
 
+	rule rl_clear_gateway(rg_completion_id matches tagged Valid .id);
+		rg_gateway[id] <= False;
+		rg_completion_id <= tagged Invalid;
+	endrule
+
 	Vector#(no_of_ir_pins, IFC_GLOBAL_INTERRUPT_IO) temp_ifc_irq;
 
 	for(Integer i = 0; i < v_no_of_ir_pins; i = i + 1) begin
 
 		temp_ifc_irq[i] = interface IFC_GLOBAL_INTERRUPT_IO
 
-							method Action irq_frm_gateway(Bool ir);
+							method Action irq_frm_gateway(Bool ir) if(!rg_gateway[i]);
 								`ifdef verbose $display("Interrupt id %d is pending", i);`endif
-								rg_ip[i][0] <= True;
+								if(ir) begin
+									rg_gateway[i] <= True;
+									rg_ip[i][0] <= True;
+								end
 							endmethod
 						  endinterface;
 	end
 
 	interface ifc_external_irq_io = temp_ifc_irq;
 
-interface ifc_prog_reg = interface IFC_PROGRAM_REGISTER;
+interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 
 							method ActionValue#(Tuple2#(Bit#(data_width),Bool)) prog_reg(UncachedMemReq#(addr_width, data_width) mem_req,AccessSize size);
 								//update memory mapped registers
@@ -364,22 +374,24 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTER;
 
 						endinterface;
 
-							interface  intrpt_completion_sb= interface Get if(isValid(rg_completion_id))
-								method ActionValue#(ActionValue#(Bit#(64))) toget;
-								let completion_msg = validValue(rg_completion_id);
-								rg_completion_id <= tagged Invalid;
-                                `ifdef verbose $display("Sending Completion to SoC"); `endif
-                                // completion_msg=zeroExtend(completion_msg);
-								return zeroExtend(completion_msg);
-							endinterface;
+							//interface  intrpt_completion_sb= interface Get 
+							//	method ActionValue#(Bit#(64)) get if(isValid(rg_completion_id));
+							//		let completion_msg = validValue(rg_completion_id);
+							//		rg_completion_id <= tagged Invalid;
+              //  	                `ifdef verbose $display("Sending Completion to SoC"); `endif
+              //  	                // completion_msg=zeroExtend(completion_msg);
+							//		return zeroExtend(completion_msg);
+							//	endmethod
+							//endinterface;
 
 							interface intrpt_note_sb= interface Get
-								method ActionValue#(Tuple2#(Bool,Bool)) toget;
-								let v_no_nmi=valueOf(no_nmi);
-								Bool if_nmi = (rg_interrupt_id < fromInteger(v_no_nmi));
-								Bool valid_interrupt = rg_interrupt_valid;
-								rg_interrupt_valid <= False;
-								return tuple2(valid_interrupt, if_nmi);
+								method ActionValue#(Tuple2#(Bool,Bool)) get;
+									let v_no_nmi=valueOf(no_nmi);
+									Bool if_nmi = (rg_interrupt_id < fromInteger(v_no_nmi));
+									Bool valid_interrupt = rg_interrupt_valid;
+									rg_interrupt_valid <= False;
+									return tuple2(valid_interrupt, if_nmi);
+								endmethod
 							endinterface;
 endmodule
 
@@ -444,8 +456,8 @@ endmodule
 
 			interface slave = s_xactor.axi_side;
 			interface ifc_external_irq_io = plic.ifc_external_irq_io;
-			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note_sb = plic.intrpt_note_sb;
-			method ActionValue#(Bit#(64)) intrpt_completion_sb = plic.intrpt_completion_sb;
+			interface intrpt_note_sb = plic.intrpt_note_sb;
+			interface intrpt_completion_sb = plic.intrpt_completion_sb;
 	endmodule
 
 	interface Ifc_plic_axi4#(numeric type addr_width, numeric type data_width, numeric type
@@ -560,7 +572,7 @@ endmodule
 
 			interface slave = s_xactor.axi_side;
 			interface ifc_external_irq_io = plic.ifc_external_irq_io;
-			method ActionValue#(Tuple2#(Bool,Bool)) intrpt_note_sb = plic.intrpt_note_sb;
-			method ActionValue#(Bit#(64)) intrpt_completion_sb = plic.intrpt_completion_sb;		
+			interface intrpt_note_sb = plic.intrpt_note_sb;
+			interface intrpt_completion_sb = plic.intrpt_completion_sb;		
 	endmodule
 endpackage	
