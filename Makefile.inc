@@ -1,9 +1,9 @@
 ############ DO NOT CHANGE THESE #################
-SUPPORTED:=./uart:./pwm:./bootrom:./clint:./common_bsv:./fabrics/axi4:./fabrics/axi4lite:./bram:./gpio:./sdram
+SUPPORTED:=./uart:./pwm:./bootrom:./clint:../common_bsv:../fabrics/axi4:../fabrics/axi4lite:./bram:./gpio:./sdram:./plic
 TOP_MODULE:=mkdummy
 
 ############# User changes to be done below #################
 DIR:=
-TOP_DIR:= 
+TOP_DIR:=
 TOP_FILE:=
 

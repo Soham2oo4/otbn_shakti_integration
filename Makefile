@@ -15,14 +15,15 @@ compile:
 	@echo Compiling $(TOP_MODULE)....
 	@mkdir -p $(BSVBUILDDIR)
 	@bsc -u -sim -simdir $(BSVBUILDDIR) -bdir $(BSVBUILDDIR) -info-dir $(BSVBUILDDIR) -keep-fires\
-  -check-assert $(define_macros) -p $(BSVINCDIR) -g $(TOP_MODULE)  $(TOP_DIR)/$(TOP_FILE)
+ -check-assert $(define_macros) -p $(BSVINCDIR) -g $(TOP_MODULE) $(TOP_DIR)/$(TOP_FILE)
 	@echo Compilation finished
 
 .PHONY: link
 link:
 	@echo Linking $(TOP_MODULE)...
 	@mkdir -p bin
-	@bsc -e $(TOP_MODULE) -sim -o ./bin/out -simdir $(BSVBUILDDIR) -p .:%/Prelude:%/Libraries:%/Libraries/BlueNoC -keep-fires -bdir $(BSVBUILDDIR) -keep-fires  
+	@bsc -e $(TOP_MODULE) -sim -o ./bin/out -simdir $(BSVBUILDDIR)\
+ -p .:%/Prelude:%/Libraries:%/Libraries/BlueNoC -keep-fires -bdir $(BSVBUILDDIR) -keep-fires  
 	@echo Linking finished
 
 .PHONY: generate_verilog 
