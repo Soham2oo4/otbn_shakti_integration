@@ -66,7 +66,11 @@ package clint;
     Add#(b__, data_width, 64),
     Add#(d__, TDiv#(data_width, 8), 8),
     Mul#(msip_size, a__, 64),
-    Add#(e__, msip_size, data_width)
+    Add#(e__, msip_size, data_width),
+    Mul#(data_width, c__, 64),
+    Mul#(8, f__, data_width),
+    Mul#(16, g__, data_width),
+    Mul#(32, h__, data_width)
 			);	
 
 
@@ -77,7 +81,11 @@ package clint;
 		Reg#(Bit#(64)) rgmtime<-mkReg(0);
 		Reg#(Bit#(64)) rgmtimecmp<-mkReg(0);
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
-		Reg#(Bit#(2)) rg_tick <-mkReg(0);
+		Reg#(Bit#(1)) rg_tick <-mkReg(0);
+
+    rule display_contents;
+      $display("\tCLINT: MTIME: %h MTIMECMP: %h",rgmtime,rgmtimecmp);
+    endrule
 
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			mtip<=pack(rgmtime>=rgmtimecmp);
@@ -100,9 +108,9 @@ package clint;
       Bit#(64) temp=0;
 			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
-      else if ( addr[15:0]==`mtimecmpreg )
+      else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
         temp=csr_mtimecmp;
-      else if( addr[15:0]==`mtimereg)
+      else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
         temp=rgmtime;
 		  else
 				success=False;	
@@ -118,6 +126,7 @@ package clint;
 			else if(size == DWord && dvalue%64==0)	
 			  temp=duplicate(temp);
       data=truncate(temp);
+      $display($time,"\tCLINT: Read addr:%h value:%h size: ",addr,data,fshow(size));
 			return tuple2(success,data);
 		endmethod
 
@@ -126,15 +135,22 @@ package clint;
         Bool success=True;
         Bit#(64) temp =0;
         Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFF:size==Word?'hFFFFFFFF:'1;
+        data=case (size)
+          Byte: duplicate(data[7:0]);
+          HWord: duplicate(data[15:0]);
+          Word: duplicate(data[31:0]);
+        endcase;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
-        Bit#(64) datamask=zeroExtend(data)&mask;
+        Bit#(64) datamask=duplicate(data)&mask;
         let notmask=~mask;
     
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
-        else if ( addr[15:0]==`mtimecmpreg)
+        else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
           csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+          $display($time,"\tCLINT: Writing value:%h to mtimecmpreg size: ",datamask,fshow(size));
+        end
 		    else
 		  		success=False;	
         return success;
@@ -169,7 +185,11 @@ package clint;
         Add#(b__, data_width, 64),
         Add#(d__, TDiv#(data_width, 8), 8),
         Mul#(msip_size, a__, 64),
-        Add#(e__, msip_size, data_width)
+        Add#(e__, msip_size, data_width),
+    Mul#(8, f__, data_width),
+    Mul#(16, g__, data_width),
+    Mul#(32, h__, data_width),
+    Mul#(data_width, c__, 64)
 			);
 	 	User_ifc#(addr_width,data_width,msip_size) clint<-mkclint;
 	 	AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- 
@@ -209,7 +229,11 @@ package clint;
         Add#(b__, data_width, 64),
         Add#(d__, TDiv#(data_width, 8), 8),
         Mul#(msip_size, a__, 64),
-        Add#(e__, msip_size, data_width)
+        Add#(e__, msip_size, data_width),
+    Mul#(8, f__, data_width),
+    Mul#(16, g__, data_width),
+    Mul#(32, h__, data_width),
+    Mul#(data_width, c__, 64)
 			);
 	 	User_ifc#(addr_width,data_width,msip_size) clint<-mkclint;
 	 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
