@@ -83,9 +83,6 @@ package clint;
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
 		Reg#(Bit#(1)) rg_tick <-mkReg(0);
 
-    rule display_contents;
-      $display("\tCLINT: MTIME: %h MTIMECMP: %h",rgmtime,rgmtimecmp);
-    endrule
 
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			mtip<=pack(rgmtime>=rgmtimecmp);
