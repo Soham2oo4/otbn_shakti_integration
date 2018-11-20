@@ -9,6 +9,8 @@ This repo contains the following devices:
 4. PWM (Pulse Width Modulator)
 5. BRAM 
 6. SDRAM
+7. 1149.1 JTAG TAP
+8. RISCV 0.13.1 Debug Module
 
 ## QuickStart
 
