@@ -10,6 +10,7 @@ compile-check:
         - make TOP_FILE=bram_template.bsv TOP_DIR=bram
         - make TOP_FILE=gpio_template.bsv TOP_DIR=gpio
         - make TOP_FILE=sdram_template.bsv TOP_DIR=sdram
+        - make TOP_FILE=jtagdtm_template.bsv TOP_DIR=jtagdtm
     only:
         - master
     tags:
