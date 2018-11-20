@@ -11,6 +11,7 @@ compile-check:
         - make TOP_FILE=gpio_template.bsv TOP_DIR=gpio
         - make TOP_FILE=sdram_template.bsv TOP_DIR=sdram
         - make TOP_FILE=jtagdtm_template.bsv TOP_DIR=jtagdtm
+        - make TOP_FILE=onfi_template.bsv TOP_DIR=onfi
     only:
         - master
     tags:

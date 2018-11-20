@@ -1,5 +1,5 @@
 ############ DO NOT CHANGE THESE #################
-SUPPORTED:=./uart:./pwm:./bootrom:./clint:./common_bsv:./fabrics/axi4:./fabrics/axi4lite:./bram:./gpio:./sdram:./jtagdtm
+SUPPORTED:=./uart:./pwm:./bootrom:./clint:./common_bsv:./fabrics/axi4:./fabrics/axi4lite:./bram:./gpio:./sdram:./jtagdtm:./onfi
 TOP_MODULE:=mkdummy
 
 ############# User changes to be done below #################
