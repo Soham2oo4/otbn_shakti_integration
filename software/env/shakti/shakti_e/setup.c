@@ -12,6 +12,6 @@ auxval_t __auxv[] = {
 
 void arch_setup()
 {
-    register_console(&console_sifive_uart);
-    register_poweroff(&poweroff_sifive_test);
+    register_console(&console_shakti_uart);
+    register_poweroff(&poweroff_shakti_test);
 }
