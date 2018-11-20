@@ -14,12 +14,15 @@ project(libfemto
         LANGUAGES C)
 
 message("Cross compiling libfemto for RISC-V")
-message(${CMAKE_C_ARCHIVE_CREATE})
-message(${CMAKE_AR})
-
 
 set(CMAKE_C_FLAGS "-mcmodel=medany -ffunction-sections -fdata-sections -nostartfiles -nostdlib -nostdinc -static -lgcc -Wl,--nmagic -Wl,--gc-sections")
 
-file(GLOB SRC_FILES libfemto/*/*.c libfemto/*/*/*.c libfemto/include/*.h)
+file(GLOB C_FILES libfemto/*/*.c libfemto/*/*/*.c libfemto/include/*.h)
+file(GLOB HEADER_FILES libfemto/include/*.h libfemto/*/*/*/*.h)
+message(${HEADER_FILES})
+set(SRC_FILES ${C_FILES} ${HEADER_FILES})
 add_library(femto STATIC ${SRC_FILES})
-target_include_directories(femto PUBLIC ./libfemto/include)
+target_include_directories(femto PUBLIC libfemto/include)
+
+install(TARGETS femto DESTINATION lib)
+install(FILES ${HEADER_FILES} DESTINATION include)
