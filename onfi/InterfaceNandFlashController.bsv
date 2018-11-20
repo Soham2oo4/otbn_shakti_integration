@@ -28,18 +28,11 @@ Details:
 
 --------------------------------------------------------------------------------------------------
 */
-`define LENGTH_RD_ER 8'h00
-`define TIMING_MODE  8'h08
-`define ADDR_WE      8'h10
-`define ADDR_RE      8'h18
-`define DIVWIDTH     8'd32
-
-`define Out_clock
 
 package InterfaceNandFlashController ;
 
 
-`include "defined_parameters.bsv"
+`include "nand.defines"
 import Vector::*;
 import DReg::*;
 import ClockDiv::*;
@@ -57,7 +50,6 @@ import Clocks::*;
 `include "global_parameters_Flash.bsv"
 
 // Controller register address parameter
-`define PAGE_LENGTH 0
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //		NVM - NAND FLASH CONTROLLER INTERFACE

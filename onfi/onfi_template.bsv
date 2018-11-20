@@ -27,15 +27,18 @@ Email id: vishu.vivek@gmail.com
 Details:
 */
 
-package nfc_template;
+package onfi_template;
+`include "nand.defines"
 import InterfaceNandFlashController ::*;
+import AXI4_Types::*;
 
 (*synthesize*)
-module mkdummy#(Clock nfc_clock, Reset nfc_reset)(Empty);
-	let core_clock<-exposeCurrentClock;
-	let core_reset<-exposeCurrentReset;
-    Ifc_NandFlashController onfi   <- mkInterfaceNandflashController(nfc_clock,nfc_clock,nfc_clock,nfc_clock,nfc_clock);
+module mkdummy(Ifc_NandFlashController);
+ 
+let clk <- exposeCurrentClock();
 
+let ifc();
+mkInterfaceNandflashController#(clk,clk,clk,clk,clk) _temp(ifc);
+ return ifc();
 endmodule
-
 endpackage
