@@ -41,19 +41,19 @@ static void shakti_uart_init()
     */
 }
 
-static int sifive_uart_getchar()
+static int shakti_uart_getchar()
 {
     return 0;
 }
 
-static int sifive_uart_putchar(int ch)
+static int shakti_uart_putchar(int ch)
 {
     while (uart[UART_REG_TXFIFO] < 0);
     return uart[UART_REG_TXFIFO] = ch & 0xff;
 }
 
-console_device_t console_sifive_uart = {
-    sifive_uart_init,
-    sifive_uart_getchar,
-    sifive_uart_putchar
+console_device_t console_shakti_uart = {
+    shakti_uart_init,
+    shakti_uart_getchar,
+    shakti_uart_putchar
 };

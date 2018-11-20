@@ -18,6 +18,7 @@ enum {
     SIFIVE_UART0_CTRL_ADDR     = 0x55550010,
     SIFIVE_GPIO0_CTRL_ADDR     = 0x55550020,
     SIFIVE_SPI0_CTRL_ADDR      = 0x55550030,
+    SHAKTI_UART0_CTRL_ADDR     = 0x80000000
 };
 
 typedef struct auxval {
