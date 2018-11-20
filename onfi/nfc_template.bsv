@@ -32,9 +32,9 @@ import InterfaceNandFlashController ::*;
 
 (*synthesize*)
 module mkdummy#(Clock nfc_clock, Reset nfc_reset)(Empty);
-	let clk0 <-exposeCurrentClock;
+	let core_clock<-exposeCurrentClock;
 	let core_reset<-exposeCurrentReset;
-    Ifc_NandFlashController onfi   <- mkInterfaceNandflashController(clk0,clk0,clk0,clk0,clk0);
+    Ifc_NandFlashController onfi   <- mkInterfaceNandflashController(nfc_clock,nfc_clock,nfc_clock,nfc_clock,nfc_clock);
 
 endmodule
 
