@@ -18,3 +18,5 @@ clint/verilog/
 build/
 
 verilog/
+
+software/build
