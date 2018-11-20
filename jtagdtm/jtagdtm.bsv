@@ -8,7 +8,6 @@ package jtagdtm;
 	import DReg::*;
 /*======= Project imports ===== */
 	`include "jtagdefines.bsv"
-	import defined_types::*;
 /*============================== */
 
 interface Ifc_jtagdtm;
