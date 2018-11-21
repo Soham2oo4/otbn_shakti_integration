@@ -18,7 +18,7 @@ package riscvDebug013;
 	typedef struct debugStatusWord{
 					Bit#(1) halted,
 					Bit#(1) available,  // The HART can Assert this say through the shakti specific csr to disable debugging on a hart rather than by having user code maskable runControl.
-					Bit#(1) resumeAck,
+					Bit#(1) resumeAck,  // This can possibly be handled inside the debug module
 					ErrorTypes abstractError} deriving (Bits,Eq); // Assert error of Abstract Register Accesses to the hart.
 
 	// No better way to write into segmented registers than to do them component wise !
@@ -29,7 +29,7 @@ package riscvDebug013;
         interface Put#(Bit#(34)) putResponse;
     endinterface
 
-	// Interface from Hart to DebugModule
+	// Interface Exposed By Hart
 	interface Hart_Debug_Ifc;
 		// Pass in parameter DTVEC on a perr hart basis
         method Action abstractWrite (Bit#(AbstractAddrWidth) address , Bit#(XLEN) data); // Return ANy Error from the Abstractt comamnd write ;
@@ -37,13 +37,31 @@ package riscvDebug013;
 		method Action fence();  // Coherence without a program buffer ??
         method Action haltRequest();  	// Sets Halt interrupt
 		method Action resumeRequest();  // Sets resume interrupt
-        method debugStatusWord DebugStatusWord(); // This is a Summary of state from the HART this also a side band to monitor core state also relays command error
+        method debugStatusWord GetDebugStatusWord(); // This is a Summary of state from the HART this also a side band to monitor core state also relays command error
     endinterface
 
+    interface Debug_Hart_Ifc;
+        method Bit#(1) abstractOperation;
+        method Bit#(AbstractAddrWidth) abstractAddress;
+        method Bit#(XLEN) abstractWriteData;
+        method Action abstractReadResponse(Bit#(XLEN));
+		method Bit#(1) fence();
+        method Bit#(1) haltRequest();
+		method Bit#(1) resumeRequest();
+        method Action SetdebugStatusWord(debugStatusWord);
+    endinterface
+
+    instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
+        module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug) (Empty);
+        //(* fire_when_enabled, no_implicit_conditions *)
+        // Rules Connecting Interfaces
+        endmodule
+    endinstance
+ 
 	// Interface between Debug Module and SOC
     interface riscvDebugInterface013;
         riscvDMI_jtagDTM dtm;
-        Vector#(HartCount,Hart_Debug_Ifc) hartVec;
+        Vector#(HartCount,Debug_Hart_Ifc) HartVec;
         interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) debug_master;
     endinterface 
 	
@@ -53,7 +71,7 @@ package riscvDebug013;
             method Action _write(t x) = noAction;
         endinterface);
     endfunction
-	
+
 	// Debug Module Register Map
 	typedef enum {	ABSTRACTDATASTART 	= 7'h04 ,ABSTRACTDATAEND 	= 7'h0f ,
 					DMCONTROL 			= 7'h10 ,DMSTATUS 			= 7'h11 ,
@@ -145,6 +163,5 @@ package riscvDebug013;
         // Error Wait / Handle
 
     endmodule
-
 
 endpackage
