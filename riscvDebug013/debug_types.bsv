@@ -1,5 +1,6 @@
 package debug_types;
 
+  typedef XLEN 32
 	typedef HartCount 1; 
 	typedef AbstractAddrWidth 14;
 
