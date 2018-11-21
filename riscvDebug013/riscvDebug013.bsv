@@ -1,6 +1,5 @@
 package riscvDebug013;
 	
-	import common_types::*; // For XLEN 
     import debug_types::*;
 
     // This Debug Module Will Not Support More than 32 HARTS At MAximum i.e. only One Hart Array Window frame is supported.
