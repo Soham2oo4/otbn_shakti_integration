@@ -19,7 +19,6 @@ set(CMAKE_C_FLAGS "-mcmodel=medany -ffunction-sections -fdata-sections -nostartf
 
 file(GLOB C_FILES libfemto/*/*.c libfemto/*/*/*.c libfemto/include/*.h)
 file(GLOB HEADER_FILES libfemto/include/*.h libfemto/*/*/*/*.h)
-message(${HEADER_FILES})
 set(SRC_FILES ${C_FILES} ${HEADER_FILES})
 add_library(femto STATIC ${SRC_FILES})
 target_include_directories(femto PUBLIC libfemto/include)
