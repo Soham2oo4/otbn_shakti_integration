@@ -24,4 +24,4 @@ all : hello.o
 %.o: %.c
 	$(riscv-prefix)-gcc $(cflags) $(ldflags) \
     $(src_files) $(inc_dirs) $(lib_dirs) \
-    -T$(link_file) -lfemto -o $*
+    -T$(link_file) -lfemto -o $*.elf
