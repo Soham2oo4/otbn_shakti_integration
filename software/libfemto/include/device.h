@@ -27,11 +27,13 @@ extern console_device_t console_none;
 extern console_device_t console_htif;
 extern console_device_t console_ns16550a;
 extern console_device_t console_sifive_uart;
+extern console_device_t console_shakti_uart;
 extern console_device_t console_semihost;
 
 extern poweroff_device_t poweroff_none;
 extern poweroff_device_t poweroff_htif;
 extern poweroff_device_t poweroff_sifive_test;
+extern poweroff_device_t poweroff_shakti_e_platform;
 extern poweroff_device_t poweroff_semihost;
 
 #ifdef __cplusplus
