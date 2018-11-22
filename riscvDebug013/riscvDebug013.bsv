@@ -311,7 +311,7 @@ package riscvDebug013;
         
 
         // Halted Loop should have a fence for memory coherence.
-    // sbcs
+    // sbcs DM 'h38
         Bit#(3) sbVersion = 1;                  // sbcs b31-29  // R    // 0=> old spec , 1 => current spec     
         Bit#(6) sbcsPad0 = 0;                   // sbcs b28-23 
         Reg#(Bit#(1)) sbBusyError <- mkReg(0)   // sbcs b22     // RW1c // Set when attempts to read data or new access when (sbbusy == 1) , reset by writing to zero.
@@ -331,23 +331,118 @@ package riscvDebug013;
         Bit#(32) sbcs = {   sbVersion,sbcsPad0,sbBusyError,sbBusy,sbReadOnAddr,sbAccess,sbAutoIncrement,
                             sbReadOnData,sbError,sbASize,sbAccess128,sbAccess64,sbAccess32,sbAccess16,sbAccess8};
 
-        // Review This function below ! 
-
         function Action writeSBCS (Bit#(32) data);
-            sbBusyError     <= data[22];
-            sbBusy          <= data[21];
-            sbReadOnAddr    <= data[20];
-            sbAccess        <= data[19:17];
-            sbAutoIncrement <= data[16];
-            sbReadOnData    <= data[15];
-            sbError         <= data[14:12];
+            if(sbBusy == 1)
+                sbBusyError     <= 1;    
+            else begin
+                if (data[22] == 0) 
+                    sbBusyError     <= 0;    // It remains set until it’s explicitly cleared by the debugger cleared writing 0 or writing 1 ?
+                if (data[14:12] == 3'b001)
+                    sbError <= SbNoError;
+
+                sbReadOnAddr    <= data[20];
+                sbAccess        <= data[19:17];
+                sbAutoIncrement <= data[16];
+                sbReadOnData    <= data[15];
+            end
+            //sbBusyError     <= data[22];
         endfunction
 
-        // ToDo Set this wired up properly
+    // sbaddress0 DM 'h39
+        Reg#(Bit#(32)) sbAddress0 <- mkReg(0);  // sbadress0 b31-0   // RW   // Lowest 32 bits of address , Triggers Read if read on address is set 
 
-        
+        function Action writeSbAddress0(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError     <= 1;    
+            else begin
+                sbAddress0 <= data;
+                if(sbReadOnAddr == 1);
+                    // Trigger System Bus Read state bit;
+                // Write Logic to Auto increment By Size and logic to auto increment across the fragments of the address register 
+            end
+        endfunction
 
-    // End of Register File
+    // sbaddress1 DM 'h3a
+        Reg#(Bit#(32)) sbAddress1 <- mkReg(0);  // sbadress1 b31-0   // RW   // bits 63:32 of address
+
+        function Action writeSbAddress0(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError     <= 1;    
+            else
+                sbAddress1 <= data;
+        endfunction
+
+    // sbaddress1 DM 'h3b
+        Reg#(Bit#(32)) sbAddress2 <- mkReg(0);  // sbadress2 b31-0   // RW   // bits 95:64 of address
+
+        function Action writeSbAddress0(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError     <= 1;    
+            else
+                sbAddress2 <= data;
+        endfunction
+    
+    // sbaddress2 DM 'h37
+        Reg#(Bit#(32)) sbAddress3 <- mkReg(0);  // sbadress3 b31-0   // RW   // bits 127:96 of address
+
+        function Action writeSbAddress0(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError     <= 1;    
+            else
+                sbAddress3 <= data;
+        endfunction
+
+    // sbdata0  DM 'h3c
+        Reg#(Bit#(32)) sbData0 <- mkReg(0); // sbdata b31-0     // RW   // Accesses to this register ir respective of read on data bit , trigger a system bus operation 
+
+        function Bit#(32) readSbData0;
+            if((sbError == 0) && (sbBusyError == 0) &&(sbReadOnData == 1))begin
+                    // Trigger a read
+                    // Auto increment the address in the sba rule
+                end
+            return sbData0;
+        endfunction
+
+        function Action writeSbData0(Bit#(32) data);
+            if((sbBusy == 0)&&(sbError == 0)& sbBusyError == 0) )begin
+                sbData0 <= data;
+                // Trigger a write.
+                end
+        endfunction
+
+    // sbdata1  DM 'h3d
+        Reg#(Bit#(32)) sbData1 <- mkReg(0);  // sbdata1 b31-0   // RW   // bits 63:32 of data
+
+        function Action writeSbData1(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError  <= 1;    
+            else
+                sbData1 <= data;
+        endfunction
+
+
+    // sbdata2  DM 'h3d
+        Reg#(Bit#(32)) sbData2 <- mkReg(0);  // sbdata1 b31-0   // RW   // bits 95:64 of data
+
+        function Action writeSbData2(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError  <= 1;    
+            else
+                sbData2 <= data;
+        endfunction
+
+
+    // sbdata3  DM 'h3d
+        Reg#(Bit#(32)) sbData3 <- mkReg(0);  // sbdata1 b31-0   // RW   // bits 127:96 of data
+
+        function Action writeSbData3(Bit#(32) data);
+            if(sbBusy == 1)
+                sbBusyError  <= 1;    
+            else
+                sbData3 <= data;
+        endfunction
+
+    // End of Spec Defined Architectural Register File
 
         // Hart Sel 
 

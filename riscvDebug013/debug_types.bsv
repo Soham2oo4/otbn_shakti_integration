@@ -10,10 +10,10 @@ package debug_types;
 					WrongState = 3'b100     , Bus       = 3'b101,
                     Other = 3'b111 }	ErrorTypes deriving(Bits,Eq,FShow);
                     
-    typedef enum {  NoError = 3'b000        , TimeOut = 3'b001,
-                    BadAddress = 3'b010     , Align = 3'b011,
-                    Size = 3'b100           ,
-                    Other = 3'b111 } SbErrorTypes deriving(Bits,Eq,FShow);
+    typedef enum {  SbNoError = 3'b000        , SbTimeOut = 3'b001,
+                    SbBadAddress = 3'b010     , SbAlign = 3'b011,
+                    SbSize = 3'b100           ,
+                    SbOther = 3'b111 } SbErrorTypes deriving(Bits,Eq,FShow);
 
     // For ABITS == 7 !
     typedef 7'h04 ABSTRACTDATASTART;
