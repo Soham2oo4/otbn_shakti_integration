@@ -1,44 +1,64 @@
 package debug_types;
-
-  typedef XLEN 32
-	typedef HartCount 1; 
+    // Switches 
+    typedef 32 XLEN;
+    typedef HartCount 1; 
 	typedef AbstractAddrWidth 14;
-
+    
+    // Constants
 	typedef enum {  NoError = 3'b000        , Busy = 3'b001,
 					NotSupported = 3'b010   , Exception = 3'b011,
 					WrongState = 3'b100     , Bus       = 3'b101,
-					Other = 3'b111 }	ErrorTypes deriving(Bits,Eq,FShow);
+                    Other = 3'b111 }	ErrorTypes deriving(Bits,Eq,FShow);
+                    
+    typedef enum {  NoError = 3'b000        , TimeOut = 3'b001,
+                    BadAddress = 3'b010     , Align = 3'b011,
+                    Size = 3'b100           ,
+                    Other = 3'b111 } SbErrorTypes deriving(Bits,Eq,FShow);
 
-    typedef ABSTRACTDATASTART 	= 7'h04;
-    typedef ABSTRACTDATAEND 	= 7'h0f;
-    typedef DMCONTROL 			= 7'h10;
-    typedef DMSTATUS 			= 7'h11;
-    typedef HARTINFO 			= 7'h12;
-    typedef HALTSUM1 			= 7'h13;
-    typedef HAWINDOWSEL 		= 7'h14;
-    typedef HAWINDOW 			= 7'h15;
-    typedef ABSTRACTCTS 		= 7'h16;
-    typedef COMMAND 			= 7'h17;
-    typedef ABSTRACTAUTO 		= 7'h18;
-    typedef CONFIGSTRINGADDR0 	= 7'h19;
-    typedef CONFIGSTRINGADDR1 	= 7'h1a;
-    typedef CONFIGSTRINGADDR2 	= 7'h1b;
-    typedef CONFIGSTRINGADDR3 	= 7'h1c;
-    typedef NEXTDM   			= 7'h1d;
-    typedef PBSTART 			= 7'h20;
-    typedef PBEND 				= 7'h2f;
-    typedef AUTHENDATA 			= 7'h30;
-    typedef HALTSUM2 			= 7'h34;
-    typedef HALTSUM3 			= 7'h35;
-    typedef SBADDRESS3 	    	= 7'h36;
-    typedef SBCS 				= 7'h38;
-    typedef SBADDRESS0 	    	= 7'h39;
-    typedef SBADDRESS1 			= 7'h3a;
-    typedef SBADDRESS2 	    	= 7'h3a;
-    typedef SBDATA0 			= 7'h3c;
-    typedef SBDATA1 			= 7'h3d;
-    typedef SBDATA2 			= 7'h3e;
-    typedef SBDATA3 			= 7'h3f;
-    typedef HALTSUM0 			= 7'h40;
+    // For ABITS == 7 !
+    typedef 7'h04 ABSTRACTDATASTART;
+    typedef 7'h0f ABSTRACTDATAEND;
+    typedef 7'h10 DMCONTROL;
+    typedef 7'h11 DMSTATUS;
+    typedef 7'h12 HARTINFO;
+    typedef 7'h13 HALTSUM1;
+    typedef 7'h14 HAWINDOWSEL;
+    typedef 7'h15 HAWINDOW;
+    typedef 7'h16 ABSTRACTCTS;
+    typedef 7'h17 COMMAND;
+    typedef 7'h18 ABSTRACTAUTO;
+    typedef 7'h19 CONFIGSTRINGADDR0;
+    typedef 7'h1a CONFIGSTRINGADDR1;
+    typedef 7'h1b CONFIGSTRINGADDR2;
+    typedef 7'h1c CONFIGSTRINGADDR3;
+    typedef 7'h1d NEXTDM;
+    typedef 7'h20 PBSTART;
+    typedef 7'h2f PBEND;
+    typedef 7'h30 AUTHENDATA;
+    typedef 7'h34 HALTSUM2;
+    typedef 7'h35 HALTSUM3;
+    typedef 7'h36 SBADDRESS3;
+    typedef 7'h38 SBCS;
+    typedef 7'h39 SBADDRESS0;
+    typedef 7'h3a SBADDRESS1;
+    typedef 7'h3a SBADDRESS2;
+    typedef 7'h3c SBDATA0;
+    typedef 7'h3d SBDATA1;
+    typedef 7'h3e SBDATA2;
+    typedef 7'h3f SBDATA3;
+    typedef 7'h40 HALTSUM0;
 
+
+    // ConfigString Pointer
+    typedef 0 D_configstrptr0;
+    typedef 0 D_configstrptr1;
+    typedef 0 D_configstrptr2;
+    typedef 0 D_configstrptr3;
+
+    // Permitted SB Access Widths
+    typedef 0 D_SBA128;
+    typedef 1 D_SBA64;
+    typedef 1 D_SBA32;
+    typedef 1 D_SBA16;
+    typedef 1 D_SBA8;
 endpackage
