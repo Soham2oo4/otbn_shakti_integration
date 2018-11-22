@@ -123,7 +123,6 @@ package clint;
 			else if(size == DWord && dvalue%64==0)	
 			  temp=duplicate(temp);
       data=truncate(temp);
-      $display($time,"\tCLINT: Read addr:%h value:%h size: ",addr,data,fshow(size));
 			return tuple2(success,data);
 		endmethod
 
@@ -146,7 +145,6 @@ package clint;
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
           csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
-          $display($time,"\tCLINT: Writing value:%h to mtimecmpreg size: ",datamask,fshow(size));
         end
 		    else
 		  		success=False;	
