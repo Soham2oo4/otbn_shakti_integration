@@ -1,9 +1,4 @@
 package debug_types;
-    // Switches 
-    typedef 32 XLEN;
-    typedef HartCount 1; 
-	typedef AbstractAddrWidth 14;
-    
     // Constants
 	typedef enum {  NoError = 3'b000        , Busy = 3'b001,
 					NotSupported = 3'b010   , Exception = 3'b011,
@@ -48,7 +43,6 @@ package debug_types;
     typedef 7'h3f SBDATA3;
     typedef 7'h40 HALTSUM0;
 
-
     // ConfigString Pointer
     typedef 0 D_configstrptr0;
     typedef 0 D_configstrptr1;
@@ -61,4 +55,17 @@ package debug_types;
     typedef 1 D_SBA32;
     typedef 1 D_SBA16;
     typedef 1 D_SBA8;
+
+// Target Specific config Defaults for shakti E-Class
+    
+    function ErrorTypes abstractRegOpPermitted(Bit#(AbstractAddrWidth) address,Bit#(1) halted);
+        // Filter For Valid CSR's and Valid GPR, FPR Access conditiions.
+        return NoError;
+    endfunction
+
+    typedef 32 XLEN;
+    typedef 32 PADDR;
+    typedef 1 HartCount; 
+	typedef 14 AbstractAddrWidth;
+    
 endpackage
