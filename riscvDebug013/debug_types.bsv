@@ -49,13 +49,6 @@ package debug_types;
     typedef 0 D_configstrptr2;
     typedef 0 D_configstrptr3;
 
-    // Permitted SB Access Widths
-    typedef 0 D_SBA128;
-    typedef 1 D_SBA64;
-    typedef 1 D_SBA32;
-    typedef 1 D_SBA16;
-    typedef 1 D_SBA8;
-
 // Target Specific config Defaults for shakti E-Class
     
     function ErrorTypes abstractRegOpPermitted(Bit#(AbstractAddrWidth) address,Bit#(1) halted);
