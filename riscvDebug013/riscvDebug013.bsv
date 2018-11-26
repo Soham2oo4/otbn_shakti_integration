@@ -4,7 +4,9 @@ package riscvDebug013;
 
     import Vector ::*;
     import GetPut :: *;
-    import StmtFSM::*;
+    import Assert :: *;
+    import BUtils::*;
+    import Semi_FIFOF::*;
 
     import AXI4_Types::*;
     import ConcatReg::*;
@@ -27,7 +29,7 @@ package riscvDebug013;
         method Bit#(1) resumeRequest();
         method Bit#(1) hart_reset();        // Signal TO Reset HART Active HIGH 
 		method Action  setHalted(Bit#(1) halted);
-        method Action  setAvailable(Bit#(1) available); 
+        method Action  setAvailable(Bit#(1) available);
     endinterface
 
 	// Interface between Debug Module and SOC
@@ -45,9 +47,9 @@ package riscvDebug013;
         Reg#(Bit#(1)) availableHart <- mkReg(0);
 
     // Interface Registers
-        Reg#(Maybe#(Bit#(32))) dmi_response <- mkReg(tagged Invalid );
+        Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid );
         Reg#(Maybe#(Bit#(XLEN))) abstRespReg <- mkReg(tagged Invalid );
-
+        Reg#(Bit#(1)) startSBAccess <- mkReg(1);
     // Arch Registers 
     // dmstatus DM h'11
         Reg#(Bit#(9)) dmstatusPad0  = readOnlyReg(0);                   // dmstatus b31-23  
@@ -157,7 +159,7 @@ package riscvDebug013;
         Reg#(Bit#(3)) cmderr        <- mkReg(0);                        // abstractcs b10-8 // RW   
         // Error in executing abstract command , Writing "001"? clears the error 
         Reg#(Bit#(4)) abstractcsPad3 = readOnlyReg(0);                  // abstractcs b7-4   
-        Reg#(Bit#(4)) dataCount     = readOnlyReg(12);                  // abstractsc b3-0  // R    
+        Reg#(Bit#(4)) dataCount     = readOnlyReg(12);                  // abstractcs b3-0  // R    
         // Number of Data Register provided for Abstract Command Access.
 
         Reg#(Bit#(32)) abstractcs = concatReg8( abstractcsPad0,progBufSize,abstractcsPad1,
@@ -209,8 +211,8 @@ package riscvDebug013;
 
     // progbuf0-15  DM 'h20-'h2f
         Vector#(16, Reg#(Bit#(32))) progbuf;                            // progbufX         // RW   
-        // access while busy causes an error
-        progbuf <- replicateM(mkReg(0));
+        // access while busy causes an error , No Program buffer support so read only zero
+        progbuf <- replicateM(mkReg(0)); 
 
     // authdata DM 'h30
         Reg#(Bit#(32)) auth_data <- mkReg(0);                           // {impl specific}  // RW   
@@ -219,7 +221,7 @@ package riscvDebug013;
     // haltsum0 DM 'h40 , 'h13 , 'h34 , 'h35
         // Concat of All Hart Halted Lines , 
         // If un available or non existant Halted bit is represented as 0 for that hart .
-        Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),haltedHart); //haltsum0 // R 
+        Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),haltedHart); //haltSum0 // R 
         Reg#(Bit#(32)) haltSum1 = readOnlyReg(0);
         Reg#(Bit#(32)) haltSum2 = readOnlyReg(0);
         Reg#(Bit#(32)) haltSum3 = readOnlyReg(0);        
@@ -261,13 +263,13 @@ package riscvDebug013;
             readOnlyReg(sbAccess16),readOnlyReg(sbAccess8));
 
     // sbaddress0 DM 'h39 , 'h3a , 'h3b , 'h37
-        Reg#(Bit#(32)) sbAddress0 <- mkReg(0);                          // sbadress0 b31-0  // RW   
+        Reg#(Bit#(32)) sbAddress0 <- mkReg(0);                          // sbAddress0 b31-0  // RW   
         // Lowest 32 bits of address , Triggers Read if read on address is set 
-        Reg#(Bit#(32)) sbAddress1 <- mkReg(0);                          // sbadress1 b31-0  // RW   
+        Reg#(Bit#(32)) sbAddress1 <- mkReg(0);                          // sbAddress1 b31-0  // RW   
         // bits 63:32 of address
-        Reg#(Bit#(32)) sbAddress2 <- mkReg(0);                          // sbadress2 b31-0  // RW   
+        Reg#(Bit#(32)) sbAddress2 <- mkReg(0);                          // sbAddress2 b31-0  // RW   
         // bits 95:64 of address
-        Reg#(Bit#(32)) sbAddress3 <- mkReg(0);                          // sbadress3 b31-0  // RW   
+        Reg#(Bit#(32)) sbAddress3 <- mkReg(0);                          // sbAddress3 b31-0  // RW   
         // bits 127:96 of address
 
     // sbdata0  DM 'h3c , 'h3d , 'h3d , 'h3d
@@ -279,112 +281,194 @@ package riscvDebug013;
         // bits 95:64 of data
         Reg#(Bit#(32)) sbData3 <- mkReg(0);                             // sbdata1 b31-0    // RW   
         // bits 127:96 of data
-    
-    // System Bus Access FSM
-        Stmt sbaFSM = (
-            seq 
-            //Prelude
-                    //assert busy            
-            // Dispatch Transaction
-            // Transaction st2
-            // Transaction st3
-            // End Transaction
-                    // deassert busy
-            endseq);
-
+        
     // AXI Bus Master
-        AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;
+        AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;    
+    
+    // System Bus Access FSM  / TODO : Correct some improper XLEN parametrizations
+        rule accessSystemBus((sbError == 0) && (sbBusyError == 0) && (sbBusy == 0) && (startSBAccess == 1) );
+                Bit#(64) write_data=0;
+                Bit#(32) address = 0;
+                Bit#(4) size =0; // size in bytes
+                
+                // word addresses aligned
+                address[31:0]={sbAddress0[31:2],2'b00};
+                case (sbAccess)
+		        	0: size = 1 ;
+		        	1: size = 2 ;
+		        	2: size = 4 ;
+		        	3: size = 8 ; 
+                endcase
+                // Size is not a register , This is pretty much how it was last time 
+                case(size)
+                    8:  write_data = { sbData1 ,sbData0} ;
+                    4:  write_data = duplicate(sbData0);
+                    2:  write_data = duplicate(sbData0[15:0]);
+                    1:	write_data = duplicate(sbData0[7:0]);
+                endcase
+                // Strobe , [1:0] for XLEN32 , [2:0] for XLEN 64
+                Bit#(8) write_strobe=size==1?8'b1:size==2?8'b11:size==4?8'hf:8'hff;
+                // 8-bit write;
+                //valueOf(TSub#(TLog#(TDiv#(XLEN,8)),1))
+                //valueOf(TLog#(TDiv(XLEN,8))) The number of bits of size that should be used 
+
+                if(size!=8) write_strobe=write_strobe<<(address[1:0]);
+                
+                `ifdef verbose $display("Debug : Memory Access : write_data : %h Address : %h Write_Strobe : %b", write_data ,address,write_strobe); `endif
+                if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
+                    let read_request = AXI4_Rd_Addr {araddr: truncate(address),
+                                                     aruser: 0, arlen: 0,
+                                                     arsize: size[2:0],
+                                                     arburst: 'b01, arid:fromInteger(valueOf(AxiID))};
+	  	    	    master_xactor.i_rd_addr.enq(read_request);
+                end
+                else begin
+                    let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(XLEN,1)):0],
+                                                     wstrb: write_strobe[valueOf(TSub#(TDiv#(XLEN,8),1)):0],
+                                                     wlast:True, wid:fromInteger(valueOf(AxiID))};
+                    let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0, 
+                                                        awlen: 0, awsize: size[2:0],
+                                                        awburst: 'b01,
+                                                        awid:fromInteger(valueOf(AxiID))}; // arburst: 00-FIXED 01-INCR 10-WRAP
+    		    	master_xactor.i_wr_addr.enq(request_address) ;
+                    master_xactor.i_wr_data.enq(request_data) ;
+                end
+                
+
+                if(sbAutoIncrement == 1) sbAddress0 <= truncate(sbAddress0+ zeroExtend(size));
+                busy<=1; // Assert Busy
+                // Filter Errors
+                    // Filter Mis Aligned Access 
+        endrule
+        
+    // Capture and Handle Response
+        rule responseSystemBus ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
+                if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
+                    let response<-pop_o(master_xactor.o_rd_data);
+                    if (response.rresp==AXI4_OKAY && (response.rid==fromInteger(valueOf(AxiID)))) 
+                    begin
+                        Bit #(64) resp=zeroExtend (response.rdata);
+                        sbData0<=resp[31:0] ;
+                        sbData1<=resp[63:32] ;
+                    end 
+                end
+                else begin
+                    let response <- pop_o(master_xactor.o_wr_resp) ;
+                    if(response.bresp == AXI4_OKAY && (response.bid==fromInteger(valueOf(AxiID))))
+                    begin
+                        `ifdef verbose $display("Write Done Successfully");	 `endif
+                    end    
+                end
+                busy <=0; // De Assert Busy
+        endrule
+    // AXI Interface to SOC
         interface debug_master = master_xactor.axi_side;
                 
     // DMI - DTM Interface
         interface dtm = interface Ifc_DM_DTM
             interface putCommand = interface Put 
-                method Action put(Bit#(41) request_data);
+                method Action put(Bit#(41) request_data) if (!isValid(dmi_response ));
                     // The DMI Requests are Recieved here 
                     Bit#(2)  dmi_op   = request_data[1:0];
                     Bit#(32) dmi_data = request_data[33:2];           
                     Bit#(7) dmi_addr = request_data[40:34];
+                    // Catch Busy Access Violations 
+                    Bit#(32) dmi_response_data = 0;
+                    Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
                     // Read Operation
-                    //if( dmi_op == 2'b01 )begin  
-                    //    case(dmi_addr)
-                    //        DMCONTROL:
-                    //        DMSTATUS:
-                    //        HARTINFO:
-                    //        HALTSUM1:
-                    //        HAWINDOWSEL:
-                    //        HAWINDOW:
-                    //        ABSTRACTCTS:
-                    //        COMMAND:
-                    //        ABSTRACTAUTO:
-                    //        CONFIGSTRINGADDR0:
-                    //        CONFIGSTRINGADDR1:
-                    //        CONFIGSTRINGADDR2:
-                    //        CONFIGSTRINGADDR3:
-                    //        NEXTDM:
-                    //        AUTHENDATA:
-                    //        HALTSUM2:
-                    //        HALTSUM3:
-                    //        SBADDRESS3:
-                    //        SBCS:
-                    //        SBADDRESS0:
-                    //        SBADDRESS1:
-                    //        SBADDRESS2:
-                    //        SBDATA0:
-                    //        SBDATA1:
-                    //        SBDATA2:
-                    //        SBDATA3:
-                    //        HALTSUM0:
-                    //        default:begin
-                    //            if((dmi_addr >= ABSTRACTDATASTART) && (dmi_addr<= ABSTRACTDATAEND));
-                    //            else if((dmi_addr >= PBSTART) && (dmi_addr<= PBEND));
-                    //        end
-                    //    endcase
-                    //end
-                    //// Write Operation
-                    //else if ( dmi_op == 2'b10 )begin  
-                    //    case(dmi_addr)
-                    //        DMCONTROL:
-                    //        DMSTATUS:
-                    //        HARTINFO:
-                    //        HALTSUM1:
-                    //        HAWINDOWSEL:
-                    //        HAWINDOW:
-                    //        ABSTRACTCTS:
-                    //        COMMAND:
-                    //        ABSTRACTAUTO:
-                    //        CONFIGSTRINGADDR0:
-                    //        CONFIGSTRINGADDR1:
-                    //        CONFIGSTRINGADDR2:
-                    //        CONFIGSTRINGADDR3:
-                    //        NEXTDM:
-                    //        AUTHENDATA:
-                    //        HALTSUM2:
-                    //        HALTSUM3:
-                    //        SBADDRESS3:
-                    //        SBCS:
-                    //        SBADDRESS0:
-                    //        SBADDRESS1:
-                    //        SBADDRESS2:
-                    //        SBDATA0:
-                    //        SBDATA1:
-                    //        SBDATA2:
-                    //        SBDATA3:
-                    //        HALTSUM0:
-                    //        default:begin
-                    //            if((dmi_addr >= ABSTRACTDATASTART) && (dmi_addr<= ABSTRACTDATAEND));
-                    //            else if((dmi_addr >= PBSTART) && (dmi_addr<= PBEND));
-                    //        end
-                    //    endcase
-                    //end
+                    if( dmi_op == 2'b01 ) begin  
+                        case(dmi_addr)
+                            fromInteger(valueOf(DMCONTROL)):          dmi_response_data = dmcontrol;   
+                            fromInteger(valueOf(DMSTATUS)):           dmi_response_data = dmstatus;
+                            fromInteger(valueOf(HARTINFO)):           dmi_response_data = hartinfo;    
+                            fromInteger(valueOf(HALTSUM1)):           dmi_response_data = haltSum1;
+                            fromInteger(valueOf(HAWINDOWSEL)):        dmi_response_data = hawindowsel;
+                            fromInteger(valueOf(HAWINDOW)):           dmi_response_data = hawindow;
+                            fromInteger(valueOf(ABSTRACTCTS)):        dmi_response_data = abstractcs;
+                            fromInteger(valueOf(COMMAND)):            dmi_response_data = abst_command;
+                            fromInteger(valueOf(ABSTRACTAUTO)):       dmi_response_data = abstractauto;
+                            fromInteger(valueOf(CONFIGSTRINGADDR0)):  dmi_response_data = configstrptr0;
+                            fromInteger(valueOf(CONFIGSTRINGADDR1)):  dmi_response_data = configstrptr1;
+                            fromInteger(valueOf(CONFIGSTRINGADDR2)):  dmi_response_data = configstrptr2;
+                            fromInteger(valueOf(CONFIGSTRINGADDR3)):  dmi_response_data = configstrptr3;
+                            fromInteger(valueOf(NEXTDM)):             dmi_response_data = nextdm;
+                            fromInteger(valueOf(AUTHDATA)):           dmi_response_data = auth_data;
+                            fromInteger(valueOf(HALTSUM2)):           dmi_response_data = haltSum2;
+                            fromInteger(valueOf(HALTSUM3)):           dmi_response_data = haltSum3;
+                            fromInteger(valueOf(SBADDRESS3)):         dmi_response_data = sbAddress3;
+                            fromInteger(valueOf(SBCS)):               dmi_response_data = sbcs;
+                            fromInteger(valueOf(SBADDRESS0)):         dmi_response_data = sbAddress0;
+                            fromInteger(valueOf(SBADDRESS1)):         dmi_response_data = sbAddress1;
+                            fromInteger(valueOf(SBADDRESS2)):         dmi_response_data = sbAddress2;
+                            fromInteger(valueOf(SBDATA0)):            dmi_response_data = sbData0;
+                            fromInteger(valueOf(SBDATA1)):            dmi_response_data = sbData1;
+                            fromInteger(valueOf(SBDATA2)):            dmi_response_data = sbData2;
+                            fromInteger(valueOf(SBDATA3)):            dmi_response_data = sbData3;
+                            fromInteger(valueOf(HALTSUM0)):           dmi_response_data = haltSum0;
+                            default:begin
+                                if((dmi_addr >= fromInteger(valueOf(ABSTRACTDATASTART))) && (dmi_addr<= fromInteger(valueOf(ABSTRACTDATAEND))))begin
+                                    dmi_response_data = abst_data[dmi_addr - fromInteger(valueOf(ABSTRACTDATASTART))];
+                                end
+                                else if((dmi_addr >= fromInteger(valueOf(PBSTART))) && (dmi_addr<= fromInteger(valueOf(PBEND))))begin
+                                    dmi_response_data = progbuf[dmi_addr - fromInteger(valueOf(PBSTART))]; // Not implemented so should read back zero
+                                end
+                                else dmi_response_status = 2; // dmi operation failed 
+                            end
+                        endcase
+                    end
+                    // Write Operation
+                    else if ( dmi_op == 2'b10 )begin  
+                        case(dmi_addr)
+                            fromInteger(valueOf(DMCONTROL)):          dmcontrol <= dmi_data;
+                            fromInteger(valueOf(DMSTATUS)):           dmstatus <= dmi_data;
+                            fromInteger(valueOf(HARTINFO)):           hartinfo <= dmi_data;
+                            fromInteger(valueOf(HALTSUM1)):           haltSum1 <= dmi_data;
+                            fromInteger(valueOf(HAWINDOWSEL)):        hawindowsel <= dmi_data;
+                            fromInteger(valueOf(HAWINDOW)):           hawindow <= dmi_data;
+                            fromInteger(valueOf(ABSTRACTCTS)):        abstractcs <= dmi_data;
+                            fromInteger(valueOf(COMMAND)):            abst_command <= dmi_data;
+                            fromInteger(valueOf(ABSTRACTAUTO)):       abstractauto <= dmi_data;
+                            fromInteger(valueOf(CONFIGSTRINGADDR0)):  configstrptr0 <= dmi_data;
+                            fromInteger(valueOf(CONFIGSTRINGADDR1)):  configstrptr1 <= dmi_data;
+                            fromInteger(valueOf(CONFIGSTRINGADDR2)):  configstrptr2 <= dmi_data;
+                            fromInteger(valueOf(CONFIGSTRINGADDR3)):  configstrptr3 <= dmi_data;
+                            fromInteger(valueOf(NEXTDM)):             nextdm <= dmi_data;
+                            fromInteger(valueOf(AUTHDATA)):           auth_data <= dmi_data;
+                            fromInteger(valueOf(HALTSUM2)):           haltSum2 <= dmi_data;
+                            fromInteger(valueOf(HALTSUM3)):           haltSum3 <= dmi_data;
+                            fromInteger(valueOf(SBADDRESS3)):         sbAddress3 <= dmi_data;
+                            fromInteger(valueOf(SBCS)):               sbcs <= dmi_data;
+                            fromInteger(valueOf(SBADDRESS0)):         sbAddress0 <= dmi_data;
+                            fromInteger(valueOf(SBADDRESS1)):         sbAddress1 <= dmi_data;
+                            fromInteger(valueOf(SBADDRESS2)):         sbAddress2 <= dmi_data;
+                            fromInteger(valueOf(SBDATA0)):            sbData0 <= dmi_data;
+                            fromInteger(valueOf(SBDATA1)):            sbData1 <= dmi_data;
+                            fromInteger(valueOf(SBDATA2)):            sbData2 <= dmi_data;
+                            fromInteger(valueOf(SBDATA3)):            sbData3 <= dmi_data;
+                            fromInteger(valueOf(HALTSUM0)):           haltSum0 <= dmi_data;
+                            default:begin
+                                if((dmi_addr >= fromInteger(valueOf(ABSTRACTDATASTART))) && (dmi_addr<= fromInteger(valueOf(ABSTRACTDATAEND))))begin
+                                    abst_data[dmi_addr - fromInteger(valueOf(ABSTRACTDATASTART))] <= dmi_data;
+                                end
+                                else if((dmi_addr >= fromInteger(valueOf(PBSTART))) && (dmi_addr<= fromInteger(valueOf(PBEND))))begin
+                                    progbuf[dmi_addr - fromInteger(valueOf(PBSTART))] <= dmi_data;
+                                end
+                                else dmi_response_status = 2; // dmi operation failed
+                            end
+                        endcase
+                    end
+
+                    
+                    Bit#(34) concat_response = {dmi_response_data,dmi_response_status}; // Why do i get an error when do this in one line ??
+                    dmi_response <= tagged Valid concat_response;
+                    
                 endmethod
             endinterface;
             
             interface getResponse = interface Get
-                method ActionValue#(Bit#(34)) get();
-                    // DMI Response
-                    // Method can only be called when Response is valid
-
-                    return 0;
+                method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
+                    dmi_response <= tagged Invalid; 
+                    return validValue(dmi_response);
                 endmethod
             endinterface;
         endinterface;
@@ -399,7 +483,7 @@ package riscvDebug013;
             endmethod
             // Recieves response from Abstract Command if any.
             method Action  abstractReadResponse(Bit#(XLEN) responseData);
-                abstRespReg <= tagged Valid responseData;
+                abstRespReg <= tagged Valid responseData; // remove the valid stuff and store the redule right into the data regs.
             endmethod
 
             method Bit#(1) haltRequest();

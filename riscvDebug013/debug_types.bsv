@@ -29,7 +29,7 @@ package debug_types;
     typedef 7'h1d NEXTDM;
     typedef 7'h20 PBSTART;
     typedef 7'h2f PBEND;
-    typedef 7'h30 AUTHENDATA;
+    typedef 7'h30 AUTHDATA;
     typedef 7'h34 HALTSUM2;
     typedef 7'h35 HALTSUM3;
     typedef 7'h36 SBADDRESS3;
@@ -60,5 +60,5 @@ package debug_types;
     typedef 32 PADDR;
     typedef 1 HartCount; 
 	typedef 14 AbstractAddrWidth;
-    
+    typedef 1 AxiID;
 endpackage
