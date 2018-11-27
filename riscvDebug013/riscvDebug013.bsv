@@ -13,6 +13,8 @@ package riscvDebug013;
     //import device_common::*;
     import debug_types::*;
     
+    typedef 1 VERBOSE;
+
 	//Interface between Debug Module and DTM (eg. JtagDTM)
 	interface Ifc_DM_DTM;
         interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
@@ -49,7 +51,7 @@ package riscvDebug013;
     // Interface Registers
         Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid );
         Reg#(Maybe#(Bit#(XLEN))) abstRespReg <- mkReg(tagged Invalid );
-        Reg#(Bit#(1)) startSBAccess <- mkReg(1);
+        Reg#(Bit#(1)) startSBAccess <- mkReg(0);
     // Arch Registers 
     // dmstatus DM h'11
         Reg#(Bit#(9)) dmstatusPad0  = readOnlyReg(0);                   // dmstatus b31-23  
@@ -287,79 +289,85 @@ package riscvDebug013;
     
     // System Bus Access FSM  / TODO : Correct some improper XLEN parametrizations
         rule accessSystemBus((sbError == 0) && (sbBusyError == 0) && (sbBusy == 0) && (startSBAccess == 1) );
-                Bit#(64) write_data=0;
-                Bit#(32) address = 0;
-                Bit#(4) size =0; // size in bytes
-                
-                // word addresses aligned
-                address[31:0]={sbAddress0[31:2],2'b00};
-                case (sbAccess)
-		        	0: size = 1 ;
-		        	1: size = 2 ;
-		        	2: size = 4 ;
-		        	3: size = 8 ; 
-                endcase
-                // Size is not a register , This is pretty much how it was last time 
-                case(size)
-                    8:  write_data = { sbData1 ,sbData0} ;
-                    4:  write_data = duplicate(sbData0);
-                    2:  write_data = duplicate(sbData0[15:0]);
-                    1:	write_data = duplicate(sbData0[7:0]);
-                endcase
-                // Strobe , [1:0] for XLEN32 , [2:0] for XLEN 64
-                Bit#(8) write_strobe=size==1?8'b1:size==2?8'b11:size==4?8'hf:8'hff;
-                // 8-bit write;
-                //valueOf(TSub#(TLog#(TDiv#(XLEN,8)),1))
-                //valueOf(TLog#(TDiv(XLEN,8))) The number of bits of size that should be used 
-
-                if(size!=8) write_strobe=write_strobe<<(address[1:0]);
-                
-                `ifdef verbose $display("Debug : Memory Access : write_data : %h Address : %h Write_Strobe : %b", write_data ,address,write_strobe); `endif
-                if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
-                    let read_request = AXI4_Rd_Addr {araddr: truncate(address),
-                                                     aruser: 0, arlen: 0,
-                                                     arsize: size[2:0],
-                                                     arburst: 'b01, arid:fromInteger(valueOf(AxiID))};
-	  	    	    master_xactor.i_rd_addr.enq(read_request);
-                end
-                else begin
-                    let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(XLEN,1)):0],
-                                                     wstrb: write_strobe[valueOf(TSub#(TDiv#(XLEN,8),1)):0],
-                                                     wlast:True, wid:fromInteger(valueOf(AxiID))};
-                    let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0, 
-                                                        awlen: 0, awsize: size[2:0],
-                                                        awburst: 'b01,
-                                                        awid:fromInteger(valueOf(AxiID))}; // arburst: 00-FIXED 01-INCR 10-WRAP
-    		    	master_xactor.i_wr_addr.enq(request_address) ;
-                    master_xactor.i_wr_data.enq(request_data) ;
-                end
-                
-
-                if(sbAutoIncrement == 1) sbAddress0 <= truncate(sbAddress0+ zeroExtend(size));
-                busy<=1; // Assert Busy
-                // Filter Errors
-                    // Filter Mis Aligned Access 
+            Bit#(64) write_data=0;
+            Bit#(32) address = 0;
+            Bit#(4) size =0; // size in bytes
+            
+            // word addresses aligned
+            address[31:0]={sbAddress0[31:2],2'b00};
+            case (sbAccess)
+		    	0: size = 1 ;
+		    	1: size = 2 ;
+		    	2: size = 4 ;
+		    	3: size = 8 ; 
+            endcase
+            // Size is not a register , This is pretty much how it was last time 
+            case(size)
+                8:  write_data = { sbData1 ,sbData0} ;
+                4:  write_data = duplicate(sbData0);
+                2:  write_data = duplicate(sbData0[15:0]);
+                1:	write_data = duplicate(sbData0[7:0]);
+            endcase
+            // Strobe , [1:0] for XLEN32 , [2:0] for XLEN 64
+            Bit#(8) write_strobe=size==1?8'b1:size==2?8'b11:size==4?8'hf:8'hff;
+            // 8-bit write;
+            //valueOf(TSub#(TLog#(TDiv#(XLEN,8)),1))
+            //valueOf(TLog#(TDiv(XLEN,8))) The number of bits of size that should be used 
+            if(size!=8) write_strobe=write_strobe<<(address[1:0]);
+            
+            if(valueOf(VERBOSE)==1) $display($time, "\tDebug : Memory Access : write_data : %h Address : %h Write_Strobe : %b",
+                                                 write_data ,address,write_strobe);
+            
+            if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
+                let read_request = AXI4_Rd_Addr {araddr: truncate(address),
+                                                 aruser: 0, arlen: 0,
+                                                 arsize: size[2:0],
+                                                 arburst: 'b01, arid:fromInteger(valueOf(AxiID))};
+	  	        master_xactor.i_rd_addr.enq(read_request);
+            end
+            else begin
+                let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(XLEN,1)):0],
+                                                 wstrb: write_strobe[valueOf(TSub#(TDiv#(XLEN,8),1)):0],
+                                                 wlast:True, wid:fromInteger(valueOf(AxiID))};
+                let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0, 
+                                                    awlen: 0, awsize: size[2:0],
+                                                    awburst: 'b01,
+                                                    awid:fromInteger(valueOf(AxiID))}; // arburst: 00-FIXED 01-INCR 10-WRAP
+    			master_xactor.i_wr_addr.enq(request_address) ;
+                master_xactor.i_wr_data.enq(request_data) ;
+            end
+            
+            if(sbAutoIncrement == 1) sbAddress0 <= truncate(sbAddress0+ zeroExtend(size));
+            
+            busy<=1; // Assert Busy
+            startSBAccess <= 0; // Transaction has been issued , disable trigger
+            // Filter Errors
+                // Filter Mis Aligned Access 
         endrule
         
     // Capture and Handle Response
-        rule responseSystemBus ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
-                if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
-                    let response<-pop_o(master_xactor.o_rd_data);
-                    if (response.rresp==AXI4_OKAY && (response.rid==fromInteger(valueOf(AxiID)))) 
-                    begin
-                        Bit #(64) resp=zeroExtend (response.rdata);
-                        sbData0<=resp[31:0] ;
-                        sbData1<=resp[63:32] ;
-                    end 
+        (* conflict_free = "responseSystemBusRead,responseSystemBusWrite" *)
+        rule responseSystemBusRead ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
+            let response<-pop_o(master_xactor.o_rd_data);
+            if (response.rresp==AXI4_OKAY && (response.rid==fromInteger(valueOf(AxiID)))) 
+            begin
+                Bit #(64) resp=zeroExtend (response.rdata);
+                sbData0<=resp[31:0] ;
+                sbData1<=resp[63:32] ;
+            end 
+            else begin
+                // Set Error State if any 
+            end
+            busy <=0; // De Assert Busy
+        endrule
+
+        rule responseSystemBusWrite ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
+            let response <- pop_o(master_xactor.o_wr_resp) ;
+            if(response.bresp == AXI4_OKAY && (response.bid==fromInteger(valueOf(AxiID))))begin
+                if(valueOf(VERBOSE)==1) $display("Write Done Successfully");
+                // Set Error State if any 
                 end
-                else begin
-                    let response <- pop_o(master_xactor.o_wr_resp) ;
-                    if(response.bresp == AXI4_OKAY && (response.bid==fromInteger(valueOf(AxiID))))
-                    begin
-                        `ifdef verbose $display("Write Done Successfully");	 `endif
-                    end    
-                end
-                busy <=0; // De Assert Busy
+            busy <=0; // De Assert Busy
         endrule
     // AXI Interface to SOC
         interface debug_master = master_xactor.axi_side;
@@ -375,7 +383,9 @@ package riscvDebug013;
                     // Catch Busy Access Violations 
                     Bit#(32) dmi_response_data = 0;
                     Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
-                    // Read Operation
+
+                    if(valueOf(VERBOSE) == 1) $display($time ,"\tDebug DMI Access@ %h , op %h , Data %h",dmi_addr,dmi_op,dmi_data);
+                // Read Operation
                     if( dmi_op == 2'b01 ) begin  
                         case(dmi_addr)
                             fromInteger(valueOf(DMCONTROL)):          dmi_response_data = dmcontrol;   
@@ -416,7 +426,7 @@ package riscvDebug013;
                             end
                         endcase
                     end
-                    // Write Operation
+                // Write Operation
                     else if ( dmi_op == 2'b10 )begin  
                         case(dmi_addr)
                             fromInteger(valueOf(DMCONTROL)):          dmcontrol <= dmi_data;
@@ -438,10 +448,23 @@ package riscvDebug013;
                             fromInteger(valueOf(HALTSUM3)):           haltSum3 <= dmi_data;
                             fromInteger(valueOf(SBADDRESS3)):         sbAddress3 <= dmi_data;
                             fromInteger(valueOf(SBCS)):               sbcs <= dmi_data;
-                            fromInteger(valueOf(SBADDRESS0)):         sbAddress0 <= dmi_data;
-                            fromInteger(valueOf(SBADDRESS1)):         sbAddress1 <= dmi_data;
-                            fromInteger(valueOf(SBADDRESS2)):         sbAddress2 <= dmi_data;
-                            fromInteger(valueOf(SBDATA0)):            sbData0 <= dmi_data;
+                            fromInteger(valueOf(SBADDRESS0)):begin
+                                                                if(sbBusy == 1) sbBusyError <=1;
+                                                                else sbAddress0 <= dmi_data;
+                                                                if((sbBusy == 0 )&&(sbBusyError == 0 ) 
+                                                                    && (sbReadOnAddr == 1 )) startSBAccess <= 1;
+                                                            end
+                            fromInteger(valueOf(SBADDRESS1)):begin  if(sbBusy == 1) sbBusyError <=1;
+                                                                    else sbAddress1 <= dmi_data; end
+                            fromInteger(valueOf(SBADDRESS2)):begin  if(sbBusy == 1) sbBusyError <=1;
+                                                                    else sbAddress2 <= dmi_data; end
+                            fromInteger(valueOf(SBDATA0)):begin
+                                                            if((sbBusy == 0)&&(sbBusyError == 0 ))begin 
+                                                                sbData0 <= dmi_data;
+                                                                startSBAccess <= 1;
+                                                                end
+                                                            else if(sbBusy == 1) sbBusyError <=1;
+                                                        end
                             fromInteger(valueOf(SBDATA1)):            sbData1 <= dmi_data;
                             fromInteger(valueOf(SBDATA2)):            sbData2 <= dmi_data;
                             fromInteger(valueOf(SBDATA3)):            sbData3 <= dmi_data;
@@ -456,12 +479,9 @@ package riscvDebug013;
                                 else dmi_response_status = 2; // dmi operation failed
                             end
                         endcase
-                    end
+                    end                    
 
-                    
-                    Bit#(34) concat_response = {dmi_response_data,dmi_response_status}; // Why do i get an error when do this in one line ??
-                    dmi_response <= tagged Valid concat_response;
-                    
+                    dmi_response <= tagged Valid  ({dmi_response_data,dmi_response_status});
                 endmethod
             endinterface;
             
