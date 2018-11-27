@@ -48,8 +48,17 @@ static int shakti_uart_getchar()
 
 static int shakti_uart_putchar(int ch)
 {
-    while (uart[UART_REG_TXFIFO] < 0);
-    return uart[UART_REG_TXFIFO] = ch & 0xff;
+    register char a0 asm("a0") = ch;
+  asm volatile ("li t1, 0x11300" "\n\t"	//The base address of UART config registers
+        "uart_status_simple: lb a1, 12(t1)" "\n\t"
+        "andi a1,a1,0x2" "\n\t"
+        "beqz a1, uart_status_simple" "\n\t"
+				"sb a0, 4(t1)"  "\n\t"
+				:
+				:
+				:"a0","t1","cc","memory");
+  return 0;
+
 }
 
 console_device_t console_shakti_uart = {
