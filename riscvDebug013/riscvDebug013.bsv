@@ -15,6 +15,7 @@ package riscvDebug013;
     
     typedef 1 VERBOSE;
     `define FIVO(x) fromInteger(valueOf(x))
+    `define VO(x) valueOf(x)
 
 	//Interface between Debug Module and DTM (eg. JtagDTM)
 	interface Ifc_DM_DTM;
@@ -157,7 +158,7 @@ package riscvDebug013;
         Reg#(Bit#(5)) progBufSize   = readOnlyReg(0);                   // abstractcs b28-24// R    
         // ProgBuf Size for our impl is 0
         Reg#(Bit#(11))abstractcsPad1 = readOnlyReg(0);                  // abstractcs b23-13    
-        Reg#(Bit#(1)) busy          <- mkReg(0);                        // abstractcs b12   // R    
+        Reg#(Bit#(1)) abst_busy     <- mkReg(0);                        // abstractcs b12   // R    
         // An Abstract Command is being executed
         Reg#(Bit#(1)) abstractcsPad2 = readOnlyReg(0);                  // abstractcs b11      
         Reg#(Bit#(3)) cmderr        <- mkReg(0);                        // abstractcs b10-8 // RW   
@@ -285,7 +286,52 @@ package riscvDebug013;
         // bits 95:64 of data
         Reg#(Bit#(32)) sbData3 <- mkReg(0);                             // sbdata1 b31-0    // RW   
         // bits 127:96 of data
-        
+    
+    // Reset DM State on Asserting DM_Active 0
+        (* preempts = "dtm_putCommand_put,resetDM" *)
+        rule resetDM(dmActive == 0);
+        //dmcontrol
+            
+        //hawindowsel
+            hawindowsel <= 0;
+        //hawindow
+            hawindow    <= 0;
+        //abstractcs
+            abst_busy   <= 0;
+            cmderr      <= 0;
+        //abst_command
+            abst_command <= 0;
+        //abstractauto
+            abstractauto <= 0;
+        //sbcs
+            sbBusyError     <= 0;
+            sbBusy          <= 0;
+            sbReadOnAddr    <= 0;
+            sbAccess        <= 2;
+            sbAutoIncrement <= 0;
+            sbReadOnData    <= 0;
+            sbError         <= 0;
+        //sbAddress
+            sbAddress0 <= 0;
+            sbAddress1 <= 0;
+            sbAddress2 <= 0;
+            sbAddress3 <= 0;
+        //sbData
+            sbData0 <= 0;
+            sbData1 <= 0;
+            sbData2 <= 0;
+            sbData3 <= 0;
+
+        //abst_data
+            for(Integer i = 0; i < 12 ; i = i+1)
+                abst_data[i] <= 0;
+
+        endrule
+
+        // rule setDMStatus;
+            
+        // endrule
+
     // AXI Bus Master
         AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;    
     
@@ -346,7 +392,9 @@ package riscvDebug013;
         
     // Capture and Handle Response
         (* conflict_free = "responseSystemBusRead,responseSystemBusWrite" *)
-        rule responseSystemBusRead ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
+        (* preempts = "(responseSystemBusRead,responseSystemBusWrite), dtm_putCommand_put" *) // Review Plz
+
+        rule responseSystemBusRead ((sbError == 0) && (sbBusy == 1) && (startSBAccess == 0));
             let response<-pop_o(master_xactor.o_rd_data);
             if (response.rresp==AXI4_OKAY && (response.rid==`FIVO(AxiID))) 
             begin
@@ -360,10 +408,11 @@ package riscvDebug013;
             sbBusy <=0; // De Assert Busy
         endrule
 
-        rule responseSystemBusWrite ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
+        rule responseSystemBusWrite ((sbError == 0) && (sbBusy == 1) && (startSBAccess == 0));
             let response <- pop_o(master_xactor.o_wr_resp) ;
             if(response.bresp == AXI4_OKAY && (response.bid==`FIVO(AxiID)))begin
-                if(valueOf(VERBOSE)==1) $display("Write Done Successfully");
+                if(valueOf(VERBOSE)==1)
+                    $display($time, "WS\tDEBUG: Write Done Successfully");
                 // Set Error State if any 
                 end
             sbBusy <=0; // De Assert Busy

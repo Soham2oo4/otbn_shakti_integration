@@ -58,6 +58,8 @@ package riscvDebug013_testbench;
             x,y,2'b10,resp[33:2],resp[1:0]);                                \
         endaction
     
+    typedef 5000 TimeOut;
+
     // AXI Fabric Slave Address Decoder
     function Tuple2 #(Bool, Bit#(1)) fn_slave_map (Bit#(PADDR) addr);
         Bool slave_exist = True;
@@ -85,19 +87,31 @@ package riscvDebug013_testbench;
     // Test Sequences
         Reg#(Bit#(7)) dmi_address <-mkReg(0);
         Reg#(Bit#(32))dmi_resp_data <- mkReg(0);    // Use Response Data Value in tests
-
-        Stmt accessTest = seq
-            for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
-                `DMI_WRITE(dmi_address,32'h00000000)
-            endseq
-            for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
-                `DMI_READ(dmi_address)
-            endseq
-        endseq;
-        FSM access <- mkFSM(accessTest);
     
+    // // DMI access
+    //     Stmt accessTest = seq
+    //         for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
+    //             `DMI_WRITE(dmi_address,32'h00000000)
+    //         endseq
+    //         for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
+    //             `DMI_READ(dmi_address)
+    //         endseq
+    //     endseq;
+    //     FSM fsm_accessTest <- mkFSM(accessTest);
+    
+    // Reset with DM Active
+        Stmt resetDM = seq
+            $display($time,"RST\tReseting DM");
+            `DMI_READ(`FIVO(DMCONTROL))
+            `DMI_WRITE(`FIVO(DMCONTROL),({dmi_resp_data[31:1],1'b0}))
+            `DMI_READ(`FIVO(DMCONTROL))
+            `DMI_WRITE(`FIVO(DMCONTROL),({dmi_resp_data[31:1],1'b1}))
+            `DMI_READ(`FIVO(DMCONTROL))
+        endseq;
+        FSM fsm_resetDM <- mkFSM(resetDM);
+
     // System Bus Access Tests
-        // Busy bits get set on bus access , and get cleared
+        // Busy bits get set on Write,and get cleared on W1C
         Stmt test0 = seq
             `DMI_READ(`FIVO(SBCS))          
             `DMI_READ(`FIVO(SBDATA0))
@@ -106,19 +120,29 @@ package riscvDebug013_testbench;
             `DMI_READ(`FIVO(SBCS))          // sbBusy Should be asserted
             `DMI_WRITE(`FIVO(SBDATA0),32'hAAAAAAAA)
             `DMI_READ(`FIVO(SBCS))          // Sb Busy Error should be asserted
-            if(dmi_resp_data[22:21] != 2'b11) $display("Busy bitS not set !");
-            while(dmi_resp_data[21] == 1'b1 ) `DMI_READ(`FIVO(SBCS)) // poll on sbBusy
-            `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear Busy bits
+            if(dmi_resp_data[22:21] != 2'b11) 
+                $display("FAIL: Busy bitS not set !");
+            while(dmi_resp_data[21] == 1'b1 )seq 
+                `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+            endseq
+            `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear sbBusyError
             `DMI_READ(`FIVO(SBCS))          // Sb Busy Error should be de asserted
-            if(dmi_resp_data[22] == 1'b1) $display("Busy bit is set !");
+            if(dmi_resp_data[22] == 1'b1)
+                $display("FAIL: Busy bit is set !");
         endseq;
         FSM fsm_test0 <- mkFSM(test0);
 
         Stmt testBench = seq
-            // access.start;
-            // access.waitTillDone();
+            fsm_resetDM.start;
+            fsm_resetDM.waitTillDone;
+            // fsm_accessTest.start;
+            // fsm_accessTest.waitTillDone();
             fsm_test0.start;
-            fsm_test0.waitTillDone();
+            fsm_test0.waitTillDone;
+            fsm_resetDM.start;
+            fsm_resetDM.waitTillDone;
+            fsm_test0.start;
+            fsm_test0.waitTillDone;
             delay(100);
             $display($time,"\tEnd of Test");
             $finish();
