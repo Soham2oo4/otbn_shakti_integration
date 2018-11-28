@@ -44,6 +44,7 @@ package riscvDebug013;
     endinterface 
 
 
+    (*synthesize*)
     module mkRiscvDebugModule(RiscvDebugInterface013);
     // UArch Registers 
         Reg#(Bit#(1)) haltedHart <- mkReg(0);
@@ -260,7 +261,7 @@ package riscvDebug013;
         Reg#(Bit#(1)) sbAccess8  = readOnlyReg(pack(valueOf(XLEN)>0));  // sbcs b0          // R    
         // Supports 8   bit accesses
 
-        Reg#(Bit#(32)) sbcs = concatReg15(  sbVersion,sbcsPad0,sbBusyError,sbBusy,sbReadOnAddr,
+        Reg#(Bit#(32)) sbcs = concatReg15(  sbVersion,sbcsPad0,readOnlyReg(sbBusyError),sbBusy,sbReadOnAddr,
             sbAccess,sbAutoIncrement,sbReadOnData,sbError,readOnlyReg(sbASize),
             readOnlyReg(sbAccess128),readOnlyReg(sbAccess64),readOnlyReg(sbAccess32),
             readOnlyReg(sbAccess16),readOnlyReg(sbAccess8));
@@ -447,18 +448,30 @@ package riscvDebug013;
                             `FIVO(SBADDRESS3):         sbAddress3 <= dmi_data;
                             `FIVO(SBCS):        begin
                                                     sbcs <= dmi_data;
-                                                    if(dmi_data[22] == 1'b1) sbBusyError <= 0; // Write one to clear !
+                                                    if(dmi_data[22] == 1'b1) 
+                                                      sbBusyError <= 0; // Write one to clear !
                                                 end
                             `FIVO(SBADDRESS0):  begin
-                                                    if(sbBusy == 1) sbBusyError <=1;
-                                                    else sbAddress0 <= dmi_data;
-                                                    if((sbBusy == 0 )&&(sbBusyError == 0 ) 
-                                                        && (sbReadOnAddr == 1 )) startSBAccess <= 1;
+                                                    if(sbBusy == 1) 
+                                                      sbBusyError <=1;
+                                                    else 
+                                                      sbAddress0 <= dmi_data;
+                                                    if((sbBusy == 0 ) && (sbBusyError == 0 ) 
+                                                        && (sbReadOnAddr == 1 )) 
+                                                      startSBAccess <= 1;
                                                 end
-                            `FIVO(SBADDRESS1):  begin if(sbBusy == 1) sbBusyError <=1;
-                                                    else sbAddress1 <= dmi_data; end
-                            `FIVO(SBADDRESS2):  begin if(sbBusy == 1) sbBusyError <=1;
-                                                    else sbAddress2 <= dmi_data; end
+                            `FIVO(SBADDRESS1):  begin 
+                                                    if(sbBusy == 1) 
+                                                      sbBusyError <=1;
+                                                    else 
+                                                      sbAddress1 <= dmi_data; 
+                                                end
+                            `FIVO(SBADDRESS2):  begin 
+                                                    if(sbBusy == 1) 
+                                                      sbBusyError <=1;
+                                                    else 
+                                                      sbAddress2 <= dmi_data; 
+                                                end
                             `FIVO(SBDATA0):     begin
                                                     if((sbBusy == 0)&&(sbBusyError == 0 ))begin 
                                                         sbData0 <= dmi_data;
@@ -500,7 +513,7 @@ package riscvDebug013;
             method Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation; // if (condition to launch abstract command) !
                 let abstOp = abst_ar_write;
                 let abstData= { abst_data[1],abst_data[0] }; // Make 64 bit but filter down and use XLEN bits
-                return tuple3(abstOp,abst_ar_regNo[valueOf(AbstractAddrWidth):0],abstData[valueOf(XLEN):0]);
+                return tuple3(abstOp,truncate(abst_ar_regNo),truncate(abstData));
             endmethod
             // Recieves response from Abstract Command if any.
             method Action  abstractReadResponse(Bit#(XLEN) responseData);
