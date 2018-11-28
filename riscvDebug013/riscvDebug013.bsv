@@ -14,6 +14,7 @@ package riscvDebug013;
     import debug_types::*;
     
     typedef 1 VERBOSE;
+    `define FIVO(x) fromInteger(valueOf(x))
 
 	//Interface between Debug Module and DTM (eg. JtagDTM)
 	interface Ifc_DM_DTM;
@@ -246,7 +247,7 @@ package riscvDebug013;
         // if 1 , reads of sbData0 triggers a read at address.(address may change).
         Reg#(Bit#(3)) sbError   <- mkReg(0);                            // sbcs b14-12      // RW1c
          // cleared on writing 1 , if error , no more accesses can be done 
-        Reg#(Bit#(7)) sbASize   =  readOnlyReg(fromInteger(valueOf(XLEN))); // sbcs b11-5   // R    
+        Reg#(Bit#(7)) sbASize   =  readOnlyReg(`FIVO(XLEN)); // sbcs b11-5   // R    
         // With of Addresses
         Reg#(Bit#(1)) sbAccess128 = readOnlyReg(pack(valueOf(XLEN)>64));// sbcs b4          // R    
         // Supports 128 bit accesses
@@ -315,31 +316,28 @@ package riscvDebug013;
             //valueOf(TLog#(TDiv(XLEN,8))) The number of bits of size that should be used 
             if(size!=8) write_strobe=write_strobe<<(address[1:0]);
             
-            if(valueOf(VERBOSE)==1) $display($time, "\tDebug : Memory Access : write_data : %h Address : %h Write_Strobe : %b",
+            if(valueOf(VERBOSE)==1) $display($time, "X\tDebug : Memory Access : write_data : %h Address : %h Write_Strobe : %b",
                                                  write_data ,address,write_strobe);
             
             if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
                 let read_request = AXI4_Rd_Addr {araddr: truncate(address),
                                                  aruser: 0, arlen: 0,
-                                                 arsize: size[2:0],
-                                                 arburst: 'b01, arid:fromInteger(valueOf(AxiID))};
+                                                 arsize:size[2:0],arburst: 'b01,arid:`FIVO(AxiID)};
 	  	        master_xactor.i_rd_addr.enq(read_request);
             end
             else begin
                 let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(XLEN,1)):0],
-                                                 wstrb: write_strobe[valueOf(TSub#(TDiv#(XLEN,8),1)):0],
-                                                 wlast:True, wid:fromInteger(valueOf(AxiID))};
+                                                 wstrb: truncate(write_strobe),
+                                                 wlast:True, wid:`FIVO(AxiID)};
                 let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0, 
                                                     awlen: 0, awsize: size[2:0],
-                                                    awburst: 'b01,
-                                                    awid:fromInteger(valueOf(AxiID))}; // arburst: 00-FIXED 01-INCR 10-WRAP
+                                                    awburst: 'b01,awid:`FIVO(AxiID)}; // arburst: 00-FIXED 01-INCR 10-WRAP
     			master_xactor.i_wr_addr.enq(request_address) ;
                 master_xactor.i_wr_data.enq(request_data) ;
             end
             
             if(sbAutoIncrement == 1) sbAddress0 <= truncate(sbAddress0+ zeroExtend(size));
-            
-            busy<=1; // Assert Busy
+            sbBusy <= 1; // Assert Busy
             startSBAccess <= 0; // Transaction has been issued , disable trigger
             // Filter Errors
                 // Filter Mis Aligned Access 
@@ -349,7 +347,7 @@ package riscvDebug013;
         (* conflict_free = "responseSystemBusRead,responseSystemBusWrite" *)
         rule responseSystemBusRead ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
             let response<-pop_o(master_xactor.o_rd_data);
-            if (response.rresp==AXI4_OKAY && (response.rid==fromInteger(valueOf(AxiID)))) 
+            if (response.rresp==AXI4_OKAY && (response.rid==`FIVO(AxiID))) 
             begin
                 Bit #(64) resp=zeroExtend (response.rdata);
                 sbData0<=resp[31:0] ;
@@ -358,16 +356,16 @@ package riscvDebug013;
             else begin
                 // Set Error State if any 
             end
-            busy <=0; // De Assert Busy
+            sbBusy <=0; // De Assert Busy
         endrule
 
         rule responseSystemBusWrite ((sbError == 0) && (sbBusyError == 0) && (sbBusy == 1) && (startSBAccess == 0));
             let response <- pop_o(master_xactor.o_wr_resp) ;
-            if(response.bresp == AXI4_OKAY && (response.bid==fromInteger(valueOf(AxiID))))begin
+            if(response.bresp == AXI4_OKAY && (response.bid==`FIVO(AxiID)))begin
                 if(valueOf(VERBOSE)==1) $display("Write Done Successfully");
                 // Set Error State if any 
                 end
-            busy <=0; // De Assert Busy
+            sbBusy <=0; // De Assert Busy
         endrule
     // AXI Interface to SOC
         interface debug_master = master_xactor.axi_side;
@@ -388,39 +386,39 @@ package riscvDebug013;
                 // Read Operation
                     if( dmi_op == 2'b01 ) begin  
                         case(dmi_addr)
-                            fromInteger(valueOf(DMCONTROL)):          dmi_response_data = dmcontrol;   
-                            fromInteger(valueOf(DMSTATUS)):           dmi_response_data = dmstatus;
-                            fromInteger(valueOf(HARTINFO)):           dmi_response_data = hartinfo;    
-                            fromInteger(valueOf(HALTSUM1)):           dmi_response_data = haltSum1;
-                            fromInteger(valueOf(HAWINDOWSEL)):        dmi_response_data = hawindowsel;
-                            fromInteger(valueOf(HAWINDOW)):           dmi_response_data = hawindow;
-                            fromInteger(valueOf(ABSTRACTCTS)):        dmi_response_data = abstractcs;
-                            fromInteger(valueOf(COMMAND)):            dmi_response_data = abst_command;
-                            fromInteger(valueOf(ABSTRACTAUTO)):       dmi_response_data = abstractauto;
-                            fromInteger(valueOf(CONFIGSTRINGADDR0)):  dmi_response_data = configstrptr0;
-                            fromInteger(valueOf(CONFIGSTRINGADDR1)):  dmi_response_data = configstrptr1;
-                            fromInteger(valueOf(CONFIGSTRINGADDR2)):  dmi_response_data = configstrptr2;
-                            fromInteger(valueOf(CONFIGSTRINGADDR3)):  dmi_response_data = configstrptr3;
-                            fromInteger(valueOf(NEXTDM)):             dmi_response_data = nextdm;
-                            fromInteger(valueOf(AUTHDATA)):           dmi_response_data = auth_data;
-                            fromInteger(valueOf(HALTSUM2)):           dmi_response_data = haltSum2;
-                            fromInteger(valueOf(HALTSUM3)):           dmi_response_data = haltSum3;
-                            fromInteger(valueOf(SBADDRESS3)):         dmi_response_data = sbAddress3;
-                            fromInteger(valueOf(SBCS)):               dmi_response_data = sbcs;
-                            fromInteger(valueOf(SBADDRESS0)):         dmi_response_data = sbAddress0;
-                            fromInteger(valueOf(SBADDRESS1)):         dmi_response_data = sbAddress1;
-                            fromInteger(valueOf(SBADDRESS2)):         dmi_response_data = sbAddress2;
-                            fromInteger(valueOf(SBDATA0)):            dmi_response_data = sbData0;
-                            fromInteger(valueOf(SBDATA1)):            dmi_response_data = sbData1;
-                            fromInteger(valueOf(SBDATA2)):            dmi_response_data = sbData2;
-                            fromInteger(valueOf(SBDATA3)):            dmi_response_data = sbData3;
-                            fromInteger(valueOf(HALTSUM0)):           dmi_response_data = haltSum0;
+                            `FIVO(DMCONTROL):          dmi_response_data = dmcontrol;   
+                            `FIVO(DMSTATUS):           dmi_response_data = dmstatus;
+                            `FIVO(HARTINFO):           dmi_response_data = hartinfo;    
+                            `FIVO(HALTSUM1):           dmi_response_data = haltSum1;
+                            `FIVO(HAWINDOWSEL):        dmi_response_data = hawindowsel;
+                            `FIVO(HAWINDOW):           dmi_response_data = hawindow;
+                            `FIVO(ABSTRACTCTS):        dmi_response_data = abstractcs;
+                            `FIVO(COMMAND):            dmi_response_data = abst_command;
+                            `FIVO(ABSTRACTAUTO):       dmi_response_data = abstractauto;
+                            `FIVO(CONFIGSTRINGADDR0):  dmi_response_data = configstrptr0;
+                            `FIVO(CONFIGSTRINGADDR1):  dmi_response_data = configstrptr1;
+                            `FIVO(CONFIGSTRINGADDR2):  dmi_response_data = configstrptr2;
+                            `FIVO(CONFIGSTRINGADDR3):  dmi_response_data = configstrptr3;
+                            `FIVO(NEXTDM):             dmi_response_data = nextdm;
+                            `FIVO(AUTHDATA):           dmi_response_data = auth_data;
+                            `FIVO(HALTSUM2):           dmi_response_data = haltSum2;
+                            `FIVO(HALTSUM3):           dmi_response_data = haltSum3;
+                            `FIVO(SBADDRESS3):         dmi_response_data = sbAddress3;
+                            `FIVO(SBCS):               dmi_response_data = sbcs;
+                            `FIVO(SBADDRESS0):         dmi_response_data = sbAddress0;
+                            `FIVO(SBADDRESS1):         dmi_response_data = sbAddress1;
+                            `FIVO(SBADDRESS2):         dmi_response_data = sbAddress2;
+                            `FIVO(SBDATA0):            dmi_response_data = sbData0;
+                            `FIVO(SBDATA1):            dmi_response_data = sbData1;
+                            `FIVO(SBDATA2):            dmi_response_data = sbData2;
+                            `FIVO(SBDATA3):            dmi_response_data = sbData3;
+                            `FIVO(HALTSUM0):           dmi_response_data = haltSum0;
                             default:begin
-                                if((dmi_addr >= fromInteger(valueOf(ABSTRACTDATASTART))) && (dmi_addr<= fromInteger(valueOf(ABSTRACTDATAEND))))begin
-                                    dmi_response_data = abst_data[dmi_addr - fromInteger(valueOf(ABSTRACTDATASTART))];
+                                if((dmi_addr >= `FIVO(ABSTRACTDATASTART)) && (dmi_addr<= `FIVO(ABSTRACTDATAEND)))begin
+                                    dmi_response_data = abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)];
                                 end
-                                else if((dmi_addr >= fromInteger(valueOf(PBSTART))) && (dmi_addr<= fromInteger(valueOf(PBEND))))begin
-                                    dmi_response_data = progbuf[dmi_addr - fromInteger(valueOf(PBSTART))]; // Not implemented so should read back zero
+                                else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
+                                    dmi_response_data = progbuf[dmi_addr - `FIVO(PBSTART)]; // Not implemented so should read back zero
                                 end
                                 else dmi_response_status = 2; // dmi operation failed 
                             end
@@ -429,52 +427,55 @@ package riscvDebug013;
                 // Write Operation
                     else if ( dmi_op == 2'b10 )begin  
                         case(dmi_addr)
-                            fromInteger(valueOf(DMCONTROL)):          dmcontrol <= dmi_data;
-                            fromInteger(valueOf(DMSTATUS)):           dmstatus <= dmi_data;
-                            fromInteger(valueOf(HARTINFO)):           hartinfo <= dmi_data;
-                            fromInteger(valueOf(HALTSUM1)):           haltSum1 <= dmi_data;
-                            fromInteger(valueOf(HAWINDOWSEL)):        hawindowsel <= dmi_data;
-                            fromInteger(valueOf(HAWINDOW)):           hawindow <= dmi_data;
-                            fromInteger(valueOf(ABSTRACTCTS)):        abstractcs <= dmi_data;
-                            fromInteger(valueOf(COMMAND)):            abst_command <= dmi_data;
-                            fromInteger(valueOf(ABSTRACTAUTO)):       abstractauto <= dmi_data;
-                            fromInteger(valueOf(CONFIGSTRINGADDR0)):  configstrptr0 <= dmi_data;
-                            fromInteger(valueOf(CONFIGSTRINGADDR1)):  configstrptr1 <= dmi_data;
-                            fromInteger(valueOf(CONFIGSTRINGADDR2)):  configstrptr2 <= dmi_data;
-                            fromInteger(valueOf(CONFIGSTRINGADDR3)):  configstrptr3 <= dmi_data;
-                            fromInteger(valueOf(NEXTDM)):             nextdm <= dmi_data;
-                            fromInteger(valueOf(AUTHDATA)):           auth_data <= dmi_data;
-                            fromInteger(valueOf(HALTSUM2)):           haltSum2 <= dmi_data;
-                            fromInteger(valueOf(HALTSUM3)):           haltSum3 <= dmi_data;
-                            fromInteger(valueOf(SBADDRESS3)):         sbAddress3 <= dmi_data;
-                            fromInteger(valueOf(SBCS)):               sbcs <= dmi_data;
-                            fromInteger(valueOf(SBADDRESS0)):begin
-                                                                if(sbBusy == 1) sbBusyError <=1;
-                                                                else sbAddress0 <= dmi_data;
-                                                                if((sbBusy == 0 )&&(sbBusyError == 0 ) 
-                                                                    && (sbReadOnAddr == 1 )) startSBAccess <= 1;
-                                                            end
-                            fromInteger(valueOf(SBADDRESS1)):begin  if(sbBusy == 1) sbBusyError <=1;
-                                                                    else sbAddress1 <= dmi_data; end
-                            fromInteger(valueOf(SBADDRESS2)):begin  if(sbBusy == 1) sbBusyError <=1;
-                                                                    else sbAddress2 <= dmi_data; end
-                            fromInteger(valueOf(SBDATA0)):begin
-                                                            if((sbBusy == 0)&&(sbBusyError == 0 ))begin 
-                                                                sbData0 <= dmi_data;
-                                                                startSBAccess <= 1;
-                                                                end
-                                                            else if(sbBusy == 1) sbBusyError <=1;
+                            `FIVO(DMCONTROL):          dmcontrol <= dmi_data;
+                            `FIVO(DMSTATUS):           dmstatus <= dmi_data;
+                            `FIVO(HARTINFO):           hartinfo <= dmi_data;
+                            `FIVO(HALTSUM1):           haltSum1 <= dmi_data;
+                            `FIVO(HAWINDOWSEL):        hawindowsel <= dmi_data;
+                            `FIVO(HAWINDOW):           hawindow <= dmi_data;
+                            `FIVO(ABSTRACTCTS):        abstractcs <= dmi_data;
+                            `FIVO(COMMAND):            abst_command <= dmi_data;
+                            `FIVO(ABSTRACTAUTO):       abstractauto <= dmi_data;
+                            `FIVO(CONFIGSTRINGADDR0):  configstrptr0 <= dmi_data;
+                            `FIVO(CONFIGSTRINGADDR1):  configstrptr1 <= dmi_data;
+                            `FIVO(CONFIGSTRINGADDR2):  configstrptr2 <= dmi_data;
+                            `FIVO(CONFIGSTRINGADDR3):  configstrptr3 <= dmi_data;
+                            `FIVO(NEXTDM):             nextdm <= dmi_data;
+                            `FIVO(AUTHDATA):           auth_data <= dmi_data;
+                            `FIVO(HALTSUM2):           haltSum2 <= dmi_data;
+                            `FIVO(HALTSUM3):           haltSum3 <= dmi_data;
+                            `FIVO(SBADDRESS3):         sbAddress3 <= dmi_data;
+                            `FIVO(SBCS):        begin
+                                                    sbcs <= dmi_data;
+                                                    if(dmi_data[22] == 1'b1) sbBusyError <= 0; // Write one to clear !
+                                                end
+                            `FIVO(SBADDRESS0):  begin
+                                                    if(sbBusy == 1) sbBusyError <=1;
+                                                    else sbAddress0 <= dmi_data;
+                                                    if((sbBusy == 0 )&&(sbBusyError == 0 ) 
+                                                        && (sbReadOnAddr == 1 )) startSBAccess <= 1;
+                                                end
+                            `FIVO(SBADDRESS1):  begin if(sbBusy == 1) sbBusyError <=1;
+                                                    else sbAddress1 <= dmi_data; end
+                            `FIVO(SBADDRESS2):  begin if(sbBusy == 1) sbBusyError <=1;
+                                                    else sbAddress2 <= dmi_data; end
+                            `FIVO(SBDATA0):     begin
+                                                    if((sbBusy == 0)&&(sbBusyError == 0 ))begin 
+                                                        sbData0 <= dmi_data;
+                                                        startSBAccess <= 1;
                                                         end
-                            fromInteger(valueOf(SBDATA1)):            sbData1 <= dmi_data;
-                            fromInteger(valueOf(SBDATA2)):            sbData2 <= dmi_data;
-                            fromInteger(valueOf(SBDATA3)):            sbData3 <= dmi_data;
-                            fromInteger(valueOf(HALTSUM0)):           haltSum0 <= dmi_data;
+                                                    else if(sbBusy == 1) sbBusyError <=1;
+                                                end
+                            `FIVO(SBDATA1):            sbData1 <= dmi_data;
+                            `FIVO(SBDATA2):            sbData2 <= dmi_data;
+                            `FIVO(SBDATA3):            sbData3 <= dmi_data;
+                            `FIVO(HALTSUM0):           haltSum0 <= dmi_data;
                             default:begin
-                                if((dmi_addr >= fromInteger(valueOf(ABSTRACTDATASTART))) && (dmi_addr<= fromInteger(valueOf(ABSTRACTDATAEND))))begin
-                                    abst_data[dmi_addr - fromInteger(valueOf(ABSTRACTDATASTART))] <= dmi_data;
+                                if((dmi_addr >= `FIVO(ABSTRACTDATASTART)) && (dmi_addr<= `FIVO(ABSTRACTDATAEND)))begin
+                                    abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)] <= dmi_data;
                                 end
-                                else if((dmi_addr >= fromInteger(valueOf(PBSTART))) && (dmi_addr<= fromInteger(valueOf(PBEND))))begin
-                                    progbuf[dmi_addr - fromInteger(valueOf(PBSTART))] <= dmi_data;
+                                else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
+                                    progbuf[dmi_addr - `FIVO(PBSTART)] <= dmi_data;
                                 end
                                 else dmi_response_status = 2; // dmi operation failed
                             end

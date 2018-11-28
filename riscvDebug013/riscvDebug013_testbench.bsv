@@ -40,67 +40,89 @@ package riscvDebug013_testbench;
     import AXI4_Fabric:: *;
     import bram::*;
     
+    // Function MACROS For Scalable Test writing
+    `define FIVO(x) fromInteger(valueOf(x))
 
+    `define DMI_READ(x) device.dtm.putCommand.put({x,32'd0,2'b01});         \
+        action                                                              \
+        let resp <- device.dtm.getResponse.get();                           \
+        $display($time,"*\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
+            x,32'd0,2'b01,resp[33:2],resp[1:0]);                            \
+        dmi_resp_data <= resp[33:2];                                        \
+        endaction
+    
+    `define DMI_WRITE(x,y) device.dtm.putCommand.put({x,y,2'b10});          \
+        action                                                              \
+        let resp <- device.dtm.getResponse.get();                           \
+        $display($time,"*\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
+            x,y,2'b10,resp[33:2],resp[1:0]);                                \
+        endaction
+    
+    // AXI Fabric Slave Address Decoder
     function Tuple2 #(Bool, Bit#(1)) fn_slave_map (Bit#(PADDR) addr);
         Bool slave_exist = True;
         Bit#(1) slave_num = 0;
         if(addr >= 0 && addr<= 32'h000fffff )
             slave_num = 0;
-        else if ( addr >= 32'h000fffff && addr <= 32'h80000000) 
-            slave_num = 1;
         else slave_exist = False;
         return tuple2(slave_exist, slave_num);
       endfunction:fn_slave_map
-
-
+ 
 
     (*synthesize*)
     module mkdummy(Empty);
-        // Test Environment 
+    // Test Environment 
         RiscvDebugInterface013 device <- mkRiscvDebugModule();
 
         // Hardcoded for PADDR 32 AND XLEN 32
         // AXI4_Fabric_IFC #(`Num_Masters, `Num_Slaves, PADDR, XLEN, USERSPACE) 
         AXI4_Fabric_IFC #(1,2,32,32,0)  fabric <- mkAXI4_Fabric(fn_slave_map);
-        Ifc_bram_axi4   #(32,32,0,20)   main_memory0 <- mkbram_axi4('h00000000, "code.mem", "code.mem");
-        Ifc_bram_axi4   #(32,32,0,20)   main_memory1 <- mkbram_axi4('h000fffff, "code1.mem", "code1.mem");
+        Ifc_bram_axi4   #(32,32,0,20)   main_memory0 <- mkbram_axi4('h00000000,"","");
 
         mkConnection (device.debug_master,fabric.v_from_masters[0]);
         mkConnection (fabric.v_to_slaves[0],main_memory0.slave);
-        mkConnection (fabric.v_to_slaves[1],main_memory1.slave);
 
-        // Test Sequences
+    // Test Sequences
         Reg#(Bit#(7)) dmi_address <-mkReg(0);
+        Reg#(Bit#(32))dmi_resp_data <- mkReg(0);    // Use Response Data Value in tests
 
         Stmt accessTest = seq
             for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
-                device.dtm.putCommand.put({dmi_address,32'h00000000,2'b10});    
-                $display($time,"\tResponse for command %h is :: %h ",{dmi_address,32'h00000000,2'b10},device.dtm.getResponse.get());
+                `DMI_WRITE(dmi_address,32'h00000000)
             endseq
             for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
-                device.dtm.putCommand.put({dmi_address,32'h00000000,2'b01});    
-                $display($time,"\tResponse for command %h is :: %h ",{dmi_address,32'h00000000,2'b01},device.dtm.getResponse.get());
+                `DMI_READ(dmi_address)
             endseq
         endseq;
         FSM access <- mkFSM(accessTest);
-
+    
+    // System Bus Access Tests
+        // Busy bits get set on bus access , and get cleared
         Stmt test0 = seq
-            device.dtm.putCommand.put({7'b0111100,32'hAAAAAAAA,2'b10});    
-            $display($time,"\tResponse for command %h is :: %h ",{dmi_address,32'hAAAAAAAA,2'b10},device.dtm.getResponse.get());
-            device.dtm.putCommand.put({7'b0111001,32'h0000ffff,2'b01});    
-            $display($time,"\tResponse for command %h is :: %h ",{dmi_address,32'h0000ffff,2'b01},device.dtm.getResponse.get());
-            device.dtm.putCommand.put({7'b0111100,32'hAAAAAAAA,2'b10});    
-            $display($time,"\tResponse for command %h is :: %h ",{dmi_address,32'hAAAAAAAA,2'b10},device.dtm.getResponse.get());
+            `DMI_READ(`FIVO(SBCS))          
+            `DMI_READ(`FIVO(SBDATA0))
+            `DMI_READ(`FIVO(SBCS))          // No Busy Bits
+            `DMI_WRITE(`FIVO(SBDATA0),32'hAAAAAAAA)
+            `DMI_READ(`FIVO(SBCS))          // sbBusy Should be asserted
+            `DMI_WRITE(`FIVO(SBDATA0),32'hAAAAAAAA)
+            `DMI_READ(`FIVO(SBCS))          // Sb Busy Error should be asserted
+            if(dmi_resp_data[22:21] != 2'b11) $display("Busy bitS not set !");
+            while(dmi_resp_data[21] == 1'b1 ) `DMI_READ(`FIVO(SBCS)) // poll on sbBusy
+            `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear Busy bits
+            `DMI_READ(`FIVO(SBCS))          // Sb Busy Error should be de asserted
+            if(dmi_resp_data[22] == 1'b1) $display("Busy bit is set !");
         endseq;
         FSM fsm_test0 <- mkFSM(test0);
 
         Stmt testBench = seq
-            access.start;
+            // access.start;
+            // access.waitTillDone();
             fsm_test0.start;
-            delay(1000);
+            fsm_test0.waitTillDone();
+            delay(100);
+            $display($time,"\tEnd of Test");
             $finish();
-            endseq;
-
+        endseq;
         FSM tests <- mkFSM(testBench);
 
         rule startTests;
