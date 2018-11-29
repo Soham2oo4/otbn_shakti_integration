@@ -1,5 +1,7 @@
 ### Makefile for the devices
 
+#make TOP_FILE=riscvDebug013_testbench.bsv TOP_DIR=riscvDebug013 ; make link ; cd bin ; cp ../riscvDebug013/test.mem ./ ; ./out ; cd ..
+
 include Makefile.inc
 
 TOP_MODULE:=mkdummy
@@ -7,6 +9,13 @@ BSVBUILDDIR:=./build/
 VERILOGDIR:=./verilog/
 BSVINCDIR:= .:%/Prelude:%/Libraries:%/Libraries/BlueNoC:$(SUPPORTED):$(DIR)
 define_macros:=-D VERBOSITY=2 -D ASSERT=True 
+
+## BFM_V_DIR:=
+VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-initial fast \
+					--noassert --cc $(TOP_MODULE).v --exe sim_main.cpp -Wno-STMTDLY -Wno-UNOPTFLAT \
+					-Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY 
+
+## VERILATOR__RBB_VPI_FLAGS
 
 default: full_clean generate_verilog
 
@@ -25,6 +34,16 @@ link:
 	@bsc -e $(TOP_MODULE) -sim -o ./bin/out -simdir $(BSVBUILDDIR)\
  -p .:%/Prelude:%/Libraries:%/Libraries/BlueNoC -keep-fires -bdir $(BSVBUILDDIR) -keep-fires  
 	@echo Linking finished
+
+.PHONY: link_verilator
+link_verilator:
+	@echo "Linking $(TOP_MODULE) using verilator"
+	@mkdir -p bin
+	@verilator $(VERILATOR_FLAGS) -y $(VERILOGDIR) -y ${BLUESPECDIR}/Verilog/ 
+	@ln -f -s ../riscvDebug013/sim_main.cpp obj_dir/sim_main.cpp
+	@make -j4 -C obj_dir -f V$(TOP_MODULE).mk
+	@echo Linking finished
+
 
 .PHONY: generate_verilog 
 generate_verilog:

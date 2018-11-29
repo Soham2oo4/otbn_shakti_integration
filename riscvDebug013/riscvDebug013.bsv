@@ -168,7 +168,7 @@ package riscvDebug013;
         // Number of Data Register provided for Abstract Command Access.
 
         Reg#(Bit#(32)) abstractcs = concatReg8( abstractcsPad0,progBufSize,abstractcsPad1,
-            readOnlyReg(busy),abstractcsPad2,readOnlyReg(cmderr),abstractcsPad3,dataCount);
+            readOnlyReg(abst_busy),abstractcsPad2,readOnlyReg(cmderr),abstractcsPad3,dataCount);
 
     // command DM 'h17 // Only Abstract Register Reads are asupported Therefore that mask is used.
         
@@ -291,18 +291,26 @@ package riscvDebug013;
         (* preempts = "dtm_putCommand_put,resetDM" *)
         rule resetDM(dmActive == 0);
         //dmcontrol
-            
+            haltReq         <= 0;
+            resumeReq       <= 0;
+            hartReset       <= 0;
+            ackHaveReset    <= 0;
+            hartSelLo       <= 0;
+            hartSelHi       <= 0;
+            setResetHaltRequest <= 0;
+            clrResetHaltReq <= 0;
+            nDMReset        <= 0;
         //hawindowsel
-            hawindowsel <= 0;
+            hawindowsel     <= 0;
         //hawindow
-            hawindow    <= 0;
+            hawindow        <= 0;
         //abstractcs
-            abst_busy   <= 0;
-            cmderr      <= 0;
+            abst_busy       <= 0;
+            cmderr          <= 0;
         //abst_command
-            abst_command <= 0;
+            abst_command    <= 0;
         //abstractauto
-            abstractauto <= 0;
+            abstractauto    <= 0;
         //sbcs
             sbBusyError     <= 0;
             sbBusy          <= 0;
@@ -311,18 +319,15 @@ package riscvDebug013;
             sbAutoIncrement <= 0;
             sbReadOnData    <= 0;
             sbError         <= 0;
-        //sbAddress
-            sbAddress0 <= 0;
-            sbAddress1 <= 0;
-            sbAddress2 <= 0;
-            sbAddress3 <= 0;
-        //sbData
-            sbData0 <= 0;
-            sbData1 <= 0;
-            sbData2 <= 0;
-            sbData3 <= 0;
-
-        //abst_data
+        // data
+            sbAddress0      <= 0;
+            sbAddress1      <= 0;
+            sbAddress2      <= 0;
+            sbAddress3      <= 0;
+            sbData0         <= 0;
+            sbData1         <= 0;
+            sbData2         <= 0;
+            sbData3         <= 0;
             for(Integer i = 0; i < 12 ; i = i+1)
                 abst_data[i] <= 0;
 
@@ -340,18 +345,18 @@ package riscvDebug013;
             Bit#(64) write_data=0;
             Bit#(32) address = 0;
             Bit#(4) size =0; // size in bytes
-            
+            Bool readAccess = ((sbReadOnAddr ==1) || (sbReadOnData==1));
             // word addresses aligned
             address[31:0]={sbAddress0[31:2],2'b00};
             case (sbAccess)
 		    	0: size = 1 ;
 		    	1: size = 2 ;
 		    	2: size = 4 ;
-		    	3: size = 8 ; 
+		    	3: size = 8 ;
             endcase
             // Size is not a register , This is pretty much how it was last time 
             case(size)
-                8:  write_data = { sbData1 ,sbData0} ;
+                8:  write_data = {sbData1,sbData0};
                 4:  write_data = duplicate(sbData0);
                 2:  write_data = duplicate(sbData0[15:0]);
                 1:	write_data = duplicate(sbData0[7:0]);
@@ -363,10 +368,10 @@ package riscvDebug013;
             //valueOf(TLog#(TDiv(XLEN,8))) The number of bits of size that should be used 
             if(size!=8) write_strobe=write_strobe<<(address[1:0]);
             
-            if(valueOf(VERBOSE)==1) $display($time, "X\tDebug : Memory Access : write_data : %h Address : %h Write_Strobe : %b",
-                                                 write_data ,address,write_strobe);
+            if(valueOf(VERBOSE)==1) $display($time, "X\tDebug : Memory Access - Address : %h ,  operation %b ",
+                                                 address,readAccess);
             
-            if((sbReadOnAddr ==1) || (sbReadOnData==1))begin
+            if(readAccess)begin
                 let read_request = AXI4_Rd_Addr {araddr: truncate(address),
                                                  aruser: 0, arlen: 0,
                                                  arsize:size[2:0],arburst: 'b01,arid:`FIVO(AxiID)};
@@ -393,6 +398,9 @@ package riscvDebug013;
     // Capture and Handle Response
         (* conflict_free = "responseSystemBusRead,responseSystemBusWrite" *)
         (* preempts = "(responseSystemBusRead,responseSystemBusWrite), dtm_putCommand_put" *) // Review Plz
+
+        // Remove conditions on axi response rules , should never enqueue packet in the first place 
+        // Should just depend on implict condition of response being available
 
         rule responseSystemBusRead ((sbError == 0) && (sbBusy == 1) && (startSBAccess == 0));
             let response<-pop_o(master_xactor.o_rd_data);
@@ -458,7 +466,15 @@ package riscvDebug013;
                             `FIVO(SBADDRESS0):         dmi_response_data = sbAddress0;
                             `FIVO(SBADDRESS1):         dmi_response_data = sbAddress1;
                             `FIVO(SBADDRESS2):         dmi_response_data = sbAddress2;
-                            `FIVO(SBDATA0):            dmi_response_data = sbData0;
+                            `FIVO(SBDATA0):     begin
+                                                    dmi_response_data = sbData0;
+                                                    if(sbBusy == 1)
+                                                        sbBusyError <= 1;
+                                                    else if((sbBusyError == 0) && (sbBusy == 0))begin
+                                                        if(sbReadOnData == 1)
+                                                            startSBAccess <= 1;
+                                                    end
+                                                end
                             `FIVO(SBDATA1):            dmi_response_data = sbData1;
                             `FIVO(SBDATA2):            dmi_response_data = sbData2;
                             `FIVO(SBDATA3):            dmi_response_data = sbData3;
