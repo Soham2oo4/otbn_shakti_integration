@@ -74,7 +74,7 @@ package riscvDebug013_testbench;
     (*synthesize*)
     module mkdummy(Empty);
     // Test Environment 
-        RiscvDebugInterface013 device <- mkRiscvDebugModule();
+        Ifc_riscvDebug013 device <- mkriscvDebug013();
 
         // Hardcoded for PADDR 32 AND XLEN 32
         // AXI4_Fabric_IFC #(`Num_Masters, `Num_Slaves, PADDR, XLEN, USERSPACE) 

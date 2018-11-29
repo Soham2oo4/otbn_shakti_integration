@@ -37,7 +37,7 @@ package riscvDebug013;
     endinterface
 
 	// Interface between Debug Module and SOC
-    interface RiscvDebugInterface013;
+    interface Ifc_riscvDebug013;
         interface Ifc_DM_DTM dtm;
         interface Debug_Hart_Ifc hart;
         interface AXI4_Master_IFC#(PADDR, XLEN, 0 ) debug_master;
@@ -46,7 +46,8 @@ package riscvDebug013;
 
 
     (*synthesize*)
-    module mkRiscvDebugModule(RiscvDebugInterface013);
+    (* preempts = "dtm_putCommand_put,resetDM" *)
+    module mkriscvDebug013(Ifc_riscvDebug013);
     // UArch Registers 
         Reg#(Bit#(1)) haltedHart <- mkReg(0);
         Reg#(Bit#(1)) availableHart <- mkReg(0);
@@ -288,7 +289,6 @@ package riscvDebug013;
         // bits 127:96 of data
     
     // Reset DM State on Asserting DM_Active 0
-        (* preempts = "dtm_putCommand_put,resetDM" *)
         rule resetDM(dmActive == 0);
         //dmcontrol
             haltReq         <= 0;
