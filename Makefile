@@ -42,6 +42,7 @@ link_verilator:
 	@verilator $(VERILATOR_FLAGS) -y $(VERILOGDIR) -y ${BLUESPECDIR}/Verilog/ 
 	@ln -f -s ../riscvDebug013/sim_main.cpp obj_dir/sim_main.cpp
 	@make -j4 -C obj_dir -f V$(TOP_MODULE).mk
+	@cp obj_dir/V$(TOP_MODULE) bin/out
 	@echo Linking finished
 
 
@@ -50,7 +51,7 @@ generate_verilog:
 	@echo Compiling $(TOP_MODULE) in verilog ...
 	@mkdir -p $(BSVBUILDDIR); 
 	@mkdir -p $(VERILOGDIR); 
-	@bsc -u -verilog -elab -vdir $(VERILOGDIR) -bdir $(BSVBUILDDIR) -info-dir $(BSVBUILDDIR)\
+	@bsc -u -remove-dollar -verilog -elab -vdir $(VERILOGDIR) -bdir $(BSVBUILDDIR) -info-dir $(BSVBUILDDIR)\
   -keep-fires -check-assert  $(define_macros) -D VERBOSITY=0 -D verilog=True $(BSVCOMPILEOPTS)\
   -verilog-filter ${BLUESPECDIR}/bin/basicinout\
   -p $(BSVINCDIR) -g $(TOP_MODULE) $(TOP_DIR)/$(TOP_FILE)  || (echo "BSC COMPILE ERROR"; exit 1) 
