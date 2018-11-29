@@ -79,7 +79,7 @@ package riscvDebug013_testbench;
         // Hardcoded for PADDR 32 AND XLEN 32
         // AXI4_Fabric_IFC #(`Num_Masters, `Num_Slaves, PADDR, XLEN, USERSPACE) 
         AXI4_Fabric_IFC #(1,2,32,32,0)  fabric <- mkAXI4_Fabric(fn_slave_map);
-        Ifc_bram_axi4   #(32,32,0,20)   main_memory0 <- mkbram_axi4('h00000000,"","");
+        Ifc_bram_axi4   #(32,32,0,18)   main_memory0 <- mkbram_axi4('h00000000,"test.mem","test.mem");
 
         mkConnection (device.debug_master,fabric.v_from_masters[0]);
         mkConnection (fabric.v_to_slaves[0],main_memory0.slave);
@@ -88,16 +88,16 @@ package riscvDebug013_testbench;
         Reg#(Bit#(7)) dmi_address <-mkReg(0);
         Reg#(Bit#(32))dmi_resp_data <- mkReg(0);    // Use Response Data Value in tests
     
-    // // DMI access
-    //     Stmt accessTest = seq
-    //         for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
-    //             `DMI_WRITE(dmi_address,32'h00000000)
-    //         endseq
-    //         for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
-    //             `DMI_READ(dmi_address)
-    //         endseq
-    //     endseq;
-    //     FSM fsm_accessTest <- mkFSM(accessTest);
+    // DMI access
+        Stmt accessTest = seq
+            for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
+                `DMI_WRITE(dmi_address,32'h00000000)
+            endseq
+            for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
+                `DMI_READ(dmi_address)
+            endseq
+        endseq;
+        FSM fsm_accessTest <- mkFSM(accessTest);
     
     // Reset with DM Active
         Stmt resetDM = seq
@@ -111,7 +111,7 @@ package riscvDebug013_testbench;
         FSM fsm_resetDM <- mkFSM(resetDM);
 
     // System Bus Access Tests
-        // Busy bits get set on Write,and get cleared on W1C
+        //Busy bits get set on Write,and get cleared on W1C
         Stmt test0 = seq
             `DMI_READ(`FIVO(SBCS))          
             `DMI_READ(`FIVO(SBDATA0))
@@ -132,17 +132,33 @@ package riscvDebug013_testbench;
         endseq;
         FSM fsm_test0 <- mkFSM(test0);
 
+        Stmt test1 = seq
+            `DMI_READ(`FIVO(SBCS))
+            `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b1,dmi_resp_data[19:16],1'b1,dmi_resp_data[14:0]}))
+            `DMI_WRITE(`FIVO(SBADDRESS0),32'h0000ffff)
+            `DMI_READ(`FIVO(SBDATA0))    // Dont Wait and get error set
+            `DMI_READ(`FIVO(SBCS))
+            while(dmi_resp_data[21] == 1'b1 )seq 
+                `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+            endseq
+            `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear sbBusyError
+            `DMI_READ(`FIVO(SBDATA0))
+            `DMI_READ(`FIVO(SBCS))
+            `DMI_READ(`FIVO(SBDATA0))
+        endseq;
+        FSM fsm_test1 <- mkFSM(test1);
+
         Stmt testBench = seq
             fsm_resetDM.start;
             fsm_resetDM.waitTillDone;
             // fsm_accessTest.start;
             // fsm_accessTest.waitTillDone();
-            fsm_test0.start;
-            fsm_test0.waitTillDone;
-            fsm_resetDM.start;
-            fsm_resetDM.waitTillDone;
-            fsm_test0.start;
-            fsm_test0.waitTillDone;
+            // fsm_test0.start;
+            // fsm_test0.waitTillDone;
+            // fsm_resetDM.start;
+            // fsm_resetDM.waitTillDone;
+            // fsm_test1.start;
+            // fsm_test1.waitTillDone;
             delay(100);
             $display($time,"\tEnd of Test");
             $finish();
