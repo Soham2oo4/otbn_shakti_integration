@@ -27,7 +27,7 @@ compile:
   -check-assert $(define_macros) -p $(BSVINCDIR) -g $(TOP_MODULE)  $(TOP_DIR)/$(TOP_FILE)
 	@echo Compilation finished
 
-.PHONY: link
+.PHONY: link_bsim
 link:
 	@echo Linking $(TOP_MODULE)...
 	@mkdir -p bin
@@ -38,8 +38,11 @@ link:
 link_verilator:
 	@echo "Linking $(TOP_MODULE) using verilator"
 	@mkdir -p bin
+	@echo "#define TOPMODULE V$(TOP_MODULE)" > common_tb/sim_main.h
+	@echo '#include "V$(TOP_MODULE).h"' >> common_tb/sim_main.h
 	@verilator $(VERILATOR_FLAGS) -y $(VERILOGDIR) -y ${BLUESPECDIR}/Verilog/ 
-	@ln -f -s ../riscvDebug013/sim_main.cpp obj_dir/sim_main.cpp
+	@ln -f -s ../common_tb/sim_main.cpp obj_dir/sim_main.cpp
+	@ln -f -s ../common_tb/sim_main.h obj_dir/sim_main.h
 	@make -j4 -C obj_dir -f V$(TOP_MODULE).mk
 	@cp obj_dir/V$(TOP_MODULE) bin/out
 	@echo Linking finished
