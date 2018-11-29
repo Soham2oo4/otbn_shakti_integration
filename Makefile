@@ -41,7 +41,7 @@ link_verilator:
 	@mkdir -p bin
 	@echo "#define TOPMODULE V$(TOP_MODULE)" > common_tb/sim_main.h
 	@echo '#include "V$(TOP_MODULE).h"' >> common_tb/sim_main.h
-	@verilator $(VERILATOR_FLAGS) -y $(VERILOGDIR) -y ${BLUESPECDIR}/Verilog/ 
+	@verilator $(VERILATOR_FLAGS) -y $(VERILOGDIR)
 	@ln -f -s ../common_tb/sim_main.cpp obj_dir/sim_main.cpp
 	@ln -f -s ../common_tb/sim_main.h obj_dir/sim_main.h
 	@make -j4 -C obj_dir -f V$(TOP_MODULE).mk
@@ -58,7 +58,11 @@ generate_verilog:
   -keep-fires -check-assert  $(define_macros) -D VERBOSITY=0 -D verilog=True $(BSVCOMPILEOPTS)\
   -verilog-filter ${BLUESPECDIR}/bin/basicinout\
   -p $(BSVINCDIR) -g $(TOP_MODULE) $(TOP_DIR)/$(TOP_FILE)  || (echo "BSC COMPILE ERROR"; exit 1) 
-
+	@cp ${BLUESPECDIR}/Verilog/ResetEither.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/FIFO2.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/FIFO20.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/MakeReset0.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog.Vivado/BRAM2BELoad.v ./verilog/
 .PHONY: clean
 clean:
 	rm -rf build bin *.jou *.log

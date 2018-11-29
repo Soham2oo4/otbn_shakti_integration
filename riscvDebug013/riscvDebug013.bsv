@@ -7,6 +7,7 @@ package riscvDebug013;
     import Assert :: *;
     import BUtils::*;
     import Semi_FIFOF::*;
+    import Clocks::*;
 
     import AXI4_Types::*;
     import ConcatReg::*;
@@ -48,6 +49,10 @@ package riscvDebug013;
     (*synthesize*)
     (* preempts = "dtm_putCommand_put,resetDM" *)
     module mkriscvDebug013(Ifc_riscvDebug013);
+        Clock curr_clk <- exposeCurrentClock;   // current default clock
+        Reset curr_reset<-exposeCurrentReset;   // current default reset
+        MakeResetIfc dm_reset <-mkReset(0,False,curr_clk); // create a new reset for curr_clk
+        Reset derived_reset <- mkResetEither(dm_reset.new_rst,curr_reset); // OR default and new_rst
     // UArch Registers 
         Reg#(Bit#(1)) haltedHart <- mkReg(0);
         Reg#(Bit#(1)) availableHart <- mkReg(0);
@@ -96,7 +101,7 @@ package riscvDebug013;
         
     // dmcontrol DM h'10
         // 0 Clears Halt Request (to currently Selected) , 1 Sets Halt Request to Currently Selected
-        Reg#(Bit#(1)) haltReq       <- mkReg(0);                        // dmcontrol b31    // W    
+        Reg#(Bit#(1)) haltReq       <- mkReg(0,reset_by derived_reset);                        // dmcontrol b31    // W    
         // Writing 1 causes Halted harts to resume once , cannot write 1 to running hart ,
         // resume Ack is cleared if the hart was halted.
         Reg#(Bit#(1)) resumeReq     <- mkReg(0);                        // dmcontrol b30    // W    
@@ -287,11 +292,15 @@ package riscvDebug013;
         // bits 95:64 of data
         Reg#(Bit#(32)) sbData3 <- mkReg(0);                             // sbdata1 b31-0    // RW   
         // bits 127:96 of data
-    
+  
+        // Assert derived_reset when dm is inactive
+        rule generate_derived_reset(dmActive==0);
+          dm_reset.assertReset;
+        endrule
     // Reset DM State on Asserting DM_Active 0
         rule resetDM(dmActive == 0);
         //dmcontrol
-            haltReq         <= 0;
+        //    haltReq         <= 0;
             resumeReq       <= 0;
             hartReset       <= 0;
             ackHaveReset    <= 0;
