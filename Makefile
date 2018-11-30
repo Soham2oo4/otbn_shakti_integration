@@ -28,7 +28,7 @@ compile:
 	@echo Compilation finished
 
 .PHONY: link_bsim
-link:
+link_bsim:
 	@echo Linking $(TOP_MODULE)...
 	@mkdir -p bin
 	@bsc -e $(TOP_MODULE) -sim -o ./bin/out -simdir $(BSVBUILDDIR)\

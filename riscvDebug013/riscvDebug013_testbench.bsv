@@ -43,7 +43,7 @@ package riscvDebug013_testbench;
   `define DMI_READ(x) device.dtm.putCommand.put({x,32'd0,2'b01});         \
     action                                                                \
       let resp <- device.dtm.getResponse.get();                           \
-      $display($time,"*\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
+      $display($time,"\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
         x,32'd0,2'b01,resp[33:2],resp[1:0]);                              \
       dmi_resp_data <= resp[33:2];                                        \
     endaction
@@ -51,7 +51,7 @@ package riscvDebug013_testbench;
   `define DMI_WRITE(x,y) device.dtm.putCommand.put({x,y,2'b10});          \
     action                                                                \
       let resp <- device.dtm.getResponse.get();                           \
-      $display($time,"*\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
+      $display($time,"\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
         x,y,2'b10,resp[33:2],resp[1:0]);                                  \
     endaction
 
@@ -114,6 +114,7 @@ package riscvDebug013_testbench;
       `DMI_READ(`FIVO(SBCS))
       `DMI_READ(`FIVO(SBDATA0))
       `DMI_READ(`FIVO(SBCS))          // No Busy Bits
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b1,dmi_resp_data[19:17],1'b1,1'b1,dmi_resp_data[14:0]}))
       `DMI_WRITE(`FIVO(SBDATA0),32'hAAAAAAAA)
       `DMI_READ(`FIVO(SBCS))          // sbBusy Should be asserted
       `DMI_WRITE(`FIVO(SBDATA0),32'hAAAAAAAA)
@@ -125,6 +126,7 @@ package riscvDebug013_testbench;
       endseq
       `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear sbBusyError
       `DMI_READ(`FIVO(SBCS))          // Sb Busy Error should be de asserted
+      `DMI_WRITE(`FIVO(SBDATA0),32'hBBBBBBBB)
       if(dmi_resp_data[22] == 1'b1)
         $display("FAIL: Busy bit is set !");
     endseq;
@@ -133,8 +135,12 @@ package riscvDebug013_testbench;
     // sbTest1
     Stmt sbTest1 = seq
       `DMI_READ(`FIVO(SBCS))
-      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b1,dmi_resp_data[19:16],1'b1,dmi_resp_data[14:0]}))
-      `DMI_WRITE(`FIVO(SBADDRESS0),32'h0000ffff)
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b1,dmi_resp_data[19:17],1'b1,1'b1,dmi_resp_data[14:0]}))
+      `DMI_WRITE(`FIVO(SBADDRESS0),32'h0000ffff)        // Mis Aligned Address sets SbError to 3
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:15],3'b111,dmi_resp_data[11:0]}))
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBADDRESS0),32'h0000fffc)
       `DMI_READ(`FIVO(SBDATA0))    // Dont Wait and get error set
       `DMI_READ(`FIVO(SBCS))
       while(dmi_resp_data[21] == 1'b1 )seq
@@ -142,8 +148,14 @@ package riscvDebug013_testbench;
       endseq
       `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear sbBusyError
       `DMI_READ(`FIVO(SBDATA0))
-      `DMI_READ(`FIVO(SBCS))
+      while(dmi_resp_data[21] == 1'b1 )seq
+        `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+      endseq
+      `DMI_WRITE(`FIVO(SBADDRESS0),32'hFFFFFFF0)
       `DMI_READ(`FIVO(SBDATA0))
+      while(dmi_resp_data[21] == 1'b1 )seq
+        `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+      endseq
     endseq;
     FSM fsm_sbTest1 <- mkFSM(sbTest1);
 
