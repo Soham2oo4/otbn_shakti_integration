@@ -27,6 +27,10 @@ compile:
  -check-assert $(define_macros) -p $(BSVINCDIR) -g $(TOP_MODULE) $(TOP_DIR)/$(TOP_FILE)
 	@echo Compilation finished
 
+.PHONY: module_only
+module_only:
+	@make TOP_FILE=riscvDebug013.bsv TOP_DIR=riscvDebug013 TOP_MODULE:=mkriscvDebug013
+
 .PHONY: link_bsim
 link_bsim:
 	@echo Linking $(TOP_MODULE)...
