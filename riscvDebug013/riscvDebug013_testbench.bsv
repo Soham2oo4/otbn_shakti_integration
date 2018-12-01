@@ -43,7 +43,7 @@ package riscvDebug013_testbench;
   `define DMI_READ(x) device.dtm.putCommand.put({x,32'd0,2'b01});         \
     action                                                                \
       let resp <- device.dtm.getResponse.get();                           \
-      $display($time,"\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
+      $display($time,"\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",    \
         x,32'd0,2'b01,resp[33:2],resp[1:0]);                              \
       dmi_resp_data <= resp[33:2];                                        \
     endaction
@@ -51,7 +51,7 @@ package riscvDebug013_testbench;
   `define DMI_WRITE(x,y) device.dtm.putCommand.put({x,y,2'b10});          \
     action                                                                \
       let resp <- device.dtm.getResponse.get();                           \
-      $display($time,"\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",   \
+      $display($time,"\tDTM:: \tADDR: %h\tDATA: %h\tOP: %h\t-> %h,%h",    \
         x,y,2'b10,resp[33:2],resp[1:0]);                                  \
     endaction
 
@@ -88,11 +88,8 @@ package riscvDebug013_testbench;
     // resetDM with DM Active
     Stmt resetDM = seq
       $display($time,"RST\tReseting DM");
-      `DMI_READ(`FIVO(DMCONTROL))
-      `DMI_WRITE(`FIVO(DMCONTROL),({dmi_resp_data[31:1],1'b0}))
-      `DMI_READ(`FIVO(DMCONTROL))
-      `DMI_WRITE(`FIVO(DMCONTROL),({dmi_resp_data[31:1],1'b1}))
-      `DMI_READ(`FIVO(DMCONTROL))
+      `DMI_WRITE(`FIVO(DMCONTROL),({31'd0,1'b0})) 
+      `DMI_WRITE(`FIVO(DMCONTROL),({31'd0,1'b1}))
     endseq;
     FSM fsm_resetDM <- mkFSM(resetDM);
 
@@ -107,6 +104,17 @@ package riscvDebug013_testbench;
     endseq;
     FSM fsm_test0 <- mkFSM(test0);
 
+    Stmt test_reset_values = seq
+      for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
+        `DMI_WRITE(dmi_address,32'hFFFFFFFF)
+      endseq
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
+      for( dmi_address <= 0 ; dmi_address <= 7'h40; dmi_address <= dmi_address +1)seq
+        `DMI_READ(dmi_address)
+      endseq
+    endseq;
+    FSM fsm_test_reset_values <- mkFSM(test_reset_values);
     /*    System Bus Access Tests   */
 
     // sbTest0 Busy bits get set on Write,and get cleared on W1C
@@ -148,19 +156,136 @@ package riscvDebug013_testbench;
       endseq
       `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:23],1'b1,dmi_resp_data[21:0]})) // Clear sbBusyError
       `DMI_READ(`FIVO(SBDATA0))
+      `DMI_READ(`FIVO(SBCS))
       while(dmi_resp_data[21] == 1'b1 )seq
         `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
       endseq
       `DMI_WRITE(`FIVO(SBADDRESS0),32'hFFFFFFF0)
       `DMI_READ(`FIVO(SBDATA0))
+      `DMI_READ(`FIVO(SBCS)) 
       while(dmi_resp_data[21] == 1'b1 )seq
         `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
       endseq
     endseq;
     FSM fsm_sbTest1 <- mkFSM(sbTest1);
 
+    // sbTest2 - Increment
+    // Success should read back 0,1,2,3,4,9,66660006,66660007,66660008,66660009
+    Reg#(Bit#(32)) i <- mkReg(0);
+    Stmt sb_test2 = seq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:17],1'b1,dmi_resp_data[15:0]})) // Set autoIncrement
+      `DMI_READ(`FIVO(SBCS)) // Read Back
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_WRITE(`FIVO(SBDATA0),i) // Write to Data 0 addresses should be incrementing
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:17],1'b0,dmi_resp_data[15:0]})) //reset autoIncrement
+      for(i<=5;i<10;i<=i+1)seq
+        `DMI_WRITE(`FIVO(SBDATA0),i) // Write to Data 0 addresses should be incrementing
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+      // Read Final Mem Config at zero offset
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b1,dmi_resp_data[19:0]})) // Setup Read on Address
+      for(i<=0;i<10;i<=i+1)seq
+        `DMI_WRITE(`FIVO(SBADDRESS0),(i*4)) // Write to Data 0 addresses should be incrementing
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+        `DMI_READ(`FIVO(SBDATA0))
+      endseq
+    endseq;
+    FSM fsm_sb_test2 <- mkFSM(sb_test2);
+
+    // sbTest3 - Increment - read Address
+    // Success should read back 66660000,66660004,66660008,6666000c,66660010 
+    //                        - 66660000,66660004,66660008,6666000c,66660010
+    //                        - No More REad Requests Generated for this test.
+    // In effect the presence of aut increment does not affect read on address.
+    Stmt sb_test3 = seq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b1,dmi_resp_data[19:17],1'b1,dmi_resp_data[15:0]})) // Set autoIncrement + read on Address
+      `DMI_READ(`FIVO(SBCS)) // Read Back verify
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_WRITE(`FIVO(SBADDRESS0),(i*16)) // Read every 4th word , should ignore auto incremented value
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:17],1'b0,dmi_resp_data[15:0]})) //reset autoIncrement
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_WRITE(`FIVO(SBADDRESS0),(i*16)) // Read every 4th word , should ignore auto incremented value
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:21],1'b0,dmi_resp_data[19:0]})) //reset read on address
+      `DMI_READ(`FIVO(SBCS))
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_WRITE(`FIVO(SBADDRESS0),(i*16)) // Read every 4th word , should ignore auto incremented value
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+    endseq;
+    FSM fsm_sb_test3 <- mkFSM(sb_test3);
+
+    // sbTest4 - Increment - read Data
+    // Success should read back - 66660000,66660001,66660002,66660003,66660004
+    //                          - 66660005,66660005,66660005,66660005,66660005
+    //                          - No Further Read Requests issued 
+
+    Stmt sb_test4 = seq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:17],1'b1,1'b1,dmi_resp_data[14:0]}))// Set autoIncrement ,read on Data
+      `DMI_READ(`FIVO(SBCS)) // Read Back verify
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_READ(`FIVO(SBDATA0))
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:17],1'b0,dmi_resp_data[15:0]})) //reset autoIncrement
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_READ(`FIVO(SBDATA0)) // Shoiuld just read the last value multiple times 
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+      `DMI_READ(`FIVO(SBCS))
+      `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:16],1'b0,dmi_resp_data[14:0]})) //reset read on data
+      for(i<=0;i<5;i<=i+1)seq
+        `DMI_READ(`FIVO(SBDATA0))   // Should not read anything
+        `DMI_READ(`FIVO(SBCS))
+        while(dmi_resp_data[21] == 1'b1 )seq
+          `DMI_READ(`FIVO(SBCS))      // poll on sbBusy
+        endseq
+      endseq
+    endseq;
+    FSM fsm_sb_test4 <- mkFSM(sb_test4);
+
     /*        Test Driver      */
     Stmt testBench = seq
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
+      fsm_test_reset_values.start;
+      fsm_test_reset_values.waitTillDone;
       fsm_resetDM.start;
       fsm_resetDM.waitTillDone;
       fsm_test0.start;
@@ -173,6 +298,18 @@ package riscvDebug013_testbench;
       fsm_resetDM.waitTillDone;
       fsm_sbTest1.start;
       fsm_sbTest1.waitTillDone;
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
+      fsm_sb_test2.start;
+      fsm_sb_test2.waitTillDone;
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
+      fsm_sb_test3.start;
+      fsm_sb_test3.waitTillDone;
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
+      fsm_sb_test4.start;
+      fsm_sb_test4.waitTillDone;
       fsm_resetDM.start;
       fsm_resetDM.waitTillDone;
       delay(100);

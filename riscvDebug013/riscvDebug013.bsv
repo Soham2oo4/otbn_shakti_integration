@@ -84,12 +84,12 @@ package riscvDebug013;
     Reset derived_reset <- mkResetEither(dm_reset.new_rst,curr_reset);     // OR default and new_rst
 
     //#  UArch Registers
-    Reg#(Bit#(1)) haltedHart <- mkReg(0);
-    Reg#(Bit#(1)) availableHart <- mkReg(0);
+    Reg#(Bit#(1)) haltedHart <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) availableHart <- mkReg(0,reset_by derived_reset);
 
     //#   Interface Registers
-    Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid );
-    Reg#(Maybe#(Bit#(XLEN))) abstRespReg <- mkReg(tagged Invalid );
+    Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
+    Reg#(Maybe#(Bit#(XLEN))) abstRespReg <- mkReg(tagged Invalid,reset_by derived_reset);
     Reg#(Bit#(1)) startSBAccess <- mkReg(0,reset_by derived_reset);
     Reg#(Bit#(1)) sb_read_write <- mkReg(0,reset_by derived_reset); // Sadly was not implict !
     //#  Arch Registers
@@ -111,8 +111,8 @@ package riscvDebug013;
     Reg#(Bit#(1)) anyRunning    <- mkReg(0,reset_by derived_reset);       //- dmstatus b10      - R
     Reg#(Bit#(1)) allHalted     <- mkReg(0,reset_by derived_reset);       //- dmstatus b9       - R
     Reg#(Bit#(1)) anyHalted     <- mkReg(0,reset_by derived_reset);       //- dmstatus b8       - R
-    Reg#(Bit#(1)) authenticated <- mkReg(0);                              //- dmstatus b7       - R
-    Reg#(Bit#(1)) authbusy      <- mkReg(0);                              //- dmstatus b6       - R
+    Reg#(Bit#(1)) authenticated <- mkReg(0,reset_by derived_reset);       //- dmstatus b7       - R
+    Reg#(Bit#(1)) authbusy      <- mkReg(0,reset_by derived_reset);       //- dmstatus b6       - R
     Reg#(Bit#(1)) hasResetHaltRequest = readOnlyReg(1);                   //- dmstatus b5       - R
     Reg#(Bit#(1)) confStrPtrValid = readOnlyReg(1);                       //- dmstatus b4       - R
     //! Version = 2 => Supports spec 0.13
@@ -229,7 +229,7 @@ package riscvDebug013;
     progbuf <- replicateM(mkReg(0,reset_by derived_reset)); // Not Able to make this a vector of read only reg :|
 
     // authdata DM 'h30
-    Reg#(Bit#(32)) auth_data <- mkReg(0);                                 //- {impl specific}   -RW
+    Reg#(Bit#(32)) auth_data <- mkReg(0,reset_by derived_reset);          //- {impl specific}   -RW
 
     // haltsum0 DM 'h40 , 'h13 , 'h34 , 'h35
     Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),haltedHart);   //haltSum0    - R
@@ -284,7 +284,7 @@ package riscvDebug013;
     // endrule
 
     /*    System Bus ACCESS   */
-    AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;
+    AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
 
     //+ rule :: access_system_bus
     //+
