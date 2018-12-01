@@ -397,7 +397,7 @@ package riscvDebug013;
       startSBAccess <= 0; // Transaction has been issued , disable trigger
     endrule
 
-    rule responseSystemBusRead;
+    rule responseSystemBusRead(sbBusy==1);
       let response <- pop_o(master_xactor.o_rd_data);
       // if width less than 32 upper bits can take on anything - spec
       if (response.rresp==AXI4_OKAY && (response.rid==`FIVO(AxiID))) begin
@@ -413,7 +413,7 @@ package riscvDebug013;
       sbBusy <=0; // De Assert Busy
     endrule
 
-    rule responseSystemBusWrite;
+    rule responseSystemBusWrite(sbBusy==1);
       let response <- pop_o(master_xactor.o_wr_resp) ;
       if(response.bresp == AXI4_OKAY && (response.bid==`FIVO(AxiID)))begin
         if(valueOf(VERBOSE)==1)
