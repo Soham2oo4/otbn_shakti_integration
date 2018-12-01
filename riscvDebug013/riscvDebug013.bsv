@@ -595,36 +595,36 @@ package riscvDebug013;
       endinterface;
     endinterface;
     // HART - only Single Hart Supported for now
-    interface hart = interface Debug_Hart_Ifc
-      method Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation; // if (condition to launch abstract command) !
-        let abstOp = abst_ar_write;
-        let abstData= { abst_data[1],abst_data[0] }; // Make 64 bit but filter down and use XLEN bits
-        return tuple3(abstOp,truncate(abst_ar_regNo),truncate(abstData));
-      endmethod
-      // Recieves response from Abstract Command if any.
-      method Action  abstractReadResponse(Bit#(XLEN) responseData);
-        abstRespReg <= tagged Valid responseData; // remove the valid stuff and store the redule right into the data regs.
-      endmethod
-      method Bit#(1) haltRequest();
-        return haltReq;
-      endmethod
-      method Bit#(1) resumeRequest();
-        return resumeReq;
-      endmethod
-      method Bit#(1) hart_reset();
-        return hartReset;
-      endmethod
-      method Action  setHalted(Bit#(1) halted);
-        haltedHart <= halted; // Only One Hart
-      endmethod
-      // The HART can Assert this say through the shakti specific csr to disable debugging
-      // on a hart rather than by having user code maskable runControl.
-      method Action  setAvailable(Bit#(1) available);
-        availableHart <= available;
-      endmethod
-    endinterface;
-    method Bit#(1) getNDMReset();
-      return nDMReset;
-    endmethod
+//    interface hart = interface Debug_Hart_Ifc
+//      method Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation; // if (condition to launch abstract command) !
+//        let abstOp = abst_ar_write;
+//        let abstData= { abst_data[1],abst_data[0] }; // Make 64 bit but filter down and use XLEN bits
+//        return tuple3(abstOp,truncate(abst_ar_regNo),truncate(abstData));
+//      endmethod
+//      // Recieves response from Abstract Command if any.
+//      method Action  abstractReadResponse(Bit#(XLEN) responseData);
+//        abstRespReg <= tagged Valid responseData; // remove the valid stuff and store the redule right into the data regs.
+//      endmethod
+//      method Bit#(1) haltRequest();
+//        return haltReq;
+//      endmethod
+//      method Bit#(1) resumeRequest();
+//        return resumeReq;
+//      endmethod
+//      method Bit#(1) hart_reset();
+//        return hartReset;
+//      endmethod
+//      method Action  setHalted(Bit#(1) halted);
+//        haltedHart <= halted; // Only One Hart
+//      endmethod
+//      // The HART can Assert this say through the shakti specific csr to disable debugging
+//      // on a hart rather than by having user code maskable runControl.
+//      method Action  setAvailable(Bit#(1) available);
+//        availableHart <= available;
+//      endmethod
+//    endinterface;
+//    method Bit#(1) getNDMReset();
+//      return nDMReset;
+//    endmethod
   endmodule
 endpackage
