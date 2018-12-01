@@ -38,6 +38,7 @@ package riscvDebug013;
   import Clocks::*;
   import AXI4_Types::*;
   import ConcatReg::*;
+  import ConfigReg::*;
 
   import debug_types::*;
 
@@ -242,7 +243,7 @@ package riscvDebug013;
     /* 0=> old spec , 1 => current spec */
     Reg#(Bit#(6)) sbcsPad0  = readOnlyReg(0);                             // sbcs b28-23
     Reg#(Bit#(1)) sbBusyError <- mkReg(0,reset_by derived_reset);         // sbcs b22           -RW1c
-    Reg#(Bit#(1)) sbBusy    <- mkReg(0,reset_by derived_reset);           // sbcs b21           - R
+    Reg#(Bit#(1)) sbBusy    <- mkConfigReg(0,reset_by derived_reset);           // sbcs b21           - R
     Reg#(Bit#(1)) sbReadOnAddr <- mkReg(0,reset_by derived_reset);        // sbcs b20           -RW
     Reg#(Bit#(3)) sbAccess  <- mkReg(2,reset_by derived_reset);           // sbcs b19-17        -RW
     Reg#(Bit#(1)) sbAutoIncrement <- mkReg(0,reset_by derived_reset);     // sbcs b16           -RW
@@ -261,8 +262,8 @@ package riscvDebug013;
         sbASize,sbAccess128,sbAccess64,sbAccess32,sbAccess16,sbAccess8);
 
     // sbaddress0 DM 'h39 , 'h3a , 'h3b , 'h37
-    Reg#(Bit#(32)) sbAddress0 <- mkReg(0,reset_by derived_reset);         // sbAddress0 b31-0   -RW
-    Reg#(Bit#(32)) sbAddress1 <- mkReg(0,reset_by derived_reset);         // sbAddress1 b31-0   -RW
+    Reg#(Bit#(32)) sbAddress0 <- mkConfigReg(0,reset_by derived_reset);         // sbAddress0 b31-0   -RW
+    Reg#(Bit#(32)) sbAddress1 <- mkConfigReg(0,reset_by derived_reset);         // sbAddress1 b31-0   -RW
     Reg#(Bit#(32)) sbAddress2 =  readOnlyReg(0);                          // sbAddress2 b31-0   -RW
     Reg#(Bit#(32)) sbAddress3 =  readOnlyReg(0);                          // sbAddress3 b31-0   -RW
 
