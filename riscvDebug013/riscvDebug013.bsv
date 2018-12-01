@@ -74,7 +74,11 @@ package riscvDebug013;
 
   (*synthesize*)
   (* conflict_free = "responseSystemBusRead,responseSystemBusWrite" *)
-  (* preempts = "(responseSystemBusRead,responseSystemBusWrite), dtm_putCommand_put" *)
+  (* conflict_free = "access_system_bus,dtm_putCommand_put"*)
+  (* conflict_free = "responseSystemBusWrite,dtm_putCommand_put"*)
+  (* conflict_free = "responseSystemBusRead, dtm_putCommand_put"*)
+
+//  (* preempts = "(responseSystemBusRead,responseSystemBusWrite), dtm_putCommand_put" *)
   module mkriscvDebug013(Ifc_riscvDebug013);
 
     Clock curr_clk <- exposeCurrentClock;                                  // current default clock
@@ -526,7 +530,7 @@ package riscvDebug013;
                             sbcs <= dmi_data;
                             if(dmi_data[22] == 1'b1)
                               sbBusyError <= 0; // Write one to clear !
-                            if(dmi_data[14:12] == 3'b111)                                        // V* Writing 001 or 111
+                            if(dmi_data[14:12] == 3'b111 && sbError!=0)                                        // V* Writing 001 or 111
                               sbError <= 0;
                           end
               `FIVO(SBADDRESS0):begin
