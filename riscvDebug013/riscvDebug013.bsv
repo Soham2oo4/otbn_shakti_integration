@@ -232,7 +232,7 @@ package riscvDebug013;
     Reg#(Bit#(32)) auth_data <- mkReg(0,reset_by derived_reset);          //- {impl specific}   -RW
 
     // haltsum0 DM 'h40 , 'h13 , 'h34 , 'h35
-    Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),haltedHart);   //haltSum0    - R
+    Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),readOnlyReg(haltedHart));   //haltSum0    - R
     Reg#(Bit#(32)) haltSum1 = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum2 = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum3 = readOnlyReg(0);
