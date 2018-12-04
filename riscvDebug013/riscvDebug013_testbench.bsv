@@ -29,6 +29,7 @@ Email id: command.paul@gmail.com
 package riscvDebug013_testbench;
 
   import riscvDebug013::*;
+  import dummy_hart::*;
 
   import StmtFSM::*;
   import Connectable:: *;
@@ -70,7 +71,7 @@ package riscvDebug013_testbench;
   module mkdummy(Empty);
     /*      Test Environment    */
     // Hardcoded for PADDR 32 AND XLEN 32
-
+    Hart_Debug_Ifc hart <- mkDummyHart();
     Ifc_riscvDebug013 device <- mkriscvDebug013();
 
     // AXI4_Fabric_IFC #(`Num_Masters, `Num_Slaves, PADDR, XLEN, USERSPACE)
@@ -79,6 +80,7 @@ package riscvDebug013_testbench;
 
     mkConnection (device.debug_master,fabric.v_from_masters[0]);
     mkConnection (fabric.v_to_slaves[0],main_memory0.slave);
+    mkConnection (hart,device.hart);
 
     Reg#(Bit#(7))   dmi_address   <-  mkReg(0);
     Reg#(Bit#(32))  dmi_resp_data <-  mkReg(0);

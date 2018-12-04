@@ -58,7 +58,7 @@ package debug_types;
 
     typedef 32 XLEN;
     typedef 32 PADDR;
-    typedef 1 HartCount; 
+    typedef 1 HartCount;            // Max Value 32 for present config.
 	typedef 14 AbstractAddrWidth;
     typedef 1 AxiID;
 endpackage

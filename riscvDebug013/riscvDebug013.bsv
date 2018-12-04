@@ -89,12 +89,17 @@ package riscvDebug013;
     Reset derived_reset <- mkResetEither(dm_reset.new_rst,curr_reset);     // OR default and new_rst
 
     //#  UArch Registers
-    Reg#(Bit#(1)) haltedHart <- mkReg(0,reset_by derived_reset);
-    Reg#(Bit#(1)) availableHart <- mkReg(0,reset_by derived_reset);
+    Vector#(HartCount,Reg#(Bit#(1))) halted_array       <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) available_array    <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) have_reset_array   <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) resume_ack_array   <- replicateM(mkReg(0,reset_by derived_reset));
+    
+    //  Reg#(Bit#(1)) haltedHart <- mkReg(0,reset_by derived_reset);
+    //  Reg#(Bit#(1)) availableHart <- mkReg(0,reset_by derived_reset);
 
     //#   Interface Registers
     Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
-    Reg#(Maybe#(Bit#(XLEN))) abstRespReg <- mkReg(tagged Invalid,reset_by derived_reset);
+
     Reg#(Bit#(1)) startSBAccess <- mkReg(0,reset_by derived_reset);
     Reg#(Bit#(1)) sb_read_write <- mkReg(0,reset_by derived_reset); // Sadly was not implict !
     //#  Arch Registers
@@ -237,7 +242,7 @@ package riscvDebug013;
     Reg#(Bit#(32)) auth_data <- mkReg(0,reset_by derived_reset);          //- {impl specific}   -RW
 
     // haltsum0 DM 'h40 , 'h13 , 'h34 , 'h35
-    Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),readOnlyReg(haltedHart));   //haltSum0    - R
+    Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),readOnlyReg(halted_array[0]));   //haltSum0    - R
     Reg#(Bit#(32)) haltSum1 = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum2 = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum3 = readOnlyReg(0);
@@ -285,7 +290,20 @@ package riscvDebug013;
     endrule
 
     // rule setDMStatusBits;
-
+    //   // Bit Vector of
+    //   Bit#(
+    //   allHaveReset    <= reduceAnd();
+    //   anyHaveReset    <= reduceOr ();
+    //   allResumeAck    <= reduceAnd();
+    //   anyResumeAck    <= reduceOr ();
+    //   allNonExistent  <= reduceAnd();
+    //   anyNonExistent  <= reduceOr ();
+    //   allUnAvail      <= reduceAnd();
+    //   anyUnAvail      <= reduceOr ();
+    //   allRunning      <= reduceAnd();
+    //   anyRunning      <= reduceOr ();
+    //   allHalted       <= reduceAnd();
+    //   anyHalted       <= reduceOr ();
     // endrule
 
     /*    System Bus ACCESS   */
@@ -598,37 +616,49 @@ package riscvDebug013;
         endmethod
       endinterface;
     endinterface;
-    // HART - only Single Hart Supported for now
-//    interface hart = interface Debug_Hart_Ifc
-//      method Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation; // if (condition to launch abstract command) !
-//        let abstOp = abst_ar_write;
-//        let abstData= { abst_data[1],abst_data[0] }; // Make 64 bit but filter down and use XLEN bits
-//        return tuple3(abstOp,truncate(abst_ar_regNo),truncate(abstData));
-//      endmethod
-//      // Recieves response from Abstract Command if any.
-//      method Action  abstractReadResponse(Bit#(XLEN) responseData);
-//        abstRespReg <= tagged Valid responseData; // remove the valid stuff and store the redule right into the data regs.
-//      endmethod
-//      method Bit#(1) haltRequest();
-//        return haltReq;
-//      endmethod
-//      method Bit#(1) resumeRequest();
-//        return resumeReq;
-//      endmethod
-//      method Bit#(1) hart_reset();
-//        return hartReset;
-//      endmethod
-//      method Action  setHalted(Bit#(1) halted);
-//        haltedHart <= halted; // Only One Hart
-//      endmethod
-//      // The HART can Assert this say through the shakti specific csr to disable debugging
-//      // on a hart rather than by having user code maskable runControl.
-//      method Action  setAvailable(Bit#(1) available);
-//        availableHart <= available;
-//      endmethod
-//    endinterface;
-//    method Bit#(1) getNDMReset();
-//      return nDMReset;
-//    endmethod
+
+    // HART - only Single Hart Supported for now - Make this a vector if interfaces for multi hart 
+    interface hart = interface Debug_Hart_Ifc
+
+      method Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation; // if (condition to launch abstract command) !
+        let abstOp = abst_ar_write;
+        let abstData= { abst_data[1],abst_data[0] }; // Make 64 bit but filter down and use XLEN bits
+        return tuple3(abstOp,truncate(abst_ar_regNo),truncate(abstData));
+      endmethod
+
+      method Action  abstractReadResponse(Bit#(XLEN) responseData);
+        if (valueOf(XLEN) == 64)
+          abst_data[1] <= responseData[63:32];
+        abst_data[0] <= responseData[31:0];
+      endmethod
+
+      method Bit#(1) haltRequest();
+        return haltReq;
+      endmethod
+
+      method Bit#(1) resumeRequest();
+        return resumeReq;
+      endmethod
+
+      method Bit#(1) hart_reset();
+        return hartReset;
+      endmethod
+
+      method Action  setHalted(Bit#(1) halted);
+        halted_array[0]   <= halted; // Only One Hart
+      endmethod
+
+      // The HART can Assert this say through the shakti specific csr to disable debugging
+      // on a hart rather than by having user code maskable runControl.
+      method Action  setAvailable(Bit#(1) available);
+        available_array[0] <= available;
+      endmethod
+
+    endinterface;
+
+    method Bit#(1) getNDMReset();
+      return nDMReset;
+    endmethod
+
   endmodule
 endpackage
