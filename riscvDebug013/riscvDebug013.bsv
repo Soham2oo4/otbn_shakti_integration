@@ -26,7 +26,11 @@ Email id: command.paul@gmail.com
 --------------------------------------------------------------------------------------------------
 */
 
+// Conforms to Riscv-Debug spec 0.13 commit cb64db0407b5e6f755ab3c1549e0e1acf4ea5f6d
+// Preseltly implemented Limited to one Hart
 // TODO: Update To match Latest Shakti Bluespec coding guidelines
+
+/// Issue abst command if haltreq, resumereq, and ackhavereset are all 0 , set error if not.
 
 package riscvDebug013;
 
@@ -52,18 +56,28 @@ package riscvDebug013;
     interface Get#(Bit#(34)) getResponse;
   endinterface
 
+  // Change the non existant bit if we ever have yeild based dark silicon
+
+  // make Debug Hart ifc easier to routing For the multi hart case seperating the 
+  // Abstract Access interface ( by makeing it an independent bus
+  // - one hart accessed per abstract command)  and the Hart Run control and status lines 
+
+  // Hartsel cannot be changes while hartreset is asserted
+
   // sub Interface Between DebugModule and Soc for Connection to hart
   // The HART can Assert Available say through the shakti specific csr
   interface Debug_Hart_Ifc;
-    method Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation;
-    method Action  abstractReadResponse(Bit#(XLEN) abstractResponse);
+    method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation;
+    method Action  abstractReadResponse(Bit#(XLEN) abstractResponse);  
     method Bit#(1) haltRequest();
     method Bit#(1) resumeRequest();
     method Bit#(1) hart_reset();                               // Signal TO Reset HART -Active HIGH
-    method Action  setHalted(Bit#(1) halted);
-    method Action  setAvailable(Bit#(1) available);
+    method Action  set_have_reset(Bit#(1) have_reset);
+    method Action  set_halted(Bit#(1) halted);
+    method Action  set_unavailable(Bit#(1) unavailable);  
+    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
   endinterface
-
+    
 	// Interface between Debug Module and SOC
   interface Ifc_riscvDebug013;
     interface Ifc_DM_DTM dtm;
@@ -77,31 +91,35 @@ package riscvDebug013;
   (* conflict_free = "access_system_bus,dtm_putCommand_put"*)
   (* conflict_free = "responseSystemBusWrite,dtm_putCommand_put"*)
   (* conflict_free = "responseSystemBusRead, dtm_putCommand_put"*)
-
-//  (* preempts = "(responseSystemBusRead,responseSystemBusWrite), dtm_putCommand_put" *)
   module mkriscvDebug013(Ifc_riscvDebug013);
 
     Clock curr_clk <- exposeCurrentClock;                                  // current default clock
     Reset curr_reset<-exposeCurrentReset;                                  // current default reset
-
     //  dm_reset is driven by rule generate_derived_reset(dmActive==0)
     MakeResetIfc dm_reset <-mkReset(0,False,curr_clk);            // create a new reset for curr_clk
     Reset derived_reset <- mkResetEither(dm_reset.new_rst,curr_reset);     // OR default and new_rst
 
     //#  UArch Registers
-    Vector#(HartCount,Reg#(Bit#(1))) halted_array       <- replicateM(mkReg(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) available_array    <- replicateM(mkReg(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) have_reset_array   <- replicateM(mkReg(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) resume_ack_array   <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_have_reset   <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_resume_ack   <- replicateM(mkReg(0,reset_by derived_reset));
+
+    Reg#(Bit#(HartCount)) rg_non_existent = readOnlyReg(0);
     
-    //  Reg#(Bit#(1)) haltedHart <- mkReg(0,reset_by derived_reset);
-    //  Reg#(Bit#(1)) availableHart <- mkReg(0,reset_by derived_reset);
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_unavailable  <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted       <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_hawsel       <- replicateM(mkReg(0,reset_by derived_reset));
+    
+    // Shadow Halted required for resume ack
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted_sdw   <- replicateM(mkReg(0,reset_by derived_reset)); 
 
     //#   Interface Registers
     Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
 
     Reg#(Bit#(1)) startSBAccess <- mkReg(0,reset_by derived_reset);
-    Reg#(Bit#(1)) sb_read_write <- mkReg(0,reset_by derived_reset); // Sadly was not implict !
+    Reg#(Bit#(1)) sb_read_write <- mkReg(0,reset_by derived_reset);       // Sadly was not implict !
+    
+    Reg#(Bit#(2)) abst_command_good <- mkReg(0,reset_by derived_reset); // guards Abstract interface
+
     //#  Arch Registers
 
     // dmstatus DM h'11
@@ -109,18 +127,18 @@ package riscvDebug013;
     Reg#(Bit#(9)) dmstatusPad0  = readOnlyReg(0);                         //- dmstatus b31-23
     Reg#(Bit#(1)) impEbreak     = readOnlyReg(0);                         //- dmstatus b22      -RW
     Reg#(Bit#(2)) dmstatusPad1  = readOnlyReg(0);                         //- dmstatus b21-20
-    Reg#(Bit#(1)) allHaveReset  <- mkReg(0,reset_by derived_reset);       //- dmstatus b19      - R
-    Reg#(Bit#(1)) anyHaveReset  <- mkReg(0,reset_by derived_reset);       //- dmstatus b18      - R
-    Reg#(Bit#(1)) allResumeAck  <- mkReg(0,reset_by derived_reset);       //- dmstatus b17      - R
-    Reg#(Bit#(1)) anyResumeAck  <- mkReg(0,reset_by derived_reset);       //- dmstatus b16      - R
-    Reg#(Bit#(1)) allNonExistent<- mkReg(0,reset_by derived_reset);       //- dmstatus b15      - R
-    Reg#(Bit#(1)) anyNonExistent<- mkReg(0,reset_by derived_reset);       //- dmstatus b14      - R
-    Reg#(Bit#(1)) allUnAvail    <- mkReg(0,reset_by derived_reset);       //- dmstatus b13      - R
-    Reg#(Bit#(1)) anyUnAvail    <- mkReg(0,reset_by derived_reset);       //- dmstatus b12      - R
-    Reg#(Bit#(1)) allRunning    <- mkReg(0,reset_by derived_reset);       //- dmstatus b11      - R
-    Reg#(Bit#(1)) anyRunning    <- mkReg(0,reset_by derived_reset);       //- dmstatus b10      - R
-    Reg#(Bit#(1)) allHalted     <- mkReg(0,reset_by derived_reset);       //- dmstatus b9       - R
-    Reg#(Bit#(1)) anyHalted     <- mkReg(0,reset_by derived_reset);       //- dmstatus b8       - R
+    Wire#(Bit#(1)) allHaveReset  <- mkWire();                             //- dmstatus b19      - R
+    Wire#(Bit#(1)) anyHaveReset  <- mkWire();                             //- dmstatus b18      - R
+    Wire#(Bit#(1)) allResumeAck  <- mkWire();                             //- dmstatus b17      - R
+    Wire#(Bit#(1)) anyResumeAck  <- mkWire();                             //- dmstatus b16      - R
+    Wire#(Bit#(1)) allNonExistent<- mkWire();                             //- dmstatus b15      - R
+    Wire#(Bit#(1)) anyNonExistent<- mkWire();                             //- dmstatus b14      - R
+    Wire#(Bit#(1)) allUnAvail    <- mkWire();                             //- dmstatus b13      - R
+    Wire#(Bit#(1)) anyUnAvail    <- mkWire();                             //- dmstatus b12      - R
+    Wire#(Bit#(1)) allRunning    <- mkWire();                             //- dmstatus b11      - R
+    Wire#(Bit#(1)) anyRunning    <- mkWire();                             //- dmstatus b10      - R
+    Wire#(Bit#(1)) allHalted     <- mkWire();                             //- dmstatus b9       - R
+    Wire#(Bit#(1)) anyHalted     <- mkWire();                             //- dmstatus b8       - R
     Reg#(Bit#(1)) authenticated <- mkReg(0,reset_by derived_reset);       //- dmstatus b7       - R
     Reg#(Bit#(1)) authbusy      <- mkReg(0,reset_by derived_reset);       //- dmstatus b6       - R
     Reg#(Bit#(1)) hasResetHaltRequest = readOnlyReg(1);                   //- dmstatus b5       - R
@@ -144,8 +162,8 @@ package riscvDebug013;
     Reg#(Bit#(1)) ackHaveReset  <- mkReg(0,reset_by derived_reset);       //- dmcontrol b28     - W
     Reg#(Bit#(1)) dmcontrolPad0 = readOnlyReg(0);                         //- dmcontrol b27
     Reg#(Bit#(1)) haSel         = readOnlyReg(0);                         //- dmcontrol b26     -RW
-    Reg#(Bit#(10))hartSelLo     <- mkReg(0,reset_by derived_reset);       //- dmcontrol b25-16  -RW
-    Reg#(Bit#(10))hartSelHi     <- mkReg(0,reset_by derived_reset);       //- dmcontrol b15-6   -RW
+    Reg#(Bit#(10))hartSelLo     <- mkReg(0,reset_by derived_reset);       //- dmcontrol b25-16  -RW  // Correct this to one bit writeable
+    Reg#(Bit#(10))hartSelHi     = readOnlyReg(0);                         //- dmcontrol b15-6   -RW
     Reg#(Bit#(2)) dmcontrolPad1 = readOnlyReg(0);                         //- dmcontrol b5-4
     Reg#(Bit#(1)) setResetHaltRequest<-mkReg(0,reset_by derived_reset);   //- dmcontrol b3      - W
     Reg#(Bit#(1)) clrResetHaltReq <- mkReg(0,reset_by derived_reset);     //- dmcontrol b2      - W
@@ -189,12 +207,12 @@ package riscvDebug013;
     Reg#(Bit#(11))abstractcsPad1 = readOnlyReg(0);                        //- abstractcs b23-13
     Reg#(Bit#(1)) abst_busy     <- mkReg(0,reset_by derived_reset);       //- abstractcs b12    - R
     Reg#(Bit#(1)) abstractcsPad2 = readOnlyReg(0);                        //- abstractcs b11
-    Reg#(Bit#(3)) cmderr        <- mkReg(0,reset_by derived_reset);       //- abstractcs b10-8  -RW
+    Reg#(Bit#(3)) abst_cmderr        <- mkReg(0,reset_by derived_reset);       //- abstractcs b10-8  -RW
     Reg#(Bit#(4)) abstractcsPad3 = readOnlyReg(0);                        //- abstractcs b7-4
     Reg#(Bit#(4)) dataCount     = readOnlyReg(12);                        //- abstractcs b3-0   - R
 
     Reg#(Bit#(32)) abstractcs = concatReg8( abstractcsPad0,progBufSize,abstractcsPad1,
-        readOnlyReg(abst_busy),abstractcsPad2,readOnlyReg(cmderr),abstractcsPad3,dataCount);
+        readOnlyReg(abst_busy),abstractcsPad2,readOnlyReg(abst_cmderr),abstractcsPad3,dataCount);
 
     // command DM 'h17
     /*  Only Abstract Register Reads are asupported Therefore that Template has been fixed.*/
@@ -234,15 +252,16 @@ package riscvDebug013;
     abst_data <- replicateM(mkReg(0,reset_by derived_reset));
 
     // progbuf0-15  DM 'h20-'h2f
-    Vector#(16, Reg#(Bit#(32))) progbuf;                                  //- progbufX          -RW
+    Vector#(16,Reg#(Bit#(32))) progbuf;                                   //- progbufX          -RW
     //progbuf ? replicateM(readOnlyReg(0));  // Not Able to make this a vector of read only reg :|
-    progbuf <- replicateM(mkReg(0,reset_by derived_reset)); // Not Able to make this a vector of read only reg :|
+    progbuf <- replicateM(mkReg(0)); // Not Able to make this a vector of read only reg :|
 
     // authdata DM 'h30
     Reg#(Bit#(32)) auth_data <- mkReg(0,reset_by derived_reset);          //- {impl specific}   -RW
 
     // haltsum0 DM 'h40 , 'h13 , 'h34 , 'h35
-    Reg#(Bit#(32)) haltSum0 = concatReg2(readOnlyReg(31'h00000000),readOnlyReg(halted_array[0]));   //haltSum0    - R
+    Reg#(Bit#(TSub#(32,HartCount))) hsum_padding = readOnlyReg(0);
+    Reg#(Bit#(32)) haltSum0 = concatReg2(hsum_padding,vrg_halted[0]); //How to make vector? //haltSum0    - R
     Reg#(Bit#(32)) haltSum1 = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum2 = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum3 = readOnlyReg(0);
@@ -283,28 +302,52 @@ package riscvDebug013;
     Reg#(Bit#(32)) sbData3 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
 
     /*      MODULE RULES      */
-
     //-RULE: Assert derived_reset when dm is inactive
     rule generate_derived_reset(dmActive==0);
       dm_reset.assertReset;
     endrule
 
-    // rule setDMStatusBits;
-    //   // Bit Vector of
-    //   Bit#(
-    //   allHaveReset    <= reduceAnd();
-    //   anyHaveReset    <= reduceOr ();
-    //   allResumeAck    <= reduceAnd();
-    //   anyResumeAck    <= reduceOr ();
-    //   allNonExistent  <= reduceAnd();
-    //   anyNonExistent  <= reduceOr ();
-    //   allUnAvail      <= reduceAnd();
-    //   anyUnAvail      <= reduceOr ();
-    //   allRunning      <= reduceAnd();
-    //   anyRunning      <= reduceOr ();
-    //   allHalted       <= reduceAnd();
-    //   anyHalted       <= reduceOr ();
-    // endrule
+    rule rl_set_dm_status_bits;   // One Cycle delay in update of values , Convert to wires 
+      // Calculating DmStatus Sources
+      for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
+        if ((vrg_halted_sdw[i] ==1) && (vrg_halted[i] == 0))
+          vrg_resume_ack[i] <= 1;
+        else if ((vrg_hawsel[i] == 1) &&(haltReq == 1))
+          vrg_resume_ack[i] <= 0;
+        vrg_halted_sdw[i] <= vrg_halted[i]; // One Cycle Delayed assign;
+      end
+
+      // Bit logic is incorrect update
+      Bit#(HartCount) lv_sel_HaveReset      = 0;
+      Bit#(HartCount) lv_sel_ResumeAck      = 0;
+      Bit#(HartCount) lv_sel_NonExistent    = 0;
+      Bit#(HartCount) lv_sel_UnAvail        = 0;
+      Bit#(HartCount) lv_sel_Running        = 0;
+      Bit#(HartCount) lv_sel_Halted         = 0;
+      Bit#(HartCount) lv_hawsel             = 0;
+      for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
+        lv_sel_HaveReset[i]   =  vrg_have_reset[i]    & vrg_hawsel[i];
+        lv_sel_ResumeAck[i]   =  vrg_resume_ack[i]    & vrg_hawsel[i];
+        lv_sel_NonExistent[i] =  rg_non_existent[i]  & vrg_hawsel[i];
+        lv_sel_UnAvail[i]     =  vrg_unavailable[i]   & vrg_hawsel[i];
+        lv_sel_Running[i]     =  (~vrg_halted[i])       & vrg_hawsel[i];
+        lv_sel_Halted[i]      =  vrg_halted[i]        & vrg_hawsel[i];
+        lv_hawsel             =  vrg_hawsel[i];
+      end
+      allHaveReset    <= (lv_sel_HaveReset == lv_hawsel)?1:0;
+      allResumeAck    <= (lv_sel_ResumeAck == lv_hawsel)?1:0;
+      allNonExistent  <= (lv_sel_NonExistent == lv_hawsel)?1:0;
+      allUnAvail      <= (lv_sel_UnAvail == lv_hawsel)?1:0;
+      allRunning      <= (lv_sel_Running == lv_hawsel)?1:0;
+      allHalted       <= (lv_sel_Halted == lv_hawsel)?1:0;
+
+      anyHaveReset    <= reduceOr ( lv_sel_HaveReset );
+      anyResumeAck    <= reduceOr ( lv_sel_ResumeAck );
+      anyNonExistent  <= reduceOr ( lv_sel_NonExistent );
+      anyUnAvail      <= reduceOr ( lv_sel_UnAvail );
+      anyRunning      <= reduceOr ( lv_sel_Running );
+      anyHalted       <= reduceOr ( lv_sel_Halted );
+    endrule
 
     /*    System Bus ACCESS   */
     AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
@@ -448,8 +491,116 @@ package riscvDebug013;
       end
       sbBusy <=0; // De Assert Busy
     endrule
+  
+  /*      Interface Configuration & Method Definitions        */
+    // Do an Abstract Command - Set up one and only one filter fuinction.
+      // Busy gets set for all accesses., Busy Errors get set here
+      // Filter stage , Supported , Wrong State , Exception ? 
 
-    /*      Interface Configuration & Method Definitions        */
+    // This rule filters abstract commands 
+    // and sets abst command good which guards the abstract operation method
+    // index of halted array to that of presently selected hart ! i.e. handles multiple hart bs.
+    // conditions on abstract op read response & dmi put get  :: using abst_busy 
+    //,& command_good for mutually exclusive rules
+    // if bad set error and de asserrt busy 
+    
+    // Filter Triggered iff bad or unverified commands exist
+    // Hart ID Cannot be changed whiile issueing an abstract command
+    
+    rule filter_abstract_commands((abst_busy == 1) && (abst_command_good == 2'd1)); 
+      Bit#(5) lv_hart_id = hartSelLo[4:0];
+      Bit#(3) lv_abst_cmderr;
+      if((abst_ar_cmdType == 0) && (abst_ar_transfer == 1) )begin
+        if(vrg_unavailable[lv_hart_id] == 1)
+          lv_abst_cmderr = fn_abstract_reg_op_permitted(truncate(abst_ar_regNo),vrg_halted[lv_hart_id],
+                                                      abst_ar_write,abst_ar_aarSize);
+        else 
+          lv_abst_cmderr = pack(Abst_WrongState);
+      end
+      else 
+        lv_abst_cmderr = pack(Abst_NotSupported);
+    
+      if(lv_abst_cmderr == 0)begin
+        abst_command_good <=2'd3;   
+        if(valueOf(VERBOSE)==1)
+          $display($time, "ACG\tDebug:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+          lv_hart_id,abst_ar_regNo,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr);
+      end
+      else begin
+        abst_busy <= 0;
+        abst_command_good <=2'd0;
+        if(valueOf(VERBOSE)==1)
+          $display($time, "ACB\tDebug:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+          lv_hart_id,abst_ar_regNo,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr);
+      end
+
+      abst_cmderr <= lv_abst_cmderr;
+    endrule 
+
+    // HART Interface , Vector of hart interfaces 
+    // Hard Setup for only one hart right now
+    Vector#(HartCount,Debug_Hart_Ifc) hart_interface_vector;
+
+    for(Integer i = 0; i<valueOf(HartCount); i=i+1) begin
+      hart_interface_vector[i] = interface Debug_Hart_Ifc
+        // Issue a Command iff command good is asserted
+        // Get this out of the vector !
+        method ActionValue#(Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation 
+                                                    if((abst_command_good == 2'd3) && (abst_busy == 1));
+          Bit#(XLEN) data_frame = truncate({abst_data[1],abst_data[0]});
+          abst_command_good <= 2'd2;
+          return tuple3(abst_ar_write,truncate(abst_ar_regNo),truncate(data_frame));
+        endmethod
+
+        method Action  abstractReadResponse(Bit#(XLEN) responseData) 
+                                                    if((abst_command_good == 2'd2) && (abst_busy == 1));
+          if(abst_ar_aarPostIncrement == 1)  
+            abst_ar_regNo <= abst_ar_regNo + 1;
+          abst_data[0] <= responseData[31:0]; 
+          if ((valueOf(XLEN) == 64 )&& (abst_ar_aarSize == 3'd3 ))
+            abst_data[1] <= responseData[63:32];
+          abst_command_good <= 2'd0;
+          abst_busy <= 0;
+        endmethod
+
+        method Bit#(1) haltRequest();
+          if((vrg_hawsel[i] == 1) && (vrg_unavailable[i] == 0))
+            return haltReq;
+          else 
+            return 0;
+        endmethod
+        
+        method Bit#(1) resumeRequest();
+          if((vrg_hawsel[i] == 1) && (vrg_unavailable[i] == 0))
+            return resumeReq;
+          else 
+            return 0;
+        endmethod
+        
+        method Bit#(1) hart_reset();
+          if((vrg_hawsel[i] == 1) && (vrg_unavailable[i] == 0))
+            return hartReset;
+          else 
+            return 0;
+        endmethod
+        
+        method Action  set_halted(Bit#(1) halted);
+          vrg_halted[i]   <= halted; // Only One Hart
+        endmethod
+        
+        method Action  set_unavailable(Bit#(1) unavailable);
+          //The Hart has to also assert unavailable while being reset,sets available only when ready.
+          vrg_unavailable[i] <= unavailable;
+        endmethod
+
+        method Action  set_have_reset(Bit#(1) have_reset);
+          vrg_have_reset[i] <= have_reset;
+        endmethod
+      endinterface;
+    end
+    
+    // Non Vector of iterfaces , single hart debug
+    interface hart = hart_interface_vector[0];
 
     // AXI Interface to SOC
     interface debug_master = master_xactor.axi_side;
@@ -457,7 +608,7 @@ package riscvDebug013;
     // DMI - DTM Interface
     interface dtm = interface Ifc_DM_DTM
       interface putCommand = interface Put
-        method Action put(Bit#(41) request_data) if (!isValid(dmi_response ));
+        method Action put(Bit#(41) request_data) if (!isValid(dmi_response) && (abst_command_good[0] == 0));
           // The DMI Requests are Recieved here
           Bit#(2)  dmi_op   = request_data[1:0];
           Bit#(32) dmi_data = request_data[33:2];
@@ -519,7 +670,15 @@ package riscvDebug013;
               `FIVO(HALTSUM0):           dmi_response_data = haltSum0;
               default:begin
                 if((dmi_addr >= `FIVO(ABSTRACTDATASTART)) && (dmi_addr<= `FIVO(ABSTRACTDATAEND)))begin
-                  dmi_response_data = abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)];
+                  if(abst_busy == 1)
+                    abst_cmderr <= pack(Abst_Busy);
+                  else begin
+                    dmi_response_data = abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)];
+                    if(autoExecData[dmi_addr - `FIVO(ABSTRACTDATASTART)] == 1)begin  // Trigger operation
+                      abst_busy <= 1;
+                      abst_command_good <= 2'd1;
+                    end
+                  end
                 end
                 else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
                   dmi_response_data = progbuf[dmi_addr - `FIVO(PBSTART)]; // Not implemented so should read back zero
@@ -537,7 +696,11 @@ package riscvDebug013;
               `FIVO(HAWINDOWSEL):        hawindowsel <= dmi_data;
               `FIVO(HAWINDOW):           hawindow <= dmi_data;
               `FIVO(ABSTRACTCTS):        abstractcs <= dmi_data;
-              `FIVO(COMMAND):            abst_command <= dmi_data;
+              `FIVO(COMMAND):begin
+                              abst_command <= dmi_data;
+                              abst_busy <= 1 ;
+                              abst_command_good <= 2'd1;
+                            end
               `FIVO(ABSTRACTAUTO):       abstractauto <= dmi_data;
               `FIVO(AUTHDATA):           auth_data <= dmi_data;
               `FIVO(SBADDRESS3):begin
@@ -597,7 +760,15 @@ package riscvDebug013;
               `FIVO(HALTSUM0):           haltSum0 <= dmi_data;
               default:begin
                 if((dmi_addr >= `FIVO(ABSTRACTDATASTART)) && (dmi_addr<= `FIVO(ABSTRACTDATAEND)))begin
-                  abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)] <= dmi_data;
+                  if(abst_busy == 1)
+                    abst_cmderr <= pack(Abst_Busy);
+                  else begin
+                    abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)] <= dmi_data;
+                    if(autoExecData[dmi_addr - `FIVO(ABSTRACTDATASTART)] == 1)begin  // Trigger operation
+                      abst_busy <= 1;
+                      abst_command_good <= 2'd1;
+                    end
+                  end
                 end
                 else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
                   progbuf[dmi_addr - `FIVO(PBSTART)] <= dmi_data;
@@ -615,45 +786,6 @@ package riscvDebug013;
           return validValue(dmi_response);
         endmethod
       endinterface;
-    endinterface;
-
-    // HART - only Single Hart Supported for now - Make this a vector if interfaces for multi hart 
-    interface hart = interface Debug_Hart_Ifc
-
-      method Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN)) abstractOperation; // if (condition to launch abstract command) !
-        let abstOp = abst_ar_write;
-        let abstData= { abst_data[1],abst_data[0] }; // Make 64 bit but filter down and use XLEN bits
-        return tuple3(abstOp,truncate(abst_ar_regNo),truncate(abstData));
-      endmethod
-
-      method Action  abstractReadResponse(Bit#(XLEN) responseData);
-        if (valueOf(XLEN) == 64)
-          abst_data[1] <= responseData[63:32];
-        abst_data[0] <= responseData[31:0];
-      endmethod
-
-      method Bit#(1) haltRequest();
-        return haltReq;
-      endmethod
-
-      method Bit#(1) resumeRequest();
-        return resumeReq;
-      endmethod
-
-      method Bit#(1) hart_reset();
-        return hartReset;
-      endmethod
-
-      method Action  setHalted(Bit#(1) halted);
-        halted_array[0]   <= halted; // Only One Hart
-      endmethod
-
-      // The HART can Assert this say through the shakti specific csr to disable debugging
-      // on a hart rather than by having user code maskable runControl.
-      method Action  setAvailable(Bit#(1) available);
-        available_array[0] <= available;
-      endmethod
-
     endinterface;
 
     method Bit#(1) getNDMReset();
