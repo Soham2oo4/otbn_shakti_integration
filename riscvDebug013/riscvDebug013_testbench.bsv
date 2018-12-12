@@ -29,7 +29,7 @@ Email id: command.paul@gmail.com
 package riscvDebug013_testbench;
 
   import riscvDebug013::*;
-  import dummy_hart::*;
+  import hart_template::*;
 
   import StmtFSM::*;
   import Connectable:: *;
@@ -37,6 +37,8 @@ package riscvDebug013_testbench;
   import debug_types::*;
   import AXI4_Fabric:: *;
   import bram::*;
+
+  // These tests are bigger than they seem , disable then selectively to improve compile time 
 
   // Function MACROS For Scalable Test writing
   `define FIVO(x) fromInteger(valueOf(x))
@@ -71,7 +73,7 @@ package riscvDebug013_testbench;
   module mkdummy(Empty);
     /*      Test Environment    */
     // Hardcoded for PADDR 32 AND XLEN 32
-    Hart_Debug_Ifc hart <- mkDummyHart();
+    Hart_Debug_Ifc hart <- mkHartTemplate();
     Ifc_riscvDebug013 device <- mkriscvDebug013();
 
     // AXI4_Fabric_IFC #(`Num_Masters, `Num_Slaves, PADDR, XLEN, USERSPACE)
@@ -84,7 +86,8 @@ package riscvDebug013_testbench;
 
     Reg#(Bit#(7))   dmi_address   <-  mkReg(0);
     Reg#(Bit#(32))  dmi_resp_data <-  mkReg(0);
-
+    Reg#(Bit#(32))  i             <-  mkReg(0); // Iteration index
+    Reg#(Bit#(32))  imax          <-  mkReg(0); // Iteration index bound
     /*      Test Sequences      */
 
     // resetDM with DM Active
@@ -117,7 +120,7 @@ package riscvDebug013_testbench;
       endseq
     endseq;
     FSM fsm_test_reset_values <- mkFSM(test_reset_values);
-    /*    System Bus Access Tests   */
+    //    System Bus Access Tests   
 
     // sbTest0 Busy bits get set on Write,and get cleared on W1C
     Stmt sbTest0 = seq
@@ -173,7 +176,6 @@ package riscvDebug013_testbench;
 
     // sbTest2 - Increment
     // Success should read back 0,1,2,3,4,9,66660006,66660007,66660008,66660009
-    Reg#(Bit#(32)) i <- mkReg(0);
     Stmt sb_test2 = seq
       `DMI_READ(`FIVO(SBCS))
       `DMI_WRITE(`FIVO(SBCS),({dmi_resp_data[31:17],1'b1,dmi_resp_data[15:0]})) // Set autoIncrement
@@ -282,6 +284,61 @@ package riscvDebug013_testbench;
     endseq;
     FSM fsm_sb_test4 <- mkFSM(sb_test4);
 
+    // Tests For Abstract Commands
+    // abst_test0 
+    // This Test attempts to read the entirety of the Abstract command address range for hart 0
+    Stmt abst_test0 = seq
+      $display("abst_test0");
+      imax <= 10;
+      for(i<=0;i<imax;i <= i +1 )seq
+        `DMI_WRITE(`FIVO(COMMAND),({8'd0,1'b0,3'd2,1'b1,2'b01,1'b0,i[15:0]}))
+        `DMI_READ(`FIVO(ABSTRACTCTS))
+        while(dmi_resp_data[12] == 1)seq   // poll on abst_busy 
+          `DMI_READ(`FIVO(ABSTRACTCTS))
+        endseq
+      endseq
+    endseq;
+    FSM fsm_abst_test0 <- mkFSM(abst_test0);
+        
+    // abst_test1
+    // This Test attempts to write 0 and read back the entirety of the Abstract command address range for hart 0
+    Stmt abst_test1 = seq
+      $display("abst_test1");
+      imax <= 10;
+      `DMI_WRITE(`FIVO(ABSTRACTDATASTART),32'hffffffff)
+      `DMI_WRITE((`FIVO(ABSTRACTDATASTART)+1),32'hffffffff)
+      for(i<=0;i<imax;i <= i +1 )seq
+        `DMI_WRITE(`FIVO(COMMAND),({8'd0,1'b0,3'd2,1'b1,2'b01,1'b1,i[15:0]}))
+        `DMI_READ(`FIVO(ABSTRACTCTS))
+        while(dmi_resp_data[12] == 1)seq   // poll on abst_busy 
+          `DMI_READ(`FIVO(ABSTRACTCTS))
+        endseq
+      endseq
+      for(i<=0;i<imax;i <= i +1 )seq
+        `DMI_WRITE(`FIVO(COMMAND),({8'd0,1'b0,3'd2,1'b1,2'b01,1'b0,i[15:0]}))
+        `DMI_READ(`FIVO(ABSTRACTCTS))
+        while(dmi_resp_data[12] == 1)seq   // poll on abst_busy 
+          `DMI_READ(`FIVO(ABSTRACTCTS))
+        endseq
+      endseq
+    endseq;
+    FSM fsm_abst_test1 <- mkFSM(abst_test1);
+    
+    // abst_test2
+    // Attempt Abstract command for a hart that does not exist ( Hartsel is not hart 0)
+    
+    // abst_test3
+    // TEst Abstract Auto for all Data registers 
+
+    // abst_test4
+    // Trigger Abstract Errors for un supported functions 
+
+    // abst_test4
+    // Trigger Abstract Errors for un supported functions 
+    
+
+    // Hart Selection and Run control tests
+
     /*        Test Driver      */
     Stmt testBench = seq
       fsm_resetDM.start;
@@ -314,6 +371,14 @@ package riscvDebug013_testbench;
       fsm_sb_test4.waitTillDone;
       fsm_resetDM.start;
       fsm_resetDM.waitTillDone;
+      fsm_abst_test0.start;
+      fsm_abst_test0.waitTillDone;
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
+      fsm_abst_test1.start;
+      fsm_abst_test1.waitTillDone;
+      fsm_resetDM.start;
+      fsm_resetDM.waitTillDone;
       delay(100);
       $display($time,"\tEnd of Test");
       $finish();
@@ -324,6 +389,13 @@ package riscvDebug013_testbench;
       tests.start;
     endrule
 
+    rule timeout;
+      let x <- $time();
+      if(x >= 1000000)begin
+        $finish();
+        $display("Timeout");
+      end
+    endrule
   endmodule
 endpackage
 
