@@ -29,65 +29,13 @@ Email id: command.paul@gmail.com
 // Template of an Ideal HART for debugging
 
 package hart_template;
-  import riscvDebug013::*;
-  import debug_types::*;
 
   import Connectable::*;
   import Clocks::*;
   import DReg :: * ;
-  
-  interface Hart_Debug_Ifc;
-    method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))abstract_command);
-    method ActionValue#(Bit#(XLEN)) abstractReadResponse;
-    method Action   haltRequest(Bit#(1) halt_request);
-    method Action   resumeRequest(Bit#(1) resume_request);
-    method Action   hartReset(Bit#(1) hart_reset_v); // Change to reset type // Signal TO Reset HART -Active HIGH
-    method Bit#(1)  has_reset;
-    method Bit#(1)  is_halted;
-    method Bit#(1)  is_unavailable;
-  endinterface
 
-  // Thses rules can fire iff the hart is available where capture that on the debug module side
-  // Every interface pairing is a seperate rule to prevent any implict conditions blocking others
-  // Abstract Interface has implict conditions , abstract operations are guarded.
-  
-  instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
-    module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
-      
-      rule operation; 
-        let x <- debug_module.abstractOperation;
-        hart.abstractOperation(x);
-      endrule
-
-      rule response;
-        let x <- hart.abstractReadResponse();
-        debug_module.abstractReadResponse(x);
-      endrule
-      
-      rule connect_halt_req;
-        hart.haltRequest(debug_module.haltRequest());
-      endrule
-
-      rule connect_resume_req;
-        hart.resumeRequest(debug_module.resumeRequest());
-      endrule
-
-      rule connect_hart_reset;
-        hart.hartReset(debug_module.hart_reset());
-      endrule
-      rule connect_halted;
-        debug_module.set_halted(hart.is_halted());
-      endrule
-
-      rule connect_available;
-        debug_module.set_unavailable(hart.is_unavailable());
-      endrule
-
-      rule connect_has_reset;
-        debug_module.set_have_reset(hart.has_reset);
-      endrule
-    endmodule
-  endinstance
+  import riscvDebug013::*;
+  import debug_types::*;
 
   (*synthesize*)
   module mkHartTemplate(Hart_Debug_Ifc);

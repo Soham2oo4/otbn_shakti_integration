@@ -1,8 +1,94 @@
 package debug_types;
+
+  import GetPut :: *;
+  import AXI4_Types::*;
+  import Connectable::*;
+  // Limit What is Exported !
+
   // Helpful Macros
   `define FIVO(x) fromInteger(valueOf(x))
+
+  // Interface
+    //Interface between Debug Module and DTM (eg. JtagDTM)
+	interface Ifc_DM_DTM;
+    interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
+    interface Get#(Bit#(34)) getResponse;
+  endinterface
+
+  
+  interface Debug_Hart_Ifc;
+    method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation;
+    method Action  abstractReadResponse(Bit#(XLEN) abstractResponse);  
+    method Bit#(1) haltRequest();
+    method Bit#(1) resumeRequest();
+    method Bit#(1) hart_reset();                               // Signal TO Reset HART -Active HIGH
+    method Action  set_have_reset(Bit#(1) have_reset);
+    method Action  set_halted(Bit#(1) halted);
+    method Action  set_unavailable(Bit#(1) unavailable);  
+    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
+  endinterface
+    
+	// Interface between Debug Module and SOC
+  interface Ifc_riscvDebug013;
+    interface Ifc_DM_DTM dtm;
+    interface Debug_Hart_Ifc hart;
+    interface AXI4_Master_IFC#(PADDR, XLEN, 0 ) debug_master;
+    method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
+  endinterface
+
+  interface Hart_Debug_Ifc;
+    method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))abstract_command);
+    method ActionValue#(Bit#(XLEN)) abstractReadResponse;
+    method Action   haltRequest(Bit#(1) halt_request);
+    method Action   resumeRequest(Bit#(1) resume_request);
+    method Action   hartReset(Bit#(1) hart_reset_v); // Change to reset type // Signal TO Reset HART -Active HIGH
+    method Bit#(1)  has_reset;
+    method Bit#(1)  is_halted;
+    method Bit#(1)  is_unavailable;
+  endinterface
+
+  // Thses rules can fire iff the hart is available where capture that on the debug module side
+  // Every interface pairing is a seperate rule to prevent any implict conditions blocking others
+  // Abstract Interface has implict conditions , abstract operations are guarded.
+  instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
+    module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
+      
+      rule operation; 
+        let x <- debug_module.abstractOperation;
+        hart.abstractOperation(x);
+      endrule
+
+      rule response;
+        let x <- hart.abstractReadResponse();
+        debug_module.abstractReadResponse(x);
+      endrule
+      
+      rule connect_halt_req;
+        hart.haltRequest(debug_module.haltRequest());
+      endrule
+
+      rule connect_resume_req;
+        hart.resumeRequest(debug_module.resumeRequest());
+      endrule
+
+      rule connect_hart_reset;
+        hart.hartReset(debug_module.hart_reset());
+      endrule
+      rule connect_halted;
+        debug_module.set_halted(hart.is_halted());
+      endrule
+
+      rule connect_available;
+        debug_module.set_unavailable(hart.is_unavailable());
+      endrule
+
+      rule connect_has_reset;
+        debug_module.set_have_reset(hart.has_reset);
+      endrule
+    endmodule
+  endinstance
+
   // Constants
-  typedef 32  MaxHarts; // NOT A Variable !
 	typedef enum {    Abst_NoError = 3'b000        , Abst_Busy = 3'b001,
 			          		Abst_NotSupported = 3'b010   , Abst_Exception = 3'b011,
 			          		Abst_WrongState = 3'b100     , Abst_Bus       = 3'b101,

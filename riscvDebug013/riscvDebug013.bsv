@@ -50,41 +50,10 @@ package riscvDebug013;
 
   `define FIVO(x) fromInteger(valueOf(x))
 
-  //Interface between Debug Module and DTM (eg. JtagDTM)
-	interface Ifc_DM_DTM;
-    interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
-    interface Get#(Bit#(34)) getResponse;
-  endinterface
-
-  // Change the non existant bit if we ever have yeild based dark silicon
-
-  // make Debug Hart ifc easier to routing For the multi hart case seperating the 
-  // Abstract Access interface ( by makeing it an independent bus
-  // - one hart accessed per abstract command)  and the Hart Run control and status lines 
-
   // Hartsel cannot be changes while hartreset is asserted
-
   // sub Interface Between DebugModule and Soc for Connection to hart
   // The HART can Assert Available say through the shakti specific csr
-  interface Debug_Hart_Ifc;
-    method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation;
-    method Action  abstractReadResponse(Bit#(XLEN) abstractResponse);  
-    method Bit#(1) haltRequest();
-    method Bit#(1) resumeRequest();
-    method Bit#(1) hart_reset();                               // Signal TO Reset HART -Active HIGH
-    method Action  set_have_reset(Bit#(1) have_reset);
-    method Action  set_halted(Bit#(1) halted);
-    method Action  set_unavailable(Bit#(1) unavailable);  
-    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
-  endinterface
-    
-	// Interface between Debug Module and SOC
-  interface Ifc_riscvDebug013;
-    interface Ifc_DM_DTM dtm;
-    interface Debug_Hart_Ifc hart;
-    interface AXI4_Master_IFC#(PADDR, XLEN, 0 ) debug_master;
-    method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
-  endinterface
+  
 
   (*synthesize*)
   (* conflict_free = "responseSystemBusRead,responseSystemBusWrite" *)
@@ -194,7 +163,7 @@ package riscvDebug013;
     Reg#(Bit#(32))hawindowsel = concatReg2(hawindowselPad0,hawindowselR);
 
     // hawindow DM 'h15
-
+    // Correct this to chance with Hawindow sel.!
     Reg#(Bit#(31))hawindowPad0  = readOnlyReg(0);                         //- hawindow b31-1
     Reg#(Bit#(1)) maskData      <- mkReg(0,reset_by derived_reset);       //- hawindow b0       -RW
 
