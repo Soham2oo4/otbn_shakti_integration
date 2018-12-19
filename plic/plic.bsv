@@ -143,6 +143,7 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 		Bit#(x_ir_bits) ir_id_valid = 0;
 		Bit#(no_of_ir_levels) lv_priority = 0;
 		Bit#(no_of_ir_pins) lv_total_priority = 0;
+		Bool i_valid = False;
 		for(Integer i = 0; i < v_no_of_ir_pins; i = i + 1)
 		 begin
 			if(rg_ip[i][1] && rg_ie[i]) begin
@@ -162,12 +163,18 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 			Bit#(no_of_ir_levels) lv_winner_priority = 0;
 			lv_winner_priority[winner_priority] = 1;
 			rg_winner_priority <= lv_winner_priority;
+			if(rg_priority_threshold <= lv_winner_priority)
+				i_valid = True;
 		end
+		if(!i_valid)
+			rg_interrupt_valid <= False;
+				
 	endrule
 
 	rule rl_encoder(rg_plic_state==1);
+		`ifdef verbose $display("Interrupt valid");`endif
 		Bit#(ir_bits) interrupt_id = irencoder.encode(rg_total_priority);
-		if(interrupt_id!=0 && rg_priority_threshold >= rg_winner_priority) begin
+		if(interrupt_id!=0 && rg_priority_threshold <= rg_winner_priority) begin
 			`ifdef verbose $display("Interrupt valid");`endif
 			rg_interrupt_id <= interrupt_id;
 			rg_interrupt_valid <= True;
@@ -199,7 +206,7 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 						  endinterface;
 	end
 
-	interface ifc_external_irq_io = temp_ifc_irq;
+interface ifc_external_irq_io = temp_ifc_irq;
 
 interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 
@@ -214,7 +221,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 
 								Bit#(64) temp=0;
 								let dvalue=valueOf(data_width);
-								Bit#(6) shift_amt=zeroExtend(address[2:0])<<3;
+								Bit#(6) shift_amt=zeroExtend(address[2:0]);
 
 								if(address < `base) begin
 									address = address >> 2;
@@ -282,7 +289,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 										end
 									end
 								end
-								else if(address < `base+'h20000)
+								else if(address <`base+'h20000)
 								begin
 									if(mem_req.ld_st == Load) 
 									begin
@@ -307,7 +314,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											for(Integer i = 0; i < 32; i = i+1)
 											temp[i] = pack(rg_ie[source_id + fromInteger(i)]);
 										end
-                                            `ifdef verbose $display($time,"PLIC: Printing Source Enable Interrupt: %h data_return: %h",source_id,temp); `endif
+                    `ifdef verbose $display($time,"PLIC: Printing Source Enable Interrupt: %h data_return: %h",source_id,temp); `endif
 									end
 									else if(mem_req.ld_st == Store) begin
 										source_id = address[v_msb_ir_bits:0];
@@ -357,7 +364,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 									end
 								end
 
-								temp=temp>>shift_amt;
+								//temp=temp>>shift_amt;
 
 								if(size==Byte && dvalue%8==0)
 							           temp = duplicate(temp[7:0]);
@@ -389,7 +396,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 									let v_no_nmi=valueOf(no_nmi);
 									Bool if_nmi = (rg_interrupt_id < fromInteger(v_no_nmi));
 									Bool valid_interrupt = rg_interrupt_valid;
-									rg_interrupt_valid <= False;
+									//rg_interrupt_valid <= False;
 									return tuple2(valid_interrupt, if_nmi);
 								endmethod
 							endinterface;
@@ -437,7 +444,7 @@ endmodule
 						byte_offset=fromInteger(i);
 				end
 				let {x,success} <- plic.ifc_prog_reg.prog_reg(UncachedMemReq{address : aw.awaddr, transfer_size : 'd3, 
-														u_signed : 0, byte_offset : byte_offset, write_data : w.wdata, ld_st : Store},unpack(aw.awsize)); 
+														u_signed : 0, byte_offset : byte_offset, write_data : w.wdata, ld_st : Store},unpack(truncate(aw.awsize))); 
 
 				let w_resp = AXI4_Lite_Wr_Resp {bresp: success?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: 0 }; //TODO user value is null
 				s_xactor.i_wr_resp.enq(w_resp);
@@ -447,7 +454,7 @@ endmodule
 
 				let ar <- pop_o(s_xactor.o_rd_addr);
 				let {x,success} <- plic.ifc_prog_reg.prog_reg(UncachedMemReq{address : ar.araddr, transfer_size : 'd3, 
-			    														u_signed : 0, byte_offset : 0, ld_st : Load},unpack(ar.arsize)); 
+			    														u_signed : 0, byte_offset : 0, ld_st : Load},unpack(truncate(ar.arsize))); 
 		        
 
 				let r = AXI4_Lite_Rd_Data {rresp: success?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: duplicate(x), ruser: 0};
