@@ -138,7 +138,7 @@ interface DmaC #(numeric type numChannels, numeric type numPeripherals);
 	interface AXI4_Master_IFC#(`PADDR,`Reg_width,`USERSPACE) mmu;
 	interface AXI4_Slave_IFC#(`PADDR,`Reg_width,`USERSPACE) cfg;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
-	method Bit#(numChannels) interrupt_to_processor();
+	interface Get#(Bit#(1)) interrupt_to_proc;
 endinterface
 
 
@@ -919,19 +919,21 @@ module mkDMA( DmaC #(numChannels, numPeripherals) )
 	//and checking if that corresponding interrupt is not masked.
 	//Raise the interrupt of a particular channel if any of the interrupts are active (in ISR) and 
 	//are not masked(in CCR).
-	method Bit#(1) interrupt_to_processor();
-		Bit#(numChannels) lv_interrupt_to_processor;
-		for(Integer chanNum= 0; chanNum < valueof(numChannels); chanNum= chanNum + 1) begin
-			let lv_dma_ccr= dma_ccr[chanNum];
-			//The bits in CCR represent the interrupts that are enabled, whereas the ones in IFCR represent which need to be cleared
-			let lv_intr_TE_HT_TC_enable= lv_dma_ccr[3:1];
+    interface  interrupt_to_proc= interface Get
+    method ActionValue#(Bit#(1)) get();
+				Bit#(numChannels) lv_interrupt_to_processor;
+				for(Integer chanNum= 0; chanNum < valueof(numChannels); chanNum= chanNum + 1) begin
+					let lv_dma_ccr= dma_ccr[chanNum];
+					//The bits in CCR represent the interrupts that are enabled, whereas the ones in IFCR represent which need to be cleared
+					let lv_intr_TE_HT_TC_enable= lv_dma_ccr[3:1];
 
-			//The bits in ISR represent which interrupts are active right now
-			Bit#(3) active_interrupts= {lv_intr_TE_HT_TC_enable} & dma_isr[chanNum][3:1];
-			lv_interrupt_to_processor[chanNum]= |(active_interrupts);
-		end
-		return |(lv_interrupt_to_processor);
-	endmethod
+					//The bits in ISR represent which interrupts are active right now
+					Bit#(3) active_interrupts= {lv_intr_TE_HT_TC_enable} & dma_isr[chanNum][3:1];
+					lv_interrupt_to_processor[chanNum]= |(active_interrupts);
+				end
+				return |(lv_interrupt_to_processor);
+	  endmethod
+    endinterface;
 endmodule
 
 endpackage
