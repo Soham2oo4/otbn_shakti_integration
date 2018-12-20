@@ -55,6 +55,7 @@ import AXI4_Fabric  :: *;
 import Semi_FIFOF        :: *;
 import ConcatReg :: *;
 import ConfigReg :: *;
+import BUtils :: *;
 
 `define Burst_length_bits 8
 `define USERSPACE 0
@@ -100,35 +101,6 @@ typedef Bit#(`Reg_width) Req_Data;
 //typedef Bit#(1) RespAddr;
 //typedef Bit#(32) RespData;
 
-// ----------------------------------------------------------------
-// At times it is best to consider registers as completely homogeneous,
-// so that they can be accessed as a bit pattern with no internal
-// structure.  These functions convert reg interfaces based on a
-// structured type to reg interfaces based on a bit pattern of at
-// least the same width.
-
-function Reg#(Bit#(n)) regAToRegBitN( Reg#(a_type) rin )
-	provisos ( Bits#( a_type, asize),
-			   Add#(asize,xxx,n) ) ;
-
-	return
-	interface Reg
-		method Bit#(n) _read ();
-			a_type tmp =  rin._read()  ;
-			return zeroExtend (pack( tmp )) ;
-		endmethod
-		method Action _write( Bit#(n) din );
-			rin._write( unpack( truncate(din) )) ;
-		endmethod
-	endinterface ;
-endfunction
-
-// This function converts a Vector of 7 Registers to a single Register
-function Reg#(Bit#(TMul#(7,q))) vector7ToRegN(Vector#(7,Reg#(Bit#(q))) inpV);
-	return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
-	//return asReg(zeroExtend(pack(inpV)));
-endfunction
-
 // ================================================================
 // The DMA interface has two sub-interfaces
 //  A AXI4 Slave interface for config
@@ -173,9 +145,12 @@ endinstance
 (* descending_urgency = "writeConfig, rl_finishRead" *)
 (* descending_urgency = "writeConfig, rl_startWrite" *)
 module mkDMA( DmaC #(numChannels, numPeripherals) )
-	provisos ( Add#(numChannels, 0, 7),
-			   Add#(a__, TLog#(numPeripherals), 4)); 
+provisos (Add#(b__, TLog#(numPeripherals), 4),
+	 				//Add#(numChannels, a__, 7),
+	 				Add#(numChannels, 0, 7),
+					Add#(TMul#(numChannels, 4), a__, 64));	//This is a redundant proviso
 
+	let val_numChannels= valueOf(numChannels);
 	// The DMA contains one master interface, and one slave interface. The processor sends
 	// request through the slave interface to set the config registers.
 	// The DMA's master initiates a request to one of the peripherals through one of the
@@ -384,7 +359,7 @@ module mkDMA( DmaC #(numChannels, numPeripherals) )
 				end
 			end
 			if(pack(wr_peripheral_interrupt)!=0 || dma_ccr[chanNum][14]==1) begin
-				Reg#(Bit#(64)) lv_dma_ifcr= regAToRegBitN( vector7ToRegN( dma_ifcr ));
+				Reg#(Bit#(64)) lv_dma_ifcr= regAToRegBitN( vectorToRegN( dma_ifcr ));
 				$display($time,"Chan%d: cndtr: %h dma_isr: %h dma_ifcr: %h", chanNum, dma_cndtr[chanNum], dma_isr[chanNum], lv_dma_ifcr );
 			end
 			//$display($time,"grant chan_id: %d periph_id: %d",grant_chan_id,grant_periph_id);
@@ -682,70 +657,178 @@ module mkDMA( DmaC #(numChannels, numPeripherals) )
 	// Add a zero-size register as a default for invalid addresses
 	Reg#(Bit#(0)) nullReg <- mkReg( ? ) ;
 
+// ----------------------------------------------------------------
+// At times it is best to consider registers as completely homogeneous,
+// so that they can be accessed as a bit pattern with no internal
+// structure.  These functions convert reg interfaces based on a
+// structured type to reg interfaces based on a bit pattern of at
+// least the same width.
+
+function Reg#(Bit#(n)) regAToRegBitN( Reg#(a_type) rin )
+	provisos ( Bits#( a_type, asize),
+			   Add#(asize,xxx,n) ) ;
+
+	return
+	interface Reg
+		method Bit#(n) _read ();
+			a_type tmp =  rin._read()  ;
+			return zeroExtend (pack( tmp )) ;
+		endmethod
+		method Action _write( Bit#(n) din );
+			rin._write( unpack( truncate(din) )) ;
+		endmethod
+	endinterface ;
+endfunction
+
+// This function converts a Vector of (upto 7) Registers to a single Register
+//TODO For now, this function has to be manually changed when num of channels change.
+function Reg#(Bit#(TMul#(7,q))) vectorToRegN(Vector#(7,Reg#(Bit#(q))) inpV);
+	return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
+	//return asReg(zeroExtend(pack(inpV)));
+endfunction
+/*function Reg#(Bit#(TMul#(numChannels,q))) vectorToRegN(Vector#(numChannels,Reg#(Bit#(q))) inpV);
+		return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
+endfunction*/
+
+//This doesn't work
+/*function Reg#(Bit#(TMul#(param,q))) vectorToRegN(Vector#(param,Reg#(Bit#(q))) inpV)
+	provisos(Add#(param,a__,7));
+	let val_param= valueOf(param);
+	if(val_param==1)
+		return regAToRegBitN(concatReg7(nullReg, nullReg, nullReg, nullReg, nullReg, nullReg, inpV[0]));
+	else if(val_param==2)
+		return regAToRegBitN(concatReg7(nullReg, nullReg, nullReg, nullReg, nullReg, inpV[1], inpV[0]));
+	else if(val_param==3)
+		return regAToRegBitN(concatReg7(nullReg, nullReg, nullReg, nullReg, inpV[2], inpV[1], inpV[0]));
+	else if(val_param==4)
+		return regAToRegBitN(concatReg7(nullReg, nullReg, nullReg, inpV[3], inpV[2], inpV[1], inpV[0]));
+	else if(val_param==5)
+		return regAToRegBitN(concatReg7(nullReg, nullReg, inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]));
+	else if(val_param==6)
+		return regAToRegBitN(concatReg7(nullReg, inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]));
+	else if(val_param==7)
+		return regAToRegBitN(concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]));
+	else 
+		return regAToRegBitN( nullReg );
+	//return asReg(zeroExtend(pack(inpV)));
+endfunction*/
+
+//This doesn't work
+/*function Reg#(Bit#(TMul#(param,q))) vectorToRegN(Vector#(param,Reg#(Bit#(q))) inpV)
+	provisos(Add#(param,a__,7));
+	let val_param= valueOf(param);
+	if(val_param==1)
+		return inpV[0];
+	else if(val_param==2)
+		return concatReg2(inpV[1], inpV[0]);
+	else if(val_param==3)
+		return concatReg3(inpV[2], inpV[1], inpV[0]);
+	else if(val_param==4)
+		return concatReg4(inpV[3], inpV[2], inpV[1], inpV[0]);
+	else if(val_param==5)
+		return concatReg5(inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
+	else if(val_param==6)
+		return concatReg6(inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
+	else if(val_param==7)
+		return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
+	else 
+		return regAToRegBitN( nullReg );
+	//return asReg(zeroExtend(pack(inpV)));
+endfunction*/
+
+	function Tuple2#(Reg#(Req_Data), Bool) can_return( Reg#(b_type) inp, Integer channels)
+	provisos (Bits#(b_type, bsize),
+						Add#(bsize,xxx,64));
+		if(valueOf(numChannels)>channels)
+			return tuple2(regAToRegBitN(inp), True);
+		else
+			return tuple2(regAToRegBitN( nullReg ), False);
+	endfunction
+
+
 	// For ease of development we want all registers to look like 64
 	// bit resister-- the data size of the config socket.
 	// Create function to map from address to specific registers
+						
 	function Tuple2#(Reg#(Req_Data), Bool) selectReg( Req_Addr addr );
-        Bit#(8) taddr = truncate( addr ) ;
-        return
-        case ( taddr )
-            8'h00 : return tuple2(regAToRegBitN( vector7ToRegN( dma_isr )), True);
-            8'h04 : return tuple2(regAToRegBitN( vector7ToRegN( dma_ifcr )), True);
-            8'hB0 : return tuple2(regAToRegBitN( vector7ToRegN( dma1_cselr )), True);
+    Bit#(8) taddr = truncate( addr ) ;
+    return
+    case ( taddr )
+      8'h00 : return can_return( vectorToRegN( dma_isr ), 0);
+      8'h04 : return can_return( vectorToRegN( dma_ifcr ), 0);
+      8'hB0 : return can_return( vectorToRegN( dma1_cselr ), 0);
  
-            8'h08 : return tuple2(regAToRegBitN( dma_ccr[0] ), True);  //32-bit
-            8'h0c : return tuple2(regAToRegBitN( dma_cndtr[0] ), True); //16-bit -- 32-bit Addr 
-            8'h10 : return tuple2(regAToRegBitN( dma_cpar[0] ), True); //64-bit
-            8'h18 : return tuple2(regAToRegBitN( dma_cmar[0] ), True); //64-bit
+	  	//8'h08 : if(valueOf(numChannels)>1) begin return tuple2(regAToRegBitN( dma_ccr[0] ), True); end  //32-bit
+	  	//				else return tuple2(regAToRegBitN( nullReg ), False);
+	  	8'h08 : return can_return( dma_ccr[0], 0);   //32-bit
+      8'h0c : return can_return( dma_cndtr[0], 0); //16-bit -- 32-bit Addr 
+      8'h10 : return can_return( dma_cpar[0], 0); //64-bit
+      8'h18 : return can_return( dma_cmar[0], 0); //64-bit
  
-            8'h20 : return tuple2(regAToRegBitN( dma_ccr[1] ), True);
-            8'h24 : return tuple2(regAToRegBitN( dma_cndtr[1] ), True);
-            8'h28 : return tuple2(regAToRegBitN( dma_cpar[1] ), True);
-            8'h30 : return tuple2(regAToRegBitN( dma_cmar[1] ), True);
+      8'h20 : return can_return( dma_ccr[1], 1);
+      8'h24 : return can_return( dma_cndtr[1], 1);
+      8'h28 : return can_return( dma_cpar[1], 1);
+      8'h30 : return can_return( dma_cmar[1], 1);
  
-            8'h38 : return tuple2(regAToRegBitN( dma_ccr[2] ), True);
-            8'h3C : return tuple2(regAToRegBitN( dma_cndtr[2] ), True);
-            8'h40 : return tuple2(regAToRegBitN( dma_cpar[2] ), True);
-            8'h48 : return tuple2(regAToRegBitN( dma_cmar[2] ), True);
+      8'h38 : return can_return( dma_ccr[2], 2);
+      8'h3C : return can_return( dma_cndtr[2], 2);
+      8'h40 : return can_return( dma_cpar[2], 2);
+      8'h48 : return can_return( dma_cmar[2], 2);
  
-            8'h50 : return tuple2(regAToRegBitN( dma_ccr[3] ), True);
-            8'h54 : return tuple2(regAToRegBitN( dma_cndtr[3] ), True);
-            8'h58 : return tuple2(regAToRegBitN( dma_cpar[3] ), True);
-            8'h60 : return tuple2(regAToRegBitN( dma_cmar[3] ), True);
+      8'h50 : return can_return( dma_ccr[3], 3);
+      8'h54 : return can_return( dma_cndtr[3], 3);
+      8'h58 : return can_return( dma_cpar[3], 3);
+      8'h60 : return can_return( dma_cmar[3], 3);
  
-            8'h68 : return tuple2(regAToRegBitN( dma_ccr[4] ), True);
-            8'h6C : return tuple2(regAToRegBitN( dma_cndtr[4] ), True);
-            8'h70 : return tuple2(regAToRegBitN( dma_cpar[4] ), True);
-            8'h78 : return tuple2(regAToRegBitN( dma_cmar[4] ), True);
+      8'h68 : return can_return( dma_ccr[4], 4);
+      8'h6C : return can_return( dma_cndtr[4], 4);
+      8'h70 : return can_return( dma_cpar[4], 4);
+      8'h78 : return can_return( dma_cmar[4], 4);
  
-            8'h80 : return tuple2(regAToRegBitN( dma_ccr[5] ), True);
-            8'h84 : return tuple2(regAToRegBitN( dma_cndtr[5] ), True);
-            8'h88 : return tuple2(regAToRegBitN( dma_cpar[5] ), True);
-            8'h90 : return tuple2(regAToRegBitN( dma_cmar[5] ), True);
+      8'h80 : return can_return( dma_ccr[5], 5);
+      8'h84 : return can_return( dma_cndtr[5], 5);
+      8'h88 : return can_return( dma_cpar[5], 5);
+      8'h90 : return can_return( dma_cmar[5], 5);
  
-            8'h98 : return tuple2(regAToRegBitN( dma_ccr[6] ), True);
-            8'h9C : return tuple2(regAToRegBitN( dma_cndtr[6] ), True);
-            8'hA0 : return tuple2(regAToRegBitN( dma_cpar[6] ), True);
-            8'hA8 : return tuple2(regAToRegBitN( dma_cmar[6] ), True);
+      8'h98 : return can_return( dma_ccr[6], 6);
+      8'h9C : return can_return( dma_cndtr[6], 6);
+      8'hA0 : return can_return( dma_cpar[6], 6);
+      8'hA8 : return can_return( dma_cmar[6], 6);
  
-            default: return tuple2(regAToRegBitN( nullReg ), False);
-        endcase ;
-    endfunction
+      default: return tuple2(regAToRegBitN( nullReg ), False);
+    endcase ;
+  endfunction
 
-	function Bit#(3) ccr_channel_number (Req_Addr addr);
-        Bit#(8) taddr= truncate(addr);
-        return
-        case ( taddr )
-            8'h08 : return 0;
-            8'h20 : return 1;
-            8'h38 : return 2;
-            8'h50 : return 3;
-            8'h68 : return 4;
-            8'h80 : return 5;
-            8'h98 : return 6;
-            default: 'd7;
-        endcase;
-    endfunction
+	function Tuple2#(Bit#(TLog#(numChannels)), Bool) ccr_channel_number (Req_Addr addr);
+    Bit#(8) taddr= truncate(addr);
+		if(val_numChannels >0 && taddr==8'h08)
+			return tuple2(0, True);
+		else if(val_numChannels >1 && taddr ==8'h20)
+			return tuple2(1, True);
+		else if(val_numChannels >2 && taddr ==8'h38)
+			return tuple2(2, True);
+		else if(val_numChannels >3 && taddr ==8'h50)
+			return tuple2(3, True);
+		else if(val_numChannels >4 && taddr ==8'h68)
+			return tuple2(4, True);
+		else if(val_numChannels >5 && taddr ==8'h80)
+			return tuple2(5, True);
+		else if(val_numChannels >6 && taddr ==8'h98)
+			return tuple2(6, True);
+		else
+			return tuple2(?, False);
+	endfunction
+  /*  case ( taddr )
+      8'h08 : return 0;
+      8'h20 : return 1;
+      8'h38 : return 2;
+      8'h50 : return 3;
+      8'h68 : return 4;
+      8'h80 : return 5;
+      8'h98 : return 6;
+      default: return 'd-1;
+    endcase;
+  endfunction*/
 	
 	Rules writeConfig = (rules
 		rule writeConfig;
@@ -783,9 +866,10 @@ module mkDMA( DmaC #(numChannels, numPeripherals) )
 			end
 			//else is not needed as the selectReg function handles it
 
-			let lv_ccr_channel_number= ccr_channel_number(lv_addr);
+			let lv_ccr_channel_number_tuple= ccr_channel_number(lv_addr);
+			let lv_ccr_channel_number=tpl_1(lv_ccr_channel_number_tuple);
             `ifdef verbose $display("ccr_channel_number %h lv_addr %h",lv_ccr_channel_number, lv_addr); `endif
-			if( lv_ccr_channel_number!='d-1 && tpl_2(lv1)) begin 	//if the current write is happening to one of the channel's CCR.
+			if( tpl_2(lv_ccr_channel_number_tuple)==True && tpl_2(lv1)) begin 	//if the current write is happening to one of the channel's CCR.
 				if(lv_data[0]==1 ) begin			//if the channel is being enabled
 					rg_cpa[lv_ccr_channel_number] <= dma_cpar[lv_ccr_channel_number];	//peripheral address is copied
 					rg_cma[lv_ccr_channel_number] <= dma_cmar[lv_ccr_channel_number];	//memory address is copied
@@ -880,11 +964,11 @@ module mkDMA( DmaC #(numChannels, numPeripherals) )
 
 		Req_Data lv_data;
 		if(read_addr.arsize=='b0)
-			lv_data={thisReg[7:0], thisReg[7:0], thisReg[7:0], thisReg[7:0], thisReg[7:0], thisReg[7:0], thisReg[7:0], thisReg[7:0]};
+			lv_data=duplicate(thisReg[7:0]);
 		else if(read_addr.arsize=='b01)
-			lv_data={thisReg[15:0], thisReg[15:0], thisReg[15:0], thisReg[15:0]};
+			lv_data=duplicate(thisReg[15:0]);
 		else if(read_addr.arsize=='b10)
-			lv_data={thisReg[31:0], thisReg[31:0]};
+			lv_data=duplicate(thisReg[31:0]);
 		else
 			lv_data= thisReg;
 		// Now generate the response and enqueue
