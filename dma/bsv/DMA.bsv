@@ -590,7 +590,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 				//dmaEnabledRs[chanNum]._write (False) ; 
 				currentWriteRs[chanNum][0] <= 0 ;
 				currentReadRs[chanNum][0]  <= 0 ;
-				$display ("DMA[%0d]: transfer done", chanNum);
+				$display ("DMA[%0d]: transfer done int_enable:%b dma_isr: %b", chanNum, dma_ccr[chanNum][3:1], dma_isr[chanNum]);
 			endrule
 		endrules ;
 	endfunction
