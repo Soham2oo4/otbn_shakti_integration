@@ -116,6 +116,7 @@ module sdrc_core
 		sdr_den_n,
 
 		/* Parameters */
+        cfg_mem_type,
 		cfg_sdr_en,
 		cfg_sdr_mode_reg,
 		cfg_sdr_tras_d,
@@ -216,6 +217,7 @@ output                  sdr_init_done       ; // Indicate SDRAM Initialisation D
 input [3:0] 		cfg_sdr_tras_d      ; // Active to precharge delay
 input [3:0]             cfg_sdr_trp_d       ; // Precharge to active delay
 input [3:0]             cfg_sdr_trcd_d      ; // Active to R/W delay
+input 			cfg_mem_type          ; // Enable WinBond Memory Type 
 input 			cfg_sdr_en          ; // Enable SDRAM controller
 input [1:0] 		cfg_req_depth       ; // Maximum Request accepted by SDRAM controller
 input [APP_RW-1:0]	app_req_len         ; // Application Burst Request length in 32 bit 
@@ -446,6 +448,8 @@ sdrc_xfr_ctl #(.SDR_DW(SDR_DW) ,  .SDR_BW(SDR_BW)) u_xfr_ctl (
           .x2a_rdok           (x2a_rdok           ),
           .sdr_init_done      (sdr_init_done      ),
 			    
+          .mem_type           (cfg_mem_type       ),
+
       /* SDRAM Parameters */
           .sdram_enable       (cfg_sdr_en         ),
           .sdram_mode_reg     (cfg_sdr_mode_reg   ),
