@@ -2,12 +2,94 @@
 #include "encoding.h"
 #include <stdint.h>
 int dma_flag=0;
+unsigned long var_for_context [100];
+unsigned long* addr_var_for_context= var_for_context;
 
 #define DMA_INTERRUPTS (DMA_CCR_TEIE|DMA_CCR_HTIE|DMA_CCR_TCIE|DMA_CCR_EN)
 
 void waitfor(unsigned int secs) {
 	unsigned int time = 0;
 	while(time++ < secs);
+}
+
+void __attribute__ ((noinline)) mret_1()
+{
+	__asm__("mret");
+}
+
+
+
+# define REGBYTES 8
+void __attribute__ ((noinline)) generic_ISR()
+{
+  //register unsigned long sp asm("sp") = &var_for_context;
+	__asm__ ("csrw mscratch,sp" "\n\t"
+					 "li sp,0x80002f88" "\n\t"
+  "sd x1, 1*8(sp)" "\n\t" 
+  "sd x2, 2*8(sp)" "\n\t"
+  "sd x3, 3*8(sp)" "\n\t"
+  "sd x4, 4*8(sp)" "\n\t"
+  "sd x5, 5*8(sp)" "\n\t"
+  "sd x6, 6*8(sp)" "\n\t"
+  "sd x7, 7*8(sp)" "\n\t"
+  "sd x8, 8*8(sp)" "\n\t"
+  "sd x9, 9*8(sp)" "\n\t"
+  "sd x10, 10*8(sp)" "\n\t" 
+  "sd x11, 11*8(sp)" "\n\t"
+  "sd x12, 12*8(sp)" "\n\t"
+  "sd x13, 13*8(sp)" "\n\t"
+  "sd x14, 14*8(sp)" "\n\t"
+  "sd x15, 15*8(sp)" "\n\t"
+  "sd x16, 16*8(sp)" "\n\t"
+  "sd x17, 17*8(sp)" "\n\t"
+  "sd x18, 18*8(sp)" "\n\t"
+  "sd x19, 19*8(sp)" "\n\t"
+  "sd x20, 20*8(sp)" "\n\t"
+  "sd x21, 21*8(sp)" "\n\t"
+  "sd x22, 22*8(sp)" "\n\t"
+  "sd x23, 23*8(sp)" "\n\t"
+  "sd x24, 24*8(sp)" "\n\t"
+  "sd x25, 25*8(sp)" "\n\t"
+  "sd x26, 26*8(sp)" "\n\t"
+  "sd x27, 27*8(sp)" "\n\t"
+  "sd x28, 28*8(sp)" "\n\t"
+  "sd x29, 29*8(sp)" "\n\t"
+  "sd x30, 30*8(sp)" "\n\t"
+  "sd x31, 31*8(sp)" "\n\t"
+	"call dma_ISR" "\n\t"
+  "ld x1, 1*8(sp)" "\n\t" 
+  "ld x3, 3*8(sp)" "\n\t"
+  "ld x4, 4*8(sp)" "\n\t"
+  "ld x5, 5*8(sp)" "\n\t"
+  "ld x6, 6*8(sp)" "\n\t"
+  "ld x7, 7*8(sp)" "\n\t"
+  "ld x8, 8*8(sp)" "\n\t"
+  "ld x9, 9*8(sp)" "\n\t"
+  "ld x10, 10*8(sp)" "\n\t" 
+  "ld x11, 11*8(sp)" "\n\t"
+  "ld x12, 12*8(sp)" "\n\t"
+  "ld x13, 13*8(sp)" "\n\t"
+  "ld x14, 14*8(sp)" "\n\t"
+  "ld x15, 15*8(sp)" "\n\t"
+  "ld x16, 16*8(sp)" "\n\t"
+  "ld x17, 17*8(sp)" "\n\t"
+  "ld x18, 18*8(sp)" "\n\t"
+  "ld x19, 19*8(sp)" "\n\t"
+  "ld x20, 20*8(sp)" "\n\t"
+  "ld x21, 21*8(sp)" "\n\t"
+  "ld x22, 22*8(sp)" "\n\t"
+  "ld x23, 23*8(sp)" "\n\t"
+  "ld x24, 24*8(sp)" "\n\t"
+  "ld x25, 25*8(sp)" "\n\t"
+  "ld x26, 26*8(sp)" "\n\t"
+  "ld x27, 27*8(sp)" "\n\t"
+  "ld x28, 28*8(sp)" "\n\t"
+  "ld x29, 29*8(sp)" "\n\t"
+  "ld x30, 30*8(sp)" "\n\t"
+  "ld x31, 31*8(sp)" "\n\t"
+  "csrr x2, mscratch" "\n\t"
+  //"addi sp, sp, 256" "\n\t"
+	"mret" );
 }
 
 void dma_ISR()
@@ -30,7 +112,7 @@ void dma_ISR()
 
 int main()
 {
-	void (*dma_ISR_ptr)() = &dma_ISR;
+	void (*dma_ISR_ptr)() = &generic_ISR;
 	write_csr(mtvec,dma_ISR_ptr);
 	unsigned long var1= read_csr(mstatus);
 	var1= var1 | 0x8;
