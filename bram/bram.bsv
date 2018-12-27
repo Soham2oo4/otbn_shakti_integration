@@ -56,7 +56,8 @@ package bram;
   // to make is synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
   module mkbram#(parameter Integer slave_base, parameter String 
-      msb_file, parameter String lsb_file )(UserInterface#(addr_width, data_width, index_size))
+      msb_file, parameter String lsb_file, parameter String modulename )
+      (UserInterface#(addr_width, data_width, index_size))
     provisos(Add#(data_width, a, 64), // provisos ensures we support < 64-bit data width. 
              Add#(32, b, data_width),  // provisos ensures we support >32-bit data width.
              Add#(4, a__, TDiv#(data_width, 8)),  // wstrb is between 4 and 8
@@ -96,6 +97,9 @@ package bram;
       `ifdef check_assert
         wr_write_index<= tagged Valid (index_address);
       `endif
+  		if(verbosity!= 0)
+        $display($time, "\t",modulename,": Recieved Write Request for Address: %h Index: %h\
+ Data: %h wrstrb: %h", addr, index_address, data, strb);
   	endmethod
   
     // The write response will always be an error.
@@ -110,7 +114,7 @@ package bram;
       dmemMSB.a.put(0, index_address, ?);
       read_request_sent<= True;
   		if(verbosity!= 0)
-        $display($time, "\tBootROM: Recieved Read Request for Address: %h Index Address: %h",  
+        $display($time, "\t",modulename,": Recieved Read Request for Address: %h Index: %h",  
                                                                             addr, index_address);
       `ifdef check_assert
         wr_read_index<= tagged Valid (index_address);
@@ -131,7 +135,8 @@ package bram;
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
   module mkbram_axi4#( parameter Integer slave_base, parameter String msb_file, 
-        parameter String lsb_file )(Ifc_bram_axi4#(addr_width, data_width, user_width, index_size))
+        parameter String lsb_file, parameter String modulename )
+        (Ifc_bram_axi4#(addr_width, data_width, user_width, index_size))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
@@ -139,7 +144,8 @@ package bram;
              Add#(32, b, data_width), 
              Add#(4, d__, TDiv#(data_width, 8)),
              Add#(1, e__, index_size));
-    UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, msb_file, lsb_file);
+    UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, msb_file, lsb_file,
+        modulename);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
     Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
@@ -220,7 +226,7 @@ package bram;
       AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
   		if(verbosity!=0) 
-        $display($time, "\tBootROM : Responding Read Request with Data: %h ",data0);
+        $display($time, "\t",modulename,": Responding Read Request with Data: %h ",data0);
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
@@ -233,7 +239,8 @@ package bram;
 
 
   module mkbram_axi4lite#(parameter Integer slave_base, parameter String msb_file, 
-        parameter String lsb_file )(Ifc_bram_axi4lite#(addr_width, data_width, user_width, index_size))
+        parameter String lsb_file, parameter String modulename )
+        (Ifc_bram_axi4lite#(addr_width, data_width, user_width, index_size))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
@@ -241,7 +248,8 @@ package bram;
              Add#(32, b, data_width), 
              Add#(4, d__, TDiv#(data_width, 8)),
              Add#(1, e__, index_size));
-    UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, msb_file, lsb_file);
+    UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, msb_file, lsb_file,
+      modulename);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
@@ -279,7 +287,7 @@ package bram;
       AXI4_Lite_Rd_Data#(data_width, user_width) r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata: data0 , 
         ruser: 0};
   		if(verbosity!=0) 
-        $display($time, "\tBootROM : Responding Read Request with Data: %h ",data0);
+        $display($time, "\t",modulename,": Responding Read Request with Data: %h ",data0);
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
@@ -345,7 +353,7 @@ package bram;
 //      D_channel_lite#(w, z) lv_resp=D_channel_lite { d_opcode : AccessAckData, d_size : rg_size, 
 //            d_source : rg_source, d_sink : ?, d_data : data0, d_error : False};
 //  		if(verbosity!=0) 
-//        $display($time, "\tBootROM : Responding Read Request with Data: %h ", data0);
+//        $display($time, "\t",modulename,": Responding Read Request with Data: %h ", data0);
 //	  	read_xactor.core_side.xactor_response.put(lv_resp);
 //    endrule
 //    interface read_slave = read_xactor.fabric_side;
