@@ -912,9 +912,11 @@ endfunction*/
 						rg_disable_channel<= tuple3(True, lv_ccr_channel_number, write_addr.awid);
 						lv_send_response= False;
 						rg_writeConfig_ccr<= tuple2(lv_ccr_channel_number, truncate(lv_data));
+						$display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------");
 					end
 					else begin	// no pending transaction
 						//clear the local registers
+						$display("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
 						rg_is_cndtr_zero[lv_ccr_channel_number][0]<= True;
 					end
 				end
@@ -972,7 +974,7 @@ endfunction*/
 		else
 			lv_data= thisReg;
 		// Now generate the response and enqueue
-		let resp = AXI4_Rd_Data {rresp: lv_rresp, rdata: thisReg, rlast: True,
+		let resp = AXI4_Rd_Data {rresp: lv_rresp, rdata: lv_data, rlast: True,
 								 ruser: 0, rid: read_addr.arid};
 		s_xactor.i_rd_data.enq(resp);
 	endrule
