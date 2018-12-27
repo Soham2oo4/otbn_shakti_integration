@@ -17,98 +17,57 @@ void __attribute__ ((noinline)) mret_1()
 	__asm__("mret");
 }
 
-
-
-# define REGBYTES 8
 void __attribute__ ((noinline)) generic_ISR()
 {
-  //register unsigned long sp asm("sp") = &var_for_context;
-	__asm__ ("csrw mscratch,sp" "\n\t"
-					 "li sp,0x80002f88" "\n\t"
-  "sd x1, 1*8(sp)" "\n\t" 
-  "sd x2, 2*8(sp)" "\n\t"
-  "sd x3, 3*8(sp)" "\n\t"
-  "sd x4, 4*8(sp)" "\n\t"
-  "sd x5, 5*8(sp)" "\n\t"
-  "sd x6, 6*8(sp)" "\n\t"
-  "sd x7, 7*8(sp)" "\n\t"
-  "sd x8, 8*8(sp)" "\n\t"
-  "sd x9, 9*8(sp)" "\n\t"
-  "sd x10, 10*8(sp)" "\n\t" 
-  "sd x11, 11*8(sp)" "\n\t"
-  "sd x12, 12*8(sp)" "\n\t"
-  "sd x13, 13*8(sp)" "\n\t"
-  "sd x14, 14*8(sp)" "\n\t"
-  "sd x15, 15*8(sp)" "\n\t"
-  "sd x16, 16*8(sp)" "\n\t"
-  "sd x17, 17*8(sp)" "\n\t"
-  "sd x18, 18*8(sp)" "\n\t"
-  "sd x19, 19*8(sp)" "\n\t"
-  "sd x20, 20*8(sp)" "\n\t"
-  "sd x21, 21*8(sp)" "\n\t"
-  "sd x22, 22*8(sp)" "\n\t"
-  "sd x23, 23*8(sp)" "\n\t"
-  "sd x24, 24*8(sp)" "\n\t"
-  "sd x25, 25*8(sp)" "\n\t"
-  "sd x26, 26*8(sp)" "\n\t"
-  "sd x27, 27*8(sp)" "\n\t"
-  "sd x28, 28*8(sp)" "\n\t"
-  "sd x29, 29*8(sp)" "\n\t"
-  "sd x30, 30*8(sp)" "\n\t"
-  "sd x31, 31*8(sp)" "\n\t"
+	__asm__ ("addi sp,sp,-40" "\n\t"
+  "sd t1, 1*8(sp)" "\n\t" 
+  "sd t2, 2*8(sp)" "\n\t"
+  "sd t3, 3*8(sp)" "\n\t"
+  "sd a5, 4*8(sp)" "\n\t"
 	"call dma_ISR" "\n\t"
-  "ld x1, 1*8(sp)" "\n\t" 
-  "ld x3, 3*8(sp)" "\n\t"
-  "ld x4, 4*8(sp)" "\n\t"
-  "ld x5, 5*8(sp)" "\n\t"
-  "ld x6, 6*8(sp)" "\n\t"
-  "ld x7, 7*8(sp)" "\n\t"
-  "ld x8, 8*8(sp)" "\n\t"
-  "ld x9, 9*8(sp)" "\n\t"
-  "ld x10, 10*8(sp)" "\n\t" 
-  "ld x11, 11*8(sp)" "\n\t"
-  "ld x12, 12*8(sp)" "\n\t"
-  "ld x13, 13*8(sp)" "\n\t"
-  "ld x14, 14*8(sp)" "\n\t"
-  "ld x15, 15*8(sp)" "\n\t"
-  "ld x16, 16*8(sp)" "\n\t"
-  "ld x17, 17*8(sp)" "\n\t"
-  "ld x18, 18*8(sp)" "\n\t"
-  "ld x19, 19*8(sp)" "\n\t"
-  "ld x20, 20*8(sp)" "\n\t"
-  "ld x21, 21*8(sp)" "\n\t"
-  "ld x22, 22*8(sp)" "\n\t"
-  "ld x23, 23*8(sp)" "\n\t"
-  "ld x24, 24*8(sp)" "\n\t"
-  "ld x25, 25*8(sp)" "\n\t"
-  "ld x26, 26*8(sp)" "\n\t"
-  "ld x27, 27*8(sp)" "\n\t"
-  "ld x28, 28*8(sp)" "\n\t"
-  "ld x29, 29*8(sp)" "\n\t"
-  "ld x30, 30*8(sp)" "\n\t"
-  "ld x31, 31*8(sp)" "\n\t"
-  "csrr x2, mscratch" "\n\t"
-  //"addi sp, sp, 256" "\n\t"
+  "ld t1, 1*8(sp)" "\n\t" 
+  "ld t2, 2*8(sp)" "\n\t"
+  "ld t3, 3*8(sp)" "\n\t"
+  "ld a5, 4*8(sp)" "\n\t"
+	"addi sp,sp,40" "\n\t"
 	"mret" );
 }
 
 void dma_ISR()
 {
-	printf("\n\tdma_ISR called\n");
-	unsigned long lv_interrupt= (*dma_isr)&0x200;
-	if(lv_interrupt == 0x200) {
-		*dma_ccr3=0;
-		*dma_ifcr=0xF00;
-		printf("\tFinished Transaction. Disabled chan 3.\n");
-		dma_flag=1;
-	}
-	else {
-		printf("\tDMA ISR called without chan 3 finishing\n");
-		//exit(0);
-	}
+	__asm__("li t1,0x11600" "\n\t"
+					"lw t2,0(t1)" "\n\t"
+					"andi t2,t2,0x200" "\n\t"
+					"li t3,0x200" "\n\t"
+					"bne t2,t3,label1" "\n\t"
+					"li t2,0xFFFFFFF" "\n\t"
+					"sw t2,4(t1)" "\n\t"
+					"sw x0,0x38(t1)" "\n\t"
+					"sw x0,4(t1)" "\n\t"
+					"csrr t1,mstatus" "\n\t"
+					"ori t2,t2,0x8" "\n\t"
+					"csrw mstatus,t2" "\n\t"
+					"li t1,0x11300" "\n\t"
+					"li t2,0xa" "\n\t"				//newline
+					"sb t2,4(t1)" "\n\t"
+					"li t2,0x9" "\n\t"				//tab
+					"sb t2,4(t1)" "\n\t"
+					"li t2,0x2D" "\n\t"				//hyphen
+					"sb t2,4(t1)" "\n\t"
+					"li t2,0x2D" "\n\t"				//hyphen
+					"sb t2,4(t1)" "\n\t"
+					"li t2,0xa" "\n\t"				//newline
+					"sb t2,4(t1)" "\n\t"
+					"j label2" "\n\t"
+					"add t1,x0,x0" "\n\t"
+					"add t2,x0,x0" "\n\t"
+					"add t3,x0,x0" "\n\t"
+					"add x0,x0,x0" "\n\t"
+					"label1: j label1" "\n\t"
+					"label2: add x0,x0,x0");
+	dma_flag=1;
 	return;
 }
-
 
 int main()
 {
