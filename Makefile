@@ -12,7 +12,7 @@ define_macros:=-D VERBOSITY=2 -D check_assert=True
 
 ## BFM_V_DIR:=
 VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-initial fast \
-					--noassert --cc $(TOP_MODULE).v --exe sim_main.cpp -Wno-STMTDLY -Wno-UNOPTFLAT \
+					--no-assert --exe sim_main.cpp -Wno-STMTDLY -Wno-UNOPTFLAT \
 					-Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY 
 
 ## VERILATOR__RBB_VPI_FLAGS
@@ -35,7 +35,7 @@ module_only:
 link_bsim:
 	@echo Linking $(TOP_MODULE)...
 	@mkdir -p bin
-	@bsc -e $(TOP_MODULE) -sim -o ./bin/out -simdir $(BSVBUILDDIR) -p .:%/Prelude:%/Libraries:%/Libraries/BlueNoC -keep-fires -bdir $(BSVBUILDDIR) -keep-fires  
+	@bsc -e $(TOP_MODULE) -sim -o ./bin/out -simdir $(BSVBUILDDIR) -p .:%/Prelude:%/Libraries:%/Libraries/BlueNoC -bdir $(BSVBUILDDIR) -keep-fires  ./jtagdtm/RBB_Shakti.c
 	@echo Linking finished
 
 .PHONY: link_verilator
@@ -51,6 +51,23 @@ link_verilator:
 	@cp obj_dir/V$(TOP_MODULE) bin/out
 	@echo Linking finished
 
+.PHONY: link_verilator_svdpi
+link_verilator_svdpi:
+	@echo "Linking Verilator With the Shakti RBB Vpi"
+	@mkdir -p bin
+	@sed  -f jtagdtm/sed_script.txt  $(VERILOGDIR)/$(TOP_MODULE).v > tmp1.v
+	@cat  jtagdtm/verilator_config.vlt \
+	      jtagdtm/vpi_sv.v \
+	      tmp1.v                         > $(VERILOGDIR)/$(TOP_MODULE)_edited.v
+	@rm   -f  tmp1.v
+	@verilator --threads-dpi none --cc $(TOP_MODULE)_edited.v --exe sim_main.cpp RBB_Shakti.c -y $(VERILOGDIR) $(VERILATOR_FLAGS)
+	@ln -f -s ../common_tb/sim_main.cpp obj_dir/sim_main.cpp
+	@ln -f -s ../common_tb/sim_main.h obj_dir/sim_main.h
+	@ln -f -s ../jtagdtm/RBB_Shakti.c obj_dir/RBB_Shakti.c
+	@echo "INFO: Linking verilated files"
+	@make -j4 -C obj_dir -f V$(TOP_MODULE)_edited.mk
+	@cp obj_dir/V$(TOP_MODULE)_edited bin/out
+	@echo Linking finished
 
 .PHONY: generate_verilog 
 generate_verilog:
@@ -66,6 +83,10 @@ generate_verilog:
 	@cp ${BLUESPECDIR}/Verilog/FIFO20.v ./verilog/
 	@cp ${BLUESPECDIR}/Verilog/MakeReset0.v ./verilog/
 	@cp ${BLUESPECDIR}/Verilog.Vivado/BRAM2BELoad.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/ClockInverter.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/SyncReset0.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/MakeClock.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/FIFO1.v ./verilog/
 .PHONY: clean
 clean:
 	rm -rf build bin *.jou *.log
