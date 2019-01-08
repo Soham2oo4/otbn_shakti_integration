@@ -72,7 +72,7 @@ package bram;
 		BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size,2)),Bit#(32),4) dmemLSB <- 
                    mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size,2))),False,lsb_file,False);
   
-    Reg#(Bool) read_request_sent <-mkDReg(False);
+    Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
     `ifdef check_assert
       Wire#(Maybe#(Bit#(TSub#(index_size,2)))) wr_write_index <- mkDWire(tagged Invalid);
       Wire#(Maybe#(Bit#(TSub#(index_size,2)))) wr_read_index <- mkDWire(tagged Invalid);
@@ -112,7 +112,7 @@ package bram;
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
   		dmemLSB.a.put(0, index_address, ?);
       dmemMSB.a.put(0, index_address, ?);
-      read_request_sent<= True;
+      read_request_sent[1]<= True;
   		if(verbosity!= 0)
         $display($time, "\t",modulename,": Recieved Read Request for Address: %h Index: %h",  
                                                                             addr, index_address);
@@ -122,7 +122,8 @@ package bram;
   	endmethod
   
     // respond with data from the BRAM.
-    method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response if(read_request_sent);
+    method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response if(read_request_sent[0]);
+      read_request_sent[0]<=False;
       return tuple2(False, {dmemMSB.a.read(), dmemLSB.a.read()});
     endmethod
   endmodule
@@ -154,6 +155,7 @@ package bram;
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
 	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkReg(?);
 		Reg#(AXI4_Wr_Addr	#(addr_width, user_width)) rg_write_packet<-mkReg(?); 
+    Wire#(Bool) wr_read_ack <- mkWire();
 
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -196,7 +198,7 @@ package bram;
     endrule
     // incase of burst read,  generate the new address and send it to the dut untill the burst
     // count has been reached.
-    rule read_request_burst(read_state==Burst);
+    rule read_request_burst(read_state==Burst && wr_read_ack);
       if(rg_readburst_counter==rg_read_packet.arlen)
         read_state<=Idle;
       else begin
@@ -209,6 +211,7 @@ package bram;
     endrule
     // get data from the memory. shift,  truncate, duplicate based on the size and offset.
     rule read_response;
+      wr_read_ack<=True;
       let {err, data0}<-dut.read_response;
   		let transfer_size=rg_read_packet.arsize;
       `ifdef RV64
