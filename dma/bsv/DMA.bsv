@@ -41,6 +41,8 @@ Chapter 11 in ST Micro's RM0394 Reference Manual).
 //7. Write an assertion if currentReadRs[chan]==currentWriteRs[chan] then destAddrFs and responseDataFs are both empty. Prove this formally?
 //8. Implement burst mode readConfig and writeConfig registers
 //9. While joining generateTransferDoneRules, try using rJoinConflictFree instead of rJoinDescendingUrgency and check if they are formally equivalent. The conflict is between finishWrite and this rule. But the condition currentReadRs==currentWriteRs will not be true untill finishWrite fires. So, these two rules will never actually fire together.
+//10.What will happen if while disabling a channel, you go ahead and disable another channel? Mostly can't do because you have not issued a write response for the first request unless the channel has actually been disabled.
+
 
 package DMA;
 
@@ -51,11 +53,12 @@ import FShow::*;
 import GetPut::*;
 import DefaultValue ::*;
 import AXI4_Types   :: *;
-import AXI4_Fabric  :: *;
+import AXI4_Fabric   :: *;
 import Semi_FIFOF        :: *;
 import ConcatReg :: *;
 import ConfigReg :: *;
 import BUtils :: *;
+import device_common::*;
 
 `define Burst_length_bits 8
 `define USERSPACE 0
@@ -93,9 +96,6 @@ endfunction
 
 
 
-typedef Bit#(`USERSPACE) Req_Info; 
-typedef Bit#(`PADDR) Req_Addr; 
-typedef Bit#(`Reg_width) Req_Data; 
 //The Req and Resp are of the same width in the current design
 //typedef Bit#(10) RespInfo;
 //typedef Bit#(1) RespAddr;
@@ -106,9 +106,11 @@ typedef Bit#(`Reg_width) Req_Data;
 //  A AXI4 Slave interface for config
 //  A AXI4 Master interface for data transfers
 
-interface DmaC #(numeric type numChannels, numeric type numPeripherals);
-	interface AXI4_Master_IFC#(`PADDR,`Reg_width,`USERSPACE) mmu;
-	interface AXI4_Slave_IFC#(`PADDR,`Reg_width,`USERSPACE) cfg;
+interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
+	method Action read_req(Bit#(addr_width) addr, AccessSize size);
+	method Tuple2#(Bool, Bit#(data_width)) read_resp;
+	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
+	method Bool write_resp;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
 endinterface
@@ -126,10 +128,10 @@ typedef UInt#(16)  DMACounts ;
 // of the peripheral to check if the corresponding interrupt line is still high.
 // Also, we need to send the destination transfer size for all the transactions.
 typedef struct{
-	Req_Addr addr;
+	Bit#(addr_width) addr;
 	Bool is_dest_periph;
 	Bit#(TLog#(numPeriphs)) periph_id;
-} DestAddrFs_type#(numeric type numPeriphs) deriving (Bits,Eq);
+} DestAddrFs_type#(numeric type numPeriphs, numeric type addr_width) deriving (Bits,Eq);
 
 typedef struct{
 	Bit#(TLog#(numChannels)) chanNum;
@@ -144,21 +146,34 @@ endinstance
 (* descending_urgency = "writeConfig, handle_interrupts" *)
 (* descending_urgency = "writeConfig, rl_finishRead" *)
 (* descending_urgency = "writeConfig, rl_startWrite" *)
-module mkDMA( DmaC #(numChannels, numPeripherals) )
-provisos (Add#(b__, TLog#(numPeripherals), 4),
-	 				//Add#(numChannels, a__, 7),
+module mkDMA( User_ifc#(addr_width, data_width, numChannels, numPeripherals) )
+provisos (Add#(a__, TLog#(numPeripherals), 4),
+	 				//Add#(numChannels, xyz__, 7),
 	 				Add#(numChannels, 0, 7),
-					Add#(TMul#(numChannels, 4), a__, 64));	//This is a redundant proviso
+					//Add#(TMul#(numChannels, 4), a__, 64),
+					Add#(b__, 8, addr_width),
+					Add#(7, j__, addr_width),
+					Add#(k__, 3, addr_width),	
+					Add#(addr_width, g__, data_width),
+					Add#(c__, 32, data_width),
+			    Mul#(8, d__, data_width),
+  			  Mul#(16, e__, data_width),
+  				Mul#(32, f__, data_width),
+					Add#(28, h__, data_width),
+					Add#(16, i__, data_width)
+);
 
 	let val_numChannels= valueOf(numChannels);
-	// The DMA contains one master interface, and one slave interface. The processor sends
-	// request through the slave interface to set the config registers.
-	// The DMA's master initiates a request to one of the peripherals through one of the
-	// channels. The response is taken (through response sub-interface of DMA's Master interface
-	// and returned to the processor (through response sub-interface of the DMA's Slave interface 
-	AXI4_Slave_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
-	AXI4_Master_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) m_xactor <- mkAXI4_Master_Xactor;
 
+	AXI4_Master_Xactor_IFC #(addr_width, data_width, 0) m_xactor <- mkAXI4_Master_Xactor;
+	Wire#(Bit#(addr_width)) wr_read_addr <- mkWire();
+	Wire#(AccessSize) wr_read_access_size <- mkWire();
+	Wire#(Tuple2#(Bool, Bit#(data_width))) wr_read_resp <- mkWire();
+	
+	Wire#(Bit#(addr_width)) wr_write_addr <- mkWire();
+	Wire#(Bit#(data_width)) wr_write_data <- mkWire();
+	Wire#(AccessSize) wr_write_access_size <- mkWire();
+	Wire#(Bool) wr_write_resp <- mkWire();
 
 	////////////////////////////////////////////////////////////////
 	//////////////////////// DMA Registers /////////////////////////
@@ -167,8 +182,8 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	Vector#(numChannels,Reg#(Bit#(4))) dma_ifcr <- replicateM(mkReg(0));	//Interrupt Flag Clear Register
 	Vector#(numChannels,Reg#(Bit#(32))) dma_ccr <- replicateM(mkConfigReg(0));	//Channel Configuration Register
 	Vector#(numChannels,Reg#(Bit#(16))) dma_cndtr <- replicateM(mkConfigReg(0));	//Channel Number of Data Transfer Register
-	Vector#(numChannels,Reg#(Req_Addr)) dma_cpar <- replicateM(mkReg(0));	//Channel Peripheral Address Register
-	Vector#(numChannels,Reg#(Req_Addr)) dma_cmar <- replicateM(mkReg(0));	//Channel Memory Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) dma_cpar <- replicateM(mkReg(0));	//Channel Peripheral Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) dma_cmar <- replicateM(mkReg(0));	//Channel Memory Address Register
 	Vector#(numChannels,Reg#(Bit#(4))) dma1_cselr <- replicateM(mkReg(0));	//Channel SELection Register
 	//We do not have dma2_cselr because there is only one DMA, and not 2 in this architecture
 
@@ -178,7 +193,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	Reg#(DMACounts) currentReadRs[valueOf(numChannels)][2];
 	Reg#(DMACounts) currentWriteRs[valueOf(numChannels)][2];
 	Reg#(Bool)		rg_is_cndtr_zero[valueOf(numChannels)][2];
-    Reg#(Bit#(8)) rg_write_strobe <- mkReg(0);
+    Reg#(Bit#(TDiv#(data_width,8))) rg_write_strobe <- mkReg(0);
     Reg#(Bit#(2)) rg_tsize <- mkReg(0);
 	for(Integer i=0 ; i<valueOf(numChannels) ; i=i+1) begin
 		currentReadRs[i] <- mkCReg(2,0);
@@ -189,7 +204,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	// Use a FIFO to pass the read response to the write "side",
 	//  thus allowing pending transations and concurrency.
 	// FIFOs can be replicated as well.
-	Vector#(numChannels,FIFOF#(Req_Data))  
+	Vector#(numChannels,FIFOF#(Bit#(data_width)))  
 		  responseDataFs <- replicateM(mkSizedFIFOF(2)) ;  
 
 	//Wire to pass the interrupt from peripheral to DMA
@@ -203,7 +218,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	// The depth of this fifo limits the number of outstanding reads
 	// which may be pending before the write.  The maximum outstanding
 	// reads depends on the overall latency of the read requests.
-	Vector#(numChannels,FIFOF#(DestAddrFs_type#(numPeripherals))) 
+	Vector#(numChannels,FIFOF#(DestAddrFs_type#(numPeripherals,addr_width))) 
 		destAddrFs <- replicateM( mkSizedFIFOF(2)) ;
 	
 	// This register stores the initial value of the CNDTR. It is used to restore the value back
@@ -214,13 +229,13 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	// still hold the original programmed value, and not the address of the current transaction.
 	// Therefore, we have a copy of these registers which indicate the address of the current
 	// ongoing transaction on that channel.
-	Vector#(numChannels,Reg#(Req_Addr)) rg_cpa <- replicateM(mkConfigReg(0));	// Local Channel Peripheral Address Register
-	Vector#(numChannels,Reg#(Req_Addr)) rg_cma <- replicateM(mkConfigReg(0));	// Local Channel Memory Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cpa <- replicateM(mkConfigReg(0));	// Local Channel Peripheral Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cma <- replicateM(mkConfigReg(0));	// Local Channel Memory Address Register
 
 	Reg#(Bit#(`Burst_length_bits)) rg_burst_count <- mkReg(0);
 	Reg#(Bit#(TLog#(numChannels))) rg_current_trans_chan_id <- mkReg(0);
-	Reg#(Tuple3#(Bool, Bit#(TLog#(numChannels)), Bit#(4))) rg_disable_channel <- mkReg(tuple3(False, ?, 'd-1));
-	Reg#(Tuple2#(Bit#(TLog#(numChannels)), Bit#(32))) rg_writeConfig_ccr <- mkReg(tuple2(0,0));
+	Reg#(Tuple2#(Bool, Bit#(TLog#(numChannels)))) rg_disable_channel <- mkReg(tuple2(False, ?));
+	Reg#(Tuple2#(Bit#(TLog#(numChannels)), Bit#(data_width))) rg_writeConfig_ccr <- mkReg(tuple2(0,0));
 	Reg#(Bool) rg_finish_write[valueOf(numChannels)][2];
 	Reg#(Bool) rg_finish_read[valueOf(numChannels)][2];
 	for(Integer i=0 ; i<valueOf(numChannels) ; i=i+1) begin
@@ -280,45 +295,11 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	// the size of the transfer.
 	// Note that though STM's DMA defines tsize=2'b11 as reserved, we use it to
 	// perform a 64-bit data transfer.
-	function Req_Addr fn_incr_address(Req_Addr addr, Bit#(2) tsize, Bit#(`Burst_length_bits) bsize) provisos(Bits#(Req_Addr,sz_Req_Addr), Add#(sz_Req_Addr,1, a));
+	function Bit#(addr_width) fn_incr_address(Bit#(addr_width) addr, Bit#(2) tsize, Bit#(`Burst_length_bits) bsize) provisos(Add#(addr_width,1, a),
+											Add#(z__, 8, a));
 		Bit#(a) lv_to_add= (zeroExtend(bsize)+1) << tsize;
 		Bit#(a) lv_result= {1'b0,addr}+lv_to_add;
 		return truncate(lv_result);
-	endfunction
-
-	//This function performs the data alignment for 64 bit data
-	function Bit#(64) fn_data_alignment64 (Bit#(64) data, Bit#(2) source_sz, Bit#(2) dest_sz);
-		Bit#(64) outp;
-		case (source_sz) matches
-			2'd0: begin 
-					outp= zeroExtend(data[7:0]);
-				  end
-			2'd1: begin
-					if(dest_sz==2'd0)
-						outp= zeroExtend(data[7:0]);
-					else
-						outp= zeroExtend(data[15:0]);
-				  end
-			2'd2: begin
-					if(dest_sz==2'd0)
-						outp= zeroExtend(data[7:0]);
-					else if(dest_sz==2'd1)
-						outp= zeroExtend(data[15:0]);
-					else 
-						outp= zeroExtend(data[31:0]);
-				  end
-			2'd3: begin
-					if(dest_sz==2'd0)
-						outp= zeroExtend(data[7:0]);
-					else if(dest_sz==2'd1)
-						outp= zeroExtend(data[15:0]);
-					else if(dest_sz== 2'd2)
-						outp= zeroExtend(data[31:0]);
-					else
-						outp= data;
-				  end
-		endcase
-		return outp;
 	endfunction
 
 	// DMA rules //////////////////////////////////////////////////
@@ -328,7 +309,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	// (interfaces)
 	// And returns a set a rules.
 	// The rule are identical to the set used in the one mmu port case.
-	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(`PADDR,`Reg_width,`USERSPACE) xactor, Integer chanNum);
+	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, data_width, 0) xactor, Integer chanNum);
 		return
 		rules
 
@@ -381,7 +362,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 						  	  fromInteger(chanNum) == tpl_1(fn_dma_priority_encoder()) &&  //if the this channel has the highest priority
 							  (!tpl_1(rg_disable_channel) ||  tpl_2(rg_disable_channel)!=fromInteger(chanNum))
 						  		&& rg_finish_read[chanNum][1]);	//if the channel is not being disabled by the processor
-			Req_Addr lv_araddr;
+			Bit#(addr_width) lv_araddr;
 			Bit#(2) lv_arsize;
 			bit lv_burst_type;
 			let lv_dma_ccr= dma_ccr[chanNum];
@@ -425,7 +406,7 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 
 			// Create a read request, and enqueue it
 			// Since there can be multiple pending requests, either read or
-			// writes, we use the `Req_Info field to mark these.
+			// writes, we use the arid field to mark these.
 			let read_request = AXI4_Rd_Addr {araddr: lv_araddr, 
 											 arid: {1'b1,fromInteger(chanNum)}, arlen: lv_burst,
 											 arsize: zeroExtend(lv_arsize), arburst: zeroExtend(lv_burst_type), //arburst: 00-FIXED 01-INCR 10-WRAP
@@ -496,10 +477,10 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 				lv_burst_type= lv_dma_ccr[6];	//destination's burst type will be that of peripheral
 			end
 
-			Bit#(`Reg_width) actual_data= responseDataFs[chanNum].first;
+			let actual_data= responseDataFs[chanNum].first;
 			Bit#(`Burst_length_bits) lv_burst_len= lv_dma_ccr[`Burst_length_bits+15:16];
 		//	Bit#(6) x = {3'b0,lv_data.addr[2:0]}<<3;
-			Bit#(8) write_strobe=lv_tsize==0?8'b1:lv_tsize==1?8'b11:lv_tsize==2?8'hf:8'hff;
+			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:lv_tsize==2?'hf:'hff;
 			if(lv_tsize!=3)begin			// 8-bit write;
 				//actual_data=actual_data<<(x);
 				write_strobe=write_strobe<<(lv_data.addr[`byte_offset:0]);
@@ -622,13 +603,13 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 	rule handle_interrupts;	//interrupts will be raised only when channel is enabled
 		for (Integer chanNum = 0; chanNum < valueOf (numChannels); chanNum = chanNum + 1) begin
 			Bit#(4) chan_isr= 'd0;	//TEIF, HTIF, TCIF, GIF
-			Bit#(32) lv_dma_ccr= dma_ccr[chanNum];
+			Bit#(1) lv_is_chan_enabled= dma_ccr[chanNum][0];
 			//$display("*** chan: %d en: %d dma_cndtr: %h rg_cndtr: %h",chanNum, dma_ccr[chanNum][0], dma_cndtr[chanNum], rg_cndtr[chanNum]);
 			if(wr_bus_err matches tagged Valid .chan_num &&& fromInteger(chanNum)=={1'b1, chan_num[2:0]}) begin
 				chan_isr[3]=1;
 				$display("Bus error on channel %d",chanNum);
 			end
-			if(lv_dma_ccr[0]==1) begin
+			if(lv_is_chan_enabled==1) begin
 				if(currentWriteRs[chanNum][1]==currentReadRs[chanNum][1]) begin	//once the read and write transactions are over
 					if(rg_is_cndtr_zero[chanNum][0]) //TODO check what happens if you read from port 1 here
 						chan_isr[1]= 1;
@@ -643,7 +624,10 @@ provisos (Add#(b__, TLog#(numPeripherals), 4),
 			end
 			chan_isr[0]= chan_isr[3] | chan_isr[2] | chan_isr[1];	//Setting the GIF
 			chan_isr= dma_isr[chanNum][3:0] | chan_isr; //Sticky nature of interrupts. Should be cleared by software using ifcr.
-			
+		
+			if(dma_ifcr[chanNum]!=0) begin
+				$display($time,"DMA[%d] IFCR:%b ISR:%b", chanNum, ~(dma_ifcr[chanNum]), chan_isr);
+			end	
 			//The bits in IFCR represent the interrupts that need to be cleared
 			chan_isr= chan_isr & ~(dma_ifcr[chanNum]);
 			dma_isr[chanNum]<= chan_isr;
@@ -736,13 +720,13 @@ endfunction*/
 	//return asReg(zeroExtend(pack(inpV)));
 endfunction*/
 
-	function Tuple2#(Reg#(Req_Data), Bool) can_return( Reg#(b_type) inp, Integer channels)
+	function Tuple2#(Reg#(Bit#(data_width)), Bool) can_return( Reg#(b_type) inp)
 	provisos (Bits#(b_type, bsize),
-						Add#(bsize,xxx,64));
-		if(valueOf(numChannels)>channels)
+						Add#(bsize,xxx,data_width));
+//		if(valueOf(numChannels)>channel)
 			return tuple2(regAToRegBitN(inp), True);
-		else
-			return tuple2(regAToRegBitN( nullReg ), False);
+//		else
+//			return tuple2(regAToRegBitN( nullReg ), False);
 	endfunction
 
 
@@ -750,71 +734,73 @@ endfunction*/
 	// bit resister-- the data size of the config socket.
 	// Create function to map from address to specific registers
 						
-	function Tuple2#(Reg#(Req_Data), Bool) selectReg( Req_Addr addr );
-    Bit#(8) taddr = truncate( addr ) ;
+	function Tuple2#(Reg#(Bit#(data_width)), Bool) selectReg( Bit#(addr_width) addr);
+    Bit#(8) taddr= addr[7:0];
     return
     case ( taddr )
-      8'h00 : return can_return( vectorToRegN( dma_isr ), 0);
-      8'h04 : return can_return( vectorToRegN( dma_ifcr ), 0);
-      8'hB0 : return can_return( vectorToRegN( dma1_cselr ), 0);
  
 	  	//8'h08 : if(valueOf(numChannels)>1) begin return tuple2(regAToRegBitN( dma_ccr[0] ), True); end  //32-bit
 	  	//				else return tuple2(regAToRegBitN( nullReg ), False);
-	  	8'h08 : return can_return( dma_ccr[0], 0);   //32-bit
-      8'h0c : return can_return( dma_cndtr[0], 0); //16-bit -- 32-bit Addr 
-      8'h10 : return can_return( dma_cpar[0], 0); //64-bit
-      8'h18 : return can_return( dma_cmar[0], 0); //64-bit
+	  	8'h0 : return can_return(dma_ccr[0]);   //32-bit
+      8'h8 : return can_return(dma_cndtr[0]); //16-bit -- 32-bit Addr 
+      8'h10 : return can_return(dma_cpar[0]); //64-bit
+      8'h18 : return can_return(dma_cmar[0]); //64-bit
  
-      8'h20 : return can_return( dma_ccr[1], 1);
-      8'h24 : return can_return( dma_cndtr[1], 1);
-      8'h28 : return can_return( dma_cpar[1], 1);
-      8'h30 : return can_return( dma_cmar[1], 1);
+      8'h20 : return can_return(dma_ccr[1]);
+      8'h28 : return can_return(dma_cndtr[1]);
+      8'h30 : return can_return(dma_cpar[1]);
+      8'h38 : return can_return(dma_cmar[1]);
  
-      8'h38 : return can_return( dma_ccr[2], 2);
-      8'h3C : return can_return( dma_cndtr[2], 2);
-      8'h40 : return can_return( dma_cpar[2], 2);
-      8'h48 : return can_return( dma_cmar[2], 2);
+      8'h40 : return can_return(dma_ccr[2]);
+      8'h48 : return can_return(dma_cndtr[2]);
+      8'h50 : return can_return(dma_cpar[2]);
+      8'h58 : return can_return(dma_cmar[2]);
  
-      8'h50 : return can_return( dma_ccr[3], 3);
-      8'h54 : return can_return( dma_cndtr[3], 3);
-      8'h58 : return can_return( dma_cpar[3], 3);
-      8'h60 : return can_return( dma_cmar[3], 3);
+      8'h60 : return can_return(dma_ccr[3]);
+      8'h68 : return can_return(dma_cndtr[3]);
+      8'h70 : return can_return(dma_cpar[3]);
+      8'h78 : return can_return(dma_cmar[3]);
  
-      8'h68 : return can_return( dma_ccr[4], 4);
-      8'h6C : return can_return( dma_cndtr[4], 4);
-      8'h70 : return can_return( dma_cpar[4], 4);
-      8'h78 : return can_return( dma_cmar[4], 4);
+      8'h80 : return can_return(dma_ccr[4]);
+      8'h88 : return can_return(dma_cndtr[4]);
+      8'h90 : return can_return(dma_cpar[4]);
+      8'h98 : return can_return(dma_cmar[4]);
  
-      8'h80 : return can_return( dma_ccr[5], 5);
-      8'h84 : return can_return( dma_cndtr[5], 5);
-      8'h88 : return can_return( dma_cpar[5], 5);
-      8'h90 : return can_return( dma_cmar[5], 5);
+      8'hA0 : return can_return(dma_ccr[5]);
+      8'hA8 : return can_return(dma_cndtr[5]);
+      8'hB0 : return can_return(dma_cpar[5]);
+      8'hB8 : return can_return(dma_cmar[5]);
  
-      8'h98 : return can_return( dma_ccr[6], 6);
-      8'h9C : return can_return( dma_cndtr[6], 6);
-      8'hA0 : return can_return( dma_cpar[6], 6);
-      8'hA8 : return can_return( dma_cmar[6], 6);
+      8'hC0 : return can_return(dma_ccr[6]);
+      8'hC8 : return can_return(dma_cndtr[6]);
+      8'hD0 : return can_return(dma_cpar[6]);
+      8'hD8 : return can_return(dma_cmar[6]);
  
+      8'hE0 : return can_return(vectorToRegN( dma_isr ));
+      8'hE8 : return can_return(vectorToRegN( dma_ifcr ));
+      8'hF0 : return can_return(vectorToRegN( dma1_cselr ));
+
       default: return tuple2(regAToRegBitN( nullReg ), False);
     endcase ;
   endfunction
 
-	function Tuple2#(Bit#(TLog#(numChannels)), Bool) ccr_channel_number (Req_Addr addr);
-    Bit#(8) taddr= truncate(addr);
-		if(val_numChannels >0 && taddr==8'h08)
-			return tuple2(0, True);
-		else if(val_numChannels >1 && taddr ==8'h20)
-			return tuple2(1, True);
-		else if(val_numChannels >2 && taddr ==8'h38)
-			return tuple2(2, True);
-		else if(val_numChannels >3 && taddr ==8'h50)
-			return tuple2(3, True);
-		else if(val_numChannels >4 && taddr ==8'h68)
-			return tuple2(4, True);
-		else if(val_numChannels >5 && taddr ==8'h80)
-			return tuple2(5, True);
-		else if(val_numChannels >6 && taddr ==8'h98)
-			return tuple2(6, True);
+	function Tuple2#(Bit#(TLog#(numChannels)), Bool) ccr_channel_number (Bit#(addr_width) addr);
+    Bit#(10) taddr= addr[9:0];
+		let val_numChannels= valueOf(numChannels);
+		if(val_numChannels >0 && taddr=='h0)
+			return tuple2('d0, True);
+		else if(val_numChannels >1 && taddr =='h20)
+			return tuple2('d1, True);
+		else if(val_numChannels >2 && taddr =='h40)
+			return tuple2('d2, True);
+		else if(val_numChannels >3 && taddr =='h60)
+			return tuple2('d3, True);
+		else if(val_numChannels >4 && taddr =='h80)
+			return tuple2('d4, True);
+		else if(val_numChannels >5 && taddr =='hA0)
+			return tuple2('d5, True);
+		else if(val_numChannels >6 && taddr =='hC0)
+			return tuple2('d6, True);
 		else
 			return tuple2(?, False);
 	endfunction
@@ -832,86 +818,76 @@ endfunction*/
 	
 	Rules writeConfig = (rules
 		rule writeConfig;
-			let write_addr <- pop_o(s_xactor.o_wr_addr);
-			let write_data <- pop_o(s_xactor.o_wr_data);
-			Req_Data lv_data= 0;
-			Req_Addr lv_addr= 0;
-			AXI4_Resp lv_bresp= AXI4_OKAY;
+			let data= wr_write_data;
+			let size= wr_write_access_size;
+			let addr= wr_write_addr;
+
 			Bool lv_send_response= True;
 
-			if(write_data.wstrb=='hF0) begin
-				lv_data= zeroExtend(write_data.wdata[63:32]);
-				lv_addr= {truncateLSB(write_addr.awaddr),3'b100};
-			end
-			else if(write_data.wstrb=='h0F) begin
-				lv_data= zeroExtend(write_data.wdata[31:0]);
-				lv_addr= {truncateLSB(write_addr.awaddr),3'b000};
-			end
-			else if(write_data.wstrb=='hFF) begin
-				lv_data= write_data.wdata;
-				lv_addr= write_addr.awaddr;
-			end
-			else begin	//The write request is not 64-bits, and therefore return a bus error
-				lv_bresp= AXI4_SLVERR;
-				$display($time,"\tDMA: KAT GAYA");
-			end
-
-				`ifdef verbose $display ($time,"\tDMA writeConfig addr: %0h data: %0h", lv_addr, lv_data); `endif
 			// Select and write the register
-			let lv1= selectReg(lv_addr);
+			let index_addr= addr&{'1,3'd0};	//Generating a 64-bit aligned address
+			let lv1= selectReg(index_addr);
 			let thisReg = tpl_1(lv1);
-			if(!tpl_2(lv1)) begin	//if no register mapping exists for the given address
-				lv_bresp= AXI4_SLVERR;
-				$display($time,"\tDMA: Wapas KAT GAYA");
-			end
-			//else is not needed as the selectReg function handles it
 
-			let lv_ccr_channel_number_tuple= ccr_channel_number(lv_addr);
+			Bit#(data_width) mask=size==Byte?'hff:size==HWord?'hFFF:size==Word?'hFFFFFFFF:'1;	
+			/*data= case (size)
+          		Byte: duplicate(data[7:0]);
+          		HWord: duplicate(data[15:0]);
+          		Word: duplicate(data[31:0]);
+        		endcase;*/
+
+			Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
+      mask=mask<<shift_amt;
+      Bit#(data_width) datamask=data & mask;	//TODO this was duplicate(data)
+      let notmask=~mask;
+			data= (thisReg & notmask)|datamask; //TODO discomment
+
+			let lv_ccr_channel_number_tuple= ccr_channel_number(index_addr);
 			let lv_ccr_channel_number=tpl_1(lv_ccr_channel_number_tuple);
-            `ifdef verbose $display("ccr_channel_number %h lv_addr %h",lv_ccr_channel_number, lv_addr); `endif
-			if( tpl_2(lv_ccr_channel_number_tuple)==True && tpl_2(lv1)) begin 	//if the current write is happening to one of the channel's CCR.
-				if(lv_data[0]==1 ) begin			//if the channel is being enabled
+			`ifdef verbose $display ($time,"\tDMA writeConfig addr: %0h index_addr: %0h data: %0h ccr_chan_num: %d", addr, index_addr, data, lv_ccr_channel_number); `endif
+			if(tpl_2(lv_ccr_channel_number_tuple)==True) begin 	//if the current write is happening to one of the channel's CCR.
+				if(data[0]==1) begin			//if the channel is being enabled
 					rg_cpa[lv_ccr_channel_number] <= dma_cpar[lv_ccr_channel_number];	//peripheral address is copied
 					rg_cma[lv_ccr_channel_number] <= dma_cmar[lv_ccr_channel_number];	//memory address is copied
 					rg_cndtr[lv_ccr_channel_number]<= dma_cndtr[lv_ccr_channel_number];	//the cndtr value is saved
-					rg_disable_channel<= tuple3(False,?,?);
+					rg_disable_channel<= tuple2(False,?);
 					$display("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
                     
-                    Bit#(3) cmar_align = dma_cmar[lv_ccr_channel_number][2:0]; //Vinod
-                    Bit#(3) cpar_align = dma_cpar[lv_ccr_channel_number][2:0]; //Vinod
-                    
-                    //lv_data[9:8] and lv_data[11:10] gives transfer size supposedly. Using K-Maps --Possibility of a bug?
-                bit cmar_is_aligned =  fn_aligned_addr(write_addr.awaddr[2:0], write_addr.awsize);
-                bit cpar_is_aligned =  fn_aligned_addr(write_addr.awaddr[2:0], write_addr.awsize); 
+        			/*Bit#(3) cmar_align = dma_cmar[lv_ccr_channel_number][2:0]; 
+        			Bit#(3) cpar_align = dma_cpar[lv_ccr_channel_number][2:0]; 
+        			
+        			//data[9:8] and data[11:10] gives transfer size supposedly. Using K-Maps --Possibility of a bug?
+        			bit cmar_is_aligned =  fn_aligned_addr(cmar_align, data[11:10]);
+        			bit cpar_is_aligned =  fn_aligned_addr(cpar_align, data[9:8]); 
 
-                if((cmar_is_aligned&cpar_is_aligned)==0) begin
-                        lv_bresp = AXI4_DECERR; //DECERR for Unaligned addresses
-                        $display("\tAXI4_DECERR\n");
-                end
+        			if((cmar_is_aligned & cpar_is_aligned)==0) begin
+        			  lv_bresp = AXI4_DECERR; //DECERR for Unaligned addresses
+        			  $display("\tAXI4_DECERR\n");
+        			end
 
-                    $display("cmar_is_aligned: %b cpar_is_aligned: %b",cmar_is_aligned,cpar_is_aligned);
-					
-                    
-                    if(lv_data[4]==0) begin
-						$display("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], lv_data[9:8], lv_data[6]);
-						$display("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], lv_data[11:10], lv_data[7]);
+        			$display("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]);
+					  	*/	
+        			    
+        			if(data[4]==0) begin
+						$display("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
+						$display("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
 					end
-					else if(lv_data[14]==0) begin
-						$display("SOURCE: Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], lv_data[11:10], lv_data[7]);
-						$display("DEST  : Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], lv_data[9:8], lv_data[6]);
+					else if(data[14]==0) begin
+						$display("SOURCE: Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
+						$display("DEST  : Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
 					end
 					else begin
-						$display("SOURCE: Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], lv_data[11:10], lv_data[7]);
-						$display("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], lv_data[9:8], lv_data[6]);
+						$display("SOURCE: Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
+						$display("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
 					end
-					$display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", lv_data[13:12], lv_data[5], dma_cndtr[lv_ccr_channel_number]);
+					$display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]);
 				end
 				else begin //the channel is being disabled
 					//TODO since it is a CReg, what if we check in port [1]?
 					if(currentReadRs[lv_ccr_channel_number][0]!=currentWriteRs[lv_ccr_channel_number][0]) begin	//there is an on going transaction
-						rg_disable_channel<= tuple3(True, lv_ccr_channel_number, write_addr.awid);
+						rg_disable_channel<= tuple2(True, lv_ccr_channel_number);
 						lv_send_response= False;
-						rg_writeConfig_ccr<= tuple2(lv_ccr_channel_number, truncate(lv_data));
+						rg_writeConfig_ccr<= tuple2(lv_ccr_channel_number, data);
 						$display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------");
 					end
 					else begin	// no pending transaction
@@ -924,9 +900,8 @@ endfunction*/
 
 			// Now generate the response and enqueue
 			if(lv_send_response) begin
-				thisReg <= lv_data;
-				let resp = AXI4_Wr_Resp { bresp: lv_bresp, buser: 0, bid: write_addr.awid };
-				s_xactor.i_wr_resp.enq(resp);
+				thisReg <= data;
+				wr_write_resp<= tpl_2(lv1);
 			end
 		endrule
 	endrules);
@@ -935,9 +910,8 @@ endfunction*/
 	Rules rl_send_chan_disabled_to_proc = (rules
 		rule rl_send_chan_disabled_to_proc(tpl_1(rg_disable_channel) && currentReadRs[tpl_2(rg_disable_channel)][1]==currentWriteRs[tpl_2(rg_disable_channel)][1]);
 			rg_disable_channel<= tuple2(False,?);
-			dma_ccr[tpl_1(rg_writeConfig_ccr)]<= tpl_2(rg_writeConfig_ccr);
-			let resp = AXI4_Wr_Resp { bresp: AXI4_OKAY, buser: 0, bid: tpl_3(rg_disable_channel) };
-			s_xactor.i_wr_resp.enq(resp);
+			dma_ccr[tpl_1(rg_writeConfig_ccr)]<= truncate(tpl_2(rg_writeConfig_ccr));
+			wr_write_resp<= True;
 		endrule
 	endrules);
 
@@ -951,32 +925,20 @@ endfunction*/
 	//TODO need to add preempts with writeConfig? or mutually_exclusive? Because both these rules will never fire together.
 	// If we do not put any attributes, won't two instances of selectReg get synthesized?
 	rule readConfig;
-		AXI4_Resp lv_rresp;
-		let read_addr <- pop_o(s_xactor.o_rd_addr);
 		// Select the register
-		let lv1= selectReg(read_addr.araddr);
+		let lv1= selectReg(wr_read_addr);
 		let thisReg = tpl_1(lv1);
 
-		//If read happens to a non defined register,
-		//or if read size is not 32-bits return SLVERR.
-		if(!tpl_2(lv1))
-			lv_rresp= AXI4_SLVERR;
-		else
-			lv_rresp= AXI4_OKAY;
-
-		Req_Data lv_data;
-		if(read_addr.arsize=='b0)
+		Bit#(data_width) lv_data;
+		if(wr_read_access_size==Byte)
 			lv_data=duplicate(thisReg[7:0]);
-		else if(read_addr.arsize=='b01)
+		else if(wr_read_access_size==HWord)
 			lv_data=duplicate(thisReg[15:0]);
-		else if(read_addr.arsize=='b10)
+		else if(wr_read_access_size==DWord)
 			lv_data=duplicate(thisReg[31:0]);
 		else
 			lv_data= thisReg;
-		// Now generate the response and enqueue
-		let resp = AXI4_Rd_Data {rresp: lv_rresp, rdata: lv_data, rlast: True,
-								 ruser: 0, rid: read_addr.arid};
-		s_xactor.i_rd_data.enq(resp);
+		wr_read_resp<= tuple2(tpl_2(lv1), lv_data);
 	endrule
 
 
@@ -992,8 +954,25 @@ endfunction*/
 	// Create the interfaces by connecting the axi side interfaces
 	// of the transactors to it.
 
-	interface cfg= s_xactor.axi_side;
-	interface mmu= m_xactor.axi_side;
+	
+	method Action read_req(Bit#(addr_width) addr, AccessSize size);
+		wr_read_addr<= addr;
+		wr_read_access_size<= size;
+	endmethod
+
+	method Tuple2#(Bool, Bit#(data_width)) read_resp;
+		return wr_read_resp;
+	endmethod
+
+	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
+		wr_write_addr<= addr;
+		wr_write_data<= data;
+		wr_write_access_size<= size;
+	endmethod
+
+	method Bool write_resp;
+		return wr_write_resp;
+	endmethod
 	
 	//This method receives various interrupts from the peripheral devices and gives it to the DMA
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
@@ -1015,8 +994,12 @@ endfunction*/
 
 					//The bits in ISR represent which interrupts are active right now
 					Bit#(3) active_interrupts= {lv_intr_TE_HT_TC_enable} & dma_isr[chanNum][3:1];
-					lv_interrupt_to_processor[chanNum]= |(active_interrupts);
+					//if(lv_dma_ccr[0]==1) begin
+						//$display("DMA chanNum: %d int_enable: %b dma_isr: %b\n",chanNum,lv_intr_TE_HT_TC_enable, dma_isr);
+					//end
+					lv_interrupt_to_processor[chanNum]= active_interrupts[0];	//TODO change this to | of all
 				end
+				$display("intrrr: %b",lv_interrupt_to_processor);
 				return |(lv_interrupt_to_processor);
 	  endmethod
     endinterface;
