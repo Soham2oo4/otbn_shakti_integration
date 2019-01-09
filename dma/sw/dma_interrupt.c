@@ -19,17 +19,19 @@ void __attribute__ ((noinline)) mret_1()
 
 void __attribute__ ((noinline)) generic_ISR()
 {
-	__asm__ ("addi sp,sp,-40" "\n\t"
+	__asm__ ("addi sp,sp,-48" "\n\t"
   "sd t1, 1*8(sp)" "\n\t" 
   "sd t2, 2*8(sp)" "\n\t"
   "sd t3, 3*8(sp)" "\n\t"
   "sd a5, 4*8(sp)" "\n\t"
+  "sd ra, 5*8(sp)" "\n\t"
 	"call dma_ISR" "\n\t"
   "ld t1, 1*8(sp)" "\n\t" 
   "ld t2, 2*8(sp)" "\n\t"
   "ld t3, 3*8(sp)" "\n\t"
   "ld a5, 4*8(sp)" "\n\t"
-	"addi sp,sp,40" "\n\t"
+  "ld ra, 5*8(sp)" "\n\t"
+	"addi sp,sp,48" "\n\t"
 	"mret" );
 }
 
@@ -39,7 +41,7 @@ void dma_ISR()
 					"lw t2,0(t1)" "\n\t"
 					"andi t2,t2,0x200" "\n\t"
 					"li t3,0x200" "\n\t"
-					"bne t2,t3,label1" "\n\t"
+					"bne t2,t3,label3" "\n\t"
 					"li t2,0xFFFFFFF" "\n\t"
 					"sw t2,4(t1)" "\n\t"
 					"sw x0,0x38(t1)" "\n\t"
@@ -59,7 +61,7 @@ void dma_ISR()
 					"li t2,0xa" "\n\t"				//newline
 					"sb t2,4(t1)" "\n\t"
 					"j label2" "\n\t"
-					"add t1,x0,x0" "\n\t"
+					"label3: add t1,x0,x0" "\n\t"
 					"add t2,x0,x0" "\n\t"
 					"add t3,x0,x0" "\n\t"
 					"add x0,x0,x0" "\n\t"
