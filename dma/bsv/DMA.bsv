@@ -168,7 +168,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	AXI4_Master_Xactor_IFC #(addr_width, data_width, 0) m_xactor <- mkAXI4_Master_Xactor;
 	Wire#(Bit#(addr_width)) wr_read_addr <- mkWire();
 	Wire#(AccessSize) wr_read_access_size <- mkWire();
-	Wire#(Tuple2#(Bool, Bit#(data_width))) wr_read_resp <- mkWire();
+	Wire#(Tuple2#(Bool, Bit#(data_width))) wr_read_resp <- mkDWire(tuple2(False,?));
 	
 	Wire#(Bit#(addr_width)) wr_write_addr <- mkWire();
 	Wire#(Bit#(data_width)) wr_write_data <- mkWire();
@@ -1005,4 +1005,100 @@ endfunction*/
     endinterface;
 endmodule
 
+interface Ifc_DMA_AXI4#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type numChannels, numeric type numPeripherals);
+	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
+	interface Get#(Bit#(1)) interrupt_to_proc;
+endinterface
+
+module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, data_width, user_width, numChannels, numPeripherals))
+provisos (Add#(a__, TLog#(numPeripherals), 4),
+	 				//Add#(numChannels, xyz__, 7),
+	 				Add#(numChannels, 0, 7),
+					//Add#(TMul#(numChannels, 4), a__, 64),
+					Add#(b__, 8, addr_width),
+					Add#(7, j__, addr_width),
+					Add#(k__, 3, addr_width),	
+					Add#(addr_width, g__, data_width),
+					Add#(c__, 32, data_width),
+			    Mul#(8, d__, data_width),
+  			  Mul#(16, e__, data_width),
+  				Mul#(32, f__, data_width),
+					Add#(28, h__, data_width),
+					Add#(16, i__, data_width)
+);
+		User_ifc#(addr_width, data_width, numChannels, numPeripherals) dma <- mkDMA;
+		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+
+		Reg#(Bool) rg_is_rdburst[2] <- mkCReg(2,False);
+		Reg#(Bit#(4)) rg_arid[2] <- mkCReg(2,?);
+		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
+		
+		Reg#(Bool) rg_is_wrburst <- mkReg(False);
+		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+
+//	method Action read_req(Bit#(addr_width) addr, AccessSize size);
+//	method Tuple2#(Bool, Bit#(data_width)) read_resp;
+//	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
+//	method Bool write_resp;
+
+		rule axi_read_transaction_req(rg_is_rdburst[0]==False);
+      let req <- pop_o(s_xactor.o_rd_addr);
+			if(req.arlen!=0)
+				rg_is_rdburst[0]<= True;
+			else begin
+				rg_is_rdburst[0]<= False;
+      	dma.read_req(req.araddr, unpack(truncate(req.arsize)));
+      	rg_arid[0]<= req.arid;
+				rg_rdburst_count<= req.arlen;
+			end
+		endrule
+	
+		rule read_response(rg_is_rdburst[0] || tpl_1(dma.read_resp));
+      let {succ,data}= dma.read_resp;
+			//succ= succ & rg_is_rdburst[1];	//Whether dma returns false or burst req=True, succ= false
+			Bool lv_rlast;
+
+			if(rg_is_rdburst[1]) begin
+    		if(rg_rdburst_count==0) begin
+					lv_rlast= True;
+					rg_is_rdburst[1]<= False;
+				end
+				else begin
+					lv_rlast= False;
+					rg_rdburst_count<= rg_rdburst_count-1;
+				end
+			end
+			else
+				lv_rlast= True;
+
+      let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],
+														rlast: lv_rlast, rdata: data, ruser: ?};
+      s_xactor.i_rd_data.enq(r);
+    endrule
+
+    rule axi_write_transaction(rg_wrburst_count==0);
+      let aw <- pop_o(s_xactor.o_wr_addr);
+      let w <- pop_o(s_xactor.o_wr_data);
+      rg_wrpacket<=aw;
+      let succ <- clint.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
+      if(aw.awlen!=0)
+        rg_wrburst_count<=1;
+      let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: 0 , bid:aw.awid};
+      if(w.wlast)
+        s_xactor.i_wr_resp.enq (r);
+    endrule
+
+    rule write_burst_traction(rg_wrburst_count!=0);
+      let addreq=rg_wrpacket;
+      let datareq<-pop_o(s_xactor.o_wr_data);
+      Bool succ=False;
+      let resp = AXI4_Wr_Resp {bresp: succ?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:addreq.awid};
+      if(datareq.wlast)begin
+            s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
+            rg_wrburst_count<=0;
+          end
+    endrule
+    interface slave = s_xactor.axi_side;
+	endmodule
 endpackage
