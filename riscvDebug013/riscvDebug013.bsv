@@ -43,6 +43,7 @@ package riscvDebug013;
   import AXI4_Types::*;
   import ConcatReg::*;
   import ConfigReg::*;
+  import DReg::*;
 
   import debug_types::*;
 
@@ -79,7 +80,8 @@ package riscvDebug013;
     Vector#(HartCount,Reg#(Bit#(1))) vrg_hawsel       <- replicateM(mkReg(0,reset_by derived_reset));
     
     // Shadow Halted required for resume ack
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted_sdw   <- replicateM(mkReg(0,reset_by derived_reset)); 
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted_sdw     <- replicateM(mkReg(0,reset_by derived_reset)); 
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_have_reset_sdw <- replicateM(mkReg(0,reset_by derived_reset));
 
     //#   Interface Registers
     Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
@@ -108,7 +110,7 @@ package riscvDebug013;
     Wire#(Bit#(1)) anyRunning    <- mkWire();                             //- dmstatus b10      - R
     Wire#(Bit#(1)) allHalted     <- mkWire();                             //- dmstatus b9       - R
     Wire#(Bit#(1)) anyHalted     <- mkWire();                             //- dmstatus b8       - R
-    Reg#(Bit#(1)) authenticated <- mkReg(0,reset_by derived_reset);       //- dmstatus b7       - R
+    Reg#(Bit#(1)) authenticated <- mkReg(0);                              //- dmstatus b7       - R
     Reg#(Bit#(1)) authbusy      <- mkReg(0,reset_by derived_reset);       //- dmstatus b6       - R
     Reg#(Bit#(1)) hasResetHaltRequest = readOnlyReg(1);                   //- dmstatus b5       - R
     Reg#(Bit#(1)) confStrPtrValid = readOnlyReg(1);                       //- dmstatus b4       - R
@@ -124,14 +126,13 @@ package riscvDebug013;
         version);
 
     // dmcontrol DM h'10
-
     Reg#(Bit#(1)) haltReq       <- mkReg(0,reset_by derived_reset);       //- dmcontrol b31     - W
     Reg#(Bit#(1)) resumeReq     <- mkReg(0,reset_by derived_reset);       //- dmcontrol b30     - W
     Reg#(Bit#(1)) hartReset     <- mkReg(0,reset_by derived_reset);       //- dmcontrol b29     -RW
-    Reg#(Bit#(1)) ackHaveReset  <- mkReg(0,reset_by derived_reset);       //- dmcontrol b28     - W
+    Reg#(Bit#(1)) ackHaveReset  <- mkDReg(0,reset_by derived_reset);       //- dmcontrol b28     - W
     Reg#(Bit#(1)) dmcontrolPad0 = readOnlyReg(0);                         //- dmcontrol b27
-    Reg#(Bit#(1)) haSel         = readOnlyReg(0);                         //- dmcontrol b26     -RW
-    Reg#(Bit#(10))hartSelLo     <- mkReg(0,reset_by derived_reset);       //- dmcontrol b25-16  -RW  // Correct this to one bit writeable
+    Reg#(Bit#(1)) haSel         = readOnlyReg(0);                         //- dmcontrol b26     -RW    // Make this Writeable When Supporting Multiple Harts
+    Reg#(Bit#(10))hartSelLo     = readOnlyReg(0);                         //- dmcontrol b25-16  -RW    // Make this Writeable When Supporting Multiple Harts
     Reg#(Bit#(10))hartSelHi     = readOnlyReg(0);                         //- dmcontrol b15-6   -RW
     Reg#(Bit#(2)) dmcontrolPad1 = readOnlyReg(0);                         //- dmcontrol b5-4
     Reg#(Bit#(1)) setResetHaltRequest<-mkReg(0,reset_by derived_reset);   //- dmcontrol b3      - W
@@ -276,12 +277,33 @@ package riscvDebug013;
       dm_reset.assertReset;
     endrule
 
+    rule rl_authentication_bypass;
+      authenticated <= 1'b1;
+    endrule
+
+    rule rl_have_reset_logic;
+      Bit#(HartCount) lv_hawsel = 0;
+      for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
+        lv_hawsel[i]          = (fromInteger(i) == hartSelLo) ? 1'b1:vrg_hawsel[i];
+      end
+
+      for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
+        if((lv_hawsel[i] == 1) && (ackHaveReset == 1) && (vrg_have_reset[i] == 1))
+          vrg_have_reset[i] <= 0;
+      end
+    endrule
+
     rule rl_set_dm_status_bits;   // One Cycle delay in update of values , Convert to wires 
+      Bit#(HartCount) lv_hawsel = 0;
+      for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
+        lv_hawsel[i]          = (fromInteger(i) == hartSelLo) ? 1'b1:vrg_hawsel[i];
+      end
+
       // Calculating DmStatus Sources
       for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
         if ((vrg_halted_sdw[i] ==1) && (vrg_halted[i] == 0))
           vrg_resume_ack[i] <= 1;
-        else if ((vrg_hawsel[i] == 1) &&(haltReq == 1))
+        else if ((lv_hawsel[i] == 1) &&(haltReq == 1))
           vrg_resume_ack[i] <= 0;
         vrg_halted_sdw[i] <= vrg_halted[i]; // One Cycle Delayed assign;
       end
@@ -293,16 +315,17 @@ package riscvDebug013;
       Bit#(HartCount) lv_sel_UnAvail        = 0;
       Bit#(HartCount) lv_sel_Running        = 0;
       Bit#(HartCount) lv_sel_Halted         = 0;
-      Bit#(HartCount) lv_hawsel             = 0;
+      
       for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
-        lv_sel_HaveReset[i]   =  vrg_have_reset[i]    & vrg_hawsel[i];
-        lv_sel_ResumeAck[i]   =  vrg_resume_ack[i]    & vrg_hawsel[i];
-        lv_sel_NonExistent[i] =  rg_non_existent[i]  & vrg_hawsel[i];
-        lv_sel_UnAvail[i]     =  vrg_unavailable[i]   & vrg_hawsel[i];
-        lv_sel_Running[i]     =  (~vrg_halted[i])       & vrg_hawsel[i];
-        lv_sel_Halted[i]      =  vrg_halted[i]        & vrg_hawsel[i];
-        lv_hawsel             =  vrg_hawsel[i];
+        lv_sel_HaveReset[i]   =  vrg_have_reset[i]    & lv_hawsel[i];
+        lv_sel_ResumeAck[i]   =  vrg_resume_ack[i]    & lv_hawsel[i];
+        lv_sel_NonExistent[i] =  rg_non_existent[i]  & lv_hawsel[i];
+        lv_sel_UnAvail[i]     =  vrg_unavailable[i]   & lv_hawsel[i];
+        lv_sel_Running[i]     =  (~vrg_halted[i])       & lv_hawsel[i];
+        lv_sel_Halted[i]      =  vrg_halted[i]        & lv_hawsel[i];  
+        //$display("RC Status for hart %d, %h,%h,%h,%h,%h,%h,",i,vrg_have_reset[i],vrg_resume_ack[i],rg_non_existent[i],vrg_unavailable[i],(~vrg_halted[i]),vrg_halted[i]);
       end
+
       allHaveReset    <= (lv_sel_HaveReset == lv_hawsel)?1:0;
       allResumeAck    <= (lv_sel_ResumeAck == lv_hawsel)?1:0;
       allNonExistent  <= (lv_sel_NonExistent == lv_hawsel)?1:0;
@@ -480,7 +503,7 @@ package riscvDebug013;
       Bit#(5) lv_hart_id = hartSelLo[4:0];
       Bit#(3) lv_abst_cmderr;
       if((abst_ar_cmdType == 0) && (abst_ar_transfer == 1) )begin
-        if(vrg_unavailable[lv_hart_id] == 1)
+        if(vrg_unavailable[lv_hart_id] == 0)
           lv_abst_cmderr = fn_abstract_reg_op_permitted(truncate(abst_ar_regNo),vrg_halted[lv_hart_id],
                                                       abst_ar_write,abst_ar_aarSize);
         else 
@@ -533,21 +556,21 @@ package riscvDebug013;
         endmethod
 
         method Bit#(1) haltRequest();
-          if((vrg_hawsel[i] == 1) && (vrg_unavailable[i] == 0))
+          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0))
             return haltReq;
           else 
             return 0;
         endmethod
         
         method Bit#(1) resumeRequest();
-          if((vrg_hawsel[i] == 1) && (vrg_unavailable[i] == 0))
+          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0))
             return resumeReq;
           else 
             return 0;
         endmethod
         
         method Bit#(1) hart_reset();
-          if((vrg_hawsel[i] == 1) && (vrg_unavailable[i] == 0))
+          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0))
             return hartReset;
           else 
             return 0;
@@ -563,7 +586,9 @@ package riscvDebug013;
         endmethod
 
         method Action  set_have_reset(Bit#(1) have_reset);
-          vrg_have_reset[i] <= have_reset;
+          if((vrg_have_reset_sdw[i] != have_reset) && (have_reset == 1'b1))
+            vrg_have_reset[i] <= 1'b1;
+          vrg_have_reset_sdw[i] <= have_reset;
         endmethod
       endinterface;
     end

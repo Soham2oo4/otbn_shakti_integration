@@ -19,11 +19,17 @@ package debug_types;
   interface Debug_Hart_Ifc;
     method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation;
     method Action  abstractReadResponse(Bit#(XLEN) abstractResponse);  
+    (*always_enabled,always_ready*)
     method Bit#(1) haltRequest();
+    (*always_enabled,always_ready*)
     method Bit#(1) resumeRequest();
+    (*always_enabled,always_ready*)
     method Bit#(1) hart_reset();                               // Signal TO Reset HART -Active HIGH
+    (*always_enabled,always_ready*)
     method Action  set_have_reset(Bit#(1) have_reset);
+    (*always_enabled,always_ready*)
     method Action  set_halted(Bit#(1) halted);
+    (*always_enabled,always_ready*)
     method Action  set_unavailable(Bit#(1) unavailable);  
     // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
   endinterface
@@ -39,11 +45,17 @@ package debug_types;
   interface Hart_Debug_Ifc;
     method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))abstract_command);
     method ActionValue#(Bit#(XLEN)) abstractReadResponse;
+    (*always_enabled,always_ready*)
     method Action   haltRequest(Bit#(1) halt_request);
+    (*always_enabled,always_ready*)
     method Action   resumeRequest(Bit#(1) resume_request);
+    (*always_enabled,always_ready*)
     method Action   hartReset(Bit#(1) hart_reset_v); // Change to reset type // Signal TO Reset HART -Active HIGH
+    (*always_enabled,always_ready*)
     method Bit#(1)  has_reset;
+    (*always_enabled,always_ready*)
     method Bit#(1)  is_halted;
+    (*always_enabled,always_ready*)
     method Bit#(1)  is_unavailable;
   endinterface
 

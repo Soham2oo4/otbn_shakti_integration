@@ -48,7 +48,7 @@ package hart_template;
     Reg#(Bit#(1)) rg_reset_hart <- mkReg(0);              // Triggers the rule that resets your hart
 
     Reg#(Bit#(1)) rg_halted <- mkReg(0);                  // 0 : Hart "halted" , 1 hart Running
-    Reg#(Bit#(1)) rg_available <- mkReg(0);               // 0 : Hart not Available for debugging
+    Reg#(Bit#(1)) rg_available <- mkReg(1);               // 0 : Hart not Available for debugging
 
     Reg#(Bit#(1)) rg_halt_request <- mkDReg(0);  // Equvalent Struicture to absorb incoming requests
     Reg#(Bit#(1)) rg_resume_request <- mkDReg(0);// Equvalent Struicture to absorb incoming requests
@@ -61,6 +61,19 @@ package hart_template;
                 // rg_halted,rg_available,rg_halt_request,
                 // rg_resume_request,rg_reset_hart);
     // endrule 
+
+    rule run_control;
+      if (rg_halt_request == 1)
+        rg_halted <= 1;
+      else if(rg_resume_request == 1)
+        rg_halted <= 0;
+      else if (rg_reset_hart == 1)
+        rg_halted <= 0;
+    endrule
+
+    rule reset_control(rg_reset_hart == 1);
+      hart_reset.assertReset();
+    endrule
 
     //   Interface Population   
     method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),
