@@ -66,7 +66,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
       UpdateIR       = 4'hf } TapStates deriving(Bits,Eq,FShow);
 
 	(*synthesize*)
-	module mkjtagdtm(Ifc_jtagdtm);
+	module mkjtagdtm#(Clock sys_clk)(Ifc_jtagdtm);
 	Clock def_clk<-exposeCurrentClock;
 	Clock invert_clock<-invertCurrentClock;
 	Reset invert_reset<-mkAsyncResetFromCR(0,invert_clock);
@@ -117,7 +117,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 	ReadOnly#(Bit#(1))	crossed_bs_chain_tdi	<-mkNullCrossingWire(invert_clock,wr_bs_chain_tdi);
 	ReadOnly#(Bit#(1))	crossed_debug_tdi		<-mkNullCrossingWire(invert_clock,wr_debug_tdi);
 	ReadOnly#(Bit#(32))	crossed_dtmcontrol_shiftreg<-mkNullCrossingWire(invert_clock,dtmcontrol_shiftreg);
-	ReadOnly#(Bit#(1)) crossed_output_tdo<-mkNullCrossingWire(def_clk,rg_tdo);
+	ReadOnly#(Bit#(1)) crossed_output_tdo<- mkNullCrossingWire(sys_clk,rg_tdo);
 	ReadOnly#(Bit#(40)) crossed_dmiaccess_shiftreg<-mkNullCrossingWire(invert_clock,dmiaccess_shiftreg[0]);
 
    Bit#(1) bypass_sel   = crossed_instruction == `BYPASS?1:0;
