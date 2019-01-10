@@ -87,6 +87,8 @@ generate_verilog:
 	@cp ${BLUESPECDIR}/Verilog/SyncReset0.v ./verilog/
 	@cp ${BLUESPECDIR}/Verilog/MakeClock.v ./verilog/
 	@cp ${BLUESPECDIR}/Verilog/FIFO1.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/FIFO10.v ./verilog/
+	@cp ${BLUESPECDIR}/Verilog/SyncFIFO1.v ./verilog/
 .PHONY: clean
 clean:
 	rm -rf build bin *.jou *.log

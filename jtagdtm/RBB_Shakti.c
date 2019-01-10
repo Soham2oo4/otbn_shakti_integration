@@ -108,7 +108,7 @@ extern "C" {
       case '6': frame = 6; break;
       case '7': frame = 7; break;
       case 'R': frame &= ~((char)24); frame |= 8 ; break;  // push out a word with the previous state held with the read bit enabled maintain previous state and just push enable the read bit
-      case 'Q': break; //  Not Supporting Q right now
+      case 'Q': frame = 32; break;
       default:
               frame &= ~((char)24);   //fprintf(stderr, "remote_bitbang got unsupported command '%d'\n",
   //                  command); // essentially de assert the read bit if it was ever up;
@@ -120,7 +120,8 @@ extern "C" {
   unsigned char get_frame(int client_fd){
     char packet;
     read(client_fd,&packet, 1);
-    //printf("%d\n",decode_frame(packet));
+    char msg_bits = decode_frame(packet);
+    //if(packet != 0 ) printf("%x,%x,%x,%x,%x,%c\n",(msg_bits & 0x10),(msg_bits & 0x8),(msg_bits & 0x4),(msg_bits & 0x2),(msg_bits & 0x1),packet);
     return decode_frame(packet);
   }
 
