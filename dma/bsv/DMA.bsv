@@ -167,12 +167,12 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	AXI4_Master_Xactor_IFC #(addr_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
 	Wire#(Bit#(addr_width)) wr_read_addr <- mkWire();
 	Wire#(AccessSize) wr_read_access_size <- mkWire();
-	Wire#(Tuple2#(Bool, Bit#(data_width))) wr_read_resp <- mkDWire(tuple2(False,?));
+	FIFO#(Tuple2#(Bool, Bit#(data_width))) ff_read_resp <- mkBypassFIFO();
 	
 	Wire#(Bit#(addr_width)) wr_write_addr <- mkWire();
 	Wire#(Bit#(data_width)) wr_write_data <- mkWire();
 	Wire#(AccessSize) wr_write_access_size <- mkWire();
-	Wire#(Bool) wr_write_resp <- mkWire();
+	FIFO#(Bool) ff_write_resp <- mkBypassFIFO();
 
 	////////////////////////////////////////////////////////////////
 	//////////////////////// DMA Registers /////////////////////////
@@ -786,7 +786,7 @@ endfunction*/
   endfunction
 
 	function Tuple2#(Bit#(TLog#(numChannels)), Bool) ccr_channel_number (Bit#(addr_width) addr);
-    Bit#(10) taddr= addr[9:0];
+    Bit#(8) taddr= addr[7:0];
 		let val_numChannels= valueOf(numChannels);
 		if(val_numChannels >0 && taddr=='h0)
 			return tuple2('d0, True);
@@ -902,7 +902,7 @@ endfunction*/
 			// Now generate the response and enqueue
 			if(lv_send_response) begin
 				thisReg <= data;
-				wr_write_resp<= tpl_2(lv1);
+				ff_write_resp.enq(tpl_2(lv1));
 			end
 		endrule
 	endrules);
@@ -912,7 +912,7 @@ endfunction*/
 		rule rl_send_chan_disabled_to_proc(tpl_1(rg_disable_channel) && currentReadRs[tpl_2(rg_disable_channel)][1]==currentWriteRs[tpl_2(rg_disable_channel)][1]);
 			rg_disable_channel<= tuple2(False,?);
 			dma_ccr[tpl_1(rg_writeConfig_ccr)]<= truncate(tpl_2(rg_writeConfig_ccr));
-			wr_write_resp<= True;
+			ff_write_resp.enq(True);
 		endrule
 	endrules);
 
@@ -939,7 +939,7 @@ endfunction*/
 			lv_data=duplicate(thisReg[31:0]);
 		else
 			lv_data= thisReg;
-		wr_read_resp<= tuple2(tpl_2(lv1), lv_data);
+		ff_read_resp.enq(tuple2(tpl_2(lv1), lv_data));
 	endrule
 
 
@@ -961,8 +961,9 @@ endfunction*/
 		wr_read_access_size<= size;
 	endmethod
 
-	method Tuple2#(Bool, Bit#(data_width)) read_resp;
-		return wr_read_resp;
+	method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_resp;
+		ff_read_resp.deq;
+		return ff_read_resp.first;
 	endmethod
 
 	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
@@ -971,8 +972,9 @@ endfunction*/
 		wr_write_access_size<= size;
 	endmethod
 
-	method Bool write_resp;
-		return wr_write_resp;
+	method ActionValue#(Bool) write_resp;
+		ff_write_resp.deq;
+		return ff_write_resp.first;
 	endmethod
 	
 	//This method receives various interrupts from the peripheral devices and gives it to the DMA
@@ -1059,27 +1061,28 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				rg_rdburst_count<= req.arlen;
 			end
 		endrule
+
+		rule read_resp(!rg_is_rdburst[1]);
+      let {succ,data}<- dma.read_resp;
+      let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],
+														rlast: True, rdata: data, ruser: ?};
+      s_xactor.i_rd_data.enq(r);
+		endrule
 	
-		rule read_response(rg_is_rdburst[0] || tpl_1(dma.read_resp));
-      let {succ,data}= dma.read_resp;
-			//succ= succ & rg_is_rdburst[1];	//Whether dma returns false or burst req=True, succ= false
+		rule burst_read_resp(rg_is_rdburst[1]);
 			Bool lv_rlast;
 
-			if(rg_is_rdburst[1]) begin
-    		if(rg_rdburst_count==0) begin
-					lv_rlast= True;
-					rg_is_rdburst[1]<= False;
-				end
-				else begin
-					lv_rlast= False;
-					rg_rdburst_count<= rg_rdburst_count-1;
-				end
-			end
-			else
+    	if(rg_rdburst_count==0) begin
 				lv_rlast= True;
+				rg_is_rdburst[1]<= False;
+			end
+			else begin
+				lv_rlast= False;
+				rg_rdburst_count<= rg_rdburst_count-1;
+			end
 
-      let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],
-														rlast: lv_rlast, rdata: data, ruser: ?};
+      let r = AXI4_Rd_Data {rresp: AXI4_SLVERR, rid: rg_arid[1],
+														rlast: lv_rlast, rdata: ?, ruser: ?};
       s_xactor.i_rd_data.enq(r);
     endrule
 
