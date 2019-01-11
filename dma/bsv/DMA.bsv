@@ -845,43 +845,64 @@ endfunction*/
 
 			let lv_ccr_channel_number_tuple= ccr_channel_number(index_addr);
 			let lv_ccr_channel_number=tpl_1(lv_ccr_channel_number_tuple);
+			if(index_addr=='d28) begin 	//If writing to DMA_ISR
+				$display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number);
+				lv_send_response= False;
+			end
+			//If channel is enabled and write happening other than disabling current channel
+			else if( ((dma_ccr[lv_ccr_channel_number] & 'd1) == 1) && !(tpl_2(lv_ccr_channel_number_tuple) && data[0]==0) ) begin
+				$display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number);
+				lv_send_response= False;
+			end
+			else begin
+				lv_send_response= True;
+			end
+
 			`ifdef verbose $display ($time,"\tDMA writeConfig addr: %0h index_addr: %0h data: %0h ccr_chan_num: %d", addr, index_addr, data, lv_ccr_channel_number); `endif
 			if(tpl_2(lv_ccr_channel_number_tuple)==True) begin 	//if the current write is happening to one of the channel's CCR.
 				if(data[0]==1) begin			//if the channel is being enabled
-					rg_cpa[lv_ccr_channel_number] <= dma_cpar[lv_ccr_channel_number];	//peripheral address is copied
-					rg_cma[lv_ccr_channel_number] <= dma_cmar[lv_ccr_channel_number];	//memory address is copied
-					rg_cndtr[lv_ccr_channel_number]<= dma_cndtr[lv_ccr_channel_number];	//the cndtr value is saved
-					rg_disable_channel<= tuple2(False,?);
-					$display("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
-                    
-        			/*Bit#(3) cmar_align = dma_cmar[lv_ccr_channel_number][2:0]; 
-        			Bit#(3) cpar_align = dma_cpar[lv_ccr_channel_number][2:0]; 
-        			
-        			//data[9:8] and data[11:10] gives transfer size supposedly. Using K-Maps --Possibility of a bug?
-        			bit cmar_is_aligned =  fn_aligned_addr(cmar_align, data[11:10]);
-        			bit cpar_is_aligned =  fn_aligned_addr(cpar_align, data[9:8]); 
+					  if((dma_ccr[lv_ccr_channel_number] & 'd1)!=1) begin	//If the channel is not already enabled
+					  	  rg_cpa[lv_ccr_channel_number] <= dma_cpar[lv_ccr_channel_number];	//peripheral address is copied
+					  	  rg_cma[lv_ccr_channel_number] <= dma_cmar[lv_ccr_channel_number];	//memory address is copied
+					  	  rg_cndtr[lv_ccr_channel_number]<= dma_cndtr[lv_ccr_channel_number];	//the cndtr value is saved
+					  	  rg_disable_channel<= tuple2(False,?);
+					  	  $display("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
+            	            
+        	  	  		/*Bit#(3) cmar_align = dma_cmar[lv_ccr_channel_number][2:0]; 
+        	  	  		Bit#(3) cpar_align = dma_cpar[lv_ccr_channel_number][2:0]; 
+        	  	  		
+        	  	  		//data[9:8] and data[11:10] gives transfer size supposedly. Using K-Maps --Possibility of a bug?
+        	  	  		bit cmar_is_aligned =  fn_aligned_addr(cmar_align, data[11:10]);
+        	  	  		bit cpar_is_aligned =  fn_aligned_addr(cpar_align, data[9:8]); 
 
-        			if((cmar_is_aligned & cpar_is_aligned)==0) begin
-        			  lv_bresp = AXI4_DECERR; //DECERR for Unaligned addresses
-        			  $display("\tAXI4_DECERR\n");
-        			end
+        	  	  		if((cmar_is_aligned & cpar_is_aligned)==0) begin
+        	  	  		  lv_bresp = AXI4_DECERR; //DECERR for Unaligned addresses
+        	  	  		  $display("\tAXI4_DECERR\n");
+        	  	  		end
 
-        			$display("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]);
-					  	*/	
-        			    
-        			if(data[4]==0) begin
-						$display("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
-						$display("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
-					end
-					else if(data[14]==0) begin
-						$display("SOURCE: Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
-						$display("DEST  : Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
-					end
-					else begin
-						$display("SOURCE: Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
-						$display("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
-					end
-					$display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]);
+        	  	  		$display("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]);
+					  	    	*/	
+        	  	  		    
+        	  	  		if(data[4]==0) begin
+					  	  	$display("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
+					  	  	$display("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
+					  	  end
+					  	  else if(data[14]==0) begin
+					  	  	$display("SOURCE: Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
+					  	  	$display("DEST  : Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
+					  	  end
+					  	  else begin
+					  	  	$display("SOURCE: Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
+					  	  	$display("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
+					  	  end
+					  	  $display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]);
+					  end
+					  else if(data[31:0]==dma_ccr[lv_ccr_channel_number])begin	//Enabling a channel that is already enabled with same config
+					  	  lv_send_response= True;
+					  end
+					  else begin	//Enabling a channel that is already enabled with different config
+					  	  lv_send_response= False;
+					  end
 				end
 				else begin //the channel is being disabled
 					//TODO since it is a CReg, what if we check in port [1]?
@@ -892,8 +913,9 @@ endfunction*/
 						$display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------");
 					end
 					else begin	// no pending transaction
-						//clear the local registers
+						lv_send_response= True;
 						$display("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
+						//clear the local registers
 						rg_is_cndtr_zero[lv_ccr_channel_number][0]<= True;
 					end
 				end
@@ -902,7 +924,7 @@ endfunction*/
 			// Now generate the response and enqueue
 			if(lv_send_response) begin
 				thisReg <= data;
-				ff_write_resp.enq(tpl_2(lv1));
+				ff_write_resp.enq(True);
 			end
 		endrule
 	endrules);
