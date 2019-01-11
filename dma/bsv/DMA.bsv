@@ -46,24 +46,22 @@ Chapter 11 in ST Micro's RM0394 Reference Manual).
 
 package DMA;
 
-import FIFO :: * ;
-import FIFOF :: * ;
-import Vector :: * ;
+import FIFO::*;
+import FIFOF::*;
+import Vector::*;
 import FShow::*;
 import GetPut::*;
-import DefaultValue ::*;
-import AXI4_Types   :: *;
-import AXI4_Fabric   :: *;
-import Semi_FIFOF        :: *;
-import ConcatReg :: *;
-import ConfigReg :: *;
-import BUtils :: *;
+import DefaultValue::*;
+import AXI4_Types::*;
+import AXI4_Fabric::*;
+import Semi_FIFOF::*;
+import SpecialFIFOs::*;
+import ConcatReg::*;
+import ConfigReg::*;
+import BUtils::*;
 import device_common::*;
 
 `define Burst_length_bits 8
-`define USERSPACE 0
-`define PADDR 32
-`define Reg_width 64
 `define byte_offset 2
 
   // project files to be imported/included
@@ -106,13 +104,14 @@ endfunction
 //  A AXI4 Slave interface for config
 //  A AXI4 Master interface for data transfers
 
-interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
+interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
 	method Action read_req(Bit#(addr_width) addr, AccessSize size);
-	method Tuple2#(Bool, Bit#(data_width)) read_resp;
+	method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_resp;
 	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
-	method Bool write_resp;
+	method ActionValue#(Bool) write_resp;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
+	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
 endinterface
 
 
@@ -146,7 +145,7 @@ endinstance
 (* descending_urgency = "writeConfig, handle_interrupts" *)
 (* descending_urgency = "writeConfig, rl_finishRead" *)
 (* descending_urgency = "writeConfig, rl_startWrite" *)
-module mkDMA( User_ifc#(addr_width, data_width, numChannels, numPeripherals) )
+module mkDMA( User_ifc#(addr_width, data_width, user_width, numChannels, numPeripherals) )
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
 	 				Add#(numChannels, 0, 7),
@@ -165,7 +164,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 
 	let val_numChannels= valueOf(numChannels);
 
-	AXI4_Master_Xactor_IFC #(addr_width, data_width, 0) m_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(addr_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
 	Wire#(Bit#(addr_width)) wr_read_addr <- mkWire();
 	Wire#(AccessSize) wr_read_access_size <- mkWire();
 	Wire#(Tuple2#(Bool, Bit#(data_width))) wr_read_resp <- mkDWire(tuple2(False,?));
@@ -309,7 +308,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	// (interfaces)
 	// And returns a set a rules.
 	// The rule are identical to the set used in the one mmu port case.
-	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, data_width, 0) xactor, Integer chanNum);
+	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) xactor, Integer chanNum);
 		return
 		rules
 
@@ -720,6 +719,7 @@ endfunction*/
 	//return asReg(zeroExtend(pack(inpV)));
 endfunction*/
 
+//TODO optimize this by removing the second tuple.
 	function Tuple2#(Reg#(Bit#(data_width)), Bool) can_return( Reg#(b_type) inp)
 	provisos (Bits#(b_type, bsize),
 						Add#(bsize,xxx,data_width));
@@ -733,7 +733,8 @@ endfunction*/
 	// For ease of development we want all registers to look like 64
 	// bit resister-- the data size of the config socket.
 	// Create function to map from address to specific registers
-						
+
+	//TODO Make sure that writes to cndtr, cpar and cmar do not happen when channel is enabled.
 	function Tuple2#(Reg#(Bit#(data_width)), Bool) selectReg( Bit#(addr_width) addr);
     Bit#(8) taddr= addr[7:0];
     return
@@ -984,28 +985,32 @@ endfunction*/
 	//and checking if that corresponding interrupt is not masked.
 	//Raise the interrupt of a particular channel if any of the interrupts are active (in ISR) and 
 	//are not masked(in CCR).
-    interface  interrupt_to_proc= interface Get
-    method ActionValue#(Bit#(1)) get();
-				Bit#(numChannels) lv_interrupt_to_processor;
-				for(Integer chanNum= 0; chanNum < valueof(numChannels); chanNum= chanNum + 1) begin
-					let lv_dma_ccr= dma_ccr[chanNum];
-					//The bits in CCR represent the interrupts that are enabled, whereas the ones in IFCR represent which need to be cleared
-					let lv_intr_TE_HT_TC_enable= lv_dma_ccr[3:1];
+  interface  interrupt_to_proc= interface Get
+  method ActionValue#(Bit#(1)) get();
+			Bit#(numChannels) lv_interrupt_to_processor;
+			for(Integer chanNum= 0; chanNum < valueof(numChannels); chanNum= chanNum + 1) begin
+				let lv_dma_ccr= dma_ccr[chanNum];
+				//The bits in CCR represent the interrupts that are enabled, whereas the ones in IFCR represent which need to be cleared
+				let lv_intr_TE_HT_TC_enable= lv_dma_ccr[3:1];
 
-					//The bits in ISR represent which interrupts are active right now
-					Bit#(3) active_interrupts= {lv_intr_TE_HT_TC_enable} & dma_isr[chanNum][3:1];
-					//if(lv_dma_ccr[0]==1) begin
-						//$display("DMA chanNum: %d int_enable: %b dma_isr: %b\n",chanNum,lv_intr_TE_HT_TC_enable, dma_isr);
-					//end
-					lv_interrupt_to_processor[chanNum]= active_interrupts[0];	//TODO change this to | of all
-				end
+				//The bits in ISR represent which interrupts are active right now
+				Bit#(3) active_interrupts= {lv_intr_TE_HT_TC_enable} & dma_isr[chanNum][3:1];
+				//if(lv_dma_ccr[0]==1) begin
+					//$display("DMA chanNum: %d int_enable: %b dma_isr: %b\n",chanNum,lv_intr_TE_HT_TC_enable, dma_isr);
+				//end
+				lv_interrupt_to_processor[chanNum]= active_interrupts[0];	//TODO change this to | of all
+			end
+			if(lv_interrupt_to_processor!=0) begin
 				$display("intrrr: %b",lv_interrupt_to_processor);
-				return |(lv_interrupt_to_processor);
-	  endmethod
-    endinterface;
+			end
+			return |(lv_interrupt_to_processor);
+	endmethod
+  endinterface;
+	interface master= m_xactor.axi_side;
 endmodule
 
 interface Ifc_DMA_AXI4#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type numChannels, numeric type numPeripherals);
+	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
 	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
@@ -1027,22 +1032,23 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 					Add#(28, h__, data_width),
 					Add#(16, i__, data_width)
 );
-		User_ifc#(addr_width, data_width, numChannels, numPeripherals) dma <- mkDMA;
+		User_ifc#(addr_width, data_width, user_width, numChannels, numPeripherals) dma <- mkDMA;
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 
 		Reg#(Bool) rg_is_rdburst[2] <- mkCReg(2,False);
 		Reg#(Bit#(4)) rg_arid[2] <- mkCReg(2,?);
 		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
 		
-		Reg#(Bool) rg_is_wrburst <- mkReg(False);
-		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		Reg#(Bool) rg_is_wrburst[2] <- mkCReg(2,False);
+		Reg#(Bit#(4)) rg_awid[2] <- mkCReg(2,?);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
 
 //	method Action read_req(Bit#(addr_width) addr, AccessSize size);
 //	method Tuple2#(Bool, Bit#(data_width)) read_resp;
 //	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
 //	method Bool write_resp;
 
-		rule axi_read_transaction_req(rg_is_rdburst[0]==False);
+		rule read_req(rg_is_rdburst[0]==False);
       let req <- pop_o(s_xactor.o_rd_addr);
 			if(req.arlen!=0)
 				rg_is_rdburst[0]<= True;
@@ -1077,28 +1083,50 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
       s_xactor.i_rd_data.enq(r);
     endrule
 
-    rule axi_write_transaction(rg_wrburst_count==0);
+    rule write_req(rg_wrburst_count==0);
       let aw <- pop_o(s_xactor.o_wr_addr);
       let w <- pop_o(s_xactor.o_wr_data);
-      rg_wrpacket<=aw;
-      let succ <- clint.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
       if(aw.awlen!=0)
-        rg_wrburst_count<=1;
-      let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: 0 , bid:aw.awid};
-      if(w.wlast)
-        s_xactor.i_wr_resp.enq (r);
+        rg_is_wrburst[0]<= True;
+		  else begin
+				rg_is_wrburst[0]<= False;
+      	dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
+				rg_awid[0]<= aw.awid;
+				rg_wrburst_count<= aw.awlen;
+			end
+		endrule
+
+		rule write_resp(!rg_is_wrburst[1]);
+      let succ<- dma.write_resp;
+      let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: 0 , bid:rg_awid[1]};
+      s_xactor.i_wr_resp.enq (r);
+		endrule
+
+		rule burst_write_resp(rg_is_wrburst[1]);
+      let dummy<-pop_o(s_xactor.o_wr_data);
+			Bool lv_rlast;
+    	if(rg_wrburst_count==0) begin
+					lv_rlast= True;
+					rg_is_wrburst[1]<= False;
+			end
+			else begin
+				lv_rlast= False;
+				rg_wrburst_count<= rg_wrburst_count-1;
+			end
+
+			if(lv_rlast) begin
+      	let r = AXI4_Wr_Resp {bresp: AXI4_SLVERR, buser: 0 , bid:rg_awid[1]};
+      	s_xactor.i_wr_resp.enq(r);
+			end
     endrule
 
-    rule write_burst_traction(rg_wrburst_count!=0);
-      let addreq=rg_wrpacket;
-      let datareq<-pop_o(s_xactor.o_wr_data);
-      Bool succ=False;
-      let resp = AXI4_Wr_Resp {bresp: succ?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:addreq.awid};
-      if(datareq.wlast)begin
-            s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
-            rg_wrburst_count<=0;
-          end
-    endrule
-    interface slave = s_xactor.axi_side;
+		interface master= dma.master;
+    interface slave= s_xactor.axi_side;
+		//method interrupt_from_peripherals=dma.interrupt_from_peripherals;	//TODO see if this works
+		method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
+			dma.interrupt_from_peripherals(pint);
+		endmethod
+		interface interrupt_to_proc= dma.interrupt_to_proc;
+
 	endmodule
 endpackage
