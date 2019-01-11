@@ -38,14 +38,14 @@ void __attribute__ ((noinline)) generic_ISR()
 void dma_ISR()
 {
 	__asm__("li t1,0x11600" "\n\t"
-					"lw t2,0(t1)" "\n\t"
-					"andi t2,t2,0x200" "\n\t"
-					"li t3,0x200" "\n\t"
-					"bne t2,t3,label3" "\n\t"
-					"li t2,0xFFFFFFF" "\n\t"
-					"sw t2,4(t1)" "\n\t"
-					"sw x0,0x38(t1)" "\n\t"
-					"sw x0,4(t1)" "\n\t"
+					"lw t2,0xE0(t1)" "\n\t"		//DMA_ISR
+					"andi t2,t2,0x200" "\n\t" //Check if chan3 has raised an interrupt
+					"li t3,0x200" "\n\t"			
+					"bne t2,t3,label3" "\n\t" //If not, then end
+					"li t2,0xFFFFFFF" "\n\t"	//Else, clear all interrupts by writing into DMA_IFCR
+					"sw t2,0xE8(t1)" "\n\t"			//by writing into DMA_IFCR
+					"sw x0,0x40(t1)" "\n\t"		//Disable chan3 by writing into DMA_CCR3
+					"sw x0,0xE8(t1)" "\n\t"			//Clear DMA_IFCR so that subsequent interrupts are raised
 					"csrr t1,mstatus" "\n\t"
 					"ori t2,t2,0x8" "\n\t"
 					"csrw mstatus,t2" "\n\t"
@@ -102,56 +102,52 @@ int main()
   printf("Address of a: %08x c: %08x",a,c);
 
 	//int burst=0;
-  for(int burst = 5; burst < 255; ++burst){
+  for(int burst = 0; burst < 255; ++burst){
 
-  __asm__("fence\n\t");
-  	for(i=0;i<1000;++i) {
-    	*(a+i)= dum1_4byte+((burst+1)*i*2);
-      *(c+i)= dum2_4byte+((burst+2)*i);
-  }
-  __asm__("fence\n\t");
-	printf("a= %08x c= %08x\n burst= %d",*a,*c,burst);
+		__asm__("fence\n\t");
+  		for(i=0;i<1000;++i) {
+  	  	*(a+i)= dum1_4byte+((burst+1)*i*2);
+  	    *(c+i)= dum2_4byte+((burst+2)*i);
+  	}
+  	__asm__("fence\n\t");
+		printf("a= %08x c= %08x\n burst= %d",*a,*c,burst);
  
-    
-	*dma_cndtr3= 0xFA0;
-	*dma_cmar3= a;
-	*dma_cpar3= c;
-	//*dma_ifcr=0xFFFFFFF;	//TODO this and the next statement gets optimised
-	//#pragma OPTIMIZE OFF
-	*dma_ifcr=0x0;
-	//#pragma OPTIMIZE ON
+  	  
+		*dma_cndtr3= 0xFA0;
+		*dma_cmar3= a;
+		*dma_cpar3= c;
+		//*dma_ifcr=0xFFFFFFF;	//TODO this and the next statement gets optimised
+		//#pragma OPTIMIZE OFF
+		*dma_ifcr=0x0;
+		//#pragma OPTIMIZE ON
 
-	/**dma_cndtr5= 0xFA0;
-	*dma_cmar5= c;
-	*dma_cpar5= d;
-	*dma_ccr5= 0x00086ADF; */
-	//*dma_ccr3= 0x00076ADF; 
-    *dma_ccr3= (DMA_CCR_BURST_LEN(burst)|DMA_CCR_MEM2MEM|DMA_CCR_PL(2)|DMA_CCR_MSIZE(DMA_FOURBYTE)|DMA_CCR_PSIZE(DMA_FOURBYTE)|DMA_CCR_MINC|DMA_CCR_PINC|DMA_CCR_DIR|DMA_INTERRUPTS);
-    //printf("\t DMA_CCR3 value: %08x\n",*dma_ccr3);
-	//wait_for_dma_interrupt();
-	while(dma_flag==0) {
-		printf("DMA transaction ongoing...\n");
+		/**dma_cndtr5= 0xFA0;
+		*dma_cmar5= c;
+		*dma_cpar5= d;
+		*dma_ccr5= 0x00086ADF; */
+		//*dma_ccr3= 0x00076ADF; 
+  	*dma_ccr3= (DMA_CCR_BURST_LEN(burst)|DMA_CCR_MEM2MEM|DMA_CCR_PL(2)|DMA_CCR_MSIZE(DMA_FOURBYTE)|DMA_CCR_PSIZE(DMA_FOURBYTE)|DMA_CCR_MINC|DMA_CCR_PINC|DMA_CCR_DIR|DMA_INTERRUPTS);
+  	//printf("\t DMA_CCR3 value: %08x\n",*dma_ccr3);
+		//wait_for_dma_interrupt();
+		while(dma_flag==0) {
+			printf("DMA transaction ongoing...\n");
+			var1= read_csr(mip);
+			printf("mip: %08x\n",var1);
+			//waitfor(50);
+		}
+		printf("Transfer donee\n");
 		var1= read_csr(mip);
 		printf("mip: %08x\n",var1);
-		//waitfor(50);
-	}
-	printf("Transfer donee\n");
-	var1= read_csr(mip);
-	printf("mip: %08x\n",var1);
-	
-  for(i=0;i<1000;i++){
-  	if(*(a+i)!=*(c+i)){
-    	printf("\tDMA has gone wrong somewhere in copying a: %08x to c: %08x i:%d burst: %d\n",*(a+i),*(c+i),i,burst);
-      return -1;
-    }
+		
+  	for(i=0;i<1000;i++){
+  		if(*(a+i)!=*(c+i)){
+  	  	printf("\tDMA has gone wrong somewhere in copying a: %08x to c: %08x i:%d burst: %d\n",*(a+i),*(c+i),i,burst);
+  	    return -1;
+  	  }
+  	}
+		printf("DMA works for burst length: %d\n",burst);
+		dma_flag=0;
   }
-	printf("DMA works for burst length: %d\n",burst);
-	dma_flag=0;
-  }
-      printf("\t DMA copy from BRAM to TCM seems to work for all bursts\n");
-
-
-	  
-  
+  printf("\t DMA copy from BRAM to TCM seems to work for all bursts\n");
   return 0;
 }
