@@ -736,50 +736,50 @@ endfunction*/
 
 	//TODO Make sure that writes to cndtr, cpar and cmar do not happen when channel is enabled.
 	function Tuple2#(Reg#(Bit#(data_width)), Bool) selectReg( Bit#(addr_width) addr);
-    Bit#(8) taddr= addr[7:0];
+    Bit#(5) taddr= addr[7:3];
     return
     case ( taddr )
  
 	  	//8'h08 : if(valueOf(numChannels)>1) begin return tuple2(regAToRegBitN( dma_ccr[0] ), True); end  //32-bit
 	  	//				else return tuple2(regAToRegBitN( nullReg ), False);
-	  	8'h0 : return can_return(dma_ccr[0]);   //32-bit
-      8'h8 : return can_return(dma_cndtr[0]); //16-bit -- 32-bit Addr 
-      8'h10 : return can_return(dma_cpar[0]); //64-bit
-      8'h18 : return can_return(dma_cmar[0]); //64-bit
+	  	'd0 : return can_return(dma_ccr[0]);   //32-bit
+      'd1 : return can_return(dma_cndtr[0]); //16-bit -- 32-bit Addr 
+      'd2 : return can_return(dma_cpar[0]); //64-bit
+      'd3 : return can_return(dma_cmar[0]); //64-bit
  
-      8'h20 : return can_return(dma_ccr[1]);
-      8'h28 : return can_return(dma_cndtr[1]);
-      8'h30 : return can_return(dma_cpar[1]);
-      8'h38 : return can_return(dma_cmar[1]);
+      'd4 : return can_return(dma_ccr[1]);
+      'd5 : return can_return(dma_cndtr[1]);
+      'd6 : return can_return(dma_cpar[1]);
+      'd7 : return can_return(dma_cmar[1]);
  
-      8'h40 : return can_return(dma_ccr[2]);
-      8'h48 : return can_return(dma_cndtr[2]);
-      8'h50 : return can_return(dma_cpar[2]);
-      8'h58 : return can_return(dma_cmar[2]);
+      'd8 : return can_return(dma_ccr[2]);
+      'd9 : return can_return(dma_cndtr[2]);
+      'd10 : return can_return(dma_cpar[2]);
+      'd11 : return can_return(dma_cmar[2]);
  
-      8'h60 : return can_return(dma_ccr[3]);
-      8'h68 : return can_return(dma_cndtr[3]);
-      8'h70 : return can_return(dma_cpar[3]);
-      8'h78 : return can_return(dma_cmar[3]);
+      'd12 : return can_return(dma_ccr[3]);
+      'd13 : return can_return(dma_cndtr[3]);
+      'd14 : return can_return(dma_cpar[3]);
+      'd15 : return can_return(dma_cmar[3]);
  
-      8'h80 : return can_return(dma_ccr[4]);
-      8'h88 : return can_return(dma_cndtr[4]);
-      8'h90 : return can_return(dma_cpar[4]);
-      8'h98 : return can_return(dma_cmar[4]);
+      'd16 : return can_return(dma_ccr[4]);
+      'd17 : return can_return(dma_cndtr[4]);
+      'd18 : return can_return(dma_cpar[4]);
+      'd19 : return can_return(dma_cmar[4]);
  
-      8'hA0 : return can_return(dma_ccr[5]);
-      8'hA8 : return can_return(dma_cndtr[5]);
-      8'hB0 : return can_return(dma_cpar[5]);
-      8'hB8 : return can_return(dma_cmar[5]);
+      'd20 : return can_return(dma_ccr[5]);
+      'd21 : return can_return(dma_cndtr[5]);
+      'd22 : return can_return(dma_cpar[5]);
+      'd23 : return can_return(dma_cmar[5]);
  
-      8'hC0 : return can_return(dma_ccr[6]);
-      8'hC8 : return can_return(dma_cndtr[6]);
-      8'hD0 : return can_return(dma_cpar[6]);
-      8'hD8 : return can_return(dma_cmar[6]);
+      'd24 : return can_return(dma_ccr[6]);
+      'd25 : return can_return(dma_cndtr[6]);
+      'd26 : return can_return(dma_cpar[6]);
+      'd27 : return can_return(dma_cmar[6]);
  
-      8'hE0 : return can_return(vectorToRegN( dma_isr ));
-      8'hE8 : return can_return(vectorToRegN( dma_ifcr ));
-      8'hF0 : return can_return(vectorToRegN( dma1_cselr ));
+      'd28 : return can_return(vectorToRegN( dma_isr ));
+      'd29 : return can_return(vectorToRegN( dma_ifcr ));
+      'd30 : return can_return(vectorToRegN( dma1_cselr ));
 
       default: return tuple2(regAToRegBitN( nullReg ), False);
     endcase ;
