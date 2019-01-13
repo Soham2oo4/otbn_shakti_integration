@@ -122,7 +122,7 @@ typedef enum {
 
 
 function Bit#(26) fn_wr_address(Bit#(addr_width) address);
-    Bit#(29) sdr_addr = address[31:3];
+    Bit#(30) sdr_addr = address[31:2];
     return sdr_addr[25:0];
 endfunction
 
@@ -206,31 +206,31 @@ endfunction
  
 function Bit#(data_width) fn_wr_split_data(Bit#(data_width) data, Bit#(strb) wstrb);
     Bit#(data_width) data0 = 0;
-    Bit#(8) temp_data0 = 0;
-    for(Integer i=0; i<valueOf(strb); i=i+1) begin
-        if(wstrb[i]==1)
-            temp_data0 = data[8*(i)+7:8*(i)];
-            data0[8*(i)+7:8*(i)] = temp_data0; 
-    end
-//    if(wstrb[0] == 1)
-//        data0[7:0] = data[7:0];
-//    else
-//        data0[7:0] = 0;
-//
-//    if(wstrb[1] == 1)
-//        data0[15:8] = data[15:8];
-//    else
-//        data0[15:8] = 0;
-//
-//    if(wstrb[2] == 1)
-//        data0[23:16] = data[23:16];
-//    else
-//        data0[23:16] = 0;
-//
-//    if(wstrb[3] == 1)
-//        data0[31:24] = data[31:24];
-//    else
-//        data0[31:24] = 0;
+//    Bit#(8) temp_data0 = 0;
+//    for(Integer i=0; i<valueOf(strb); i=i+1) begin
+//        if(wstrb[i]==1)
+//            temp_data0 = data[8*(i)+7:8*(i)];
+//            data0[8*(i)+7:8*(i)] = temp_data0; 
+//    end
+    if(wstrb[0] == 1)
+        data0[7:0] = data[7:0];
+    else
+        data0[7:0] = 0;
+
+    if(wstrb[1] == 1)
+        data0[15:8] = data[15:8];
+    else
+        data0[15:8] = 0;
+
+    if(wstrb[2] == 1)
+        data0[23:16] = data[23:16];
+    else
+        data0[23:16] = 0;
+
+    if(wstrb[3] == 1)
+        data0[31:24] = data[31:24];
+    else
+        data0[31:24] = 0;
 //
 //    if(wstrb[4] == 1)
 //        data0[39:32] = data[39:32];
@@ -356,7 +356,7 @@ Reg#(Bit#(4))        rg_cfg_sdr_trp_d <- mkConfigReg(4'h2,clocked_by clk0, reset
 Reg#(Bit#(4))        rg_cfg_sdr_trcd_d <- mkConfigReg(4'h2,clocked_by clk0, reset_by rst0); 
 Reg#(bit)            rg_cfg_sdr_en <- mkConfigReg(1'h0,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(2))        rg_cfg_req_depth <- mkConfigReg(2'h3,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(13))       rg_cfg_sdr_mode_reg <- mkConfigReg(13'h032,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(13))       rg_cfg_sdr_mode_reg <- mkConfigReg(13'h033,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(3))        rg_cfg_sdr_cas <- mkConfigReg(3'h3,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(4))        rg_cfg_sdr_trcar_d <- mkConfigReg(4'h7,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(4))        rg_cfg_sdr_twr_d <- mkConfigReg(4'h1,clocked_by clk0, reset_by rst0); 
@@ -364,6 +364,7 @@ Reg#(Bit#(2))        rg_cfg_sdr_width <- mkConfigReg(2'b0,clocked_by clk0, reset
 Reg#(Bit#(2))        rg_cfg_colbits <- mkConfigReg(2'b01,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(8))        rg_cfg_sdr_clk_delay <- mkConfigReg(8'b10001000,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(9))		 rg_cfg_write_delay   <- mkReg(0, clocked_by clk0, reset_by rst0);
 
 Reg#(Bit#(rfrsh_timer_width ))  rg_cfg_sdr_rfsh <- mkConfigReg('h100,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(rfrsh_row_width)) rg_cfg_sdr_rfmax <- mkConfigReg('h6,clocked_by clk0, reset_by rst0); 
@@ -413,8 +414,8 @@ Reg#(Read_state) rg_read_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
 
 FIFOF#(AXI4_Wr_Addr#(addr_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(1); // need to changed bcoz of bridge it is been changed
 FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(13);
-SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     <- mkSyncFIFOFromCC(13,clk0);
-SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    <- mkSyncFIFOFromCC(13,clk0);
+SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     <- mkSyncFIFOFromCC(17,clk0);
+SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    <- mkSyncFIFOFromCC(17,clk0);
 
 SyncFIFOIfc#(Bool) ff_sync_write_response<-mkSyncFIFOToCC(1,clk0,rst0);
 
@@ -475,6 +476,8 @@ function Action fn_wr_cntrl_reg(Bit#(data_cntrl_width) data, Bit#(addr_cntrl_wid
 
        `SDR_CLK_DELAY   : rg_cfg_sdr_clk_delay <= data [7:0];
 
+	   `SDR_WRITE_DELAY : rg_cfg_write_delay <= data[8:0];
+
        default          : noAction;
   endcase
   endaction 
@@ -524,6 +527,8 @@ function Bit#(data_cntrl_width) fn_rd_cntrl_reg(Bit#(addr_cntrl_width) address);
        `SDR_SDIO_CTRL   : return extend(rg_cfg_sdio_ctrl);
 
        `SDR_CLK_DELAY   : return extend(rg_cfg_sdr_clk_delay);
+	
+	   `SDR_WRITE_DELAY : return extend(rg_cfg_write_delay);
 
     endcase 
 endfunction
@@ -649,7 +654,7 @@ rule rl_parallel_data_enq(rg_polling_status == True && rg_rd_trnc_flg == False);
     let w  <- pop_o(s_xactor_sdram.o_wr_data);
     ff_wr_data.enq(w);      
     rg_wr_trnc_flg <= True;
-    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST Parallel enq %h",w.wdata); `endif
+    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST Parallel enq %h stb %b",w.wdata, w.wstrb); `endif
 endrule
 
 rule rl_write_split_state(rg_wr_split_states == IDLE);
@@ -703,20 +708,21 @@ rule rl_write_data_splitting1(rg_wr_split_states == SEND_VALUE && rg_awsize != 2
     rg_wr_ac_wstrb <= 0;
 //    rg_wr_lwr_addr <= 0;
     rg_packet_counter <= 0;
-    `ifdef verbose $display($time,"Sending Value to the SDRAM"); `endif
+    `ifdef verbose $display($time,"Sending Value to the SDRAM burst size less than 2"); `endif
     rg_wr_split_states <= START_SPLIT;
 endrule
 
-rule rl_write_data_spliting3(rg_wr_split_states == START_SPLIT && rg_awsize == 2);
+rule rl_write_data_spliting3(rg_wr_split_states == START_SPLIT && rg_awsize == 2 && ff_wr_data.notEmpty);
     ff_ac_wr_data.enq(ff_wr_data.first.wdata);
     ff_ac_wr_wstrb.enq(ff_wr_data.first.wstrb);
     ff_wr_data.deq();
+    `ifdef verbose $display($time," SDRAM: Sending Value to the SDRAM burst size equal to 2"); `endif
 //    ff_wr_addr.deq();
 endrule
 
 rule rl_start_write_transaction(rg_write_states == IDLE && wr_sdr_init_done == True);        
     if(ff_ac_wr_data.notEmpty()) begin
-        if(rg_awsize_sclk == 0)
+        if(rg_cfg_write_delay != 0)
             rg_write_states <= WAIT_DELAY;
         else
         rg_write_states <= WRITE_START;
@@ -725,7 +731,7 @@ rule rl_start_write_transaction(rg_write_states == IDLE && wr_sdr_init_done == T
 endrule
 
 rule rl_wait_delay(rg_write_states == WAIT_DELAY);
-    if(rg_delay_count == 14) begin
+    if(rg_delay_count == rg_cfg_write_delay) begin
         rg_write_states <= WRITE_START;
         rg_delay_count <= 0;
     end
@@ -763,7 +769,7 @@ wr_app_wr_next_req); `endif
     rg_delay_count <= rg_delay_count - 1;
     if(rg_delay_count == 0) begin
        rg_write_states <= IDLE;
-			ff_sync_write_response.enq(True);
+	   ff_sync_write_response.enq(True);
     end
 endrule
 
@@ -838,7 +844,7 @@ if(rg_lwraddr < 4) begin
       (rg_rd_actual_len == rg_delay_count), ruser: 0, rid: rg_rid};
   		  ff_sync_read_response.enq(r);
   		 // ff_rd_addr.deq;
-  		  if(rg_arsize != 4)
+  		  if(rg_arsize != 2)
 		      rg_lwraddr <= rg_lwraddr + (1 << rg_arsize);
 		  else begin
   		      ff_rd_data.deq;

@@ -41,3 +41,4 @@
 `define SDR_COLBITS   8'h68
 `define SDR_SDIO_CTRL 8'h70
 `define SDR_CLK_DELAY 8'h78
+`define SDR_WRITE_DELAY 8'h80
