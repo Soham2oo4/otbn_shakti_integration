@@ -192,8 +192,10 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	Reg#(DMACounts) currentReadRs[valueOf(numChannels)][2];
 	Reg#(DMACounts) currentWriteRs[valueOf(numChannels)][2];
 	Reg#(Bool)		rg_is_cndtr_zero[valueOf(numChannels)][2];
-    Reg#(Bit#(TDiv#(data_width,8))) rg_write_strobe <- mkReg(0);
-    Reg#(Bit#(2)) rg_tsize <- mkReg(0);
+  Reg#(Bit#(TDiv#(data_width,8))) rg_write_strobe <- mkRegU();
+  Reg#(Bit#(2)) rg_tsize <- mkRegU();
+  Reg#(Bit#(1)) rg_burst_type <- mkRegU();
+
 	for(Integer i=0 ; i<valueOf(numChannels) ; i=i+1) begin
 		currentReadRs[i] <- mkCReg(2,0);
 		currentWriteRs[i] <- mkCReg(2,0);
@@ -403,6 +405,13 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 
 			end
 
+			//TODO If transaction size is not a multiple of specified burst length
+			//let lv_transaction_size= (lv_burst+1) * (1<<lv_arsize)
+			//if(dma_cndtr<lv_transaction_size)
+			//	lv_burst= (dma_cndtr-lv_transaction_size)/(1<<lv_arsize)
+			//	rg_burst<= lv_burst;
+			
+
 			// Create a read request, and enqueue it
 			// Since there can be multiple pending requests, either read or
 			// writes, we use the arid field to mark these.
@@ -480,12 +489,12 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			Bit#(`Burst_length_bits) lv_burst_len= lv_dma_ccr[`Burst_length_bits+15:16];
 		//	Bit#(6) x = {3'b0,lv_data.addr[2:0]}<<3;
 			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:lv_tsize==2?'hf:'hff;
-			if(lv_tsize!=3)begin			// 8-bit write;
+			if(lv_tsize!=3 && lv_burst_type!=0)begin			// 8-byte write and burst mode is not FIXED;
 				//actual_data=actual_data<<(x);
 				write_strobe=write_strobe<<(lv_data.addr[`byte_offset:0]);
 			end
 			//lv_data.addr[2:0]=0; // also make the address 64-bit aligned
-            `ifdef verbose $display("Start Write"); `endif
+            `ifdef verbose $display("Start Write lv_burst_type: %b strb: %h",lv_burst_type,write_strobe); `endif
 
 			
 			Bool lv_last= True;
@@ -500,8 +509,9 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			end 
 			`endif
 
-            rg_write_strobe <= write_strobe; //Write strobe needs to be rotated so that burst writes are sent correctly, storing write_strobe in a register. ~Vinod
-            rg_tsize <= lv_tsize; //Storing rg_tsize in a register. ~Vinod
+      rg_write_strobe <= write_strobe; 	//Write strobe needs to be rotated so that burst writes are sent correctly, storing write_strobe in a register.
+      rg_tsize <= lv_tsize; 						//Storing rg_tsize in a register.
+			rg_burst_type<= lv_burst_type;		//FIXED or INCR
 			// Generate a Write 
 			let write_data = AXI4_Wr_Data { wdata: actual_data , wstrb: write_strobe, wlast: lv_last, wid: {1'b1,fromInteger(chanNum)}};
 			let write_addr = AXI4_Wr_Addr {	awaddr: lv_data.addr, awuser: 0,
@@ -526,7 +536,12 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		rule rl_send_burst_write_data(rg_burst_count!=0);// && dma_ccr[chanNum][`Burst_length_bits+15:16]!='d0);
 			Bool lv_last= rg_burst_count==dma_ccr[chanNum][`Burst_length_bits+15:16];
 			/*==  Since this is going to always be a line write request in burst mode No need of shifting data and address=== */
-            let write_strobe = rotateBitsBy(rg_write_strobe,1<<rg_tsize); //~Vinod Rotating write_strobe by awsize
+
+			Bit#(TDiv#(data_width,8)) write_strobe;
+			if(rg_burst_type!=0)	//If burst type is not FIXED, then generate the write strobe
+      	write_strobe = rotateBitsBy(rg_write_strobe,1<<rg_tsize); //~Vinod Rotating write_strobe by awsize
+			else	//Writing to the same address which implies that write strobe doesn't change
+				write_strobe= rg_write_strobe;
 			let w  = AXI4_Wr_Data {wdata:  responseDataFs[chanNum].first, wstrb: write_strobe , wlast: lv_last, wid: {1'b1, fromInteger(chanNum)} };
       		xactor.i_wr_data.enq(w);
 			`ifdef verbose $display ($time,"\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[23:16]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][23:16]); `endif
@@ -1014,7 +1029,7 @@ endfunction*/
 			Bit#(numChannels) lv_interrupt_to_processor;
 			for(Integer chanNum= 0; chanNum < valueof(numChannels); chanNum= chanNum + 1) begin
 				let lv_dma_ccr= dma_ccr[chanNum];
-				//The bits in CCR represent the interrupts that are enabled, whereas the ones in IFCR represent which need to be cleared
+				//The bits in IFCR represent which need to be cleared
 				let lv_intr_TE_HT_TC_enable= lv_dma_ccr[3:1];
 
 				//The bits in ISR represent which interrupts are active right now
@@ -1022,7 +1037,7 @@ endfunction*/
 				//if(lv_dma_ccr[0]==1) begin
 					//$display("DMA chanNum: %d int_enable: %b dma_isr: %b\n",chanNum,lv_intr_TE_HT_TC_enable, dma_isr);
 				//end
-				lv_interrupt_to_processor[chanNum]= active_interrupts[0];	//TODO change this to | of all
+				lv_interrupt_to_processor[chanNum]= |(active_interrupts);	//TODO change this to | of all
 			end
 			if(lv_interrupt_to_processor!=0) begin
 				$display("intrrr: %b",lv_interrupt_to_processor);
