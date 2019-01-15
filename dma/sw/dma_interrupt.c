@@ -1,3 +1,4 @@
+//NOTE: Compile with -O2
 #include "dma.h"
 #include "encoding.h"
 #include <stdint.h>
@@ -10,11 +11,6 @@ unsigned long* addr_var_for_context= var_for_context;
 void waitfor(unsigned int secs) {
 	unsigned int time = 0;
 	while(time++ < secs);
-}
-
-void __attribute__ ((noinline)) mret_1()
-{
-	__asm__("mret");
 }
 
 void __attribute__ ((noinline)) generic_ISR()
@@ -37,7 +33,7 @@ void __attribute__ ((noinline)) generic_ISR()
 
 void dma_ISR()
 {
-	__asm__("li t1,0x11600" "\n\t"
+	asm volatile("li t1,0x11600" "\n\t"
 					"lw t2,0xE0(t1)" "\n\t"		//DMA_ISR
 					"andi t2,t2,0x200" "\n\t" //Check if chan3 has raised an interrupt
 					"li t3,0x200" "\n\t"			
@@ -66,9 +62,10 @@ void dma_ISR()
 					"add t3,x0,x0" "\n\t"
 					"add x0,x0,x0" "\n\t"
 					"label1: j label1" "\n\t"
-					"label2: add x0,x0,x0");
-	dma_flag=1;
-	return;
+					"label2: add x0,x0,x0" "\n\t"
+					"li t1,0x1" "\n\t"
+    			"sw t1, %0" "\n\t"
+					:: "mem"(dma_flag));
 }
 
 int main()
