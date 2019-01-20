@@ -53,6 +53,7 @@ import FShow::*;
 import GetPut::*;
 import DefaultValue::*;
 import AXI4_Types::*;
+import AXI4_Lite_Types::*;
 import AXI4_Fabric::*;
 import Semi_FIFOF::*;
 import SpecialFIFOs::*;
@@ -1167,6 +1168,64 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			dma.interrupt_from_peripherals(pint);
 		endmethod
 		interface interrupt_to_proc= dma.interrupt_to_proc;
+endmodule
 
+interface Ifc_DMA_AXI4_Lite#(numeric type addr_width, numeric type data_width, numeric type user_width,
+                             numeric type numChannels, numeric type numPeripherals);
+	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+ 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
+	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
+	interface Get#(Bit#(1)) interrupt_to_proc;
+endinterface
+
+module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, data_width, user_width, numChannels, numPeripherals))
+provisos (Add#(a__, TLog#(numPeripherals), 4),
+	 				//Add#(numChannels, xyz__, 7),
+	 				Add#(numChannels, 0, 7),
+					//Add#(TMul#(numChannels, 4), a__, 64),
+					Add#(b__, 8, addr_width),
+					Add#(7, j__, addr_width),
+					Add#(k__, 3, addr_width),	
+					Add#(addr_width, g__, data_width),
+					Add#(c__, 32, data_width),
+			    Mul#(8, d__, data_width),
+  			  Mul#(16, e__, data_width),
+  				Mul#(32, f__, data_width),
+					Add#(28, h__, data_width),
+					Add#(16, i__, data_width)
+);
+		User_ifc#(addr_width, data_width, user_width, numChannels, numPeripherals) dma <- mkDMA;
+		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
+
+	 	rule axi_read_req;
+	 		let req <- pop_o(s_xactor.o_rd_addr);
+			dma.read_req(req.araddr,unpack(truncate(req.arsize)));
+	 	endrule
+
+		rule axi_read_resp;
+      let {succ,data}<- dma.read_resp;
+	 		let r = AXI4_Lite_Rd_Data {rresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: data, ruser: 0};
+	 		s_xactor.i_rd_data.enq(r);
+		endrule
+		
+	 	rule axi_write_req;
+	 		let aw <- pop_o(s_xactor.o_wr_addr);
+	 		let w <- pop_o(s_xactor.o_wr_data);
+	 		dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
+		endrule
+
+		rule axi_write_resp;
+			let succ<- dma.write_resp;
+	 		let r = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: 0 };
+	 		s_xactor.i_wr_resp.enq (r);
+	 	endrule
+
+		interface master= dma.master;
+    interface slave= s_xactor.axi_side;
+		//method interrupt_from_peripherals=dma.interrupt_from_peripherals;	//TODO see if this works
+		method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
+			dma.interrupt_from_peripherals(pint);
+		endmethod
+		interface interrupt_to_proc= dma.interrupt_to_proc;
 	endmodule
 endpackage
