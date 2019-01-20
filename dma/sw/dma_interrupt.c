@@ -6,7 +6,7 @@ int dma_flag=0;
 unsigned long var_for_context [100];
 unsigned long* addr_var_for_context= var_for_context;
 
-#define DMA_INTERRUPTS (DMA_CCR_TEIE|DMA_CCR_HTIE|DMA_CCR_TCIE|DMA_CCR_EN)
+#define DMA_INTERRUPTS (DMA_CCR_TEIE|DMA_CCR_TCIE|DMA_CCR_EN)
 
 void waitfor(unsigned int secs) {
 	unsigned int time = 0;
