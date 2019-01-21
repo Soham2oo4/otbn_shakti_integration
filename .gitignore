@@ -24,3 +24,7 @@ obj_dir/
 common_tb/sim_main\.h
 
 bin/
+
+*.gtkw
+
+*.o
