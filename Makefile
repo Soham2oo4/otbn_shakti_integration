@@ -44,7 +44,7 @@ link_verilator:
 	@mkdir -p bin
 	@echo "#define TOPMODULE V$(TOP_MODULE)" > common_tb/sim_main.h
 	@echo '#include "V$(TOP_MODULE).h"' >> common_tb/sim_main.h
-	@verilator $(VERILATOR_FLAGS) -y $(VERILOGDIR)
+	@verilator --cc $(TOP_MODULE).v $(VERILATOR_FLAGS) -y $(VERILOGDIR)
 	@ln -f -s ../common_tb/sim_main.cpp obj_dir/sim_main.cpp
 	@ln -f -s ../common_tb/sim_main.h obj_dir/sim_main.h
 	@make -j4 -C obj_dir -f V$(TOP_MODULE).mk
@@ -55,6 +55,8 @@ link_verilator:
 link_verilator_svdpi:
 	@echo "Linking Verilator With the Shakti RBB Vpi"
 	@mkdir -p bin
+	@echo "#define TOPMODULE V$(TOP_MODULE)_edited" > common_tb/sim_main.h
+	@echo '#include "V$(TOP_MODULE)_edited.h"' >> common_tb/sim_main.h
 	@sed  -f jtagdtm/sed_script.txt  $(VERILOGDIR)/$(TOP_MODULE).v > tmp1.v
 	@cat  jtagdtm/verilator_config.vlt \
 	      jtagdtm/vpi_sv.v \

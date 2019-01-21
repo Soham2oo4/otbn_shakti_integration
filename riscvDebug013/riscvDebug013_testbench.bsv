@@ -78,7 +78,7 @@ package riscvDebug013_testbench;
 
     // AXI4_Fabric_IFC #(`Num_Masters, `Num_Slaves, PADDR, XLEN, USERSPACE)
     AXI4_Fabric_IFC #(1,2,32,32,0)  fabric <- mkAXI4_Fabric(fn_slave_map);
-    Ifc_bram_axi4   #(32,32,0,18)   main_memory0 <- mkbram_axi4('h00000000,"test.mem","test.mem");
+    Ifc_bram_axi4   #(32,32,0,18)   main_memory0 <- mkbram_axi4('h00000000,"test.mem","test.mem","mem");
 
     mkConnection (device.debug_master,fabric.v_from_masters[0]);
     mkConnection (fabric.v_to_slaves[0],main_memory0.slave);

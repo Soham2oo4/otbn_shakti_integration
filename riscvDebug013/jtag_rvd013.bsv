@@ -43,9 +43,9 @@ package jtag_rvd013;
 
     CrossingReg#(Bit#(1)) tdi<-mkNullCrossingReg(tck_clk.new_clk,0);
     CrossingReg#(Bit#(1)) tms<-mkNullCrossingReg(tck_clk.new_clk,0);
-    //CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst); 
+    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst); 
 
-    Ifc_jtagdtm jtag_tap <- mkjtagdtm(defaultclk,clocked_by tck_clk.new_clk, reset_by trst.new_rst);
+    Ifc_jtagdtm jtag_tap <- mkjtagdtm(clocked_by tck_clk.new_clk, reset_by trst.new_rst);
     // ReadOnly#(Bit#(1)) tdo_crossed <- mkNullCrossingWire(defaultclk,jtag_tap.tdo);
     //////
     // Ifc_jtag_driver_sim openocd <- mkRbbJtag(tck_clk.new_clk);
@@ -72,6 +72,7 @@ package jtag_rvd013;
     Reg#(Bit#(5)) delayed_actor2 <- mkReg(0);
     Reg#(Bit#(5)) delayed_actor3 <- mkReg(0);
     Reg#(Bit#(5)) delayed_actor4 <- mkReg(0);
+    Reg#(Bit#(5)) delayed_actor5 <- mkReg(0);
     // Needed to spread the Jtag signals to properly work with the neg edge sampling business withh vpis
 
     rule rl_get_frame((rg_initial == 1'b1));
@@ -80,11 +81,12 @@ package jtag_rvd013;
       delayed_actor2 <= delayed_actor;
       delayed_actor3 <= delayed_actor2;
       delayed_actor4 <= delayed_actor3;
+      delayed_actor5 <= delayed_actor4;
       tck_clk.setClockValue(delayed_actor2[2]); // Should I delay acting to one cycle post the reception of this message  ?
       if( delayed_actor2[4] == 1 )
         trst.assertReset();
-      if(delayed_actor4[3] == 1 )
-        send_tdo(wr_tdo,rg_client_fd);
+      if(delayed_actor5[3] == 1 )
+        send_tdo(tdo.crossed(),rg_client_fd);
       tdi <= delayed_actor[0];
       tms <= delayed_actor[1];
       if( x[5] == 1)begin
@@ -101,7 +103,7 @@ package jtag_rvd013;
     endrule
 
     rule rl_wr_tdo;
-      wr_tdo <= jtag_tap.tdo(); //  Launched by a register clocked by inverted tck
+      tdo <= jtag_tap.tdo(); //  Launched by a register clocked by inverted tck
     endrule
 
     ///////
@@ -135,7 +137,7 @@ package jtag_rvd013;
       sync_response_from_dm.deq;
       jtag_tap.response_from_dm(sync_response_from_dm.first);
     endrule
-    
+
     mkConnection (device.debug_master,fabric.v_from_masters[0]);
     mkConnection (fabric.v_to_slaves[0],main_memory0.slave);
     mkConnection (hart,device.hart);
