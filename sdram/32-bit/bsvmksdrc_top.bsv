@@ -49,6 +49,8 @@ interface Ifc_sdram#(numeric type io_width,
 	(*always_ready, always_enabled*)
 	method Action icfg_sdr_twr_d (Bit#(4) cfg_sdr_twr_d);
 	(*always_ready, always_enabled*)
+	method Action icfg_sdr_mem_sel (Bit#(1) cfg_sdr_mem_sel);
+	(*always_ready, always_enabled*)
     method Action icfg_sdr_rfsh (Bit#(rfrsh_timer_width) cfg_sdr_rfsh);
 	(*always_ready, always_enabled*)
     method Action icfg_sdr_rfmax (Bit#(rfrsh_row_width) cfg_sdr_rfmax);
@@ -148,6 +150,8 @@ module mksdrc_top  (Ifc_sdram#(io_width, rfrsh_timer_width, rfrsh_row_width));
 		 enable((*inhigh*)icfg_sdr_trcar_d_enable) clocked_by(clk_sdram_clk) reset_by(rst_sdram_resetn);
 	method icfg_sdr_twr_d (cfg_sdr_twr_d /*3:0*/)
 		 enable((*inhigh*)icfg_sdr_twr_d_enable) clocked_by(clk_sdram_clk) reset_by(rst_sdram_resetn);
+	method icfg_sdr_mem_sel (cfg_sdr_mem_sel)
+		 enable((*inhigh*)icfg_sdr_mem_sel_enable) clocked_by(clk_sdram_clk) reset_by(rst_sdram_resetn);
 	method icfg_sdr_rfsh (cfg_sdr_rfsh /*`SDR_RFSH_TIMER_W-1:0*/)
 		 enable((*inhigh*)icfg_sdr_rfsh_enable) clocked_by(clk_sdram_clk) reset_by(rst_sdram_resetn);
 	method icfg_sdr_rfmax (cfg_sdr_rfmax /*`SDR_RFSH_ROW_CNT_W-1:0*/)
@@ -197,6 +201,44 @@ module mksdrc_top  (Ifc_sdram#(io_width, rfrsh_timer_width, rfrsh_row_width));
 		 clocked_by(clk_sdram_clk) reset_by(rst_sdram_resetn);
 	method app_rd_data /* dw-1 : 0 */ oapp_rd_data ()
 		 clocked_by(clk_sdram_clk) reset_by(rst_sdram_resetn);
+
+    schedule icfg_sdr_mem_sel C  icfg_sdr_mem_sel;
+    schedule icfg_sdr_mem_sel CF icfg_colbits;
+    schedule icfg_sdr_mem_sel CF icfg_sdr_width;
+    schedule icfg_sdr_mem_sel CF ipad_sdr_din;
+    schedule icfg_sdr_mem_sel CF iapp_req;
+	schedule icfg_sdr_mem_sel CF iapp_req_addr;
+	schedule icfg_sdr_mem_sel CF iapp_req_len;
+	schedule icfg_sdr_mem_sel CF iapp_req_wr_n;
+	schedule icfg_sdr_mem_sel CF iapp_wr_en_n;
+	schedule icfg_sdr_mem_sel CF iapp_wr_data;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_tras_d;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_trp_d;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_trcd_d;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_en;
+	schedule icfg_sdr_mem_sel CF icfg_req_depth;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_mode_reg;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_cas;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_trcar_d;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_twr_d;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_rfmax;
+	schedule icfg_sdr_mem_sel CF icfg_sdr_rfsh;
+	schedule icfg_sdr_mem_sel CF iapp_req_wrap;
+	schedule osdr_cke CF icfg_sdr_mem_sel;
+	schedule osdr_cs_n CF icfg_sdr_mem_sel;
+	schedule osdr_ras_n CF icfg_sdr_mem_sel;
+	schedule osdr_cas_n CF icfg_sdr_mem_sel;
+	schedule osdr_we_n CF icfg_sdr_mem_sel;
+	schedule osdr_dqm CF icfg_sdr_mem_sel;
+	schedule osdr_ba CF icfg_sdr_mem_sel;
+	schedule osdr_addr CF icfg_sdr_mem_sel;
+	schedule osdr_init_done CF icfg_sdr_mem_sel;
+	schedule oapp_req_ack CF icfg_sdr_mem_sel;
+	schedule oapp_wr_next_req CF icfg_sdr_mem_sel;
+	schedule oapp_rd_valid CF icfg_sdr_mem_sel;
+	schedule oapp_last_rd CF icfg_sdr_mem_sel;
+	schedule oapp_last_wr CF icfg_sdr_mem_sel;
+	schedule oapp_rd_data CF icfg_sdr_mem_sel;
 
 
     schedule icfg_colbits C icfg_colbits;

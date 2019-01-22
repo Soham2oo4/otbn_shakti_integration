@@ -365,6 +365,7 @@ Reg#(Bit#(2))        rg_cfg_colbits <- mkConfigReg(2'b01,clocked_by clk0, reset_
 Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(8))        rg_cfg_sdr_clk_delay <- mkConfigReg(8'b10001000,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(9))		 rg_cfg_write_delay   <- mkReg(0, clocked_by clk0, reset_by rst0);
+Reg#(bit)			 rg_cfg_mem_sel		  <- mkReg(0, clocked_by clk0, reset_by rst0);
 
 Reg#(Bit#(rfrsh_timer_width ))  rg_cfg_sdr_rfsh <- mkConfigReg('h100,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(rfrsh_row_width)) rg_cfg_sdr_rfmax <- mkConfigReg('h6,clocked_by clk0, reset_by rst0); 
@@ -463,7 +464,7 @@ function Action fn_wr_cntrl_reg(Bit#(data_cntrl_width) data, Bit#(addr_cntrl_wid
        `AUTO_REFRESH    : rg_cfg_sdr_trcar_d <= data[3:0];
       
        `RECRY_DELAY     : rg_cfg_sdr_twr_d <= data[3:0];
-     // 
+      
        `RFRSH_TIMER     : rg_cfg_sdr_rfsh <= extend(data[11:0]);
 
        `RFRSH_ROW_CNT   : rg_cfg_sdr_rfmax <= extend(data[2:0]);
@@ -477,6 +478,8 @@ function Action fn_wr_cntrl_reg(Bit#(data_cntrl_width) data, Bit#(addr_cntrl_wid
        `SDR_CLK_DELAY   : rg_cfg_sdr_clk_delay <= data [7:0];
 
 	   `SDR_WRITE_DELAY : rg_cfg_write_delay <= data[8:0];
+
+	   `SDR_MEM_SEL		: rg_cfg_mem_sel <= data[0];
 
        default          : noAction;
   endcase
@@ -529,6 +532,8 @@ function Bit#(data_cntrl_width) fn_rd_cntrl_reg(Bit#(addr_cntrl_width) address);
        `SDR_CLK_DELAY   : return extend(rg_cfg_sdr_clk_delay);
 	
 	   `SDR_WRITE_DELAY : return extend(rg_cfg_write_delay);
+	
+	   `SDR_MEM_SEL		: return extend(rg_cfg_mem_sel);
 
     endcase 
 endfunction
@@ -604,6 +609,7 @@ rule rl_direct_connection_config_reg;
     sdr_cntrl.icfg_sdr_rfmax(rg_cfg_sdr_rfmax);
     sdr_cntrl.icfg_sdr_width(rg_cfg_sdr_width);
     sdr_cntrl.icfg_colbits(rg_cfg_colbits);
+    sdr_cntrl.icfg_sdr_mem_sel(rg_cfg_mem_sel);
 endrule
 
 rule rl_intial_polling(rg_polling_status_clk0 == False && wr_sdr_init_done == True);

@@ -113,6 +113,8 @@ module sdrc_xfr_ctl (clk,
 		    x2a_rddt,
 		    x2a_rdok,
 		    sdr_init_done,
+
+            mem_type,
 		    
 		    /* SDRAM Parameters */
 		    sdram_enable,
@@ -200,6 +202,8 @@ output [SDR_DW-1:0] 	sdr_dout;
 output [SDR_BW-1:0] 	sdr_den_n;
 
    output [1:0]			xfr_bank_sel;
+
+   input            mem_type;
 
    input 			sdram_enable;
    input [12:0] 		sdram_mode_reg;
@@ -862,7 +866,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	   cntr1_d = 4'h7;
 	   wr_mode_set = 1'b0;
 	   set_sdr_init_done = 1'b0;
-	   next_mgmt_st = (~tmr0_tc) ? `MGM_MODE_WT : `MGM_MODE_EXT_REG;
+	   next_mgmt_st = (~tmr0_tc) ? `MGM_MODE_WT : ((mem_type) ? `MGM_MODE_EXT_REG : `MGM_ACTIVE) ;
 	end // case: `MGM_MODE_WT
 
 	`MGM_MODE_EXT_REG : begin	   // Program mode Register & wait for 
