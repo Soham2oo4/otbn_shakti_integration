@@ -368,13 +368,13 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			Bit#(2) lv_arsize;
 			bit lv_burst_type;
 			let lv_dma_ccr= dma_ccr[chanNum];
-			Bit#(`Burst_length_bits) lv_burst= lv_dma_ccr[`Burst_length_bits+15:16]; //Upper bits of CCR supports configurable bursts !! Added, not part of STMicro
+			Bit#(`Burst_length_bits) lv_burst= lv_dma_ccr[31:32-`Burst_length_bits]; //Upper bits of CCR supports configurable bursts !! Added, not part of STMicro
 			let lv_periph_id= tpl_2(fn_dma_priority_encoder());
 
 			if(lv_dma_ccr[6]==1)	//peripheral increment mode is on
-				rg_cpa[chanNum]<= fn_incr_address(rg_cpa[chanNum], lv_dma_ccr[9:8], dma_ccr[chanNum][`Burst_length_bits+15:16]);
+				rg_cpa[chanNum]<= fn_incr_address(rg_cpa[chanNum], lv_dma_ccr[9:8], dma_ccr[chanNum][31:32-`Burst_length_bits]);
 			if(lv_dma_ccr[7]==1)	//memory increment mode is on
-				rg_cma[chanNum]<= fn_incr_address(rg_cma[chanNum], lv_dma_ccr[11:10], dma_ccr[chanNum][`Burst_length_bits+15:16]);
+				rg_cma[chanNum]<= fn_incr_address(rg_cma[chanNum], lv_dma_ccr[11:10], dma_ccr[chanNum][31:32-`Burst_length_bits]);
 
 			if(lv_dma_ccr[4]==0) begin		//read from peripheral
 				lv_araddr= rg_cpa[chanNum];	//set the address to read from
@@ -487,7 +487,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			end
 
 			let actual_data= responseDataFs[chanNum].first;
-			Bit#(`Burst_length_bits) lv_burst_len= lv_dma_ccr[`Burst_length_bits+15:16];
+			Bit#(`Burst_length_bits) lv_burst_len= lv_dma_ccr[31:32-`Burst_length_bits];
 		//	Bit#(6) x = {3'b0,lv_data.addr[2:0]}<<3;
 			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:lv_tsize==2?'hf:'hff;
 			if(lv_tsize!=3 && lv_burst_type!=0)begin			// 8-byte write and burst mode is not FIXED;
@@ -534,8 +534,8 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		//send burst length number of data i.e. rg_burst_count>1. When rg_burst_count = the burst
 		//length specified in dma_ccr, rg_burst_count becomes 0. Since rg_burst_count!=0 infers
 		//lesser hardware compared to rg_burst_count>1, we write that as the explicit condition.
-		rule rl_send_burst_write_data(rg_burst_count!=0);// && dma_ccr[chanNum][`Burst_length_bits+15:16]!='d0);
-			Bool lv_last= rg_burst_count==dma_ccr[chanNum][`Burst_length_bits+15:16];
+		rule rl_send_burst_write_data(rg_burst_count!=0);// && dma_ccr[chanNum][31:32-`Burst_length_bits]!='d0);
+			Bool lv_last= rg_burst_count==dma_ccr[chanNum][31:32-`Burst_length_bits];
 			/*==  Since this is going to always be a line write request in burst mode No need of shifting data and address=== */
 
 			Bit#(TDiv#(data_width,8)) write_strobe;
@@ -545,7 +545,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				write_strobe= rg_write_strobe;
 			let w  = AXI4_Wr_Data {wdata:  responseDataFs[chanNum].first, wstrb: write_strobe , wlast: lv_last, wid: {1'b1, fromInteger(chanNum)} };
       		xactor.i_wr_data.enq(w);
-			`ifdef verbose $display ($time,"\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[23:16]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][23:16]); `endif
+			`ifdef verbose $display ($time,"\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[31:24]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][31:24]); `endif
 			if(lv_last)begin
 				`ifdef verbose $display("Last data received..."); `endif
 				rg_burst_count<=0;
