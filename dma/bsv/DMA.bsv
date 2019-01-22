@@ -106,9 +106,9 @@ endfunction
 //  A AXI4 Master interface for data transfers
 
 interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
-	method Action read_req(Bit#(addr_width) addr, AccessSize size);
+	method Action read_req(Bit#(addr_width) addr, AccessSize size, Bool prot);
 	method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_resp;
-	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
+	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size, Bool prot);
 	method ActionValue#(Bool) write_resp;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
@@ -168,11 +168,13 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	AXI4_Master_Xactor_IFC #(addr_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
 	Wire#(Bit#(addr_width)) wr_read_addr <- mkWire();
 	Wire#(AccessSize) wr_read_access_size <- mkWire();
+	Wire#(Bool) wr_read_prot <- mkWire();
 	FIFO#(Tuple2#(Bool, Bit#(data_width))) ff_read_resp <- mkBypassFIFO();
 	
 	Wire#(Bit#(addr_width)) wr_write_addr <- mkWire();
 	Wire#(Bit#(data_width)) wr_write_data <- mkWire();
 	Wire#(AccessSize) wr_write_access_size <- mkWire();
+	Wire#(Bool) wr_write_prot <- mkWire();
 	FIFO#(Bool) ff_write_resp <- mkBypassFIFO();
 
 	////////////////////////////////////////////////////////////////
@@ -426,7 +428,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 
 			//housekeeping. To be done when the transaction is complete.
 			currentReadRs[chanNum][0]<= currentReadRs[chanNum][0] + 1;
-            dma_cndtr[chanNum]<= fn_decr_cndtr(dma_cndtr[chanNum], lv_arsize, dma_ccr[chanNum][`Burst_length_bits+15:16]);
+            dma_cndtr[chanNum]<= fn_decr_cndtr(dma_cndtr[chanNum], lv_arsize, dma_ccr[chanNum][31:32-`Burst_length_bits]);
             rg_current_trans_chan_id<= fromInteger(chanNum);
 			rg_finish_read[chanNum][1]<= False;
 		endrule
@@ -735,12 +737,19 @@ endfunction*/
 	//return asReg(zeroExtend(pack(inpV)));
 endfunction*/
 
-//TODO optimize this by removing the second tuple.
-	function Tuple2#(Reg#(Bit#(data_width)), Bool) can_return( Reg#(b_type) inp)
+//This function converts any Reg type, including vectors of registers to a single register.
+//The first parameter is a Reg type derivative, and the second parameter indicates if the register
+//can be read in the user mode or not. If dma_ccr[chanNum][16]=1, it implies that all registers of
+//channel "chanNum" can be accessed in the User mode; =0 implies a AXI_SLVERR.
+//However, the attributes of the following 3 registers are fixed:
+//	dma_isr: User read only
+//	dma_ifcr: User cannot access
+//	dma_cselr: User read only
+	function Tuple2#(Reg#(Bit#(data_width)), Bool) can_return( Reg#(b_type) inp, Bit#(1) user_readable)
 	provisos (Bits#(b_type, bsize),
 						Add#(bsize,xxx,data_width));
 //		if(valueOf(numChannels)>channel)
-			return tuple2(regAToRegBitN(inp), True);
+			return tuple2(regAToRegBitN(inp), unpack(user_readable));
 //		else
 //			return tuple2(regAToRegBitN( nullReg ), False);
 	endfunction
@@ -758,44 +767,44 @@ endfunction*/
  
 	  	//8'h08 : if(valueOf(numChannels)>1) begin return tuple2(regAToRegBitN( dma_ccr[0] ), True); end  //32-bit
 	  	//				else return tuple2(regAToRegBitN( nullReg ), False);
-	  	'd0 : return can_return(dma_ccr[0]);   //32-bit
-      'd1 : return can_return(dma_cndtr[0]); //16-bit -- 32-bit Addr 
-      'd2 : return can_return(dma_cpar[0]); //64-bit
-      'd3 : return can_return(dma_cmar[0]); //64-bit
+	  	'd0 : return can_return(dma_ccr[0], dma_ccr[0][16]);   //32-bit
+      'd1 : return can_return(dma_cndtr[0], dma_ccr[0][16]); //16-bit -- 32-bit Addr 
+      'd2 : return can_return(dma_cpar[0], dma_ccr[0][16]); //64-bit
+      'd3 : return can_return(dma_cmar[0], dma_ccr[0][16]); //64-bit
  
-      'd4 : return can_return(dma_ccr[1]);
-      'd5 : return can_return(dma_cndtr[1]);
-      'd6 : return can_return(dma_cpar[1]);
-      'd7 : return can_return(dma_cmar[1]);
+      'd4 : return can_return(dma_ccr[1], dma_ccr[1][16]);
+      'd5 : return can_return(dma_cndtr[1], dma_ccr[1][16]);
+      'd6 : return can_return(dma_cpar[1], dma_ccr[1][16]);
+      'd7 : return can_return(dma_cmar[1], dma_ccr[1][16]);
  
-      'd8 : return can_return(dma_ccr[2]);
-      'd9 : return can_return(dma_cndtr[2]);
-      'd10 : return can_return(dma_cpar[2]);
-      'd11 : return can_return(dma_cmar[2]);
+      'd8 : return can_return(dma_ccr[2], dma_ccr[2][16]);
+      'd9 : return can_return(dma_cndtr[2], dma_ccr[2][16]);
+      'd10 : return can_return(dma_cpar[2], dma_ccr[2][16]);
+      'd11 : return can_return(dma_cmar[2], dma_ccr[2][16]);
  
-      'd12 : return can_return(dma_ccr[3]);
-      'd13 : return can_return(dma_cndtr[3]);
-      'd14 : return can_return(dma_cpar[3]);
-      'd15 : return can_return(dma_cmar[3]);
+      'd12 : return can_return(dma_ccr[3], dma_ccr[3][16]);
+      'd13 : return can_return(dma_cndtr[3], dma_ccr[3][16]);
+      'd14 : return can_return(dma_cpar[3], dma_ccr[3][16]);
+      'd15 : return can_return(dma_cmar[3], dma_ccr[3][16]);
  
-      'd16 : return can_return(dma_ccr[4]);
-      'd17 : return can_return(dma_cndtr[4]);
-      'd18 : return can_return(dma_cpar[4]);
-      'd19 : return can_return(dma_cmar[4]);
+      'd16 : return can_return(dma_ccr[4], dma_ccr[4][16]);
+      'd17 : return can_return(dma_cndtr[4], dma_ccr[4][16]);
+      'd18 : return can_return(dma_cpar[4], dma_ccr[4][16]);
+      'd19 : return can_return(dma_cmar[4], dma_ccr[4][16]);
  
-      'd20 : return can_return(dma_ccr[5]);
-      'd21 : return can_return(dma_cndtr[5]);
-      'd22 : return can_return(dma_cpar[5]);
-      'd23 : return can_return(dma_cmar[5]);
+      'd20 : return can_return(dma_ccr[5], dma_ccr[5][16]);
+      'd21 : return can_return(dma_cndtr[5], dma_ccr[5][16]);
+      'd22 : return can_return(dma_cpar[5], dma_ccr[5][16]);
+      'd23 : return can_return(dma_cmar[5], dma_ccr[5][16]);
  
-      'd24 : return can_return(dma_ccr[6]);
-      'd25 : return can_return(dma_cndtr[6]);
-      'd26 : return can_return(dma_cpar[6]);
-      'd27 : return can_return(dma_cmar[6]);
+      'd24 : return can_return(dma_ccr[6], dma_ccr[6][16]);
+      'd25 : return can_return(dma_cndtr[6], dma_ccr[6][16]);
+      'd26 : return can_return(dma_cpar[6], dma_ccr[6][16]);
+      'd27 : return can_return(dma_cmar[6], dma_ccr[6][16]);
  
-      'd28 : return can_return(vectorToRegN( dma_isr ));
-      'd29 : return can_return(vectorToRegN( dma_ifcr ));
-      'd30 : return can_return(vectorToRegN( dma1_cselr ));
+      'd28 : return can_return(vectorToRegN( dma_isr ), 1'b1);
+      'd29 : return can_return(vectorToRegN( dma_ifcr ), 1'b0);
+      'd30 : return can_return(vectorToRegN( dma1_cselr ), 1'b1);
 
       default: return tuple2(regAToRegBitN( nullReg ), False);
     endcase ;
@@ -838,13 +847,16 @@ endfunction*/
 			let data= wr_write_data;
 			let size= wr_write_access_size;
 			let addr= wr_write_addr;
+			let prot= wr_write_prot;
 
+			Bool lv_valid_access= True;
 			Bool lv_send_response= True;
 
 			// Select and write the register
-			let index_addr= addr&{'1,3'd0};	//Generating a 64-bit aligned address
-			let lv1= selectReg(index_addr);
+			let selectReg_address= addr&{'1,3'd0};	//Generating a 64-bit aligned address
+			let lv1= selectReg(selectReg_address);
 			let thisReg = tpl_1(lv1);
+			
 
 			Bit#(data_width) mask=size==Byte?'hff:size==HWord?'hFFF:size==Word?'hFFFFFFFF:'1;	
 			/*data= case (size)
@@ -855,27 +867,31 @@ endfunction*/
 
 			Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
       mask=mask<<shift_amt;
-      Bit#(data_width) datamask=data & mask;	//TODO this was duplicate(data)
+      Bit#(data_width) datamask=data & mask;	
       let notmask=~mask;
-			data= (thisReg & notmask)|datamask; //TODO discomment
+			data= (thisReg & notmask)|datamask; 
 
-			let lv_ccr_channel_number_tuple= ccr_channel_number(index_addr);
+			let lv_ccr_channel_number_tuple= ccr_channel_number(selectReg_address);
 			let lv_ccr_channel_number=tpl_1(lv_ccr_channel_number_tuple);
-			if(index_addr=='d28) begin 	//If writing to DMA_ISR
+			if(prot==False) begin		//If unprivileged access
+				$display("DMA: Unpriviliged access trying to change config registers of channel %d",lv_ccr_channel_number);
+				lv_valid_access= False;
+			end
+			else if(selectReg_address=='hE0) begin 	//If writing to DMA_ISR
 				$display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number);
-				lv_send_response= False;
+				lv_valid_access= False;
 			end
 			//If channel is enabled and write happening other than disabling current channel
 			else if( ((dma_ccr[lv_ccr_channel_number] & 'd1) == 1) && !(tpl_2(lv_ccr_channel_number_tuple) && data[0]==0) ) begin
 				$display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number);
-				lv_send_response= False;
+				lv_valid_access= False;
 			end
 			else begin
-				lv_send_response= True;
+				lv_valid_access= True;
 			end
 
-			`ifdef verbose $display ($time,"\tDMA writeConfig addr: %0h index_addr: %0h data: %0h ccr_chan_num: %d", addr, index_addr, data, lv_ccr_channel_number); `endif
-			if(tpl_2(lv_ccr_channel_number_tuple)==True) begin 	//if the current write is happening to one of the channel's CCR.
+			`ifdef verbose $display ($time,"\tDMA writeConfig addr: %0h data: %0h ccr_chan_num: %d", addr, data, lv_ccr_channel_number); `endif
+			if(lv_valid_access && tpl_2(lv_ccr_channel_number_tuple)==True) begin 	//if trans is valid, and the current write is happening to one of the channel's CCR.
 				if(data[0]==1) begin			//if the channel is being enabled
 					  if((dma_ccr[lv_ccr_channel_number] & 'd1)!=1) begin	//If the channel is not already enabled
 					  	  rg_cpa[lv_ccr_channel_number] <= dma_cpar[lv_ccr_channel_number];	//peripheral address is copied
@@ -914,10 +930,10 @@ endfunction*/
 					  	  $display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]);
 					  end
 					  else if(data[31:0]==dma_ccr[lv_ccr_channel_number])begin	//Enabling a channel that is already enabled with same config
-					  	  lv_send_response= True;
+					  	  lv_valid_access= True;
 					  end
 					  else begin	//Enabling a channel that is already enabled with different config
-					  	  lv_send_response= False;
+					  	  lv_valid_access= False;
 					  end
 				end
 				else begin //the channel is being disabled
@@ -929,7 +945,7 @@ endfunction*/
 						$display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------");
 					end
 					else begin	// no pending transaction
-						lv_send_response= True;
+						lv_valid_access= True;
 						$display("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
 						//clear the local registers
 						rg_is_cndtr_zero[lv_ccr_channel_number][0]<= True;
@@ -940,7 +956,7 @@ endfunction*/
 			// Now generate the response and enqueue
 			if(lv_send_response) begin
 				thisReg <= data;
-				ff_write_resp.enq(True);
+				ff_write_resp.enq(lv_valid_access);
 			end
 		endrule
 	endrules);
@@ -967,17 +983,28 @@ endfunction*/
 		// Select the register
 		let lv1= selectReg(wr_read_addr);
 		let thisReg = tpl_1(lv1);
-
+		let read_resp= tpl_2(lv1);
+		let lv_prot= wr_read_prot;
 		Bit#(data_width) lv_data;
-		if(wr_read_access_size==Byte)
-			lv_data=duplicate(thisReg[7:0]);
-		else if(wr_read_access_size==HWord)
-			lv_data=duplicate(thisReg[15:0]);
-		else if(wr_read_access_size==DWord)
-			lv_data=duplicate(thisReg[31:0]);
-		else
-			lv_data= thisReg;
-		ff_read_resp.enq(tuple2(tpl_2(lv1), lv_data));
+		Bool lv_valid_access;
+
+		if(lv_prot || read_resp)	begin //If privileged access; or in unprivileged access, if the register access is granted
+			lv_valid_access= True;
+			if(wr_read_access_size==Byte)
+				lv_data=duplicate(thisReg[7:0]);
+			else if(wr_read_access_size==HWord)
+				lv_data=duplicate(thisReg[15:0]);
+			else if(wr_read_access_size==DWord)
+				lv_data=duplicate(thisReg[31:0]);
+			else
+				lv_data= thisReg;
+		end
+		else begin
+			lv_valid_access= False;
+			lv_data= 'd0;
+		end
+
+		ff_read_resp.enq(tuple2(lv_valid_access, lv_data));
 	endrule
 
 
@@ -994,9 +1021,10 @@ endfunction*/
 	// of the transactors to it.
 
 	
-	method Action read_req(Bit#(addr_width) addr, AccessSize size);
+	method Action read_req(Bit#(addr_width) addr, AccessSize size, Bool prot);
 		wr_read_addr<= addr;
 		wr_read_access_size<= size;
+		wr_read_prot<= prot;
 	endmethod
 
 	method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_resp;
@@ -1004,10 +1032,11 @@ endfunction*/
 		return ff_read_resp.first;
 	endmethod
 
-	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
+	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size, Bool prot);
 		wr_write_addr<= addr;
 		wr_write_data<= data;
 		wr_write_access_size<= size;
+		wr_write_prot<= prot;
 	endmethod
 
 	method ActionValue#(Bool) write_resp;
@@ -1094,7 +1123,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				rg_is_rdburst[0]<= True;
 			else begin
 				rg_is_rdburst[0]<= False;
-      	dma.read_req(req.araddr, unpack(truncate(req.arsize)));
+      	dma.read_req(req.araddr, unpack(truncate(req.arsize)), unpack(req.arprot[0]));
       	rg_arid[0]<= req.arid;
 				rg_rdburst_count<= req.arlen;
 			end
@@ -1131,7 +1160,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
         rg_is_wrburst[0]<= True;
 		  else begin
 				rg_is_wrburst[0]<= False;
-      	dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
+      	dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)),unpack(aw.awprot[0]));
 				rg_awid[0]<= aw.awid;
 				rg_wrburst_count<= aw.awlen;
 			end
@@ -1199,7 +1228,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 
 	 	rule axi_read_req;
 	 		let req <- pop_o(s_xactor.o_rd_addr);
-			dma.read_req(req.araddr,unpack(truncate(req.arsize)));
+			dma.read_req(req.araddr,unpack(truncate(req.arsize)), unpack(req.arprot[0]));
 	 	endrule
 
 		rule axi_read_resp;
@@ -1211,7 +1240,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 	rule axi_write_req;
 	 		let aw <- pop_o(s_xactor.o_wr_addr);
 	 		let w <- pop_o(s_xactor.o_wr_data);
-	 		dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
+	 		dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)), unpack(aw.awprot[0]));
 		endrule
 
 		rule axi_write_resp;
