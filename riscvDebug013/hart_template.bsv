@@ -53,7 +53,7 @@ package hart_template;
     Reg#(Bit#(1)) rg_halt_request <- mkDReg(0);  // Equvalent Struicture to absorb incoming requests
     Reg#(Bit#(1)) rg_resume_request <- mkDReg(0);// Equvalent Struicture to absorb incoming requests
     
-    Reg#(Maybe#(Bit#(XLEN))) rg_abst_response <- mkReg(tagged Invalid); // registered container for responses
+    Reg#(Maybe#(Bit#(DXLEN))) rg_abst_response <- mkReg(tagged Invalid); // registered container for responses
 
     // No implict conditions hart state at the end of every cycle
     // rule hart_state; 
@@ -77,13 +77,13 @@ package hart_template;
 
     //   Interface Population   
     method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),
-                                      Bit#(XLEN))abstract_command)if (!(isValid(rg_abst_response)));
+                                      Bit#(DXLEN))abstract_command)if (!(isValid(rg_abst_response)));
       // Condition that a new request will come in after the previous one has been serviced
       $display($time,"ABC\tAbstract Operation Recieved"); 
-      rg_abst_response <= tagged Valid 32'hbebecafe ;
+      rg_abst_response <= tagged Valid zeroExtend(32'hbebecafe) ;
     endmethod
 
-    method ActionValue#(Bit#(XLEN)) abstractReadResponse if (isValid(rg_abst_response));
+    method ActionValue#(Bit#(DXLEN)) abstractReadResponse if (isValid(rg_abst_response));
       rg_abst_response <= tagged Invalid;
       $display($time,"ABR\tAbstract Response Enqueued"); 
       return validValue(rg_abst_response);
