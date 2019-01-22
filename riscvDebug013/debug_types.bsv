@@ -17,8 +17,8 @@ package debug_types;
 
   
   interface Debug_Hart_Ifc;
-    method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation;
-    method Action  abstractReadResponse(Bit#(XLEN) abstractResponse);  
+    method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(DXLEN))) abstractOperation;
+    method Action  abstractReadResponse(Bit#(DXLEN) abstractResponse);  
     (*always_enabled,always_ready*)
     method Bit#(1) haltRequest();
     (*always_enabled,always_ready*)
@@ -38,13 +38,13 @@ package debug_types;
   interface Ifc_riscvDebug013;
     interface Ifc_DM_DTM dtm;
     interface Debug_Hart_Ifc hart;
-    interface AXI4_Master_IFC#(PADDR, XLEN, 0 ) debug_master;
+    interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
     method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
   endinterface
 
   interface Hart_Debug_Ifc;
-    method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(XLEN))abstract_command);
-    method ActionValue#(Bit#(XLEN)) abstractReadResponse;
+    method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(DXLEN))abstract_command);
+    method ActionValue#(Bit#(DXLEN)) abstractReadResponse;
     (*always_enabled,always_ready*)
     method Action   haltRequest(Bit#(1) halt_request);
     (*always_enabled,always_ready*)
@@ -159,8 +159,9 @@ package debug_types;
   typedef 0 D_configstrptr2;
   typedef 0 D_configstrptr3;
 
-  typedef 32  XLEN;
-  typedef 32  PADDR;
+  typedef 32  DXLEN;
+  //typedef 64  DXLEN;
+  typedef 32  DPADDR;
   typedef 1   HartCount;
   typedef 1   AxiID;
 
@@ -178,10 +179,10 @@ package debug_types;
     // Filter For Valid CSR's and Valid GPR, FPR Access conditiions.
     // E-Class , Registers can be accessed while the hart is running
               // Writes cannot be done to a running hart ,?? are reads permitted ?
-              // Access of 32 to XLEN bit widths are permitted
+              // Access of 32 to DXLEN bit widths are permitted
     Bit#(1) lv_bad_register = 0;    // Register Does not Exist
     Bit#(1) lv_bad_state = 0;   // Hart not in required State
-    Bit#(1) lv_bad_size = 0;       // Bad Access Size , essentiall XLEN Filter
+    Bit#(1) lv_bad_size = 0;       // Bad Access Size , essentiall DXLEN Filter
 
     // Fliter
     if((address >= `FIVO(Abst_reg_address_CSR0)) && (address < `FIVO(Abst_reg_address_GPR0)))begin
@@ -212,9 +213,9 @@ package debug_types;
       lv_bad_size = 0;
     
     // Size
-    if((abst_ar_aarSize == 3'd2) && ((`FIVO(XLEN) == 64)||(`FIVO(XLEN) == 32)))
+    if((abst_ar_aarSize == 3'd2) && ((`FIVO(DXLEN) == 64)||(`FIVO(DXLEN) == 32)))
       lv_bad_size = 0;
-    else if ((abst_ar_aarSize == 3'd3) && (`FIVO(XLEN) == 64))
+    else if ((abst_ar_aarSize == 3'd3) && (`FIVO(DXLEN) == 64))
       lv_bad_size = 0;
     else
       lv_bad_size = 1;

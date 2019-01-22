@@ -247,13 +247,13 @@ package riscvDebug013;
     Reg#(Bit#(1)) sbAutoIncrement <- mkReg(0,reset_by derived_reset);     // sbcs b16           -RW
     Reg#(Bit#(1)) sbReadOnData <- mkReg(0,reset_by derived_reset);        // sbcs b15           -RW
     Reg#(Bit#(3)) sbError   <- mkReg(0,reset_by derived_reset);           // sbcs b14-12        -RW1c
-    Reg#(Bit#(7)) sbASize = readOnlyReg(`FIVO(PADDR)); /* Addr Width */    // sbcs b11-5         - R
+    Reg#(Bit#(7)) sbASize = readOnlyReg(`FIVO(DPADDR)); /* Addr Width */    // sbcs b11-5         - R
     /* sbAccessX => Supports X  bit accesses */
-    Reg#(Bit#(1)) sbAccess128 = readOnlyReg(pack(valueOf(XLEN)>64));      // sbcs b4            - R
-    Reg#(Bit#(1)) sbAccess64 = readOnlyReg(pack(valueOf(XLEN)>32));       // sbcs b3            - R
-    Reg#(Bit#(1)) sbAccess32 = readOnlyReg(pack(valueOf(XLEN)>16));       // sbcs b2            - R
-    Reg#(Bit#(1)) sbAccess16 = readOnlyReg(pack(valueOf(XLEN)>8));        // sbcs b1            - R
-    Reg#(Bit#(1)) sbAccess8  = readOnlyReg(pack(valueOf(XLEN)>0));        // sbcs b0            - R
+    Reg#(Bit#(1)) sbAccess128 = readOnlyReg(pack(valueOf(DXLEN)>64));      // sbcs b4            - R
+    Reg#(Bit#(1)) sbAccess64 = readOnlyReg(pack(valueOf(DXLEN)>32));       // sbcs b3            - R
+    Reg#(Bit#(1)) sbAccess32 = readOnlyReg(pack(valueOf(DXLEN)>16));       // sbcs b2            - R
+    Reg#(Bit#(1)) sbAccess16 = readOnlyReg(pack(valueOf(DXLEN)>8));        // sbcs b1            - R
+    Reg#(Bit#(1)) sbAccess8  = readOnlyReg(pack(valueOf(DXLEN)>0));        // sbcs b0            - R
 
     Reg#(Bit#(32)) sbcs = concatReg15(  sbVersion,sbcsPad0,readOnlyReg(sbBusyError),
         readOnlyReg(sbBusy),sbReadOnAddr,sbAccess,sbAutoIncrement,sbReadOnData,readOnlyReg(sbError),
@@ -342,7 +342,7 @@ package riscvDebug013;
     endrule
 
     /*    System Bus ACCESS   */
-    AXI4_Master_Xactor_IFC#(PADDR,XLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
+    AXI4_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
 
     //+ rule :: access_system_bus
     //+
@@ -350,7 +350,7 @@ package riscvDebug013;
     //+ And Address Widths of 64 & 32
     rule access_system_bus((sbError == 0) && (sbBusyError == 0) && (sbBusy == 0) && (startSBAccess == 1) );
       Bit#(64) write_data = 0;
-      Bit#(PADDR) address = 0;
+      Bit#(DPADDR) address = 0;
       Bit#(4)  size = 0;      // size in bytes
       Bit#(8)  write_strobe = 0;
       Bool readAccess = (sb_read_write == 1); //((sbReadOnAddr ==1) || (sbReadOnData==1));
@@ -403,11 +403,11 @@ package riscvDebug013;
       end
       else begin
         // Addresses WORD Aligned
-        if(valueOf(XLEN)==64)begin
+        if(valueOf(DXLEN)==64)begin
           address = truncate({sbAddress1,sbAddress0[31:3],3'b000});
           align = sbAddress0[2:0];
         end
-        else if(valueOf(XLEN)==32)begin
+        else if(valueOf(DXLEN)==32)begin
           address = truncate({sbAddress1,sbAddress0[31:2],2'b00});
           align = {0,sbAddress0[1:0]};
         end
@@ -431,7 +431,7 @@ package riscvDebug013;
           master_xactor.i_rd_addr.enq(read_request);
         end
         else begin
-          let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(XLEN,1)):0],
+          let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
             wstrb: truncate(write_strobe),wlast:True, wid:`FIVO(AxiID)};
           let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0,
             awlen: 0, awsize: size[2:0],awburst: 'b01,awid:`FIVO(AxiID)};
@@ -537,19 +537,19 @@ package riscvDebug013;
       hart_interface_vector[i] = interface Debug_Hart_Ifc
         // Issue a Command iff command good is asserted
         // Get this out of the vector !
-        method ActionValue#(Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(XLEN))) abstractOperation 
+        method ActionValue#(Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(DXLEN))) abstractOperation 
                                                     if((abst_command_good == 2'd3) && (abst_busy == 1));
-          Bit#(XLEN) data_frame = truncate({abst_data[1],abst_data[0]});
+          Bit#(DXLEN) data_frame = truncate({abst_data[1],abst_data[0]});
           abst_command_good <= 2'd2;
           return tuple3(abst_ar_write,truncate(abst_ar_regNo),truncate(data_frame));
         endmethod
 
-        method Action  abstractReadResponse(Bit#(XLEN) responseData) 
+        method Action  abstractReadResponse(Bit#(DXLEN) responseData) 
                                                     if((abst_command_good == 2'd2) && (abst_busy == 1));
           if(abst_ar_aarPostIncrement == 1)  
             abst_ar_regNo <= abst_ar_regNo + 1;
           abst_data[0] <= responseData[31:0]; 
-          if ((valueOf(XLEN) == 64 )&& (abst_ar_aarSize == 3'd3 ))
+          if ((valueOf(DXLEN) == 64 )&& (abst_ar_aarSize == 3'd3 ))
             abst_data[1] <= responseData[63:32];
           abst_command_good <= 2'd0;
           abst_busy <= 0;

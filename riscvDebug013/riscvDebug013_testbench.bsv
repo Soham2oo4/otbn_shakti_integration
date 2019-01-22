@@ -59,7 +59,7 @@ package riscvDebug013_testbench;
     endaction
 
   // AXI Fabric Slave Address Decoder
-  function Tuple2 #(Bool, Bit#(1)) fn_slave_map (Bit#(PADDR) addr);
+  function Tuple2 #(Bool, Bit#(1)) fn_slave_map (Bit#(DPADDR) addr);
     Bool slave_exist = True;
     Bit#(1) slave_num = 0;
     if(addr >= 0 && addr<= 32'h000fffff )
