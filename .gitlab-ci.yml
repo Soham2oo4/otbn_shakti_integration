@@ -12,6 +12,7 @@ compile-check:
         - make TOP_FILE=sdram_template.bsv TOP_DIR=sdram
         - make TOP_FILE=jtagdtm_template.bsv TOP_DIR=jtagdtm
         - make TOP_FILE=onfi_template.bsv TOP_DIR=onfi
+        - make TOP_FILE=plic_template.bsv TOP_DIR=plic
     only:
         - master
     tags:
