@@ -67,7 +67,6 @@ interface User_ifc#(numeric type addr_width,numeric type data_width,
 	interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
 	interface IFC_PROGRAM_REGISTERS#(addr_width,data_width) ifc_prog_reg;
 	interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
-	interface Get#(Bit#(64)) intrpt_completion_sb;
 endinterface
 
 //(*conflict_free = "rl_prioritise, prog_reg"*)
@@ -381,16 +380,6 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 
 						endinterface;
 
-							//interface  intrpt_completion_sb= interface Get 
-							//	method ActionValue#(Bit#(64)) get if(isValid(rg_completion_id));
-							//		let completion_msg = validValue(rg_completion_id);
-							//		rg_completion_id <= tagged Invalid;
-              //  	                `ifdef verbose $display("Sending Completion to SoC"); `endif
-              //  	                // completion_msg=zeroExtend(completion_msg);
-							//		return zeroExtend(completion_msg);
-							//	endmethod
-							//endinterface;
-
 							interface intrpt_note_sb= interface Get
 								method ActionValue#(Tuple2#(Bool,Bool)) get;
 									let v_no_nmi=valueOf(no_nmi);
@@ -407,7 +396,6 @@ endmodule
 			interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 			interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
 			interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
-			interface Get#(Bit#(64)) intrpt_completion_sb;
 	endinterface
 
 	module mkplic_axi4lite(Ifc_plic_axi4lite#(addr_width, data_width, user_width, no_of_ir_pins, 
@@ -464,7 +452,6 @@ endmodule
 			interface slave = s_xactor.axi_side;
 			interface ifc_external_irq_io = plic.ifc_external_irq_io;
 			interface intrpt_note_sb = plic.intrpt_note_sb;
-			interface intrpt_completion_sb = plic.intrpt_completion_sb;
 	endmodule
 
 	interface Ifc_plic_axi4#(numeric type addr_width, numeric type data_width, numeric type
@@ -472,7 +459,6 @@ endmodule
 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
 		interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
 		interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
-		interface Get#(Bit#(64)) intrpt_completion_sb;
 	endinterface
 
 	module mkplic_axi4(Ifc_plic_axi4#(addr_width,data_width,user_width, no_of_ir_pins,no_of_ir_levels,
@@ -580,6 +566,5 @@ endmodule
 			interface slave = s_xactor.axi_side;
 			interface ifc_external_irq_io = plic.ifc_external_irq_io;
 			interface intrpt_note_sb = plic.intrpt_note_sb;
-			interface intrpt_completion_sb = plic.intrpt_completion_sb;		
 	endmodule
 endpackage	
