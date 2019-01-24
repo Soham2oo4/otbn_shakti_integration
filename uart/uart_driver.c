@@ -12,3 +12,16 @@ int putchar(int ch)
   return 0;
 }
 
+// fnuction used to check if UART is empty. Can be used before exiting a function
+int is_empty()
+{
+    asm volatile (
+        "uart_end: l1 t1, 0x11300" "\n\t"	//The base address of UART config registers
+        "lb a0, 12(t1)" "\n\t"
+        "andi a0, a0, 0x1" "\n\t"
+        "beqz a0, uart_end" "\n\t"
+				:
+				:
+				:"a0","t1","cc","memory");
+  return 0;
+}
