@@ -74,6 +74,8 @@ package riscvDebug013;
     Vector#(HartCount,Reg#(Bit#(1))) vrg_resume_ack   <- replicateM(mkReg(0,reset_by derived_reset));
 
     Reg#(Bit#(HartCount)) rg_non_existent = readOnlyReg(0);
+
+    Reg#(Bit#(1)) rg_clear_resume_ack <- mkDReg(0);
     
     Vector#(HartCount,Reg#(Bit#(1))) vrg_unavailable  <- replicateM(mkReg(0,reset_by derived_reset));
     Vector#(HartCount,Reg#(Bit#(1))) vrg_halted       <- replicateM(mkReg(0,reset_by derived_reset));
@@ -303,6 +305,8 @@ package riscvDebug013;
       for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
         if ((vrg_halted_sdw[i] ==1) && (vrg_halted[i] == 0))
           vrg_resume_ack[i] <= 1;
+        else if((rg_clear_resume_ack == 1 )&& (vrg_halted[i] == 1))
+          vrg_resume_ack[i] <= 0;
         else if ((lv_hawsel[i] == 1) &&(haltReq == 1))
           vrg_resume_ack[i] <= 0;
         vrg_halted_sdw[i] <= vrg_halted[i]; // One Cycle Delayed assign;
@@ -563,7 +567,7 @@ package riscvDebug013;
         endmethod
         
         method Bit#(1) resumeRequest();
-          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0))
+          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0) && (vrg_resume_ack[i] == 0))
             return resumeReq;
           else 
             return 0;
@@ -684,7 +688,10 @@ package riscvDebug013;
           // Write Operation
           else if ( dmi_op == 2'b10 )begin
             case(dmi_addr)
-              `FIVO(DMCONTROL):          dmcontrol <= dmi_data;
+              `FIVO(DMCONTROL):begin
+                                dmcontrol <= dmi_data;
+                                if(dmi_data[30] == 1) rg_clear_resume_ack <= 1;
+                              end
               `FIVO(DMSTATUS):           dmstatus <= dmi_data;
               `FIVO(HARTINFO):           hartinfo <= dmi_data;
               `FIVO(HAWINDOWSEL):        hawindowsel <= dmi_data;
