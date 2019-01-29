@@ -130,7 +130,7 @@ package clint;
         size);
         Bool success=True;
         Bit#(64) temp =0;
-        Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFF:size==Word?'hFFFFFFFF:'1;
+        Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
         data=case (size)
           Byte: duplicate(data[7:0]);
           HWord: duplicate(data[15:0]);
