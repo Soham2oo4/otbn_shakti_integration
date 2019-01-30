@@ -129,6 +129,7 @@
 
 //DMA_CCRx
 #define DMA_CCR_BURST_LEN(x) (x<<16)
+#define DMA_CCR_USER_READ    (1<<15)
 #define DMA_CCR_MEM2MEM      (1<<14)
 #define DMA_CCR_PL(x)        (x<<12) //Not more than 2 bits
 #define DMA_CCR_MSIZE(x)     (x<<10) //Not more than two bits
