@@ -767,40 +767,40 @@ endfunction*/
  
 	  	//8'h08 : if(valueOf(numChannels)>1) begin return tuple2(regAToRegBitN( dma_ccr[0] ), True); end  //32-bit
 	  	//				else return tuple2(regAToRegBitN( nullReg ), False);
-	  	'd0 : return can_return(dma_ccr[0], dma_ccr[0][16]);   //32-bit
-      'd1 : return can_return(dma_cndtr[0], dma_ccr[0][16]); //16-bit -- 32-bit Addr 
-      'd2 : return can_return(dma_cpar[0], dma_ccr[0][16]); //64-bit
-      'd3 : return can_return(dma_cmar[0], dma_ccr[0][16]); //64-bit
+	  	'd0 : return can_return(dma_ccr[0], dma_ccr[0][15]);   //32-bit
+      'd1 : return can_return(dma_cndtr[0], dma_ccr[0][15]); //16-bit -- 32-bit Addr 
+      'd2 : return can_return(dma_cpar[0], dma_ccr[0][15]); //64-bit
+      'd3 : return can_return(dma_cmar[0], dma_ccr[0][15]); //64-bit
  
-      'd4 : return can_return(dma_ccr[1], dma_ccr[1][16]);
-      'd5 : return can_return(dma_cndtr[1], dma_ccr[1][16]);
-      'd6 : return can_return(dma_cpar[1], dma_ccr[1][16]);
-      'd7 : return can_return(dma_cmar[1], dma_ccr[1][16]);
+      'd4 : return can_return(dma_ccr[1], dma_ccr[1][15]);
+      'd5 : return can_return(dma_cndtr[1], dma_ccr[1][15]);
+      'd6 : return can_return(dma_cpar[1], dma_ccr[1][15]);
+      'd7 : return can_return(dma_cmar[1], dma_ccr[1][15]);
  
-      'd8 : return can_return(dma_ccr[2], dma_ccr[2][16]);
-      'd9 : return can_return(dma_cndtr[2], dma_ccr[2][16]);
-      'd10 : return can_return(dma_cpar[2], dma_ccr[2][16]);
-      'd11 : return can_return(dma_cmar[2], dma_ccr[2][16]);
+      'd8 : return can_return(dma_ccr[2], dma_ccr[2][15]);
+      'd9 : return can_return(dma_cndtr[2], dma_ccr[2][15]);
+      'd10 : return can_return(dma_cpar[2], dma_ccr[2][15]);
+      'd11 : return can_return(dma_cmar[2], dma_ccr[2][15]);
  
-      'd12 : return can_return(dma_ccr[3], dma_ccr[3][16]);
-      'd13 : return can_return(dma_cndtr[3], dma_ccr[3][16]);
-      'd14 : return can_return(dma_cpar[3], dma_ccr[3][16]);
-      'd15 : return can_return(dma_cmar[3], dma_ccr[3][16]);
+      'd12 : return can_return(dma_ccr[3], dma_ccr[3][15]);
+      'd13 : return can_return(dma_cndtr[3], dma_ccr[3][15]);
+      'd14 : return can_return(dma_cpar[3], dma_ccr[3][15]);
+      'd15 : return can_return(dma_cmar[3], dma_ccr[3][15]);
  
-      'd16 : return can_return(dma_ccr[4], dma_ccr[4][16]);
-      'd17 : return can_return(dma_cndtr[4], dma_ccr[4][16]);
-      'd18 : return can_return(dma_cpar[4], dma_ccr[4][16]);
-      'd19 : return can_return(dma_cmar[4], dma_ccr[4][16]);
+      'd16 : return can_return(dma_ccr[4], dma_ccr[4][15]);
+      'd17 : return can_return(dma_cndtr[4], dma_ccr[4][15]);
+      'd18 : return can_return(dma_cpar[4], dma_ccr[4][15]);
+      'd19 : return can_return(dma_cmar[4], dma_ccr[4][15]);
  
-      'd20 : return can_return(dma_ccr[5], dma_ccr[5][16]);
-      'd21 : return can_return(dma_cndtr[5], dma_ccr[5][16]);
-      'd22 : return can_return(dma_cpar[5], dma_ccr[5][16]);
-      'd23 : return can_return(dma_cmar[5], dma_ccr[5][16]);
+      'd20 : return can_return(dma_ccr[5], dma_ccr[5][15]);
+      'd21 : return can_return(dma_cndtr[5], dma_ccr[5][15]);
+      'd22 : return can_return(dma_cpar[5], dma_ccr[5][15]);
+      'd23 : return can_return(dma_cmar[5], dma_ccr[5][15]);
  
-      'd24 : return can_return(dma_ccr[6], dma_ccr[6][16]);
-      'd25 : return can_return(dma_cndtr[6], dma_ccr[6][16]);
-      'd26 : return can_return(dma_cpar[6], dma_ccr[6][16]);
-      'd27 : return can_return(dma_cmar[6], dma_ccr[6][16]);
+      'd24 : return can_return(dma_ccr[6], dma_ccr[6][15]);
+      'd25 : return can_return(dma_cndtr[6], dma_ccr[6][15]);
+      'd26 : return can_return(dma_cpar[6], dma_ccr[6][15]);
+      'd27 : return can_return(dma_cmar[6], dma_ccr[6][15]);
  
       'd28 : return can_return(vectorToRegN( dma_isr ), 1'b1);
       'd29 : return can_return(vectorToRegN( dma_ifcr ), 1'b0);
