@@ -67,7 +67,6 @@ import device_common::*;
 
   // project files to be imported/included
   `include "common_params.bsv"
-`define verbose
 // ================================================================
 // DMA requests and responses parameters
 
@@ -382,7 +381,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				lv_araddr= rg_cpa[chanNum];	//set the address to read from
 				lv_arsize= lv_dma_ccr[9:8];	//set the transfer size
 				lv_burst_type= lv_dma_ccr[6];	//0: Fixed, 1: INCR which is consistent with that of AXI4
-				`ifdef verbose $display($time,"\tDMA: chan[%0d] starting read from peripheral address %h",chanNum, lv_araddr); `endif
+				`ifdef verbosity>2 $display($time,"\tDMA: chan[%0d] starting read from peripheral address %h",chanNum, lv_araddr); `endif
 				// Since the destination is memory, the write request needn't wait for any interrupt line to be high
 				// Therefore, we send the first argument as Invalid
 				destAddrFs[chanNum].enq( DestAddrFs_type {	addr: rg_cma[chanNum], // Enqueue the Write destination address
@@ -393,7 +392,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				lv_araddr= rg_cma[chanNum];		//set the address to read from
 				lv_arsize= lv_dma_ccr[11:10];	//set the transfer size
 				lv_burst_type= lv_dma_ccr[7];	//0: Fixed, 1: INCR which is consistent with that of AXI4
-				`ifdef verbose $display($time,"\tDMA: chan[%0d] starting read from memory address %h",chanNum, lv_araddr); `endif
+				`ifdef verbosity>2 $display($time,"\tDMA: chan[%0d] starting read from memory address %h",chanNum, lv_araddr); `endif
 				// Since the destination address is that of a peripheral, the write request can be issued only when
 				// the corresponding peripheral's interrupt line is high. Therefore, we send the periph_id too.
 				Bool lv_is_dest_periph;
@@ -401,7 +400,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 					lv_is_dest_periph= True;
 				else
 					lv_is_dest_periph= False;
-                    `ifdef verbose $display("dest_is_periph: %h",lv_is_dest_periph); `endif
+                    `ifdef verbosity>2 $display("dest_is_periph: %h",lv_is_dest_periph); `endif
 				destAddrFs[chanNum].enq( DestAddrFs_type { 	addr: rg_cpa[chanNum], // Enqueue the Write destination address
 															is_dest_periph: lv_is_dest_periph,
 															periph_id: lv_periph_id});
@@ -424,7 +423,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 											 aruser: 0 };
 				
 			xactor.i_rd_addr.enq(read_request);
-            `ifdef verbose $display("Sending a read request with araddr: %h arid: %h arlen: %h arsize: %h arburst: %h",lv_araddr,fromInteger(chanNum),lv_burst,lv_arsize,lv_burst_type); `endif
+            `ifdef verbosity>2 $display("Sending a read request with araddr: %h arid: %h arlen: %h arsize: %h arburst: %h",lv_araddr,fromInteger(chanNum),lv_burst,lv_arsize,lv_burst_type); `endif
 
 			//housekeeping. To be done when the transaction is complete.
 			currentReadRs[chanNum][0]<= currentReadRs[chanNum][0] + 1;
@@ -451,7 +450,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 
 			// grab the data from the mmu reponse fifo
 			let resp <- pop_o(xactor.o_rd_data);
-			`ifdef verbose $display("DMA: chan[%d] finish read. Got data: %h",chanNum, resp.rdata); `endif
+			`ifdef verbosity>2 $display("DMA: chan[%d] finish read. Got data: %h",chanNum, resp.rdata); `endif
 
 			// Pass the read data to the write "side" of the dma
 			responseDataFs[chanNum].enq( resp.rdata );
@@ -497,16 +496,16 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				write_strobe=write_strobe<<(lv_data.addr[`byte_offset:0]);
 			end
 			//lv_data.addr[2:0]=0; // also make the address 64-bit aligned
-            `ifdef verbose $display("Start Write lv_burst_type: %b strb: %h",lv_burst_type,write_strobe); `endif
+            `ifdef verbosity>2 $display("Start Write lv_burst_type: %b strb: %h",lv_burst_type,write_strobe); `endif
 
 			
 			Bool lv_last= True;
 			if(lv_burst_len>0) begin // only enable the next rule when doing a write in burst mode.
 				rg_burst_count<=rg_burst_count+1;
 				lv_last= False;
-				`ifdef verbose $display("Starting burst mode write...."); `endif
+				`ifdef verbosity>2 $display("Starting burst mode write...."); `endif
 			end
-			`ifdef verbose
+			`ifdef verbosity>2
 			else begin
 				$display("Performing a single write...");
 			end 
@@ -529,7 +528,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			// Some other house keeping - removing the data from the fifos
 			responseDataFs[chanNum].deq;
 			destAddrFs[chanNum].deq;	//dequeing this FIFO will cause startRead to fire.
-			`ifdef verbose $display ($time,"\tDMA[%0d] startWrite addr: %h data: %h", chanNum,lv_data.addr,responseDataFs[chanNum].first); `endif
+			`ifdef verbosity>2 $display ($time,"\tDMA[%0d] startWrite addr: %h data: %h", chanNum,lv_data.addr,responseDataFs[chanNum].first); `endif
 		endrule
 
 		//This rule is used to send burst write data. The explicit condition ensures that we
@@ -547,9 +546,9 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				write_strobe= rg_write_strobe;
 			let w  = AXI4_Wr_Data {wdata:  responseDataFs[chanNum].first, wstrb: write_strobe , wlast: lv_last, wid: {1'b1, fromInteger(chanNum)} };
       		xactor.i_wr_data.enq(w);
-			`ifdef verbose $display ($time,"\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[31:24]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][31:24]); `endif
+			`ifdef verbosity>2 $display ($time,"\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[31:24]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][31:24]); `endif
 			if(lv_last)begin
-				`ifdef verbose $display("Last data received..."); `endif
+				`ifdef verbosity>2 $display("Last data received..."); `endif
 				rg_burst_count<=0;
 			end
 			else begin
@@ -565,7 +564,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		(xactor.o_wr_resp.first.bresp==AXI4_OKAY) );
 			let x<- pop_o(xactor.o_wr_resp) ;			 // take the response data and finish
 			currentWriteRs[chanNum][0]<= currentWriteRs[chanNum][0] + 1;
-			`ifdef verbose $display ("DMA[%0d]: finishWrite", chanNum); `endif
+			`ifdef verbosity>2 $display ("DMA[%0d]: finishWrite", chanNum); `endif
 			rg_finish_write[chanNum][0]<= True;
 		endrule
 		
@@ -588,7 +587,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				//dmaEnabledRs[chanNum]._write (False) ; 
 				currentWriteRs[chanNum][0] <= 0 ;
 				currentReadRs[chanNum][0]  <= 0 ;
-				$display ("DMA[%0d]: transfer done int_enable:%b dma_isr: %b", chanNum, dma_ccr[chanNum][3:1], dma_isr[chanNum]);
+				`ifdef verbosity>1 $display ("DMA[%0d]: transfer done int_enable:%b dma_isr: %b", chanNum, dma_ccr[chanNum][3:1], dma_isr[chanNum]); `endif
 			endrule
 		endrules ;
 	endfunction
@@ -624,7 +623,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			//$display("*** chan: %d en: %d dma_cndtr: %h rg_cndtr: %h",chanNum, dma_ccr[chanNum][0], dma_cndtr[chanNum], rg_cndtr[chanNum]);
 			if(wr_bus_err matches tagged Valid .chan_num &&& fromInteger(chanNum)=={1'b1, chan_num[2:0]}) begin
 				chan_isr[3]=1;
-				$display("Bus error on channel %d",chanNum);
+				`ifdef verbosity>1 $display("Bus error on channel %d",chanNum); `endif
 			end
 			if(lv_is_chan_enabled==1) begin
 				if(currentWriteRs[chanNum][1]==currentReadRs[chanNum][1]) begin	//once the read and write transactions are over
@@ -641,10 +640,12 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			end
 			chan_isr[0]= chan_isr[3] | chan_isr[2] | chan_isr[1];	//Setting the GIF
 			chan_isr= dma_isr[chanNum][3:0] | chan_isr; //Sticky nature of interrupts. Should be cleared by software using ifcr.
-		
+
+			`ifdef verbosity>2	
 			if(dma_ifcr[chanNum]!=0) begin
 				$display($time,"DMA[%d] IFCR:%b ISR:%b", chanNum, ~(dma_ifcr[chanNum]), chan_isr);
 			end	
+			`endif
 			//The bits in IFCR represent the interrupts that need to be cleared
 			chan_isr= chan_isr & ~(dma_ifcr[chanNum]);
 			dma_isr[chanNum]<= chan_isr;
@@ -874,23 +875,23 @@ endfunction*/
 			let lv_ccr_channel_number_tuple= ccr_channel_number(selectReg_address);
 			let lv_ccr_channel_number=tpl_1(lv_ccr_channel_number_tuple);
 			if(prot==False) begin		//If unprivileged access
-				$display("DMA: Unpriviliged access trying to change config registers of channel %d",lv_ccr_channel_number);
+				`ifdef verbosity>1 $display("DMA: Unpriviliged access trying to change config registers of channel %d",lv_ccr_channel_number); `endif
 				lv_valid_access= False;
 			end
 			else if(selectReg_address=='hE0) begin 	//If writing to DMA_ISR
-				$display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number);
+				`ifdef verbosity>1 $display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number); `endif
 				lv_valid_access= False;
 			end
 			//If channel is enabled and write happening other than disabling current channel
 			else if( ((dma_ccr[lv_ccr_channel_number] & 'd1) == 1) && !(tpl_2(lv_ccr_channel_number_tuple) && data[0]==0) ) begin
-				$display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number);
+				`ifdef verbosity>1 $display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number); `endif
 				lv_valid_access= False;
 			end
 			else begin
 				lv_valid_access= True;
 			end
 
-			`ifdef verbose $display ($time,"\tDMA writeConfig addr: %0h data: %0h ccr_chan_num: %d", addr, data, lv_ccr_channel_number); `endif
+			`ifdef verbosity>1 $display ($time,"\tDMA writeConfig addr: %0h data: %0h ccr_chan_num: %d", addr, data, lv_ccr_channel_number); `endif
 			if(lv_valid_access && tpl_2(lv_ccr_channel_number_tuple)==True) begin 	//if trans is valid, and the current write is happening to one of the channel's CCR.
 				if(data[0]==1) begin			//if the channel is being enabled
 					  if((dma_ccr[lv_ccr_channel_number] & 'd1)!=1) begin	//If the channel is not already enabled
@@ -898,7 +899,7 @@ endfunction*/
 					  	  rg_cma[lv_ccr_channel_number] <= dma_cmar[lv_ccr_channel_number];	//memory address is copied
 					  	  rg_cndtr[lv_ccr_channel_number]<= dma_cndtr[lv_ccr_channel_number];	//the cndtr value is saved
 					  	  rg_disable_channel<= tuple2(False,?);
-					  	  $display("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
+								`ifdef verbosity>1 $display("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------"); `endif
             	            
         	  	  		/*Bit#(3) cmar_align = dma_cmar[lv_ccr_channel_number][2:0]; 
         	  	  		Bit#(3) cpar_align = dma_cpar[lv_ccr_channel_number][2:0]; 
@@ -909,12 +910,12 @@ endfunction*/
 
         	  	  		if((cmar_is_aligned & cpar_is_aligned)==0) begin
         	  	  		  lv_bresp = AXI4_DECERR; //DECERR for Unaligned addresses
-        	  	  		  $display("\tAXI4_DECERR\n");
+											`ifdef verbosity>1 $display("\tAXI4_DECERR\n"); `endif
         	  	  		end
 
-        	  	  		$display("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]);
+										`ifdef verbosity>2 $display("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]); `endif
 					  	    	*/	
-        	  	  		    
+        	  	  	`ifdef verbosity>1 
         	  	  		if(data[4]==0) begin
 					  	  	$display("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
 					  	  	$display("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
@@ -928,6 +929,7 @@ endfunction*/
 					  	  	$display("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
 					  	  end
 					  	  $display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]);
+							`endif
 					  end
 					  else if(data[31:0]==dma_ccr[lv_ccr_channel_number])begin	//Enabling a channel that is already enabled with same config
 					  	  lv_valid_access= True;
@@ -942,11 +944,11 @@ endfunction*/
 						rg_disable_channel<= tuple2(True, lv_ccr_channel_number);
 						lv_send_response= False;
 						rg_writeConfig_ccr<= tuple2(lv_ccr_channel_number, data);
-						$display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------");
+						`ifdef verbosity>1 $display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------"); `endif
 					end
 					else begin	// no pending transaction
 						lv_valid_access= True;
-						$display("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------");
+						`ifdef verbosity>2 $display("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------"); `endif
 						//clear the local registers
 						rg_is_cndtr_zero[lv_ccr_channel_number][0]<= True;
 					end
@@ -1069,9 +1071,11 @@ endfunction*/
 				//end
 				lv_interrupt_to_processor[chanNum]= |(active_interrupts);	//TODO change this to | of all
 			end
+			`ifdef verbosity>2  
 			if(lv_interrupt_to_processor!=0) begin
 				$display("intrrr: %b",lv_interrupt_to_processor);
 			end
+			`endif
 			return |(lv_interrupt_to_processor);
 	endmethod
   endinterface;
