@@ -47,7 +47,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-package sdram;
+package sdram_axi4_cfg;
 `include "sdram.defines"
 import Semi_FIFOF        :: *;
 import AXI4_Types   :: *;
@@ -64,10 +64,9 @@ import FIFOLevel ::*;
 //import device_common::*;
 
 export Ifc_sdram_out      (..);
-export Ifc_sdram_axi4     (..); // interface export
-export mksdram_axi4;        // module export    
+export Ifc_sdram_wrap     (..); // interface export
+export mksdram_wrap;        // module export    
 
-`define verbose
 
 interface Ifc_sdram_out#(numeric type io_width);
 	(*always_enabled,always_ready*)
@@ -86,7 +85,7 @@ interface Ifc_sdram_out#(numeric type io_width);
     interface Clock sdram_clk;    
 endinterface
 
-interface Ifc_sdram_axi4#(
+interface Ifc_sdram_wrap#(
 						   numeric type addr_cntrl_width,
 						   numeric type data_cntrl_width,
 						   numeric type addr_width, 
@@ -130,7 +129,7 @@ endfunction
 
 //(*synthesize*)
 //(*preempts="rl_send_rd_data, rl_check_drop"*)    
-module mksdram_axi4#(Clock slow_clk, Reset slow_rst) (Ifc_sdram_axi4#(
+module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
 													  addr_width, 
@@ -177,7 +176,7 @@ module mksdram_axi4#(Clock slow_clk, Reset slow_rst) (Ifc_sdram_axi4#(
 //												Log#(TDiv#(data_width, 8), 3)
 											  );
    
-`ifdef diff_clk
+`ifdef sdram_ext_clk
 	let clk0 = slow_clk;
 	let rst0 = slow_rst;
 `else
@@ -408,14 +407,14 @@ Reg#(Bit#(4))            rg_wr_ac_wstrb     <- mkReg(0);
 //Reg#(Bit#(4))            rg_wr_lwr_addr     <- mkReg(0); 
 Reg#(Bit#(9))            rg_local_actual_wr_length <- mkReg(0);
 
-`ifdef diff_clk
+`ifdef sdram_ext_clk
 Reg#(Bit#(9))            rg_actual_wr_length <- mkSyncRegFromCC(0,clk0);
 Reg#(Bit#(addr_width))           rg_wr_address       <- mkSyncRegFromCC(0,clk0);
 `else
 Reg#(Bit#(9))            rg_actual_wr_length <- mkReg(0);
 Reg#(Bit#(addr_width))   rg_wr_address       <- mkReg(0);
 `endif
-`ifdef diff_clk
+`ifdef sdram_ext_clk
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkSyncRegFromCC(0,clk0);
 `else
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkReg(0);
@@ -435,9 +434,9 @@ Reg#(Read_state) rg_read_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
 
 FIFOF#(AXI4_Wr_Addr#(addr_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(1); // need to changed bcoz of bridge it is been changed
 FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(5);
-`ifdef diff_clk
-SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     <- mkSyncFIFOFromCC(33,clk0);
-SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    <- mkSyncFIFOFromCC(33,clk0);
+`ifdef sdram_ext_clk
+SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
+SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
 SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
 `else
 FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
@@ -446,12 +445,13 @@ FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
 `endif
 
    //FIFOF#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_addr <- mkSizedFIFOF(3);
-`ifdef diff_clk
-FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+`ifdef sdram_ext_clk
+FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(145, clocked_by clk0, reset_by rst0);
+//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
 `else
 FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(178);
 `endif
-`ifdef diff_clk
+`ifdef sdram_ext_clk
 SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(4,clk0,rst0);
 SyncFIFOIfc#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSyncFIFOFromCC(1,clk0);
@@ -466,7 +466,7 @@ FIFOF#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSizedFIFOF(1);
 `endif
 // Polling Registers
 Reg#(Bit#(2)) rg_poll_cnt <- mkReg(0,clocked_by clk0, reset_by rst0);
-`ifdef diff_clk
+`ifdef sdram_ext_clk
 Reg#(Bool)    rg_polling_status <- mkSyncRegToCC(False,clk0,rst0);
 `else
 Reg#(Bool)    rg_polling_status <- mkReg(False);
@@ -586,8 +586,12 @@ rule rl_for_writing_ctrl_reg(ff_sync_ctrl_write.notFull);
     let aw <- pop_o(s_xactor_cntrl_reg.o_wr_addr);
     let w  <- pop_o(s_xactor_cntrl_reg.o_wr_data);
     `ifdef verbose $display($time,"\tSDRAM: control_reg written addr %x data %x", aw.awaddr, w.wdata); `endif
+	let status = AXI4_OKAY;
+	if(aw.awprot[0] == 1)
 	  ff_sync_ctrl_write.enq(tuple2(aw.awaddr,w.wdata));
-    let w_resp = AXI4_Wr_Resp {bresp: AXI4_OKAY, buser: 0, bid: aw.awid}; 
+	else
+	 status = AXI4_SLVERR;
+    let w_resp = AXI4_Wr_Resp {bresp: status, buser: 0, bid: aw.awid}; 
     s_xactor_cntrl_reg.i_wr_resp.enq(w_resp);
 endrule
 
@@ -601,11 +605,18 @@ endrule
 
 rule rl_for_read_cntrl_reg;
     let ar <- pop_o(s_xactor_cntrl_reg.o_rd_addr);
+	if(ar.arprot[0] == 1) begin
 	  ff_sync_ctrl_read.enq(ar.araddr);
 	  rg_ctrl_rid<=ar.arid;
+	end
+	else begin
+		let r = AXI4_Rd_Data {rresp: AXI4_SLVERR, rdata:? ,
+		rlast: True, ruser: 0, rid: rg_ctrl_rid};
+		s_xactor_cntrl_reg.i_rd_data.enq(r);
+	end
  endrule
 
- rule rl_send_ctrl_read_response(ff_sync_ctrl_read.notEmpty);
+ rule rl_send_ctrl_read_response(ff_sync_ctrl_read.notEmpty);	
 	 ff_sync_ctrl_read_response.enq(fn_rd_cntrl_reg(truncate(ff_sync_ctrl_read.first)));
 	 ff_sync_ctrl_read.deq;
 endrule

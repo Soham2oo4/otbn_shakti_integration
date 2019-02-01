@@ -19,6 +19,7 @@
     // 0x78: U R R R R R R R
 
 `define verbose
+`define sdram_ext_clk
 
 `define DELAY 250
 `define SDR_RFSH_TIMER_W    12
