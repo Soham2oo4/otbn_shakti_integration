@@ -227,7 +227,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
    `define XFR_RDWT        2'b11
 
    reg [1:0] 			xfr_st, next_xfr_st;
-   reg [12:0] 			xfr_caddr;
+   reg [12:0] 			xfr_caddr, temp_addr;
    wire 			last_burst;
    wire 			x2a_rdstart, x2a_wrstart, x2a_rdlast, x2a_wrlast;
    reg 				l_start, l_last, l_wrap;
@@ -244,7 +244,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
    reg [12:0] 			mgmt_addr;
    reg [1:0] 			mgmt_ba;
 
-   reg 				sel_mgmt, sel_b2x;
+   reg 				sel_mgmt, sel_b2x, sel_b2x_wrap;
    reg 				cb_pre_ok, rdok, wrok, wr_next,
 				rd_next, sdr_init_done, act_cmd, d_act_cmd;
    wire [3:0] 			b2x_sdr_cmd, xfr_cmd;
@@ -253,13 +253,14 @@ output [SDR_BW-1:0] 	sdr_den_n;
 				b2x_prechg, d_rd_next, dt_next, xfr_end,
 				rd_pipe_mt, ld_xfr, rd_last, d_rd_last, 
 				wr_last, l_xfr_end, rd_start, d_rd_start,
-				wr_start, page_hit, burst_bdry, xfr_wrap,
+				wr_start, page_hit, burst_bdry, burst_bdry_wrap16, xfr_wrap,
 				b2x_prechg_hit;
    reg [6:0] 			l_rd_next, l_rd_start, l_rd_last;
 
 //vish change
    reg[11:0]  rg_initial_delay;
-
+   wire[3:0] wrap_addr_lsb = xfr_caddr[3:0];
+   wire[8:0] wrap_addr_msb = xfr_caddr[12:4];
    
    assign b2x_read = (b2x_cmd == `OP_RD) ? 1'b1 : 1'b0;
 
@@ -280,7 +281,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 		    (sel_b2x) ? b2x_sdr_cmd : i_xfr_cmd;
 
    assign xfr_addr = (sel_mgmt) ? mgmt_addr : 
-		     (sel_b2x) ? b2x_addr : xfr_caddr+1;
+		     (sel_b2x) ? b2x_addr : (sel_b2x_wrap) ? temp_addr - 15 : xfr_caddr+1;
 
    assign mgmt_ack = sel_mgmt;
 
@@ -341,7 +342,9 @@ output [SDR_BW-1:0] 	sdr_den_n;
    assign xfr_wrap = (ld_xfr) ? b2x_wrap : l_wrap;
    
 //   assign burst_bdry = ~|xfr_caddr[2:0];
-   wire [1:0] xfr_caddr_lsb = (xfr_caddr[1:0]+1);
+   wire [3:0] xfr_caddr_lsb_wrap16 = (xfr_caddr[3:0]+1);
+   assign burst_bdry_wrap16 = ~|(xfr_caddr_lsb_wrap16[3:0]);
+   wire [1:0] xfr_caddr_lsb	= (xfr_caddr[1:0]+1);
    assign burst_bdry = ~|(xfr_caddr_lsb[1:0]);
   
    always @ (posedge clk) begin
@@ -363,7 +366,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 
       else begin
 	 xfr_caddr <= (ld_xfr) ? b2x_addr :
-		      (rd_next | wr_next) ? xfr_caddr + 1 : xfr_caddr; 
+		      (rd_next & sel_b2x_wrap) ? temp_addr - 15 : (rd_next | wr_next) ? xfr_caddr + 1 : xfr_caddr; 
 	 l_start <= (dt_next) ? 1'b0 : 
 		   (ld_xfr) ? b2x_start : l_start;
 	 l_last <= (ld_xfr) ? b2x_last : l_last;
@@ -389,6 +392,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 
 	   sel_mgmt = mgmt_req;
 	   sel_b2x = ~mgmt_req & sdr_init_done & b2x_req;
+	   sel_b2x_wrap = 0;
 	   i_xfr_cmd = `SDR_DESEL;
 	   rd_next = ~mgmt_req & sdr_init_done & b2x_req & b2x_read;
 	   wr_next = ~mgmt_req & sdr_init_done & b2x_req & b2x_write;
@@ -425,15 +429,23 @@ output [SDR_BW-1:0] 	sdr_den_n;
 
 		 i_xfr_cmd = `SDR_BT;
 		 sel_b2x = b2x_req & ~mgmt_req & (b2x_read | b2x_prechg_hit);
+	     sel_b2x_wrap = 0;
 
 	      end // if (~l_wrap)
 	      
 	      else begin
 		 // Wrap mode transfer, by definition is end of burst
 		 // boundary 
-
+//vish change
+		 if(sdram_mode_reg[2:0] == 'b111) begin
+		 i_xfr_cmd = `SDR_BT;
+		 sel_b2x = b2x_req & ~mgmt_req & (b2x_read | b2x_prechg_hit);
+		 end
+		 else begin
 		 i_xfr_cmd = `SDR_DESEL;
 		 sel_b2x = b2x_req & ~mgmt_req & ~b2x_write;
+		 end
+	     sel_b2x_wrap = 0;
 
 	      end // else: !if(~l_wrap)
 		 
@@ -448,8 +460,10 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	      // step sequemtially thru memory, ELSE,
 	      // issue precharge/activate commands from the bank control
 
-	      i_xfr_cmd = (burst_bdry & ~l_wrap) ? `SDR_READ : `SDR_DESEL;
-	      sel_b2x = ~(burst_bdry & ~l_wrap) & b2x_req;
+	      i_xfr_cmd = (((sdram_mode_reg == 3'b111) ? burst_bdry_wrap16 : burst_bdry) & ~l_wrap) ? `SDR_READ : (sdram_mode_reg[3:0] == 3'b111) ? `SDR_READ : `SDR_DESEL;
+	      sel_b2x = (sdram_mode_reg[2:0] == 'b111) ? ~(burst_bdry_wrap16 & ~l_wrap) & b2x_req : ~(burst_bdry & ~l_wrap) & b2x_req;
+		  sel_b2x_wrap = (sdram_mode_reg[2:0] == 'b111) ? burst_bdry_wrap16 & l_wrap : 0;
+		  temp_addr = {wrap_addr_msb,wrap_addr_lsb};
 	      next_xfr_st = `XFR_READ;
 
 	   end // else: !if(l_xfr_end)
@@ -466,6 +480,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	   sel_mgmt = mgmt_req;
 	   
 	   sel_b2x = ~mgmt_req & b2x_req;
+	   sel_b2x_wrap = 0;
 
 	   i_xfr_cmd = `SDR_DESEL;
 
@@ -497,6 +512,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 
 
 		 sel_b2x = b2x_req & ~mgmt_req & (b2x_read | b2x_write);
+	     sel_b2x_wrap = 0;
 		 i_xfr_cmd = `SDR_BT;
 	      end // if (~l_wrap)
 
@@ -505,6 +521,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 		 // boundary 
 
 		 sel_b2x = b2x_req & ~mgmt_req & ~b2x_prechg_hit;
+	     sel_b2x_wrap = 0;
 		 i_xfr_cmd = `SDR_DESEL;
 	      end // else: !if(~l_wrap)
 	      
@@ -520,16 +537,31 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	      // the start of a burst boundary issue another R cmd to
 	      // step sequemtially thru memory, ELSE,
 	      // issue precharge/activate commands from the bank control
-
+		if(sdram_mode_reg[2:0] == 'b111) begin
+	      if (burst_bdry_wrap16 & ~l_wrap) begin
+		 sel_b2x = 1'b0;
+	     sel_b2x_wrap = 0;
+		 i_xfr_cmd = `SDR_WRITE;
+	      end // if (burst_bdry_wrap16 & ~l_wrap)	      
+	      else begin
+		 sel_b2x = b2x_req & ~mgmt_req;
+	     sel_b2x_wrap = 0;
+		 i_xfr_cmd = `SDR_DESEL;
+	      end // else: !if(burst_bdry_wrap16 & ~l_wrap)
+		end 
+		else begin
 	      if (burst_bdry & ~l_wrap) begin
 		 sel_b2x = 1'b0;
+	     sel_b2x_wrap = 0;
 		 i_xfr_cmd = `SDR_WRITE;
 	      end // if (burst_bdry & ~l_wrap)
 	      
 	      else begin
 		 sel_b2x = b2x_req & ~mgmt_req;
+	     sel_b2x_wrap = 0;
 		 i_xfr_cmd = `SDR_DESEL;
 	      end // else: !if(burst_bdry & ~l_wrap)
+		end
 
 	      next_xfr_st = `XFR_WRITE;
 	   end // else: !if(l_xfr_end)
