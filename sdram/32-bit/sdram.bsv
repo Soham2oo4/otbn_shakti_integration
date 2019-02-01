@@ -57,8 +57,10 @@ import BUtils            ::*;
 import Connectable ::*;
 import ConfigReg ::*;
 import DReg::*;
+import BRAMFIFO::*;
 import FIFOF::*;
 import Clocks::*;
+import FIFOLevel ::*;
 //import device_common::*;
 
 export Ifc_sdram_out      (..);
@@ -127,8 +129,8 @@ function Bit#(26) fn_wr_address(Bit#(addr_width) address);
 endfunction
 
 //(*synthesize*)
-    
-module mksdram_axi4#(Clock clk0, Reset rst0) (Ifc_sdram_axi4#(
+//(*preempts="rl_send_rd_data, rl_check_drop"*)    
+module mksdram_axi4#(Clock slow_clk, Reset slow_rst) (Ifc_sdram_axi4#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
 													  addr_width, 
@@ -175,7 +177,13 @@ module mksdram_axi4#(Clock clk0, Reset rst0) (Ifc_sdram_axi4#(
 //												Log#(TDiv#(data_width, 8), 3)
 											  );
    
-
+`ifdef diff_clk
+	let clk0 = slow_clk;
+	let rst0 = slow_rst;
+`else
+	let clk0 <- exposeCurrentClock;
+	let rst0 <- exposeCurrentReset;
+`endif
 
 function Bit#(9) fn_wr_len(Bit#(8) length, Bit#(3) awsize, Bit#(2) lwr_addr);
      Bit#(2) w_packet = 0;
@@ -346,7 +354,9 @@ endfunction
 
 //Reset rst0 <- mkAsyncResetFromCR (0, clk0);
 
-Reg#(Bit#(9))        rg_delay_count <- mkReg(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(9))        rg_wr_count <- mkReg(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(9))        rg_rd_sync_count <- mkReg(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(9))        rg_rd_data_count <- mkReg(0,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(9))        rg_rd_actual_len <- mkReg(0,clocked_by clk0, reset_by rst0);
 Reg#(bit)            rg_app_req <- mkDReg(0,clocked_by clk0, reset_by rst0);
 Reg#(bit)            rg_app_req_wrap <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
@@ -354,9 +364,9 @@ Reg#(Bit#(26))       rg_app_req_addr <- mkConfigReg(0,clocked_by clk0, reset_by 
 Reg#(Bit#(4))        rg_cfg_sdr_tras_d <- mkConfigReg(4'h4,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(4))        rg_cfg_sdr_trp_d <- mkConfigReg(4'h2,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(4))        rg_cfg_sdr_trcd_d <- mkConfigReg(4'h2,clocked_by clk0, reset_by rst0); 
-Reg#(bit)            rg_cfg_sdr_en <- mkConfigReg(1'h0,clocked_by clk0, reset_by rst0);
+Reg#(bit)            rg_cfg_sdr_en <- mkConfigReg(1'h1,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(2))        rg_cfg_req_depth <- mkConfigReg(2'h3,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(13))       rg_cfg_sdr_mode_reg <- mkConfigReg(13'h033,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(13))       rg_cfg_sdr_mode_reg <- mkConfigReg(13'h037,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(3))        rg_cfg_sdr_cas <- mkConfigReg(3'h3,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(4))        rg_cfg_sdr_trcar_d <- mkConfigReg(4'h7,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(4))        rg_cfg_sdr_twr_d <- mkConfigReg(4'h1,clocked_by clk0, reset_by rst0); 
@@ -370,7 +380,7 @@ Reg#(bit)			 rg_cfg_mem_sel		  <- mkReg(0, clocked_by clk0, reset_by rst0);
 Reg#(Bit#(rfrsh_timer_width ))  rg_cfg_sdr_rfsh <- mkConfigReg('h100,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(rfrsh_row_width)) rg_cfg_sdr_rfmax <- mkConfigReg('h6,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(9))                   rg_app_req_len <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(4))                   rg_lwraddr <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(2))                   rg_lwraddr <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(3))                   rg_arsize <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
 Reg#(bit)                       rg_app_req_wr_n <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(4))                   rg_app_wr_en_n <- mkDWire('hF,clocked_by clk0, reset_by rst0);
@@ -385,7 +395,7 @@ Wire#(Bit#(data_width))                 wr_app_rd_data <- mkWire(clocked_by clk0
 
 
 Reg#(Bit#(4))     rg_rid          <- mkReg(0, clocked_by clk0, reset_by rst0);
-Reg#(bit)         rg_rd_not_active_flag <- mkSyncRegToCC(0,clk0, rst0);
+//Reg#(bit)         rg_rd_not_active_flag <- mkSyncRegToCC(0,clk0, rst0);
 Reg#(Bit#(4))     rg_ctrl_rid     <- mkReg(0);
 Reg#(Bit#(4))     rg_wid          <- mkReg(0);
 
@@ -397,10 +407,19 @@ Reg#(Bit#(data_width))           rg_wr_ac_data      <- mkReg(0);
 Reg#(Bit#(4))            rg_wr_ac_wstrb     <- mkReg(0);
 //Reg#(Bit#(4))            rg_wr_lwr_addr     <- mkReg(0); 
 Reg#(Bit#(9))            rg_local_actual_wr_length <- mkReg(0);
+
+`ifdef diff_clk
 Reg#(Bit#(9))            rg_actual_wr_length <- mkSyncRegFromCC(0,clk0);
 Reg#(Bit#(addr_width))           rg_wr_address       <- mkSyncRegFromCC(0,clk0);
-
+`else
+Reg#(Bit#(9))            rg_actual_wr_length <- mkReg(0);
+Reg#(Bit#(addr_width))   rg_wr_address       <- mkReg(0);
+`endif
+`ifdef diff_clk
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkSyncRegFromCC(0,clk0);
+`else
+Reg#(Bit#(3))            rg_awsize_sclk       <- mkReg(0);
+`endif
 
 Reg#(Bit#(9))            rg_burst_counter        <- mkReg(0);
 
@@ -408,34 +427,57 @@ Bool burst_eq = (rg_burst_counter == rg_local_actual_wr_length);
 
 Reg#(Bit#(2))          rg_packets          <- mkReg(0);
 Reg#(Bit#(2))          rg_packet_counter   <- mkReg(0);
+Reg#(Bit#(9))		   rg_rd_req_len	   <- mkReg(0, clocked_by clk0, reset_by rst0);
 
 
 Reg#(Write_state) rg_write_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
 Reg#(Read_state) rg_read_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
 
 FIFOF#(AXI4_Wr_Addr#(addr_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(1); // need to changed bcoz of bridge it is been changed
-FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(13);
-SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     <- mkSyncFIFOFromCC(17,clk0);
-SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    <- mkSyncFIFOFromCC(17,clk0);
-
-SyncFIFOIfc#(Bool) ff_sync_write_response<-mkSyncFIFOToCC(1,clk0,rst0);
+FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(5);
+`ifdef diff_clk
+SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     <- mkSyncFIFOFromCC(33,clk0);
+SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    <- mkSyncFIFOFromCC(33,clk0);
+SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
+`else
+FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
+FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedBRAMFIFOF(105);
+FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+`endif
 
    //FIFOF#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_addr <- mkSizedFIFOF(3);
-FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedFIFOF(86,clocked_by clk0, reset_by rst0);
+`ifdef diff_clk
+FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+`else
+FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(178);
+`endif
+`ifdef diff_clk
 SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSyncFIFOFromCC(1,clk0);
-SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(13,clk0,rst0);
-
+SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(4,clk0,rst0);
 SyncFIFOIfc#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(addr_cntrl_width)) ff_sync_ctrl_read<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSyncFIFOToCC(1,clk0,rst0);
-
+`else
+FIFOF#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSizedFIFOF(1);
+FIFOF#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <- mkSizedFIFOF(4);
+FIFOF#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSizedFIFOF(1);
+FIFOF#(Bit#(addr_cntrl_width)) ff_sync_ctrl_read<- mkSizedFIFOF(1);
+FIFOF#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSizedFIFOF(1);
+`endif
 // Polling Registers
 Reg#(Bit#(2)) rg_poll_cnt <- mkReg(0,clocked_by clk0, reset_by rst0);
+`ifdef diff_clk
 Reg#(Bool)    rg_polling_status <- mkSyncRegToCC(False,clk0,rst0);
+`else
+Reg#(Bool)    rg_polling_status <- mkReg(False);
+`endif 
 Reg#(Bool)    rg_polling_status_clk0 <- mkReg(False,clocked_by clk0, reset_by rst0);
-Reg#(Bool)    rg_rd_trnc_flg <- mkReg(False);
+Reg#(Bool)    rg_rd_trnc_flg <- mkReg(False,clocked_by clk0,reset_by rst0);
 Reg#(Bool)    rg_wr_trnc_flg <- mkReg(False);
 Reg#(bit)     rg_odd_len     <- mkReg(0);   
+
+`ifdef simulate 
+	Reg#(Bit#(9)) rg_debug_count <- mkReg(0);
 // hardcoding the parameter value to resolve provisos
 AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Slave_Xactor;
 AXI4_Slave_Xactor_IFC #(addr_cntrl_width, data_cntrl_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Slave_Xactor;
@@ -650,17 +692,23 @@ endrule
 
 /******************* WRITE TRANSACTION ****************/
 
-rule rl_parallel_addr_enq(rg_polling_status == True && rg_rd_trnc_flg == False);
+rule rl_parallel_addr_enq(rg_polling_status == True);
     let aw <- pop_o(s_xactor_sdram.o_wr_addr);
     ff_wr_addr.enq(aw);
-    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST Parallel addr: %h awlen %h awsize %h",aw.awaddr, aw.awlen, aw.awsize); `endif
+    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST ADDR: ",fshow(aw)); `endif
 endrule
 
-rule rl_parallel_data_enq(rg_polling_status == True && rg_rd_trnc_flg == False);
+rule rl_parallel_data_enq(rg_polling_status == True);
     let w  <- pop_o(s_xactor_sdram.o_wr_data);
     ff_wr_data.enq(w);      
     rg_wr_trnc_flg <= True;
-    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST Parallel enq %h stb %b",w.wdata, w.wstrb); `endif
+`ifdef simulate
+	if(w.wlast)
+		rg_debug_count<=0;
+	else
+		rg_debug_count <= rg_debug_count + 1;
+    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST Parallel: ",fshow(w), " count: %d",rg_debug_count); `endif
+`endif
 endrule
 
 rule rl_write_split_state(rg_wr_split_states == IDLE);
@@ -714,7 +762,7 @@ rule rl_write_data_splitting1(rg_wr_split_states == SEND_VALUE && rg_awsize != 2
     rg_wr_ac_wstrb <= 0;
 //    rg_wr_lwr_addr <= 0;
     rg_packet_counter <= 0;
-    `ifdef verbose $display($time,"Sending Value to the SDRAM burst size less than 2"); `endif
+    `ifdef verbose $display($time,"Sending Value %h to the SDRAM burst size less than 2",rg_wr_ac_data); `endif
     rg_wr_split_states <= START_SPLIT;
 endrule
 
@@ -722,7 +770,7 @@ rule rl_write_data_spliting3(rg_wr_split_states == START_SPLIT && rg_awsize == 2
     ff_ac_wr_data.enq(ff_wr_data.first.wdata);
     ff_ac_wr_wstrb.enq(ff_wr_data.first.wstrb);
     ff_wr_data.deq();
-    `ifdef verbose $display($time," SDRAM: Sending Value to the SDRAM burst size equal to 2"); `endif
+    `ifdef verbose $display($time," SDRAM: Sending Value %h to the SDRAM burst size equal to 2", ff_wr_data.first.wdata); `endif
 //    ff_wr_addr.deq();
 endrule
 
@@ -736,16 +784,22 @@ rule rl_start_write_transaction(rg_write_states == IDLE && wr_sdr_init_done == T
     end
 endrule
 
-rule rl_wait_delay(rg_write_states == WAIT_DELAY);
-    if(rg_delay_count == rg_cfg_write_delay) begin
+rule rl_wait_delay(rg_write_states == WAIT_DELAY && !rg_rd_trnc_flg);
+    if(rg_wr_count == rg_cfg_write_delay) begin
         rg_write_states <= WRITE_START;
-        rg_delay_count <= 0;
+        rg_wr_count <= 0;
     end
     else
-    rg_delay_count <= rg_delay_count + 1;
+    rg_wr_count <= rg_wr_count + 1;
 endrule
 
-rule rl_write_transaction_write_start(rg_write_states == WRITE_START && wr_sdr_init_done == True && rg_read_states == IDLE);
+`ifdef simulate
+//rule rl_assertion(rg_write_states == WRITE_START && wr_sdr_init_done == True);
+//    `ifdef verbose $display($time,"\t DEBUG_SDR: bitch %d",rg_actual_wr_length); `endif
+//endrule
+`endif
+
+rule rl_write_transaction_write_start(rg_write_states == WRITE_START && wr_sdr_init_done == True &&  !rg_rd_trnc_flg );
     `ifdef verbose $display($time,"\tSDRAM: WRITE_START state Controller Length %d",rg_actual_wr_length); `endif
     rg_app_req <= 1;
     rg_app_req_addr <= fn_wr_address(rg_wr_address);
@@ -754,7 +808,7 @@ rule rl_write_transaction_write_start(rg_write_states == WRITE_START && wr_sdr_i
     rg_app_wr_data <= 0;
     rg_app_wr_en_n <= 'hF;
     rg_write_states <= WRITE_FIRST;
-    rg_delay_count <= extend(rg_actual_wr_length) - 1;
+    rg_wr_count <= extend(rg_actual_wr_length) - 1;
 endrule
 
 rule rl_write_transaction_write_first(rg_write_states == WRITE_FIRST && wr_app_wr_next_req == False);
@@ -765,15 +819,15 @@ rule rl_write_transaction_write_first(rg_write_states == WRITE_FIRST && wr_app_w
 endrule
 
 rule rl_write_transaction_write_data(rg_write_states == WRITE_FIRST && wr_app_wr_next_req == True);
-`ifdef verbose $display($time,"\tSDRAM: WRITE_DATA state next is true sending data %x %b",ff_ac_wr_data.first,
-wr_app_wr_next_req); `endif
+`ifdef verbose $display($time,"\tSDRAM: WRITE_DATA state next is true sending data %x %b rg_wr_delay_cnt %d",ff_ac_wr_data.first,
+wr_app_wr_next_req, rg_wr_count); `endif
     rg_app_req <= 0;
     rg_app_wr_data <= ff_ac_wr_data.first();
     rg_app_wr_en_n <= ~(ff_ac_wr_wstrb.first());
     ff_ac_wr_data.deq;
     ff_ac_wr_wstrb.deq;
-    rg_delay_count <= rg_delay_count - 1;
-    if(rg_delay_count == 0) begin
+    rg_wr_count <= rg_wr_count - 1;
+    if(rg_wr_count == 0) begin
        rg_write_states <= IDLE;
 	   ff_sync_write_response.enq(True);
     end
@@ -799,14 +853,14 @@ endrule
 rule rl_paralel_read_req_enq(rg_polling_status == True && rg_wr_trnc_flg == False);
     let ar <- pop_o(s_xactor_sdram.o_rd_addr);
      ff_rd_addr.enq(ar);
-     rg_rd_trnc_flg <= True;
     `ifdef verbose	$display($time,"\tSDRAM: Got Read request from AXI for AddresS: %h arsize %h",ar.araddr, ar.arsize); `endif
 endrule
 
 rule rl_read_idle_state(rg_read_states == IDLE);
     if(ff_rd_addr.notEmpty() == True) begin
+	    rg_rd_trnc_flg <= True;
         rg_read_states <= START_READ;
-        rg_rd_not_active_flag <= 0;
+//        rg_rd_not_active_flag <= 0;
         `ifdef verbose  $display($time,"\tSDRAM: READ IDLE state"); `endif
     end
 
@@ -827,53 +881,70 @@ else
 rg_lwraddr <= extend(ar.araddr[1:0]);
 rg_arsize <= ar.arsize;
 rg_app_req_addr <= fn_wr_address(ar.araddr);
-rg_app_req_len <= fn_wr_len(ar.arlen, ar.arsize, ar.araddr[1:0]);
+let len = fn_wr_len(ar.arlen, ar.arsize, ar.araddr[1:0]);
+rg_app_req_len <= len; 
+rg_rd_req_len <= len - 1;
 rg_rd_actual_len <= extend(ar.arlen);
 rg_app_req_wr_n <= 1;
-rg_delay_count <= 0;
+rg_rd_sync_count <= 0;
 rg_read_states <= READ_DATA;
 rg_rid <= ar.arid;
 `ifdef verbose $display($time,"\t SSSSS SDRAM START_READ length "); `endif
 endrule
 
+//rule rl_check_drop(wr_app_rd_valid == True);
+//	$display($stime(),"\tSDRAM: Controller packet drop");
+//endrule
+
 rule rl_send_rd_data(wr_app_rd_valid == True);
-    `ifdef verbose $display($time,"\tSDRAM: READ DATA1 state %x",wr_app_rd_data); `endif
+    `ifdef verbose $display($time,"\tSDRAM: READ DATA1 state %x rg_rd_data_count %d acutal_len %d",wr_app_rd_data,rg_rd_data_count, rg_rd_req_len); `endif
     ff_rd_data.enq(wr_app_rd_data);
+	if(rg_rd_req_len == rg_rd_data_count)begin
+	  rg_rd_trnc_flg <= False;
+      rg_rd_data_count <= 0;
+   end
+   else 
+     rg_rd_data_count <= rg_rd_data_count + 1;
 endrule
 
 rule rl_send_read_data(rg_read_states==READ_DATA);
 `ifdef verbose $display($time,"\tSDRAM: Response from BFM. RequestLenght: %d CurrentCount: %d",rg_rd_actual_len,
-rg_delay_count); `endif
+rg_rd_sync_count); `endif
 rg_app_req_wrap <= 0;
-if(rg_lwraddr < 4) begin
+if(rg_lwraddr <= 3) begin
       let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: fn_rd_data(rg_arsize, extend(rg_lwraddr), ff_rd_data.first), rlast: 
-      (rg_rd_actual_len == rg_delay_count), ruser: 0, rid: rg_rid};
+      (rg_rd_actual_len == rg_rd_sync_count), ruser: 0, rid: rg_rid};
   		  ff_sync_read_response.enq(r);
   		 // ff_rd_addr.deq;
-  		  if(rg_arsize != 2)
-		      rg_lwraddr <= rg_lwraddr + (1 << rg_arsize);
-		  else begin
-  		      ff_rd_data.deq;
   		`ifdef verbose $display($time,"\tSDRAM: SENDING READ DATA : %h, rg_lwraddr %b rg_arsize %d", 
           fn_rd_data(rg_arsize, extend(rg_lwraddr), ff_rd_data.first),rg_lwraddr, rg_arsize); `endif
-		 end
+  		  if(rg_arsize != 2) begin
+		      rg_lwraddr <= rg_lwraddr + (1 << rg_arsize);
+			  if(rg_arsize == 1 && rg_lwraddr == 'b10)
+				ff_rd_data.deq;
+			  else if(rg_arsize == 0 && rg_lwraddr == 'b11)
+				ff_rd_data.deq;	
+		  end
+		  else begin
+  		      ff_rd_data.deq;
+ 		  end
   			`ifdef verbose $display($time,"\tSDRAM: Removing Request for Addr : %h",ff_rd_addr.first.araddr); `endif
-   if(rg_delay_count == rg_rd_actual_len) begin
-    `ifdef verbose  $display($time,"\tSDRAM: SENT ALL READ DATA state rg_delay_count %d rg_rd_actual_len %d", 
-    rg_delay_count, rg_rd_actual_len); `endif
+   if(rg_rd_sync_count == rg_rd_actual_len) begin
+    `ifdef verbose  $display($time,"\tSDRAM: SENT ALL READ DATA state rg_rd_sync_count %d rg_rd_actual_len %d", 
+    rg_rd_sync_count, rg_rd_actual_len); `endif
       rg_read_states <= READ_FLUSH;
       ff_rd_addr.deq;
-      rg_rd_not_active_flag <= 1;
-      rg_delay_count <= 0;
+	  rg_rd_sync_count <= 0;
+    //  rg_rd_not_active_flag <= 1;
    end
-   else 
-     rg_delay_count <= rg_delay_count + 1;
+   else
+	 rg_rd_sync_count <= rg_rd_sync_count + 1;	
  end
- else if(rg_lwraddr > 3) begin
-        `ifdef verbose $display($time,"\tSDRAM: Dequeuing ff READ"); `endif
-        rg_lwraddr <= 0;
-        ff_rd_data.deq;
- end
+// else if(rg_lwraddr > 3) begin
+//        `ifdef verbose $display($time,"\tSDRAM: Dequeuing ff READ"); `endif
+//        rg_lwraddr <= 0;
+////        ff_rd_data.deq;
+// end
 endrule
 
 rule rl_flush_redundant_data(rg_read_states == READ_FLUSH);
@@ -885,8 +956,7 @@ rule send_synchronized_read_response(ff_sync_read_response.notEmpty);
   let r=ff_sync_read_response.first;
   `ifdef verbose	$display($time,"\tSDRAM: Sending Read response: %h rlast: %b",r.rdata,r.rlast); `endif
   ff_sync_read_response.deq;
-  if(rg_rd_not_active_flag == 1)
-  rg_rd_trnc_flg <= False;
+  //if(rg_rd_not_active_flag == 1)
   s_xactor_sdram.i_rd_data.enq(r);
 endrule
 
