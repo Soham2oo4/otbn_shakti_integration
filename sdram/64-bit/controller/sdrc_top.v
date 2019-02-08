@@ -100,7 +100,6 @@ module sdrc_top
 		/* Parameters */
                     sdr_init_done       ,
                     cfg_req_depth       ,	        //how many req. buffer should hold
-                    cfg_mem_type        ,
                     cfg_sdr_en          ,
                     cfg_sdr_mode_reg    ,
                     cfg_sdr_tras_d      ,
@@ -203,7 +202,6 @@ input [3:0] 	                 cfg_sdr_tras_d      ; // Active to precharge delay
 input [3:0]                      cfg_sdr_trp_d       ; // Precharge to active delay
 input [3:0]                      cfg_sdr_trcd_d      ; // Active to R/W delay
 input 			                 cfg_sdr_en          ; // Enable SDRAM controller
-input 			                 cfg_mem_type        ; // Enable WinBond Memory Type 
 input [1:0] 		             cfg_req_depth       ; // Maximum Request accepted by SDRAM controller
 input [12:0]       		         cfg_sdr_mode_reg    ;
 input [2:0] 			         cfg_sdr_cas         ; // SDRAM CAS Latency
@@ -312,7 +310,6 @@ sdrc_core #(.SDR_DW(SDR_DW) , .SDR_BW(SDR_BW)) u_sdrc_core (
           .sdr_den_n          (sdr_den_n          ) ,
  
  		/* Parameters */
-          .cfg_mem_type       (cfg_mem_type       ) ,
           .cfg_sdr_en         (cfg_sdr_en         ) ,
           .cfg_sdr_mode_reg   (cfg_sdr_mode_reg   ) ,
           .cfg_sdr_tras_d     (cfg_sdr_tras_d     ) ,

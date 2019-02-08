@@ -160,12 +160,12 @@ module sdrc_core
 `define  REQ_BW    (`TARGET_DESIGN == `FPGA) ? 6 : 12   //  Request Width
   
 parameter  APP_AW   = 26;  // Application Address Width
-parameter  APP_DW   = 64;  // Application Data Width 
-parameter  APP_BW   = 8;   // Application Byte Width
+parameter  APP_DW   = 32;  // Application Data Width 
+parameter  APP_BW   = 4;   // Application Byte Width
 parameter  APP_RW   = 9;   // Application Request Width
 
-parameter  SDR_DW   = 64;  // SDR Data Width 
-parameter  SDR_BW   = 8;   // SDR Byte Width
+parameter  SDR_DW   = 32;  // SDR Data Width 
+parameter  SDR_BW   = 4;   // SDR Byte Width
              
 
 //-----------------------------------------------
