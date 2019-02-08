@@ -481,6 +481,8 @@ endmodule
             Add#(o__, TLog#(no_of_ir_pins), 64)
 			);
 
+		let strb_size = valueOf(TSub#(TDiv#(data_width,8),1));
+
 		AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic();
 
@@ -502,7 +504,7 @@ endmodule
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
 				Bit#(3) byte_offset=0;
-				for(Integer i=7; i >= 0; i=i-1) begin 
+				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
 				end
@@ -522,7 +524,7 @@ endmodule
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
 				Bit#(3) byte_offset=0;
-				for(Integer i=7; i >= 0; i=i-1) begin 
+				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
 				end
