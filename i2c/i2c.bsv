@@ -616,7 +616,7 @@ endfunction
           ad0_lrb <= 0;      
           dOutEn<= True;     
           mTransFSM <= Intrpt;
-          `logLevel(2, $format("Acknowledgement Received. Waiting For Interupt Serve ",$time)) 
+          `logLevel(2, $format("Acknowledgement Received. Waiting For Interupt Serve ")) 
         end
       endrule
 
@@ -677,7 +677,7 @@ endfunction
         
       (* doc = "Shift the 8-bit data through the SDA line at each low pulse of SCL" *)
       rule send_data(mTransFSM == SendData && sclSync);  
-        `logLevel(2, $format("WData: TriState SDA Value : %b", val_SDA._read,$time))
+        `logLevel(2, $format("WData: TriState SDA Value : %b", val_SDA._read))
         if(dataBit == 'd0) begin  //~ smthhng
           mTransFSM <= Ack;
           dOutEn <= False;
@@ -748,7 +748,7 @@ endfunction
 
       (* doc = "Send a STOP bit signifying no more transaction from this master" *)
       rule send_stop_condition(stopBit && pwesoCond && val_SCL_in == 1); //~ it might be fal edge
-        `logLevel(2, $format("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read,$time))
+        `logLevel(2, $format("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read))
         if(val_SDA == 1) begin
           mTransFSM <= Idle;
           //  statusReg  <= 'b0000001;
@@ -768,7 +768,7 @@ endfunction
 																									AccessSize size);
    
         //TODO - What if a read request is issued to the data register
-        `logLevel(2, $format("AXI Read Request time %d pin %d",$time,pin))
+        `logLevel(2, $format("AXI Read Request time %d pin %d",pin))
         if(truncate(addr) == pack(S0)) begin
    	     pin <=1;      
 	       `logLevel(2, $format("Setting pin to 1 in read phase"))
@@ -785,10 +785,9 @@ endfunction
 
 		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-        `logLevel(2, $format("AXI Write Request  ",$time))
         `logLevel(2, $format("Wr_addr : %h Wr_data: %h", addr, data))
         let err <- set_i2c(unpack(truncate(addr)),truncate(data));
-        `logLevel(2, $format("Received Value %d",wr_data.wdata))
+        `logLevel(2, $format("Received Value %d",data))
         if(ber==1)
           return True;
         else
