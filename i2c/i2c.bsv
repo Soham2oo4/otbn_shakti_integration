@@ -28,7 +28,7 @@ I2C Controller top module which is compliant with UM10204 I2C Specification prov
 Semiconductors. This is a single master, multiple slave controller.
 */
 // ================================================
-package I2C_top;
+package i2c;
 // Bluespec Libraries
 import  TriState         ::*;
 import  Counter          ::*;
@@ -38,46 +38,108 @@ import  AXI4_Lite_Types  ::*;
 import  AXI4_Lite_Fabric ::*;
 import  AXI4_Types ::*;
 import  AXI4_Fabric ::*;
+import device_common::*;
 
 import  ConcatReg        ::*;
 import  BUtils            ::*;
-import  I2C_Defs         ::*;
 import  Semi_FIFOF       ::*;
-import  common_types:: * ;
 import  Clocks::*;
 import  FIFO::*;
-`include "I2C_Defs.bsv"
+`include "i2c.defs"
+`include "Logger.bsv"
 
     
+typedef union tagged {
+  void Dead;
+  void Idle;
+  void STA;
+  void NAck_1;
+  void RTSTA;
+  void SendAddr;
+  void Intrpt;
+  void SendData;
+  void ReadData;
+  void ResetI2C;
+  void BError;
+  void Ack;
+  void NAck;
+  void SwitchMode;
+  void MultipleTrans;
+  void End;
+  void Idleready;
+} MTrans_State deriving (Bits, Eq);
+
+typedef union tagged {
+  void Dead;
+  void Idle;
+  void STA;
+  void SendAddr;
+  void Intrpt;
+  void ReadData;
+  void Ack;
+  void NAck;
+  void End;
+} MRecv_State  deriving (Bits, Eq);
+
+typedef enum    {
+    Write,
+    Read
+} Transaction deriving (Bits, Eq);
+
+// ================================================
+// I2C Registers Map -- Custom for now. Should Adhere to the Driver
+typedef enum {
+    //Registers
+     S2         = 'h00,
+     Control    = 'h08,
+     S0         = 'h10,
+     Status     = 'h18,
+     S01        = 'h20,
+     S3         = 'h28,
+     Time       = 'h30,
+     SCL        = 'h38,     
+     DRV0       = 'h40,     
+     DRV1       = 'h48,     
+     DRV2       = 'h50,     
+     PD         = 'h58,     
+     PPEN       = 'h60,     
+     PRG_SLEW   = 'h68,     
+     PUQ        = 'h70,     
+     PWRUPZHL   = 'h78,     
+     PWRUP_PULL_EN= 'h80     
+}I2C deriving (Bits, Eq);
+
+typedef Bit#(8) I2C_RegWidth;
+
 //  ==============================================
 //  Function Definitions
-    function Reg#(t) readOnlyReg(t r);
-        return (interface Reg;
-            method t _read = r;
-            method Action _write(t x) = noAction;
-        endinterface);
-    endfunction
+function Reg#(t) readOnlyReg(t r);
+    return (interface Reg;
+        method t _read = r;
+        method Action _write(t x) = noAction;
+    endinterface);
+endfunction
 
-    function Reg#(t) writeOnlyReg(Reg#(t) r)  
-        provisos(
-            Literal#(t)
-                );
-        return (interface Reg;
-            method t _read = 0;
-            method Action _write(t x);
+function Reg#(t) writeOnlyReg(Reg#(t) r)  
+    provisos(
+        Literal#(t)
+            );
+    return (interface Reg;
+        method t _read = 0;
+        method Action _write(t x);
+            r._write(x);
+        endmethod
+    endinterface);
+endfunction
+function Reg#(t) conditionalWrite(Reg#(t) r, Bool a);
+    return (interface Reg;
+        method t _read = r._read;
+        method Action _write(t x);
+                if(a)
                 r._write(x);
-            endmethod
-        endinterface);
-    endfunction
-    function Reg#(t) conditionalWrite(Reg#(t) r, Bool a);
-        return (interface Reg;
-            method t _read = r._read;
-            method Action _write(t x);
-                    if(a)
-                    r._write(x);
-            endmethod
-        endinterface);
-    endfunction
+        endmethod
+    endinterface);
+endfunction
 // ================================================
 // Interface Declarations
    (*always_enabled, always_ready*)
@@ -88,39 +150,24 @@ import  FIFO::*;
        method Bit#(1) sda_out;
        method Action sda_in(Bit#(1) in);
        method Bool sda_out_en;
-       //method Bit#(1) i2c_DRV0;
-       //method Bit#(1) i2c_DRV1;
-       //method Bit#(1) i2c_DRV2;
-       //method Bit#(1) i2c_PD;
-       //method Bit#(1) i2c_PPEN;
-       //method Bit#(1) i2c_PRG_SLEW;
-       //method Bit#(1) i2c_PUQ;
-       //method Bit#(1) i2c_PWRUPZHL;
-       //method Bit#(1) i2c_PWRUP_PULL_EN;
+       method Bit#(1) i2c_DRV0;
+       method Bit#(1) i2c_DRV1;
+       method Bit#(1) i2c_DRV2;
+       method Bit#(1) i2c_PD;
+       method Bit#(1) i2c_PPEN;
+       method Bit#(1) i2c_PRG_SLEW;
+       method Bit#(1) i2c_PUQ;
+       method Bit#(1) i2c_PWRUPZHL;
+       method Bit#(1) i2c_PWRUP_PULL_EN;
     endinterface
 
         
     interface Ifc_i2c_user#(numeric type addr_width, numeric type data_width, numeric type user_width);
-    `ifdef CORE_AXI4Lite
-      method ActionValue#(AXI4_Lite_Rd_Data#(data_width,user_width)) read_req_rsp(
-                                            AXI4_Lite_Rd_Addr#(addr_width,user_width) axi4_packet
-                                                                                 );
-      method ActionValue#(AXI4_Lite_Wr_Resp#(user_width)) write_req_rsp(
-                                            AXI4_Lite_Wr_Addr#(addr_width,user_width) wr_addr,
-                                            AXI4_Lite_Wr_Data#(data_width) wr_data
-                                                                       );
-     `endif
-    `ifdef CORE_AXI4
-      method ActionValue#(AXI4_Rd_Data#(data_width,user_width)) read_req_rsp(
-                                            AXI4_Rd_Addr#(addr_width,user_width) axi4_packet
-                                                                                 );
-      method ActionValue#(AXI4_Wr_Resp#(user_width)) write_req_rsp(
-                                            AXI4_Wr_Addr#(addr_width,user_width) wr_addr,
-                                            AXI4_Wr_Data#(data_width) wr_data
-                                                                       );
-     `endif
-
-      interface I2C_out out;
+		  method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
+																									AccessSize size);
+		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
+																									AccessSize size);
+      interface I2C_out io;
       (* always_enabled, always_ready *) 
       method Bit#(1) isint();
       method Action resetc (Bit#(1) rst);
@@ -262,35 +309,36 @@ import  FIFO::*;
 
 
       //Function to access Registers
-      function I2C_RegWidth get_i2c(I2C i2c);
-        Reg#(I2C_RegWidth) regi2c = (case (i2c)
-          Control : mcontrolReg;   //~ Are we creating new reg each time
-          Status  : mstatusReg;
-          S01     : s01;
-          S0      : s0;
-          S2      : s2;
-          S3      : s3; 
-          DRV0    : drv0_rg;
-          DRV1    : drv1_rg;
-          DRV2    : drv2_rg;
-          PD      : pd_rg;
-          PPEN    : ppen_rg;
-          PRG_SLEW: prg_slew_rg;
-          PUQ     : puq_rg;
-          PWRUPZHL: pwrupzhl_rg;
-          PWRUP_PULL_EN    : pwrup_pull_en_rg;
-          default : readOnlyReg(8'b0);
-        endcase );
-        return regi2c;
+      function Tuple2#(Bool,Bit#(data_width)) get_i2c(I2C i2c);
+        case (i2c)
+          Control         : return tuple2(False,duplicate(mcontrolReg));   //~ Are we creating new reg each time
+          Status          : return tuple2(False,duplicate(mstatusReg));
+          S01             : return tuple2(False,duplicate(s01));
+          S0              : return tuple2(False,duplicate(s0));
+          S2              : return tuple2(False,duplicate(s2));
+          S3              : return tuple2(False,duplicate(s3)); 
+          Time            : return tuple2(False,duplicate(i2ctime));
+          SCL             : return tuple2(False,duplicate(c_scl));
+          DRV0            : return tuple2(False,duplicate(drv0_rg));
+          DRV1            : return tuple2(False,duplicate(drv1_rg));
+          DRV2            : return tuple2(False,duplicate(drv2_rg));
+          PD              : return tuple2(False,duplicate(pd_rg));
+          PPEN            : return tuple2(False,duplicate(ppen_rg));
+          PRG_SLEW        : return tuple2(False,duplicate(prg_slew_rg));
+          PUQ             : return tuple2(False,duplicate(puq_rg));
+          PWRUPZHL        : return tuple2(False,duplicate(pwrupzhl_rg));
+          PWRUP_PULL_EN   : return tuple2(False,duplicate(pwrup_pull_en_rg));
+          default : return tuple2(True,0);
+        endcase
       endfunction
 
       //Function to write into the registers
-      function Action set_i2c(I2C i2c,Bit#(32) value );
-        action
+      function ActionValue#(Bool) set_i2c(I2C i2c,Bit#(32) value )= actionvalue
+          Bool err=False;
           case(i2c) 
             Control : begin
               zero <= 0;  //Indicates to the Driver that the control register has been written in the beginning
-              $display("Control Written");
+              `logLevel(2, $format("Control Written"))
               if(!intCond && mTransFSM != NAck) 
               	configchange <=1;
               if(value[2:1] == 2 && (intCond || mTransFSM == NAck) && bb == 0 ) begin  //RT START  CONDITIONS
@@ -299,13 +347,13 @@ import  FIFO::*;
             	  mTransFSM <= RTSTA;
             	  dOutEn<= True;
             	  cOutEn<=True;
-            	  $display("Repeated Start Instruction received");
+            	  `logLevel(2, $format("Repeated Start Instruction received"))
             	  controlReg <= 8'hc5 | truncate(value);       //TODO 45h Check this out
             	  val_SDA <= 1;
             	  sendInd <= 2;
               end
               else if(value[2:1] == 2 && bb == 0) begin
-              	$display("Invalid Rt Start");
+              	`logLevel(2, $format("Invalid Rt Start"))
               	mTransFSM <= End;
               	dOutEn <= True;
               	cOutEn <= True;
@@ -315,8 +363,8 @@ import  FIFO::*;
               else
                 mcontrolReg._write(truncate(value)); 
             end
-            S01: begin s01._write(truncate(value)); $display("S01 written"); end
-            S0 : begin s0._write(truncate(value)); $display("S0 written"); pin <=1; end
+            S01: begin s01._write(truncate(value)); `logLevel(2, $format("S01 written")) end
+            S0 : begin s0._write(truncate(value)); `logLevel(2, $format("S0 written")) pin <=1; end
             S2 : begin
               if(eso == 0) begin
                 mod_start <= True;
@@ -325,7 +373,7 @@ import  FIFO::*;
                 mTransFSM <= Idle;	 
                 s2._write(truncate(value));
               end
-              $display("S2 written"); 
+              `logLevel(2, $format("S2 written")) 
             end
             S3 :  s3._write(truncate(value));  //~ default
             SCL: begin
@@ -336,7 +384,7 @@ import  FIFO::*;
 				        c_scl._write(truncate(value));
                 mTransFSM <= Idle;	 
 				      end 
-				      $display("Received scl but eso was %d",eso);
+				      `logLevel(2, $format("Received scl but eso was %d",eso))
 			      end 
             Time    : i2ctime._write(truncate(value));
             DRV0    : drv0_rg <= value[7:0];
@@ -348,10 +396,11 @@ import  FIFO::*;
             PUQ     : puq_rg  <= value[7:0];
             PWRUPZHL: pwrupzhl_rg <= value[7:0];
             PWRUP_PULL_EN    : pwrup_pull_en_rg <= value[7:0];
-            default : noAction;
+            default : err=True;
           endcase
-        endaction
-      endfunction
+          return err;
+        endactionvalue;
+      
 
       (* doc = "This sets the module's operating frequency based on the values in s2 register", 
          doc = "Assuming Processor operates at 50MHz for now", 
@@ -365,7 +414,7 @@ import  FIFO::*;
       (* mutually_exclusive = "set_scl_clock,count_scl,restore_scl" *)
 
       rule set_i2c_clock (mod_start && eso==1'b0); //Sync problems might be there - check  //~ eso is mkregU + shouldnt it be 0 
-        $display("I2C is Setting");
+        `logLevel(2, $format("I2C is Setting"))
         mod_start <= False;
         // TODO Currently I2C clock can be set only once when starting -- should see if it should 
         //    dynamically changed
@@ -375,7 +424,7 @@ import  FIFO::*;
 
       (* doc = "This rule is used to select one of the SCL clock frequencies among the ones based on the s2 register encoding" *)
       rule set_scl_clock(scl_start && eso == 1'b0 ); //~ eso should be 0 + regU not
-        $display("SCL is Setting");
+        `logLevel(2, $format("SCL is Setting"))
         scl_start <= False;
         coSCL <= c_scl;
         reSCL <= c_scl;
@@ -449,21 +498,21 @@ import  FIFO::*;
       (* doc = "Checks the control Reg (after Driver updates it) and based on byte loaded goes to Write/Read" *)
       rule check_control_reg(configchange == 1 && pwesoCond && !intCond && mTransFSM != Idle 
                                                     && mTransFSM !=NAck); //~ mod edge and serial on 
-        $display("Configchanged fire");
+        `logLevel(2, $format("Configchanged fire"))
         configchange <= 0 ;  // Discuss For More than 1 enques 
         if(controlReg[2:1] == 2  && bb==0) begin  // Start 
-          $display("Invalid Start");
+          `logLevel(2, $format("Invalid Start"))
         end
         else if(controlReg[2:1] == 2) begin
            mTransFSM <= STA;
            st_toggle <= True;
            val_SDA <= 1;
-           $display("Start Received");
+           `logLevel(2, $format("Start Received"))
            dOutEn <= True;
            cOutEn <= True;
         end
         else if(controlReg[2:1] == 1 ) begin // Stop 
-          $display("Invalid Stop",mTransFSM);
+          `logLevel(2, $format("Invalid Stop",mTransFSM))
     			mTransFSM <= End;
     			dOutEn <= True;
     			cOutEn <= True;
@@ -490,10 +539,10 @@ import  FIFO::*;
       (* doc = "Send Start bit to the Slave" *)
       //~ pwi2c & i2c on & both transrec - sta 
       rule send_start_trans(val_SCL_in == 1 && startBit && pwesoCond && bb == 1);
-        $display("Came Here",sendInd);
+        `logLevel(2, $format("Came Here",sendInd))
         if(val_SDA == 0) begin
           mTransFSM <= SendAddr;  //~Once Cycle Delay whats 0-1 ?
-          $display("start sent");
+          `logLevel(2, $format("start sent"))
           bb  <= 0;        
           sta <=0 ; 
           s3 <=  'h0B;                      
@@ -505,10 +554,10 @@ import  FIFO::*;
       endrule
       //~ pwi2c & i2c on & both transrec - sta
       rule send_rtstart_trans(val_SCL_in == 1 && mTransFSM == RTSTA  && pwesoCond ); 
-        $display("Here");
+        `logLevel(2, $format("Here"))
         if(val_SDA == 0)begin //If I read val_SDA - Next transaction is x or it is normal--- Why?  //~ it was because of code bug send ind going to -1
           mTransFSM <= Intrpt;  //~Once Cycle Delay whats 0-1 ?
-          $display("RT start sent");
+          `logLevel(2, $format("RT start sent"))
           pin<=0;
           i2ctimeout <=1;
           bb  <= 0;
@@ -532,16 +581,16 @@ import  FIFO::*;
 		        operation <= Write;
 		      else
 		        operation <= Read;
-          $display("Address Sent");
+          `logLevel(2, $format("Address Sent"))
         end
         else begin
           dataBit <= dataBit - 1;
           val_SDA <= s0[dataBit-1];
-          $display("Sending Bit %d In neg cycle Bit %d ", dataBit - 1,s0[dataBit-1]);
+          `logLevel(2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit - 1,s0[dataBit-1]))
         end
       endrule    
       rule check_Ack(ackCond && pwsclCond);  //Should Fire When SCL is high  //~shouldn't it be pwsclcond or sclsync
-        //$display("Value : %d ,Condition : ",line_SDA,line_SDA!=0 );
+        //`logLevel(2, $format("Value : %d ,Condition : ",line_SDA,line_SDA!=0 ))
         dataBit <= 8;
         i2ctimeout <= 1;
         if(val_SDA_in != 0 && val_SCL == 0 ) begin //Line SCL is actually high
@@ -555,11 +604,11 @@ import  FIFO::*;
               s3 <= 'h04;
           else
               s3 <= 'h05;
-          $display("Acknowledgement Not Received Bus Error");
+          `logLevel(2, $format("Acknowledgement Not Received Bus Error"))
         end
         else if(val_SCL == 1) begin // Acknowledgement is done // Here line scl is actually low 
           pin <= 0;
-      		$display("eni : %d",eni);
+      		`logLevel(2, $format("eni : %d",eni))
           if(mTransFSM == SendAddr || mTransFSM == SendData )
             s3 <= 'h02;
           else
@@ -567,7 +616,7 @@ import  FIFO::*;
           ad0_lrb <= 0;      
           dOutEn<= True;     
           mTransFSM <= Intrpt;
-          $display("Acknowledgement Received. Waiting For Interupt Serve ",$time); 
+          `logLevel(2, $format("Acknowledgement Received. Waiting For Interupt Serve ",$time)) 
         end
       endrule
 
@@ -587,31 +636,31 @@ import  FIFO::*;
             st_toggle <= False;
         end
         else begin
-          $display("Interupt Is Served. Along with pin & control reg - %d & operation - %d ",
-                                                                              controlReg,operation);
+          `logLevel(2, $format("Interupt Is Served. Along with pin & control reg - %d & operation - %d ",
+                                                                              controlReg,operation))
           i2ctimeout <= 1;
           st_toggle <= True;
           if(controlReg[2:1] == 2) begin
-          	$display("Invalid Start");
+          	`logLevel(2, $format("Invalid Start"))
           	ber <=1 ;
           	mTransFSM <= ResetI2C;
           end
           else if(controlReg[2:1] == 1) begin       //Signalling the end of transaction
             mTransFSM <= End; 
             val_SDA <= 0;
-            $display("Received Stop Condition ",val_SDA); 
+            `logLevel(2, $format("Received Stop Condition ",val_SDA)) 
           end
           else if(s3 == 'h0A) begin 
             mTransFSM <= SendAddr;
             dOutEn <= True;
-            $display("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]);
+            `logLevel(2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
             dataBit <= dataBit - 1;
             val_SDA <= s0[dataBit - 1];
           end
           else if(operation == Write) begin
             mTransFSM <= SendData;
             dOutEn <= True;
-            $display("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]);
+            `logLevel(2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
             dataBit <= dataBit - 1;
             val_SDA <= s0[dataBit - 1];
           end
@@ -628,14 +677,14 @@ import  FIFO::*;
         
       (* doc = "Shift the 8-bit data through the SDA line at each low pulse of SCL" *)
       rule send_data(mTransFSM == SendData && sclSync);  
-        $display("WData: TriState SDA Value : %b", val_SDA._read,$time);
+        `logLevel(2, $format("WData: TriState SDA Value : %b", val_SDA._read,$time))
         if(dataBit == 'd0) begin  //~ smthhng
           mTransFSM <= Ack;
           dOutEn <= False;
-          $display("Leaving Bus For Acknowledge");
+          `logLevel(2, $format("Leaving Bus For Acknowledge"))
         end 
         else begin
-          $display("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]);
+          `logLevel(2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
           dataBit <= dataBit - 1;
           val_SDA <= s0[dataBit - 1];
         end
@@ -643,7 +692,7 @@ import  FIFO::*;
         
       (* doc = "Receive the 8-bit data through the SDA line at each high pulse of SCL" *)
       rule receive_data(mTransFSM == ReadData && sclnSync);  //~ Rising Edge  
-        $display("Receiving Bit %d In Positive Cycle And Bit %d",dataBit - 1,val_SDA_in);
+        `logLevel(2, $format("Receiving Bit %d In Positive Cycle And Bit %d",dataBit - 1,val_SDA_in))
         dataBit <= dataBit - 1;
         s0[dataBit - 1 ] <= val_SDA_in;        
       endrule
@@ -654,7 +703,7 @@ import  FIFO::*;
           if(resetcount == 'd59) begin 
             ber <= 0;
             mTransFSM <= ResetI2C;
-            $display("Resetting");
+            `logLevel(2, $format("Resetting"))
             s3 <= 'h07;
           end
         end
@@ -666,13 +715,13 @@ import  FIFO::*;
                                               ( dataBit == 0  || dataBit == 8) );  //~ Falling Edge 	
         if(dataBit == 0) begin
           if(!last_byte_read) begin
-            $display("Going to Ack, Taking controll of the bus btw");
+            `logLevel(2, $format("Going to Ack, Taking controll of the bus btw"))
             mTransFSM <= Ack;
             val_SDA <= 0;
             dOutEn <= True;
           end         
           else begin
-            $display("Going to NAck, Taking controll of the bus btw");
+            `logLevel(2, $format("Going to NAck, Taking controll of the bus btw"))
             mTransFSM <= NAck_1;
             val_SDA <= 1;
             dataBit <= 8 ;
@@ -699,7 +748,7 @@ import  FIFO::*;
 
       (* doc = "Send a STOP bit signifying no more transaction from this master" *)
       rule send_stop_condition(stopBit && pwesoCond && val_SCL_in == 1); //~ it might be fal edge
-        $display("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read,$time);
+        `logLevel(2, $format("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read,$time))
         if(val_SDA == 1) begin
           mTransFSM <= Idle;
           //  statusReg  <= 'b0000001;
@@ -715,84 +764,55 @@ import  FIFO::*;
 
         //Rules for Communicating with AXI-4 
         //TODO - Code different conditions such as only certain registers can be accessed at certain times
-   `ifdef CORE_AXI4Lite
-      method ActionValue#(AXI4_Lite_Rd_Data#(data_width,user_width)) read_req_rsp(
-                                            AXI4_Lite_Rd_Addr#(addr_width,user_width) axi4_packet
-                                                                                   );
-   `else
-      method ActionValue#(AXI4_Rd_Data#(data_width,user_width)) read_req_rsp(
-                                            AXI4_Rd_Addr#(addr_width,user_width) axi4_packet
-                                                                                   );
-   `endif
+		  method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
+																									AccessSize size);
    
         //TODO - What if a read request is issued to the data register
-        $display("AXI Read Request time %d pin %d",$time,pin);
-        let req = axi4_packet;
-        I2C i2c = S0;
-        if(truncate(req.araddr) == pack(i2c)) begin
+        `logLevel(2, $format("AXI Read Request time %d pin %d",$time,pin))
+        if(truncate(addr) == pack(S0)) begin
    	     pin <=1;      
-	       $display("Setting pin to 1 in read phase");
+	       `logLevel(2, $format("Setting pin to 1 in read phase"))
         end
-        else 
-         $display("Not equal %h, %h",req.araddr,pack(i2c));
-   	    I2C i2c1 = Status;  
-   	    if(truncate(req.araddr) == pack(i2c1)) begin
-   	       $display("Clearing Status Bits");
+   	    else if(truncate(addr) == pack(Status)) begin
+   	       `logLevel(2, $format("Clearing Status Bits"))
    	       ber <= 0;  	             
    	    end
-	      I2C i2c2 = SCL;
-	      I2C i2c3 = Time; 
-	      Bit#(data_width) rdreg ;
-	      if(truncate(req.araddr) == pack(i2c2))
-		      rdreg = duplicate(c_scl);
-	      else if(truncate(req.araddr) == pack(i2c3))
-		      rdreg = duplicate(i2ctime);
-	      else
-          rdreg =  duplicate(get_i2c(unpack(truncate(req.araddr))));
-        $display("Register Read  %h: Value: %d ",req.araddr,rdreg);
-        `ifdef CORE_AXI4Lite
-          let resq = AXI4_Lite_Rd_Data {rresp : AXI4_LITE_OKAY, rdata : rdreg ,ruser: 0};
-        `else
-          let resq = AXI4_Rd_Data {rresp : AXI4_OKAY, rdata : rdreg ,ruser: 0};
-        `endif
-        return resq;
+	     
+        let {err,data} =  get_i2c(unpack(truncate(addr)));
+        `logLevel(2, $format("Register Read  %h: Value: %d ",addr,data))
+        return tuple2(data,err);
       endmethod
 
-    `ifdef CORE_AXI4Lite
-      method ActionValue#(AXI4_Lite_Wr_Resp#(user_width)) write_req_rsp(
-                                            AXI4_Lite_Wr_Addr#(addr_width,user_width) wr_addr,
-                                            AXI4_Lite_Wr_Data#(data_width) wr_data
-                                                                       );
-    `else
-      method ActionValue#(AXI4_Wr_Resp#(user_width)) write_req_rsp(
-                                            AXI4_Wr_Addr#(addr_width,user_width) wr_addr,
-                                            AXI4_Wr_Data#(data_width) wr_data
-                                                                       );
-    `endif
-        $display("AXI Write Request  ",$time);
-        $display("Wr_addr : %h Wr_data: %h", wr_addr.awaddr, wr_data.wdata);
-        set_i2c(unpack(truncate(wr_addr.awaddr)),truncate(wr_data.wdata));
-
-      `ifdef CORE_AXI4Lite
-        let resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: wr_addr.awuser};
+		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
+																									AccessSize size);
+        `logLevel(2, $format("AXI Write Request  ",$time))
+        `logLevel(2, $format("Wr_addr : %h Wr_data: %h", addr, data))
+        let err <- set_i2c(unpack(truncate(addr)),truncate(data));
+        `logLevel(2, $format("Received Value %d",wr_data.wdata))
         if(ber==1)
-		      resp =  AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: wr_addr.awuser};
- 	      else
- 	        resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_OKAY, buser: wr_addr.awuser};
-      `else
-        let resp = AXI4_Wr_Resp {bresp: AXI4_SLVERR, buser: wr_addr.awuser};
-        if(ber==1)
-		      resp =  AXI4_Wr_Resp {bresp: AXI4_SLVERR, buser: wr_addr.awuser};
- 	      else
- 	        resp = AXI4_Wr_Resp {bresp: AXI4_OKAY, buser: wr_addr.awuser};
-      `endif
-        $display("Received Value %d",wr_data.wdata);
-	      return resp;
+          return True;
+        else
+  	      return err;
       endmethod
 
-      interface I2C_out out;
+      interface I2C_out io;
         method Bit#(1) scl_out;
             return val_SCL;
+        endmethod
+        method Action scl_in(Bit#(1) in);
+            val_SCL_in <= in;
+        endmethod
+        method Bool scl_out_en;
+            return (cOutEn && eso == 1'b1);
+        endmethod
+        method Bit#(1) sda_out;
+            return val_SDA;
+        endmethod
+        method Action sda_in(Bit#(1) in);
+            val_SDA_in <= in;
+        endmethod
+        method Bool sda_out_en;
+            return (dOutEn && eso == 1'b1);
         endmethod
         method Bit#(1) i2c_DRV0;
             return drv0_rg[0];
@@ -821,21 +841,6 @@ import  FIFO::*;
         method Bit#(1) i2c_PWRUP_PULL_EN;
             return pwrup_pull_en_rg[0];
         endmethod
-        method Action scl_in(Bit#(1) in);
-            val_SCL_in <= in;
-        endmethod
-        method Bool scl_out_en;
-            return (cOutEn && eso == 1'b1);
-        endmethod
-        method Bit#(1) sda_out;
-            return val_SDA;
-        endmethod
-        method Action sda_in(Bit#(1) in);
-            val_SDA_in <= in;
-        endmethod
-        method Bool sda_out_en;
-            return (dOutEn && eso == 1'b1);
-        endmethod
       endinterface
         
       method Bit#(1) isint=~pin & eni;
@@ -856,13 +861,7 @@ import  FIFO::*;
                                 numeric type user_width
                                );
       interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
-    endinterface
-
-    interface I2C_out_tri;
-      (* prefix = "SDA" *)
-      interface Inout#(Bit#(1)) sda;
-      (* prefix = "SCL" *)
-      interface Inout#(Bit#(1)) scl;
+      interface I2C_out io;
     endinterface
 
     module mki2c_axi4lite#(Clock i2c_clock, Reset i2c_reset)
@@ -874,64 +873,90 @@ import  FIFO::*;
                 Mul#(8, d__, data_width),
                 Mul#(32, e__, data_width)
                );
-       AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- 
+		  Clock core_clock<-exposeCurrentClock;
+  		Reset core_reset<-exposeCurrentReset;
+		  Bool sync_required=(core_clock!=i2c_clock);
+      AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- 
                                                                         mkAXI4_Lite_Slave_Xactor();
 
-       Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user_ifc <- mki2c_user(
+      Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(
                                                                               clocked_by i2c_clock, 
                                                                                reset_by i2c_reset);
-       SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width, user_width)) ff_rd_request <- 
-                                                                    mkSyncFIFOFromCC(3, i2c_clock);
-       SyncFIFOIfc#(Tuple2#(AXI4_Lite_Wr_Addr#(addr_width, user_width),
-                  AXI4_Lite_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3, i2c_clock);
+      if(!sync_required)begin
+        rule read_request;
+          let rd_req <- pop_o(s_xactor.o_rd_addr);
+          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+          let lv_resp= AXI4_Lite_Rd_Data {rresp:err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, 
+        	                                                      rdata: rdata, ruser: ?}; //TODO user?
+          s_xactor.i_rd_data.enq(lv_resp);
+        endrule
 
-       SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width, user_width)) ff_rd_response <- 
-                                                            mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
-       SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width)) ff_wr_response <- 
-                                                            mkSyncFIFOTOCC(3, i2c_clock, i2c_reset);
-       
-       rule read_request;
-         let rd_req <- pop_o(s_xactor.o_rd_addr);
-         ff_rd_request.enq(rd_req);
-       endrule
+        rule write_request;
+          let wr_req <- pop_o(s_xactor.o_wr_addr);
+          let wr_data <- pop_o(s_xactor.o_wr_data);
+          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+          let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
+          s_xactor.i_wr_resp.enq(lv_resp);
+         endrule
+      end
+      else begin
+        SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width, user_width)) ff_rd_request <- 
+                                                                      mkSyncFIFOFromCC(3, i2c_clock);
+        SyncFIFOIfc#(Tuple2#(AXI4_Lite_Wr_Addr#(addr_width, user_width),
+                    AXI4_Lite_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3, i2c_clock);
 
-       rule send_rd_to_i2c;
-         let rd_req = ff_rd_request.first;
-         ff_rd_request.deq;
-         let resp <- i2c_user_ifc.read_req_rsp(rd_req);
-         ff_rd_response.enq(resp);
-       endrule
+        SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width, user_width)) ff_rd_response <- 
+                                                              mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
+        SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width)) ff_wr_response <- 
+                                                              mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
+         
+        rule read_request;
+          let rd_req <- pop_o(s_xactor.o_rd_addr);
+          ff_rd_request.enq(rd_req);
+        endrule
 
-       rule send_read_response;
-         ff_rd_response.deq;
-         s_xactor.i_rd_data.enq(ff_rd_response.first);
-       endrule
+        rule send_rd_to_i2c;
+          let rd_req = ff_rd_request.first;
+          ff_rd_request.deq;
+          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+          let lv_resp= AXI4_Lite_Rd_Data {rresp:err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, 
+        	                                                      rdata: rdata, ruser: ?}; //TODO user?
+          ff_rd_response.enq(lv_resp);
+        endrule
 
-       rule write_request;
-         let wr_req <- pop_o(s_xactor.o_wr_addr);
-         let wr_data <- pop_o(s_xactor.o_wr_data);
-         ff_wr_request.enq(tuple2(wr_req, wr_data));
-       endrule
+        rule send_read_response;
+          ff_rd_response.deq;
+          s_xactor.i_rd_data.enq(ff_rd_response.first);
+        endrule
 
-       rule send_wr_to_i2c;
-         let wr_req = tpl_1(ff_wr_request.first);
-         let wr_data = tpl_2(ff_wr_request.first);
-         let resp <- i2c_user_ifc.write_req_rsp(wr_req, wr_data);
-         ff_wr_response.enq(resp);
-       endrule
+        rule write_request;
+          let wr_req <- pop_o(s_xactor.o_wr_addr);
+          let wr_data <- pop_o(s_xactor.o_wr_data);
+          ff_wr_request.enq(tuple2(wr_req, wr_data));
+        endrule
 
-       rule send_wr_resp;
-         ff_wr_response.deq;
-         s_xactor.i_wr_resp.enq(ff_wr_response.first);
-       endrule
+        rule send_wr_to_i2c;
+          let wr_req = tpl_1(ff_wr_request.first);
+          let wr_data = tpl_2(ff_wr_request.first);
+          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+          let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
+          ff_wr_response.enq(lv_resp);
+        endrule
 
+         rule send_wr_resp;
+           ff_wr_response.deq;
+           s_xactor.i_wr_resp.enq(ff_wr_response.first);
+         endrule
+       end
        interface slave = s_xactor.axi_side;
+       interface io = i2c_user.io;
     endmodule
     
     interface Ifc_i2c_axi4#(numeric type addr_width, 
                             numeric type data_width, 
                             numeric type user_width);
       interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+      interface I2C_out io;
     endinterface
 
     module mki2c_axi4#(Clock i2c_clock, Reset i2c_reset)(Ifc_i2c_axi4#(addr_width, data_width, user_width))
@@ -942,57 +967,82 @@ import  FIFO::*;
                Mul#(8, d__, data_width),
                Mul#(32, e__, data_width)
               );
+		  Clock core_clock<-exposeCurrentClock;
+  		Reset core_reset<-exposeCurrentReset;
+		  Bool sync_required=(core_clock!=i2c_clock);
       AXI4_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Slave_Xactor();
 
-      Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user_ifc <- mki2c_user(
+      Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(
                                                                                  clocked_by i2c_clock, 
                                                                                  reset_by i2c_reset);
-      SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_request <- mkSyncFIFOFromCC(3,
+		  if(!sync_required)begin // If uart is clocked by core-clock.
+        rule read_request;
+          let rd_req <- pop_o(s_xactor.o_rd_addr);
+          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+		  		let lv_resp= AXI4_Rd_Data {rresp:err?AXI4_SLVERR:AXI4_OKAY, rid:rd_req.arid, 
+		  										rlast:True, rdata: rdata, ruser: ?}; //TODO user?
+          s_xactor.i_rd_data.enq(lv_resp);
+        endrule
+
+        rule write_request;
+          let wr_req <- pop_o(s_xactor.o_wr_addr);
+          let wr_data <- pop_o(s_xactor.o_wr_data);
+          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+        	let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:wr_data.wid};
+          s_xactor.i_wr_resp.enq(lv_resp);
+        endrule
+      end
+      else begin
+        SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_request <- mkSyncFIFOFromCC(3,
+                                                                                        i2c_clock);
+        SyncFIFOIfc#(Tuple2#(AXI4_Wr_Addr#(addr_width, user_width),
+                             AXI4_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3,
                                                                                       i2c_clock);
-      SyncFIFOIfc#(Tuple2#(AXI4_Wr_Addr#(addr_width, user_width),
-                           AXI4_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3,
-                                                                                    i2c_clock);
-      SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_rd_response <- mkSyncFIFOToCC(3,
-                                                                           i2c_clock, i2c_reset);
-      SyncFIFOIfc#(AXI4_Wr_Resp#(user_width)) ff_wr_response <- mkSyncFIFOToCC(3, i2c_clock,
-                                                                          i2c_reset);
-      
-      rule read_request;
-        let rd_req <- pop_o(s_xactor.o_rd_addr);
-        ff_rd_request.enq(rd_req);
-      endrule
+        SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_rd_response <- mkSyncFIFOToCC(3,
+                                                                             i2c_clock, i2c_reset);
+        SyncFIFOIfc#(AXI4_Wr_Resp#(user_width)) ff_wr_response <- mkSyncFIFOToCC(3, i2c_clock,
+                                                                            i2c_reset);
+        
+        rule read_request;
+          let rd_req <- pop_o(s_xactor.o_rd_addr);
+          ff_rd_request.enq(rd_req);
+        endrule
 
-      rule send_rd_to_i2c;
-        let rd_req = ff_rd_request.first;
-        ff_rd_request.deq;
-        let resp <- i2c_user_ifc.read_req_rsp(rd_req);
-        ff_rd_response.enq(resp);
-      endrule
+        rule send_rd_to_i2c;
+          let rd_req = ff_rd_request.first;
+          ff_rd_request.deq;
+          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+		  		let lv_resp= AXI4_Rd_Data {rresp:err?AXI4_SLVERR:AXI4_OKAY, rid:rd_req.arid, 
+		  										rlast:True, rdata: rdata, ruser: ?}; //TODO user?
+          ff_rd_response.enq(lv_resp);
+        endrule
 
-      rule send_read_response;
-        ff_rd_response.deq;
-        s_xactor.i_rd_data.enq(ff_rd_response.first);
-      endrule
+        rule send_read_response;
+          ff_rd_response.deq;
+          s_xactor.i_rd_data.enq(ff_rd_response.first);
+        endrule
 
-      rule write_request;
-        let wr_req <- pop_o(s_xactor.o_wr_addr);
-        let wr_data <- pop_o(s_xactor.o_wr_data);
-        ff_wr_request.enq(tuple2(wr_req, wr_data));
-      endrule
+        rule write_request;
+          let wr_req <- pop_o(s_xactor.o_wr_addr);
+          let wr_data <- pop_o(s_xactor.o_wr_data);
+          ff_wr_request.enq(tuple2(wr_req, wr_data));
+        endrule
 
-      rule send_wr_to_i2c;
-        let wr_req = tpl_1(ff_wr_request.first);
-        let wr_data = tpl_2(ff_wr_request.first);
-        let resp <- i2c_user_ifc.write_req_rsp(wr_req, wr_data);
-        ff_wr_response.enq(resp);
-      endrule
+        rule send_wr_to_i2c;
+          let wr_req = tpl_1(ff_wr_request.first);
+          let wr_data = tpl_2(ff_wr_request.first);
+          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+        	let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:wr_data.wid};
+          ff_wr_response.enq(lv_resp);
+        endrule
 
-      rule send_wr_resp;
-        ff_wr_response.deq;
-        s_xactor.i_wr_resp.enq(ff_wr_response.first);
-      endrule
-
+        rule send_wr_resp;
+          ff_wr_response.deq;
+          s_xactor.i_wr_resp.enq(ff_wr_response.first);
+        endrule
+      end
       interface slave = s_xactor.axi_side;
+      interface io = i2c_user.io;
    endmodule
 
 endpackage
