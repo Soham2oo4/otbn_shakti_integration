@@ -768,7 +768,7 @@ endfunction
 																									AccessSize size);
    
         //TODO - What if a read request is issued to the data register
-        `logLevel(2, $format("AXI Read Request time %d pin %d",pin))
+        `logLevel(2, $format("AXI Read Request pin %d",pin))
         if(truncate(addr) == pack(S0)) begin
    	     pin <=1;      
 	       `logLevel(2, $format("Setting pin to 1 in read phase"))
