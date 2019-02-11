@@ -148,7 +148,7 @@ endinstance
 module mkDMA( User_ifc#(addr_width, data_width, user_width, numChannels, numPeripherals) )
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 7),
+	 				Add#(numChannels, 0, 3),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, addr_width),
 					Add#(7, j__, addr_width),
@@ -159,7 +159,8 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   			  Mul#(16, e__, data_width),
   				Mul#(32, f__, data_width),
 					Add#(28, h__, data_width),
-					Add#(16, i__, data_width)
+					Add#(16, i__, data_width),
+					Add#(12, l__, data_width)	//for numChannels=3
 );
 
 	let val_numChannels= valueOf(numChannels);
@@ -684,8 +685,8 @@ endfunction
 
 // This function converts a Vector of (upto 7) Registers to a single Register
 //TODO For now, this function has to be manually changed when num of channels change.
-function Reg#(Bit#(TMul#(7,q))) vectorToRegN(Vector#(7,Reg#(Bit#(q))) inpV);
-	return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
+function Reg#(Bit#(TMul#(3,q))) vectorToRegN(Vector#(3,Reg#(Bit#(q))) inpV);
+	return concatReg3(inpV[2], inpV[1], inpV[0]);
 	//return asReg(zeroExtend(pack(inpV)));
 endfunction
 /*function Reg#(Bit#(TMul#(numChannels,q))) vectorToRegN(Vector#(numChannels,Reg#(Bit#(q))) inpV);
@@ -782,7 +783,7 @@ endfunction*/
       'd9 : return can_return(dma_cndtr[2], dma_ccr[2][15]);
       'd10 : return can_return(dma_cpar[2], dma_ccr[2][15]);
       'd11 : return can_return(dma_cmar[2], dma_ccr[2][15]);
- 
+/* 
       'd12 : return can_return(dma_ccr[3], dma_ccr[3][15]);
       'd13 : return can_return(dma_cndtr[3], dma_ccr[3][15]);
       'd14 : return can_return(dma_cpar[3], dma_ccr[3][15]);
@@ -802,7 +803,7 @@ endfunction*/
       'd25 : return can_return(dma_cndtr[6], dma_ccr[6][15]);
       'd26 : return can_return(dma_cpar[6], dma_ccr[6][15]);
       'd27 : return can_return(dma_cmar[6], dma_ccr[6][15]);
- 
+*/ 
       'd28 : return can_return(vectorToRegN( dma_isr ), 1'b1);
       'd29 : return can_return(vectorToRegN( dma_ifcr ), 1'b0);
       'd30 : return can_return(vectorToRegN( dma1_cselr ), 1'b1);
@@ -1092,7 +1093,7 @@ endinterface
 module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, data_width, user_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 7),
+	 				Add#(numChannels, 0, 3),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, addr_width),
 					Add#(7, j__, addr_width),
@@ -1103,7 +1104,8 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   			  Mul#(16, e__, data_width),
   				Mul#(32, f__, data_width),
 					Add#(28, h__, data_width),
-					Add#(16, i__, data_width)
+					Add#(16, i__, data_width),
+					Add#(12, l__, data_width)	//for numChannels=3
 );
 		User_ifc#(addr_width, data_width, user_width, numChannels, numPeripherals) dma <- mkDMA;
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
@@ -1214,7 +1216,7 @@ endinterface
 module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, data_width, user_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 7),
+	 				Add#(numChannels, 0, 3),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, addr_width),
 					Add#(7, j__, addr_width),
@@ -1225,7 +1227,8 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   			  Mul#(16, e__, data_width),
   				Mul#(32, f__, data_width),
 					Add#(28, h__, data_width),
-					Add#(16, i__, data_width)
+					Add#(16, i__, data_width),
+					Add#(12, l__, data_width)	//for numChannels=3
 );
 		User_ifc#(addr_width, data_width, user_width, numChannels, numPeripherals) dma <- mkDMA;
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
