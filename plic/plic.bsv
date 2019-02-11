@@ -70,7 +70,7 @@ interface User_ifc#(numeric type addr_width,numeric type data_width,
 endinterface
 
 //(*conflict_free = "rl_prioritise, prog_reg"*)
-module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_nmi))
+module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_nmi))
 	provisos(
 	Log#(no_of_ir_pins, ir_bits),
 	Log#(no_of_ir_levels, priority_bits),
@@ -85,11 +85,9 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 	Add#(f__, no_of_ir_levels, 1024),
 	Add#(g__, priority_bits, 10),
 	Add#(h__, no_of_ir_levels, 32),
-	Add#(e__, 32, data_width),
 	Add#(i__, data_width, 64),
 	Add#(j__, no_of_ir_levels, 64),
-	Add#(k__, ir_bits, 64),
-	Add#(l__, ir_bits, TLog#(no_of_ir_pins))
+	Add#(k__, ir_bits, 64)
 	);
 
 	let v_no_of_ir_pins = valueOf(no_of_ir_pins);
@@ -98,6 +96,7 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 	let v_msb_ir_pins = valueOf(msb_ir_pins);
 	let v_msb_priority = valueOf(msb_priority_levels);
 	let v_data_width = valueOf(data_width);
+	Bit#(addr_width) base_address = fromInteger(slave_base);
 
 
 	Vector#(no_of_ir_pins,Reg#(Bool)) rg_gateway <- replicateM(mkReg(False));
@@ -213,7 +212,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 								let dvalue=valueOf(data_width);
 								Bit#(6) shift_amt=zeroExtend(address[2:0]);
 
-								if(address < `base) begin
+			if(address < base_address+'h1000) begin
 									address = address >> 2;
 									if(mem_req.ld_st == Load) begin
 										source_id = address[v_msb_ir_bits:0];
@@ -221,18 +220,14 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 										temp = zeroExtend(rg_priority[source_id]);
 									end
 									else if(mem_req.ld_st == Store) begin
-										Bit#(data_width) store_data;
-										if(mem_req.byte_offset==0)
-											store_data=mem_req.write_data[v_msb_ir_pins:0];
-										else
-											store_data=mem_req.write_data[v_data_width-1:v_data_width-v_no_of_ir_pins];
-										mem_req.byte_offset = mem_req.byte_offset >> 2;
+					Bit#(64) store_data;
+					store_data=zeroExtend(mem_req.write_data);
 										source_id = address[v_msb_ir_bits:0];
 										$display($time,"\tPLIC : source %d Priority set to %h", source_id, store_data);
 										rg_priority[source_id] <= truncate(store_data);
 									end
 								end
-								else if(address < `base+'h1000) begin
+			else if(address < base_address+'h2000) begin
 									if(mem_req.ld_st == Load) begin
 										source_id = address[v_msb_ir_bits:0];
 										// let shift=(loop==8)?3:(loop==16)?4:(loop==32)?5:6;
@@ -279,7 +274,7 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 										end
 									end
 								end
-								else if(address <`base+'h20000)
+			else if(address <base_address+'h3000)
 								begin
 									if(mem_req.ld_st == Load) 
 									begin
@@ -334,14 +329,14 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 									
 									end
 								end
-								else if(address == `base+200000) begin
+			else if(address == base_address+'h10000) begin
 									if(mem_req.ld_st == Load) begin
 										temp = zeroExtend(rg_priority_threshold); 
 									end
 									else if(mem_req.ld_st == Store)
 										rg_priority_threshold <= mem_req.write_data[v_msb_priority:0];
 								end
-								else if(address == `base+'h204000) begin
+			else if(address == base_address+'h10010) begin
 									if(mem_req.ld_st == Load) begin
 										temp = zeroExtend(rg_interrupt_id); 
 										rg_ip[rg_interrupt_id][1] <= False;
@@ -388,7 +383,7 @@ endmodule
 			interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
 	endinterface
 
-	module mkplic_axi4lite(Ifc_plic_axi4lite#(addr_width, data_width, user_width, no_of_ir_pins, 
+	module mkplic_axi4lite#(parameter Integer slave_base)(Ifc_plic_axi4lite#(addr_width, data_width, user_width, no_of_ir_pins, 
       no_of_ir_levels,no_nmi))
 		provisos(
 				    Add#(a__, data_width, 64),
@@ -409,7 +404,7 @@ endmodule
 			);
 
 		AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
-		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic();
+		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic(slave_base);
 
 		(*preempts="rl_config_plic_reg_read, rl_config_plic_reg_write"*)
 			rule rl_config_plic_reg_write;
@@ -451,7 +446,7 @@ endmodule
 		interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
 	endinterface
 
-	module mkplic_axi4(Ifc_plic_axi4#(addr_width,data_width,user_width, no_of_ir_pins,no_of_ir_levels,
+	module mkplic_axi4#(parameter Integer slave_base)(Ifc_plic_axi4#(addr_width,data_width,user_width, no_of_ir_pins,no_of_ir_levels,
       no_nmi))
 			provisos(
 				    Add#(a__, data_width, 64),
@@ -474,7 +469,7 @@ endmodule
 		let strb_size = valueOf(TSub#(TDiv#(data_width,8),1));
 
 		AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic();
+		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic(slave_base);
 
 	 	Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
