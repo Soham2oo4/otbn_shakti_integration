@@ -129,7 +129,7 @@ endfunction
 
 //(*synthesize*)
 //(*preempts="rl_send_rd_data, rl_check_drop"*)    
-module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap#(
+module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst) `endif (Ifc_sdram_wrap#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
 													  addr_width, 
@@ -410,13 +410,13 @@ Reg#(Bit#(9))            rg_local_actual_wr_length <- mkReg(0);
 `ifdef sdram_ext_clk
 Reg#(Bit#(9))            rg_actual_wr_length <- mkSyncRegFromCC(0,clk0);
 Reg#(Bit#(addr_width))           rg_wr_address       <- mkSyncRegFromCC(0,clk0);
-`else
+`else 
 Reg#(Bit#(9))            rg_actual_wr_length <- mkReg(0);
 Reg#(Bit#(addr_width))   rg_wr_address       <- mkReg(0);
 `endif
 `ifdef sdram_ext_clk
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkSyncRegFromCC(0,clk0);
-`else
+`else 
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkReg(0);
 `endif
 
@@ -438,7 +438,7 @@ FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(5);
 SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
 SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
 SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
-`else
+`else 
 FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
 FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedBRAMFIFOF(105);
 FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
@@ -457,7 +457,7 @@ SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSy
 SyncFIFOIfc#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(addr_cntrl_width)) ff_sync_ctrl_read<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSyncFIFOToCC(1,clk0,rst0);
-`else
+`else 
 FIFOF#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSizedFIFOF(1);
 FIFOF#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <- mkSizedFIFOF(4);
 FIFOF#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSizedFIFOF(1);
@@ -468,7 +468,7 @@ FIFOF#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSizedFIFOF(1);
 Reg#(Bit#(2)) rg_poll_cnt <- mkReg(0,clocked_by clk0, reset_by rst0);
 `ifdef sdram_ext_clk
 Reg#(Bool)    rg_polling_status <- mkSyncRegToCC(False,clk0,rst0);
-`else
+`else 
 Reg#(Bool)    rg_polling_status <- mkReg(False);
 `endif 
 Reg#(Bool)    rg_polling_status_clk0 <- mkReg(False,clocked_by clk0, reset_by rst0);
@@ -476,8 +476,6 @@ Reg#(Bool)    rg_rd_trnc_flg <- mkReg(False,clocked_by clk0,reset_by rst0);
 Reg#(Bool)    rg_wr_trnc_flg <- mkReg(False);
 Reg#(bit)     rg_odd_len     <- mkReg(0);   
 
-`ifdef simulate 
-	Reg#(Bit#(9)) rg_debug_count <- mkReg(0);
 // hardcoding the parameter value to resolve provisos
 AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Slave_Xactor;
 AXI4_Slave_Xactor_IFC #(addr_cntrl_width, data_cntrl_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Slave_Xactor;
@@ -713,13 +711,6 @@ rule rl_parallel_data_enq(rg_polling_status == True);
     let w  <- pop_o(s_xactor_sdram.o_wr_data);
     ff_wr_data.enq(w);      
     rg_wr_trnc_flg <= True;
-`ifdef simulate
-	if(w.wlast)
-		rg_debug_count<=0;
-	else
-		rg_debug_count <= rg_debug_count + 1;
-    `ifdef verbose $display($time,"\tSDRAM: WRITE_FIRST Parallel: ",fshow(w), " count: %d",rg_debug_count); `endif
-`endif
 endrule
 
 rule rl_write_split_state(rg_wr_split_states == IDLE);
@@ -803,12 +794,6 @@ rule rl_wait_delay(rg_write_states == WAIT_DELAY && !rg_rd_trnc_flg);
     else
     rg_wr_count <= rg_wr_count + 1;
 endrule
-
-`ifdef simulate
-//rule rl_assertion(rg_write_states == WRITE_START && wr_sdr_init_done == True);
-//    `ifdef verbose $display($time,"\t DEBUG_SDR: bitch %d",rg_actual_wr_length); `endif
-//endrule
-`endif
 
 rule rl_write_transaction_write_start(rg_write_states == WRITE_START && wr_sdr_init_done == True &&  !rg_rd_trnc_flg );
     `ifdef verbose $display($time,"\tSDRAM: WRITE_START state Controller Length %d",rg_actual_wr_length); `endif
