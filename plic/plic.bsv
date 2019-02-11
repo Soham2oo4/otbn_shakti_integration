@@ -64,7 +64,7 @@ package plic;
 
 interface User_ifc#(numeric type addr_width,numeric type data_width,
       numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
-	interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
+	method Action ifc_external_irq_io(Bit#(no_of_ir_pins) irq) ;
 	interface IFC_PROGRAM_REGISTERS#(addr_width,data_width) ifc_prog_reg;
 	interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
 endinterface
@@ -189,23 +189,14 @@ module mkplic(User_ifc#(addr_width,data_width,no_of_ir_pins,no_of_ir_levels,no_n
 		rg_completion_id <= tagged Invalid;
 	endrule
 
-	Vector#(no_of_ir_pins, IFC_GLOBAL_INTERRUPT_IO) temp_ifc_irq;
-
+	method Action ifc_external_irq_io(Bit#(no_of_ir_pins) irq);
 	for(Integer i = 0; i < v_no_of_ir_pins; i = i + 1) begin
-
-		temp_ifc_irq[i] = interface IFC_GLOBAL_INTERRUPT_IO
-
-							method Action irq_frm_gateway(Bool ir) if(!rg_gateway[i]);
-								`ifdef verbose $display("Interrupt id %d is pending", i);`endif
-								if(ir) begin
+  		if(irq[i]==1 && !rg_gateway[i]) begin
 									rg_gateway[i] <= True;
 									rg_ip[i][0] <= True;
 								end
-							endmethod
-						  endinterface;
 	end
-
-interface ifc_external_irq_io = temp_ifc_irq;
+	endmethod
 
 interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 
@@ -377,7 +368,6 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 					            data_return=truncate(temp);
 								return tuple2(data_return,success);
 							endmethod
-
 						endinterface;
 
 							interface intrpt_note_sb= interface Get
@@ -394,7 +384,7 @@ endmodule
 	interface Ifc_plic_axi4lite#(numeric type addr_width,numeric type data_width,numeric type
       user_width, numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
 			interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
-			interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
+	    method Action ifc_external_irq_io(Bit#(no_of_ir_pins) irq) ;
 			interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
 	endinterface
 
@@ -450,14 +440,14 @@ endmodule
 			endrule
 
 			interface slave = s_xactor.axi_side;
-			interface ifc_external_irq_io = plic.ifc_external_irq_io;
+			method ifc_external_irq_io = plic.ifc_external_irq_io;
 			interface intrpt_note_sb = plic.intrpt_note_sb;
 	endmodule
 
 	interface Ifc_plic_axi4#(numeric type addr_width, numeric type data_width, numeric type
       user_width, numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
-		interface Vector#(no_of_ir_pins,IFC_GLOBAL_INTERRUPT_IO) ifc_external_irq_io;
+	  method Action ifc_external_irq_io(Bit#(no_of_ir_pins) irq) ;
 		interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
 	endinterface
 
@@ -566,7 +556,7 @@ endmodule
 			endrule
 
 			interface slave = s_xactor.axi_side;
-			interface ifc_external_irq_io = plic.ifc_external_irq_io;
+			method ifc_external_irq_io = plic.ifc_external_irq_io;
 			interface intrpt_note_sb = plic.intrpt_note_sb;
 	endmodule
 endpackage	

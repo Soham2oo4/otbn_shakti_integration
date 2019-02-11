@@ -4,11 +4,5 @@
 // 0x4: U R R R
 // 0x8: U R R R
 
-// Parameters
-	`define interrupt_levels 8
-	`define interrupt_pins 32
-	`define no_nmi 2
-
-
 // Memory Map
 `define base 'hC0001000
