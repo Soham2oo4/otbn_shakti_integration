@@ -1475,6 +1475,9 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 
 	Reg#(bit) rg_req_en <- mkReg(0);
+	Reg#(Bit#(4)) rg_rid <- mkReg(0);
+	Reg#(Bit#(4)) rg_wid <- mkReg(0);
+
 	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
@@ -1492,6 +1495,8 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 								  burst_size : aw.awsize,
 								  wdata : truncate(w.wdata) }));
 		rg_req_en <= 1;
+		rg_wid <= aw.awid;
+	    $display($stime(),"QSPI: qspi received write request awaddr %h", aw.awaddr);
 	endrule
 
 	rule rl_write_req_send_to_controller; // this rule is running at slow_clk (i.e less than or equal to 166MHz)
@@ -1512,7 +1517,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 		AXI4_Resp resp = AXI4_OKAY;
 		if(w == AXI4_LITE_SLVERR)
 			resp = AXI4_SLVERR;
-		let b = AXI4_Wr_Resp {bresp : resp, buser : 0};
+		let b = AXI4_Wr_Resp {bresp : resp, buser : 0, bid : rg_wid};
 		s_xactor.i_wr_resp.enq (b);
 	endrule
 
@@ -1522,6 +1527,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 									addr : truncate(ar.araddr),
 									burst_size : ar.arsize}));
 		rg_req_en <= 1;
+		rg_rid <= ar.arid;
 		$display($stime(),"QSPI: qspi received read request");
 	endrule
 
@@ -1544,7 +1550,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 		if(r.rsp == AXI4_LITE_SLVERR)
 			resp = AXI4_SLVERR;
 
-		let rsp = AXI4_Rd_Data {rresp: resp, rdata: duplicate(r.rdata) , ruser: 0};
+		let rsp = AXI4_Rd_Data {rresp: resp, rdata: duplicate(r.rdata) , ruser: 0, rid: rg_rid, rlast: True};
 		s_xactor.i_rd_data.enq(rsp);
 		$display($stime(),"QSPI: Sending Read Response");
 	endrule
