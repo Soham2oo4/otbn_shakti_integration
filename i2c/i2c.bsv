@@ -170,9 +170,9 @@ endfunction
       interface I2C_out io;
       (* always_enabled, always_ready *) 
       method Bit#(1) isint();
-      method Action resetc (Bit#(1) rst);
       method Bit#(1) timerint();
       method Bit#(1) isber();
+      method Action resetc (Bit#(1) rst);
     endinterface
 
     //  ==============================================
@@ -861,6 +861,9 @@ endfunction
                                );
       interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
       interface I2C_out io;
+      method Bit#(1) isint();
+      method Bit#(1) timerint();
+      method Bit#(1) isber();
     endinterface
 
     module mki2c_axi4lite#(Clock i2c_clock, Reset i2c_reset)
@@ -949,6 +952,9 @@ endfunction
        end
        interface slave = s_xactor.axi_side;
        interface io = i2c_user.io;
+       method isint()=i2c_user.isint;
+       method timerint()=i2c_user.timerint;
+       method isber()=i2c_user.isber;
     endmodule
     
     interface Ifc_i2c_axi4#(numeric type addr_width, 
@@ -956,6 +962,9 @@ endfunction
                             numeric type user_width);
       interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
       interface I2C_out io;
+      method Bit#(1) isint();
+      method Bit#(1) timerint();
+      method Bit#(1) isber();
     endinterface
 
     module mki2c_axi4#(Clock i2c_clock, Reset i2c_reset)(Ifc_i2c_axi4#(addr_width, data_width, user_width))
@@ -1042,6 +1051,9 @@ endfunction
       end
       interface slave = s_xactor.axi_side;
       interface io = i2c_user.io;
+      method isint()=i2c_user.isint;
+      method timerint()=i2c_user.timerint;
+      method isber()=i2c_user.isber;
    endmodule
 
 endpackage

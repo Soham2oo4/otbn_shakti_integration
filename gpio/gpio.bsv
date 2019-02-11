@@ -93,6 +93,7 @@ package gpio;
 		method Vector#(ionum,Bit#(1))   gpio_PWRUP_PULL_EN;
   endinterface
 	interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
+    (*always_ready,always_enabled*)
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
     interface GPIO#(ionum) io;
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
@@ -333,6 +334,7 @@ package gpio;
 
 	interface Ifc_gpio_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width,numeric type ionum);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width,user_width) slave;
+    (*always_ready,always_enabled*)
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
     interface GPIO#(ionum) io;
 	endinterface

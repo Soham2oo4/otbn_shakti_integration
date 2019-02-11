@@ -51,6 +51,7 @@ package pwm;
 		method  ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
 		method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_req(Bit#(addr_width) addr, AccessSize size);
 		interface PWMIO io;
+    method Bit#(1) sb_interrupt;
 	endinterface
 	//generic module
 	module mkpwm#(Clock ext_clock, Reset ext_reset)(User_ifc#(addr_width,data_width,pwmwidth))
@@ -236,6 +237,7 @@ package pwm;
 			interface io=interface PWMIO
 				method pwm_o=pwm_output_enable==1?pwm_signal:0;
 			endinterface;
+      method sb_interrupt=interrupt;
 
 	endmodule:mkpwm
 
@@ -243,6 +245,7 @@ package pwm;
 	interface Ifc_pwm_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type pwmwidth);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 		interface PWMIO io;
+    method Bit#(1) sb_interrupt;
 	endinterface
 
 	module mkpwm_axi4lite#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4lite#(addr_width,data_width,user_width, pwmwidth))
@@ -273,12 +276,14 @@ package pwm;
 
      interface io = pwm.io;
      interface slave = s_xactor.axi_side;
+     method sb_interrupt=pwm.sb_interrupt;
 	endmodule
 
 	//axi4
 	interface Ifc_pwm_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type pwmwidth);
 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
 		interface PWMIO io;
+    method Bit#(1) sb_interrupt;
 	endinterface
 	module mkpwm_axi4#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4#(addr_width,data_width,user_width, pwmwidth))
 	provisos(
@@ -342,6 +347,7 @@ package pwm;
 
 		endrule
 
+    method sb_interrupt=pwm.sb_interrupt;
 		interface io=pwm.io;
 		interface slave = s_xactor.axi_side;
 	endmodule
