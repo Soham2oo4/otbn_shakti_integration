@@ -267,8 +267,8 @@ assign   pad_sdr_din = {sdr_dq1, sdr_dq0};*/
 
 // sdram pad clock is routed back through pad
 // SDRAM Clock from Pad, used for registering Read Data
-wire sdram_pad_clk;
-parallel_prog_delay_cell delay_inst_for_sdram_clk_pad(.in_clk(sdram_clk), .delay_config_reg(delay_config_reg2), .delayed_clk(sdram_pad_clk));
+//wire sdram_pad_clk;
+//parallel_prog_delay_cell delay_inst_for_sdram_clk_pad(.in_clk(sdram_clk), .delay_config_reg(delay_config_reg2), .delayed_clk(sdram_pad_clk));
 
 
 
