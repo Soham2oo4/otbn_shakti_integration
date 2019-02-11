@@ -1,3 +1,6 @@
+`define verbose
+
+
 `define CR 		'h00
 `define DCR 	'h04
 `define SR		'h08
