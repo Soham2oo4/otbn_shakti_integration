@@ -25,20 +25,20 @@ package qspi;
 
 
 	typedef struct{
-			Bit#(8) addr;
+			Bit#(awidth) addr;
 			Bit#(3) burst_size;
-			Bit#(64) wdata;
-	} Write_req deriving (Bits, Eq);
+			Bit#(dwidth) wdata;
+	} Write_req#(numeric type awidth, numeric type dwidth) deriving (Bits, Eq);
 
 	typedef struct{
-			Bit#(32) addr;
+			Bit#(awidth) addr;
 			Bit#(3)  burst_size;
-	} Read_req deriving (Bits, Eq);
+	} Read_req#(numeric type awidth) deriving (Bits, Eq);
 
 	typedef struct{
 			AXI4_Lite_Resp rsp;
-			Bit#(64) rdata;
-	} Rd_resp deriving (Bits, Eq);
+			Bit#(dwidth) rdata;
+	} Rd_resp#(numeric type dwidth) deriving (Bits, Eq);
 
     (*always_ready, always_enabled*)
     interface QSPI_out;
@@ -53,16 +53,18 @@ package qspi;
 		/*(* always_ready, result="ncs_o" *) 		*/	method bit ncs_o;
     endinterface
 
-    interface Ifc_qspi_controller;
+    interface Ifc_qspi_controller#(numeric type addr_width,
+                                   numeric type data_width,
+                                   numeric type user_width);
    		interface QSPI_out out;
-		method Action write_req(Maybe#(Write_req) wr_req);
-		method Maybe#(AXI4_Lite_Resp) write_resp;
-		method Action rd_req(Maybe#(Read_req) req);
-		method Maybe#(Rd_resp) rd_resp;
-		method Bit#(6) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
-`ifdef simulate
-		method Phase curphase;
-`endif
+		  method Action write_req(Maybe#(Write_req#(addr_width,data_width)) wr_req);
+		  method Maybe#(AXI4_Lite_Resp) write_resp;
+		  method Action rd_req(Maybe#(Read_req#(addr_width)) req);
+		  method Maybe#(Rd_resp#(data_width)) rd_resp;
+		  method Bit#(6) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
+    `ifdef simulate
+	  	method Phase curphase;
+    `endif
     endinterface
 
   function Reg#(t) readOnlyReg(t r);
@@ -129,7 +131,8 @@ package qspi;
 						DataWrite_phase=5, 
 						Idle=6} Phase deriving (Bits,Eq,FShow);
 
-	module mkqspi_controller(Ifc_qspi_controller);
+	module mkqspi_controller(Ifc_qspi_controller#(addr_width, data_width, user_width))
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 	
 	/*************** List of implementation defined Registers *****************/
 	Reg#(bit) rg_clk <-mkReg(1);
@@ -163,11 +166,11 @@ package qspi;
 	/*************** End of implementation defined Registers *****************/
 
 /**************** Reg and wire for user interface *********************/
-	Wire#(Maybe#(Write_req)) 	  wr_qspi_req 		<- mkDWire(tagged Invalid);
+	Wire#(Maybe#(Write_req#(addr_width,data_width))) 	  wr_qspi_req 		<- mkDWire(tagged Invalid);
 	Wire#(Maybe#(AXI4_Lite_Resp)) wr_write_resp 	<- mkDWire(tagged Invalid);
-	Wire#(Maybe#(Read_req))    	  wr_rd_req 		<- mkDWire(tagged Invalid);
-	Wire#(Maybe#(Rd_resp))   	  wr_rd_resp		<- mkDWire(tagged Invalid);
-	FIFO#(Read_req)				  ff_rd_req			<- mkFIFO();
+	Wire#(Maybe#(Read_req#(addr_width)))    	  wr_rd_req 		<- mkDWire(tagged Invalid);
+	Wire#(Maybe#(Rd_resp#(data_width)))   	  wr_rd_resp		<- mkDWire(tagged Invalid);
+	FIFO#(Read_req#(addr_width))				  ff_rd_req			<- mkFIFO();
 	
 	/*************** List of QSPI defined Registers *****************/
 	Reg#(Bit#(1)) sr_busy <-mkConfigReg(0); // set when the operation is in progress.
@@ -1343,16 +1346,16 @@ package qspi;
         method bit ncs_o = ncs;
     endinterface
 
-	method Action write_req(Maybe#(Write_req) wr_req);
+	method Action write_req(Maybe#(Write_req#(addr_width, data_width)) wr_req);
 		wr_qspi_req <= wr_req;
 	endmethod
 	method Maybe#(AXI4_Lite_Resp) write_resp;
 		return wr_write_resp;
 	endmethod
-	method Action rd_req(Maybe#(Read_req) req);
+	method Action rd_req(Maybe#(Read_req#(addr_width)) req);
 		wr_rd_req <= req;
 	endmethod
-	method Maybe#(Rd_resp) rd_resp;
+	method Maybe#(Rd_resp#(data_width)) rd_resp;
 		return wr_rd_resp;
 	endmethod
 
@@ -1377,22 +1380,17 @@ endinterface
 module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_width,
 														 data_width,
 														 user_width))
-											   provisos(
-													Mul#(64, a__, data_width),
-												    Add#(b__, 8, addr_width),
-													Add#(c__, 32, addr_width),
-													Add#(c__, 64, data_width)
-													);
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 
 	Reg#(bit) rg_req_en <- mkReg(0);
 	AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
 
-	SyncFIFOIfc#(Maybe#(Write_req)) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
+	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
     SyncFIFOIfc#(AXI4_Lite_Resp) 	ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);
-	SyncFIFOIfc#(Maybe#(Read_req))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
-	SyncFIFOIfc#(Rd_resp)			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
+	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
+	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
  	
-	Ifc_qspi_controller	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
 	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
@@ -1474,22 +1472,17 @@ endinterface
 module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 														 data_width,
 														 user_width))
-											   provisos(
-													Mul#(64, a__, data_width),
-												    Add#(b__, 8, addr_width),
-													Add#(c__, 32, addr_width),
-													Add#(c__, 64, data_width)
-													);
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 
 	Reg#(bit) rg_req_en <- mkReg(0);
 	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
-	SyncFIFOIfc#(Maybe#(Write_req)) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
-    SyncFIFOIfc#(AXI4_Lite_Resp) 	ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);
-	SyncFIFOIfc#(Maybe#(Read_req))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
-	SyncFIFOIfc#(Rd_resp)			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
+	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
+  SyncFIFOIfc#(AXI4_Lite_Resp) 	ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);
+	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
+	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
  	
-	Ifc_qspi_controller	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
 	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
