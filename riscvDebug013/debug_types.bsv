@@ -159,7 +159,11 @@ package debug_types;
   typedef 0 D_configstrptr2;
   typedef 0 D_configstrptr3;
 
-  typedef 32  DXLEN;
+  `ifdef RV64
+    typedef 64  DXLEN;
+  `else 
+    typedef 32  DXLEN;
+  `endif
   //typedef 64  DXLEN;
   typedef 32  DPADDR;
   typedef 1   HartCount;
