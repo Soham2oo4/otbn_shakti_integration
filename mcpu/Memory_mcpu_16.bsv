@@ -17,8 +17,6 @@ Email id: deepans.88@gmail.com
 */
 
 package Memory_mcpu_16;
-	import defined_types::*;
-       `include "defined_parameters.bsv"
   	import BRAMCore :: *;
  //       import TriState ::*;
 //	import DReg::*;

@@ -24,7 +24,7 @@ This module
 5.Modifies the data alignment as per endianness of the slave addressed
 */
 
-package mcpu_top;
+package mcpu;
 
 	/* ======== Package imports ======= */
 	import Vector				::*;

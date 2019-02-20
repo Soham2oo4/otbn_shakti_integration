@@ -18,8 +18,6 @@ Email id: deepans.88@gmail.com
 
 package Memory_mcpu_32;
 	
-	import defined_types::*;
-       `include "defined_parameters.bsv"
   	import BRAMCore :: *;
 	`include "mcpu_parameters.bsv"
 
@@ -30,7 +28,7 @@ typedef enum
 {RCV_REQ,DET_DS,END_REQ
 }State_slave deriving (Bits,Eq);
                
-interface mcpu_slave #(numeric type base_address,numeric type mem_size);
+interface Mcpu_slave #(numeric type base_address,numeric type mem_size);
 (*always_ready, always_enabled*)
 method Action rd_as_l(Bit#(1) m_as_l);
 (*always_ready, always_enabled*)
@@ -65,9 +63,9 @@ method Action rd_byte_23_16(Bit #(8) d2);
 method Action rd_byte_15_8 (Bit #(8) d1);
 method Action rd_byte_7_0  (Bit #(8) d0);
 
-endinterface:mcpu_slave
+endinterface:Mcpu_slave
 
-module mkMemory #(parameter String mem_init_file, parameter String module_name) (mcpu_slave#(base_address,mem_size));
+module mkMemory #(parameter String mem_init_file, parameter String module_name) (Mcpu_slave#(base_address,mem_size));
 	
 	BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,2)),Bit#(`Reg_width_mcpu_slave),TDiv#(`Reg_width_mcpu_slave,8)) dmemLSB <- mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,2))),False,mem_init_file,False);
 
