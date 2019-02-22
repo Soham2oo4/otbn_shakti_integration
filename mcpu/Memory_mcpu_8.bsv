@@ -66,9 +66,9 @@ method Action rd_byte_31_24(Bit #(8) d3);
 
 endinterface:Mcpu_slave_8
 
-module mkMemory_8 #(parameter String mem_init_file, parameter String module_name) (Mcpu_slave_8#(base_address,mem_size));
+module mkMemory_8 (Mcpu_slave_8#(base_address,mem_size));
 	
-	BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,0)),Bit#(8),TDiv#(8,8)) dmemLSB <- mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,0))),False,mem_init_file,False);
+	BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,0)),Bit#(8),TDiv#(8,8)) dmemLSB <- mkBRAMCore2BE(valueOf(TExp#(TSub#(mem_size,0))),False);
 
 //Defining the slave interface lines
 
