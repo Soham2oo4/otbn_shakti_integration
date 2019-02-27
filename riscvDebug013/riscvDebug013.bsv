@@ -47,7 +47,7 @@ package riscvDebug013;
 
   import debug_types::*;
 
-  typedef 1 VERBOSE;
+  typedef 0 VERBOSE;
 
   `define FIVO(x) fromInteger(valueOf(x))
 
