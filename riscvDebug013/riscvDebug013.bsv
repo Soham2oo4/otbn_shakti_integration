@@ -594,6 +594,9 @@ package riscvDebug013;
             vrg_have_reset[i] <= 1'b1;
           vrg_have_reset_sdw[i] <= have_reset;
         endmethod
+
+        method Bit#(1) dm_active = dmActive;
+
       endinterface;
     end
     
@@ -787,7 +790,10 @@ package riscvDebug013;
           return validValue(dmi_response);
         endmethod
       endinterface;
+      interface dmactive_reset = derived_reset;
     endinterface;
+
+    interface dmactive_reset = derived_reset;
 
     method Bit#(1) getNDMReset();
       return nDMReset;

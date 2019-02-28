@@ -13,6 +13,7 @@ package debug_types;
 	interface Ifc_DM_DTM;
     interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
     interface Get#(Bit#(34)) getResponse;
+    interface Reset dmactive_reset;
   endinterface
 
   
@@ -31,6 +32,8 @@ package debug_types;
     method Action  set_halted(Bit#(1) halted);
     (*always_enabled,always_ready*)
     method Action  set_unavailable(Bit#(1) unavailable);  
+    (*always_enabled,always_ready*)
+    method Bit#(1) dm_active;
     // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
   endinterface
     
@@ -40,6 +43,7 @@ package debug_types;
     interface Debug_Hart_Ifc hart;
     interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
     method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
+    interface Reset dmactive_reset;
   endinterface
 
   interface Hart_Debug_Ifc;
@@ -51,6 +55,8 @@ package debug_types;
     method Action   resumeRequest(Bit#(1) resume_request);
     (*always_enabled,always_ready*)
     method Action   hartReset(Bit#(1) hart_reset_v); // Change to reset type // Signal TO Reset HART -Active HIGH
+    (*always_enabled,always_ready*)
+    method Action   notify_dm_active(Bit#(1) dm_active);
     (*always_enabled,always_ready*)
     method Bit#(1)  has_reset;
     (*always_enabled,always_ready*)
@@ -65,7 +71,7 @@ package debug_types;
   instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
     module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
       
-      rule operation; 
+      rule operation;
         let x <- debug_module.abstractOperation;
         hart.abstractOperation(x);
       endrule
@@ -76,15 +82,24 @@ package debug_types;
       endrule
       
       rule connect_halt_req;
-        hart.haltRequest(debug_module.haltRequest());
+        if(debug_module.dm_active == 1)
+          hart.haltRequest(debug_module.haltRequest());
+        else
+          hart.haltRequest(0);
       endrule
 
       rule connect_resume_req;
-        hart.resumeRequest(debug_module.resumeRequest());
+        if(debug_module.dm_active == 1)
+          hart.resumeRequest(debug_module.resumeRequest());
+        else
+          hart.resumeRequest(0);
       endrule
 
       rule connect_hart_reset;
-        hart.hartReset(debug_module.hart_reset());
+        if(debug_module.dm_active == 1)
+          hart.hartReset(debug_module.hart_reset());
+        else 
+          hart.hartReset(0);
       endrule
       rule connect_halted;
         debug_module.set_halted(hart.is_halted());
@@ -97,6 +112,11 @@ package debug_types;
       rule connect_has_reset;
         debug_module.set_have_reset(hart.has_reset);
       endrule
+
+      rule connect_dm_active;
+        hart.notify_dm_active(debug_module.dm_active);
+      endrule
+
     endmodule
   endinstance
 
