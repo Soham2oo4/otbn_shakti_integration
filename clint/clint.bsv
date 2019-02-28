@@ -86,7 +86,6 @@ package clint;
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
 		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkReg(0);
 
-
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			mtip<=pack(rgmtime>=rgmtimecmp);
 		endrule
@@ -138,12 +137,12 @@ package clint;
           Byte: duplicate(data[7:0]);
           HWord: duplicate(data[15:0]);
           Word: duplicate(data[31:0]);
+          default: data;
         endcase;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
         Bit#(64) datamask=duplicate(data)&mask;
         let notmask=~mask;
-    
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
