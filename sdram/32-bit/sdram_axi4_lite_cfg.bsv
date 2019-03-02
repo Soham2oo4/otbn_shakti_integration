@@ -73,7 +73,7 @@ export mksdram_wrap;        // module export
 interface Ifc_sdram_out#(numeric type io_width);
 	(*always_enabled,always_ready*)
     method Action ipad_sdr_din(Bit#(io_width) pad_sdr_din);
-    method Bit#(9) sdram_sdio_ctrl();
+//    method Bit#(9) sdram_sdio_ctrl();
     method Bit#(io_width) osdr_dout();
     method Bit#(8) osdr_den_n();
     method Bool osdr_cke();
@@ -98,6 +98,7 @@ interface Ifc_sdram_axi4#(
                            numeric type rfrsh_row_width);                       
       interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave_mem;
       interface AXI4_Lite_Slave_IFC#(addr_cntrl_width, data_cntrl_width, user_width) slave_cfg;
+	 (*always_ready, always_enabled*)
       interface Ifc_sdram_out#(io_width) io;
 endinterface
 
@@ -184,6 +185,10 @@ module mksdram_wrap#(Clock slow_clk, Reset slow_rst) (Ifc_sdram_wrap#(
 `else
 	let clk0 <- exposeCurrentClock;
 	let rst0 <- exposeCurrentReset;
+`endif
+
+`ifndef simulate
+	Clock clk0_inv <- invertCurrentClock(clocked_by clk0);
 `endif
 
 function Bit#(9) fn_wr_len(Bit#(8) length, Bit#(3) awsize, Bit#(2) lwr_addr);
@@ -373,7 +378,7 @@ Reg#(Bit#(4))        rg_cfg_sdr_trcar_d <- mkConfigReg(4'h7,clocked_by clk0, res
 Reg#(Bit#(4))        rg_cfg_sdr_twr_d <- mkConfigReg(4'h1,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(2))        rg_cfg_sdr_width <- mkConfigReg(2'b0,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(2))        rg_cfg_colbits <- mkConfigReg(2'b01,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
+//Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(8))        rg_cfg_sdr_clk_delay <- mkConfigReg(8'b10001000,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(9))		 rg_cfg_write_delay   <- mkReg(0, clocked_by clk0, reset_by rst0);
 Reg#(bit)			 rg_cfg_mem_sel		  <- mkReg(0, clocked_by clk0, reset_by rst0);
@@ -517,7 +522,7 @@ function Action fn_wr_cntrl_reg(Bit#(data_cntrl_width) data, Bit#(addr_cntrl_wid
 
        `SDR_COLBITS     : rg_cfg_colbits <= data [1:0];
        
-       `SDR_SDIO_CTRL   : rg_cfg_sdio_ctrl <= data [8:0];
+//       `SDR_SDIO_CTRL   : rg_cfg_sdio_ctrl <= data [8:0];
 
        `SDR_CLK_DELAY   : rg_cfg_sdr_clk_delay <= data [7:0];
 
@@ -571,7 +576,7 @@ function Bit#(data_cntrl_width) fn_rd_cntrl_reg(Bit#(addr_cntrl_width) address);
 
        `SDR_COLBITS     : return extend(rg_cfg_colbits);
 
-       `SDR_SDIO_CTRL   : return extend(rg_cfg_sdio_ctrl);
+//       `SDR_SDIO_CTRL   : return extend(rg_cfg_sdio_ctrl);
 
        `SDR_CLK_DELAY   : return extend(rg_cfg_sdr_clk_delay);
 	
@@ -979,9 +984,9 @@ interface Ifc_sdram_out io;
     method Action ipad_sdr_din(Bit#(io_width) pad_sdr_din);
         sdr_cntrl.ipad_sdr_din(pad_sdr_din);
     endmethod
-    method Bit#(9) sdram_sdio_ctrl();
-        return rg_cfg_sdio_ctrl;
-    endmethod
+//    method Bit#(9) sdram_sdio_ctrl();
+//        return rg_cfg_sdio_ctrl;
+//    endmethod
     method Bit#(io_width) osdr_dout();
         return sdr_cntrl.osdr_dout();
     endmethod
@@ -1019,8 +1024,12 @@ interface Ifc_sdram_out io;
     method Bit#(13) osdr_addr ();
         return sdr_cntrl.osdr_addr;
     endmethod
-    
+`ifdef simulate    
     interface sdram_clk = clk0;
+`else
+    interface sdram_clk = clk0_inv;
+`endif
+
 endinterface
 
 
