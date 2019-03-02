@@ -73,7 +73,7 @@ package bram;
                    mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size,2))),False,lsb_file,False);
   
     Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
-    `ifdef check_assert
+    `ifdef ASSERT 
       Wire#(Maybe#(Bit#(TSub#(index_size,2)))) wr_write_index <- mkDWire(tagged Invalid);
       Wire#(Maybe#(Bit#(TSub#(index_size,2)))) wr_read_index <- mkDWire(tagged Invalid);
   
@@ -89,8 +89,12 @@ package bram;
     // Eg. : is size is HWord at address 0x2 then the wstrb for 64-bit data_width is: 'b00001100
     // And the data on the write channel is assumed to be duplicated.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
+    `ifdef ASSERT
       let {addr, data, strb}=req;
-
+      let offset = addr-fromInteger(slave_base);
+      Bit#(TSub#(addr_width,index_size)) upper_bits = truncateLSB(offset);
+      dynamicAssert(upper_bits==0,"Access is out of range in BRAM");
+    `endif
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
 			dmemLSB.b.put(truncate(strb),index_address,truncate(data));
 			dmemMSB.b.put(truncateLSB(strb),index_address,truncateLSB(data));
@@ -109,6 +113,11 @@ package bram;
   
     // capture a read_request and latch the address on a BRAM.
     method Action read_request (Bit#(addr_width) addr);
+    `ifdef ASSERT
+      let offset = addr-fromInteger(slave_base);
+      Bit#(TSub#(addr_width,index_size)) upper_bits = truncateLSB(offset);
+      dynamicAssert(upper_bits==0,"Access is out of range in BRAM");
+    `endif
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
   		dmemLSB.a.put(0, index_address, ?);
       dmemMSB.a.put(0, index_address, ?);
