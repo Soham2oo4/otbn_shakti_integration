@@ -427,7 +427,7 @@ endmodule
 
 				let ar <- pop_o(s_xactor.o_rd_addr);
 				let {x,success} <- plic.ifc_prog_reg.prog_reg(UncachedMemReq{address : ar.araddr, transfer_size : 'd3, 
-			    														u_signed : 0, byte_offset : 0, ld_st : Load},unpack(truncate(ar.arsize))); 
+			    														u_signed : 0, byte_offset : 0, ld_st : Load, write_data:?},unpack(truncate(ar.arsize))); 
 		        
 
 				let r = AXI4_Lite_Rd_Data {rresp: success?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: duplicate(x), ruser: 0};
@@ -531,7 +531,7 @@ endmodule
 				if(ar.arlen!=0)
 		 			rg_rdburst_count<=1;
 				let {x,success} <- plic.ifc_prog_reg.prog_reg(UncachedMemReq{address : ar.araddr, transfer_size : 'd3, 
-			    														u_signed : 0, byte_offset : 0, ld_st : Load},unpack(truncate(ar.arsize))); 
+			    													write_data:?,	u_signed : 0, byte_offset : 0, ld_st : Load},unpack(truncate(ar.arsize))); 
 
 				let r = AXI4_Rd_Data {rresp: success?AXI4_OKAY:AXI4_SLVERR, rdata: duplicate(x), ruser: 0,rid:ar.arid,rlast:(ar.arlen==0)};
 				s_xactor.i_rd_data.enq(r);
@@ -540,7 +540,7 @@ endmodule
 			rule rl_config_plic_reg_read_burst(rg_rdburst_count!=0);
 				let rd_req=rg_rdpacket;
 				let {x,success} <- plic.ifc_prog_reg.prog_reg(UncachedMemReq{address : rd_req.araddr, transfer_size : 'd3, 
-			    														u_signed : 0, byte_offset : 0, ld_st : Load},unpack(truncate(rd_req.arsize))); 			
+			    														write_data:?, u_signed : 0, byte_offset : 0, ld_st : Load},unpack(truncate(rd_req.arsize))); 			
 		        success=False;
 		        if(rg_rdburst_count==rd_req.arlen)
 					rg_rdburst_count<=0;

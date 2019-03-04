@@ -33,7 +33,7 @@ package plic_template;
 	import plic::*;
 	(*synthesize*)
 	module mkdummy(Empty);
-          User_ifc#(64,64,32,31,6) plic <- mkplic;  
+     User_ifc#(64,64,32,31,6) plic <- mkplic('h1000);  
 		 // Ifc_plic_axi4lite#(64,64,0,32,31,6) plic1<-mkplic_axi4lite;
 		 // Ifc_plic_axi4#(64,64,0,32,31,6) plic2<-mkplic_axi4;
 	endmodule
