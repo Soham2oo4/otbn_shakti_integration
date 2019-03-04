@@ -6,7 +6,7 @@ TOP_MODULE:=mkdummy
 BSVBUILDDIR:=./build/
 VERILOGDIR:=./verilog/
 BSVINCDIR:= .:%/Prelude:%/Libraries:%/Libraries/BlueNoC:$(SUPPORTED):$(DIR)
-define_macros:=-D VERBOSITY=2 -D check_assert=True 
+define_macros:=-D VERBOSITY=2 -D ASSERT=True 
 
 default: full_clean generate_verilog
 
