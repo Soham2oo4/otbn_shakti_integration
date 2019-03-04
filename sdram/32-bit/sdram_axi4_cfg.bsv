@@ -439,23 +439,47 @@ Reg#(Read_state) rg_read_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
 
 FIFOF#(AXI4_Wr_Addr#(addr_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(1); // need to changed bcoz of bridge it is been changed
 FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(5);
-`ifdef sdram_ext_clk
-SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
-SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
-SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
+
+`ifdef sdram_bram
+	`ifdef sdram_ext_clk
+		SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
+		SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
+		SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
+	`else
+		FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
+		FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedBRAMFIFOF(105);
+		FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+	`endif
 `else
-FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
-FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedBRAMFIFOF(105);
-FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+	`ifdef sdram_ext_clk
+		SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncFIFOFromCC(64,clk0);
+		SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncFIFOFromCC(64,clk0);
+		SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
+	`else
+		FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedFIFOF(105);
+		FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedFIFOF(105);
+		FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+	`endif
 `endif
 
    //FIFOF#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_addr <- mkSizedFIFOF(3);
-`ifdef sdram_ext_clk
-FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(145, clocked_by clk0, reset_by rst0);
-//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+`ifdef sdram_bram
+	`ifdef sdram_ext_clk
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(145, clocked_by clk0, reset_by rst0);
+	//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+	`else
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(178);
+	`endif
 `else
-FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(178);
+	`ifdef sdram_ext_clk
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedFIFOF(145, clocked_by clk0, reset_by rst0);
+	//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+	`else
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedFIFOF(178);
+	`endif
 `endif
+
+
 `ifdef sdram_ext_clk
 SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(4,clk0,rst0);
