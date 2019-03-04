@@ -71,7 +71,7 @@ export mksdram_wrap;        // module export
 interface Ifc_sdram_out#(numeric type io_width);
 	(*always_enabled,always_ready*)
     method Action ipad_sdr_din(Bit#(io_width) pad_sdr_din);
-    method Bit#(9) sdram_sdio_ctrl();
+//    method Bit#(9) sdram_sdio_ctrl();
     method Bit#(io_width) osdr_dout();
     method Bit#(8) osdr_den_n();
     method Bool osdr_cke();
@@ -96,6 +96,7 @@ interface Ifc_sdram_wrap#(
                            numeric type rfrsh_row_width);                       
       interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave_mem;
       interface AXI4_Slave_IFC#(addr_cntrl_width, data_cntrl_width, user_width) slave_cfg;
+	 (*always_ready, always_enabled*)
       interface Ifc_sdram_out#(io_width) io;
 endinterface
 
@@ -129,7 +130,7 @@ endfunction
 
 //(*synthesize*)
 //(*preempts="rl_send_rd_data, rl_check_drop"*)    
-module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst) `endif (Ifc_sdram_wrap#(
+module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
 													  addr_width, 
@@ -182,6 +183,10 @@ module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst) `endi
 `else
 	let clk0 <- exposeCurrentClock;
 	let rst0 <- exposeCurrentReset;
+`endif
+
+`ifndef simulate
+	Clock clk0_inv <- invertCurrentClock(clocked_by clk0);
 `endif
 
 function Bit#(9) fn_wr_len(Bit#(8) length, Bit#(3) awsize, Bit#(2) lwr_addr);
@@ -371,7 +376,7 @@ Reg#(Bit#(4))        rg_cfg_sdr_trcar_d <- mkConfigReg(4'h7,clocked_by clk0, res
 Reg#(Bit#(4))        rg_cfg_sdr_twr_d <- mkConfigReg(4'h1,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(2))        rg_cfg_sdr_width <- mkConfigReg(2'b0,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(2))        rg_cfg_colbits <- mkConfigReg(2'b01,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
+//Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
 Reg#(Bit#(8))        rg_cfg_sdr_clk_delay <- mkConfigReg(8'b10001000,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(9))		 rg_cfg_write_delay   <- mkReg(0, clocked_by clk0, reset_by rst0);
 Reg#(bit)			 rg_cfg_mem_sel		  <- mkReg(0, clocked_by clk0, reset_by rst0);
@@ -410,13 +415,13 @@ Reg#(Bit#(9))            rg_local_actual_wr_length <- mkReg(0);
 `ifdef sdram_ext_clk
 Reg#(Bit#(9))            rg_actual_wr_length <- mkSyncRegFromCC(0,clk0);
 Reg#(Bit#(addr_width))           rg_wr_address       <- mkSyncRegFromCC(0,clk0);
-`else 
+`else
 Reg#(Bit#(9))            rg_actual_wr_length <- mkReg(0);
 Reg#(Bit#(addr_width))   rg_wr_address       <- mkReg(0);
 `endif
 `ifdef sdram_ext_clk
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkSyncRegFromCC(0,clk0);
-`else 
+`else
 Reg#(Bit#(3))            rg_awsize_sclk       <- mkReg(0);
 `endif
 
@@ -434,30 +439,54 @@ Reg#(Read_state) rg_read_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
 
 FIFOF#(AXI4_Wr_Addr#(addr_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(1); // need to changed bcoz of bridge it is been changed
 FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(5);
-`ifdef sdram_ext_clk
-SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
-SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
-SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
-`else 
-FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
-FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedBRAMFIFOF(105);
-FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+
+`ifdef sdram_bram
+	`ifdef sdram_ext_clk
+		SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
+		SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncBRAMFIFOFromCC(64,clk0,rst0);
+		SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
+	`else
+		FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedBRAMFIFOF(105);
+		FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedBRAMFIFOF(105);
+		FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+	`endif
+`else
+	`ifdef sdram_ext_clk
+		SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     		 <- mkSyncFIFOFromCC(64,clk0);
+		SyncFIFOIfc#(Bit#(4))                    ff_ac_wr_wstrb    		 <- mkSyncFIFOFromCC(64,clk0);
+		SyncFIFOIfc#(Bool) 						 ff_sync_write_response	 <-mkSyncFIFOToCC(1,clk0,rst0);
+	`else
+		FIFOF#(Bit#(data_width))    ff_ac_wr_data		     <- mkSizedFIFOF(105);
+		FIFOF#(Bit#(4))             ff_ac_wr_wstrb    		 <- mkSizedFIFOF(105);
+		FIFOF#(Bool) 				ff_sync_write_response   <- mkSizedFIFOF(1);
+	`endif
 `endif
 
    //FIFOF#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_addr <- mkSizedFIFOF(3);
-`ifdef sdram_ext_clk
-FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(145, clocked_by clk0, reset_by rst0);
-//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+`ifdef sdram_bram
+	`ifdef sdram_ext_clk
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(145, clocked_by clk0, reset_by rst0);
+	//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+	`else
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(178);
+	`endif
 `else
-FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedBRAMFIFOF(178);
+	`ifdef sdram_ext_clk
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedFIFOF(145, clocked_by clk0, reset_by rst0);
+	//FIFOCountIfc#(Bit#(data_width), 145) ff_rd_data <- mkFIFOCount(clocked_by clk0, reset_by rst0);
+	`else
+		FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedFIFOF(178);
+	`endif
 `endif
+
+
 `ifdef sdram_ext_clk
 SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(4,clk0,rst0);
 SyncFIFOIfc#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(addr_cntrl_width)) ff_sync_ctrl_read<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSyncFIFOToCC(1,clk0,rst0);
-`else 
+`else
 FIFOF#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSizedFIFOF(1);
 FIFOF#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <- mkSizedFIFOF(4);
 FIFOF#(Tuple2#(Bit#(addr_cntrl_width),Bit#(data_cntrl_width))) ff_sync_ctrl_write<- mkSizedFIFOF(1);
@@ -468,7 +497,7 @@ FIFOF#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSizedFIFOF(1);
 Reg#(Bit#(2)) rg_poll_cnt <- mkReg(0,clocked_by clk0, reset_by rst0);
 `ifdef sdram_ext_clk
 Reg#(Bool)    rg_polling_status <- mkSyncRegToCC(False,clk0,rst0);
-`else 
+`else
 Reg#(Bool)    rg_polling_status <- mkReg(False);
 `endif 
 Reg#(Bool)    rg_polling_status_clk0 <- mkReg(False,clocked_by clk0, reset_by rst0);
@@ -513,7 +542,7 @@ function Action fn_wr_cntrl_reg(Bit#(data_cntrl_width) data, Bit#(addr_cntrl_wid
 
        `SDR_COLBITS     : rg_cfg_colbits <= data [1:0];
        
-       `SDR_SDIO_CTRL   : rg_cfg_sdio_ctrl <= data [8:0];
+//       `SDR_SDIO_CTRL   : rg_cfg_sdio_ctrl <= data [8:0];
 
        `SDR_CLK_DELAY   : rg_cfg_sdr_clk_delay <= data [7:0];
 
@@ -567,7 +596,7 @@ function Bit#(data_cntrl_width) fn_rd_cntrl_reg(Bit#(addr_cntrl_width) address);
 
        `SDR_COLBITS     : return extend(rg_cfg_colbits);
 
-       `SDR_SDIO_CTRL   : return extend(rg_cfg_sdio_ctrl);
+//       `SDR_SDIO_CTRL   : return extend(rg_cfg_sdio_ctrl);
 
        `SDR_CLK_DELAY   : return extend(rg_cfg_sdr_clk_delay);
 	
@@ -962,9 +991,9 @@ interface Ifc_sdram_out io;
     method Action ipad_sdr_din(Bit#(io_width) pad_sdr_din);
         sdr_cntrl.ipad_sdr_din(pad_sdr_din);
     endmethod
-    method Bit#(9) sdram_sdio_ctrl();
-        return rg_cfg_sdio_ctrl;
-    endmethod
+//    method Bit#(9) sdram_sdio_ctrl();
+//        return rg_cfg_sdio_ctrl;
+//    endmethod
     method Bit#(io_width) osdr_dout();
         return sdr_cntrl.osdr_dout();
     endmethod
@@ -1002,8 +1031,12 @@ interface Ifc_sdram_out io;
     method Bit#(13) osdr_addr ();
         return sdr_cntrl.osdr_addr;
     endmethod
-    
+`ifdef simulate    
     interface sdram_clk = clk0;
+`else
+	interface sdram_clk = clk0_inv;
+`endif
+
 endinterface
 
 
