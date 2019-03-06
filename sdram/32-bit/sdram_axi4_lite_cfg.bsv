@@ -75,7 +75,7 @@ interface Ifc_sdram_out#(numeric type io_width);
     method Action ipad_sdr_din(Bit#(io_width) pad_sdr_din);
 //    method Bit#(9) sdram_sdio_ctrl();
     method Bit#(io_width) osdr_dout();
-    method Bit#(8) osdr_den_n();
+    method Bit#(4) osdr_den_n();
     method Bool osdr_cke();
     method Bool osdr_cs_n();
     method Bool osdr_ras_n ();
@@ -509,6 +509,7 @@ Reg#(bit)     rg_odd_len     <- mkReg(0);
 
 `ifdef simulate 
 	Reg#(Bit#(9)) rg_debug_count <- mkReg(0);
+`endif
 // hardcoding the parameter value to resolve provisos
 AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Slave_Xactor;
 AXI4_Slave_Xactor_IFC #(addr_cntrl_width, data_cntrl_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Slave_Xactor;
@@ -1014,7 +1015,7 @@ interface Ifc_sdram_out io;
     method Bit#(io_width) osdr_dout();
         return sdr_cntrl.osdr_dout();
     endmethod
-    method Bit#(8) osdr_den_n();
+    method Bit#(4) osdr_den_n();
         return sdr_cntrl.osdr_den_n();
     endmethod
     method Bool osdr_cke();
