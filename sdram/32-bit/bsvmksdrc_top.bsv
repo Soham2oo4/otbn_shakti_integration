@@ -85,7 +85,7 @@ interface Ifc_sdram#(numeric type io_width,
 	(*always_enabled*)
 	method Bit#(io_width) osdr_dout ();
 	(*always_enabled*)
-	method Bit#(8) osdr_den_n ();
+	method Bit#(4) osdr_den_n ();
 	(*always_enabled*)
 	method Bool osdr_init_done ();
 	(*always_enabled*)
