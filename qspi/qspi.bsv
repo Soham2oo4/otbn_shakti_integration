@@ -148,8 +148,8 @@ package qspi;
 	Wire#(Bit#(4)) rg_input <-mkDWire(0);
 	Reg#(Bit#(32)) rg_count_bits <-mkReg(0); // count bits to be transfered 
 	Reg#(Bit#(32)) rg_count_bytes <-mkReg(0); // count bytes to be transfered 
-	Wire#(Bool) wr_sdr_clock <-mkDWire(False); // use this to trigger posedge of sclk
-    Reg#(Bool) wr_sdr_delayed <- mkReg(False);
+	Reg#(Bool) wr_sdr_clock <-mkDWire(False); // use this to trigger posedge of sclk
+    Reg#(Bool) wr_sdr_delayed <- mkDWire(False);
 	Reg#(Bool) wr_instruction_written<-mkDReg(False); // this wire is se when the instruction is written by the AXI Master
 	Reg#(Bool) wr_address_written<-mkDReg(False); // this wire is set when the address is written by the AXI Master
 	Reg#(Bool) wr_read_request_from_AXI<-mkDReg(False); // this wire is set when the address is written by the AXI Master
@@ -286,10 +286,15 @@ package qspi;
     Reg#(Bit#(32)) sdio2r   <- mkReg(32'h00000073);
     Reg#(Bit#(32)) sdio3r   <- mkReg(32'h00000073);
     Reg#(Bool) rg_request_ready <- mkReg(True);
-    Bool ddr_clock = ((wr_sdr_clock&&!wr_sdr_delayed)||(!wr_sdr_clock&&wr_sdr_delayed));
+	Reg#(Bit#(4)) rg_count <- mkReg(0);
+	Reg#(bit) ddr_en	<- mkReg(0);
+	Reg#(bit) init_mm_xip_delay <- mkReg(0);
+
+    Bool ddr_clock = ((wr_sdr_clock && !wr_sdr_delayed)||(!wr_sdr_clock && wr_sdr_delayed));
+//    Bool ddr_clock = (wr_sdr_clock || wr_sdr_delayed);
 	Bool transfer_cond  =  (sr_busy==1 && cr_abort==0 && cr_en==1);
-    Bool clock_cond = ((wr_sdr_clock && ccr_ddrm==0) || (ddr_clock && ccr_ddrm==1));
-    Bool qspi_flush = (cr_abort==1 || cr_en==0);
+    Bool clock_cond = ((wr_sdr_clock && ccr_ddrm==0) || (ddr_clock && ccr_ddrm==1)); //##
+    Bool qspi_flush = (cr_abort == 1 || cr_en == 0);
     /*************** End of QSPI defined Registers *****************/
   function Reg#(Bit#(32)) access_register(Bit#(8) address);
    Reg#(Bit#(32)) register=(
@@ -345,8 +350,8 @@ package qspi;
 		if(current_phase==DataWrite_phase)
 			next_phase=Idle;
 
-		if(next_phase==Instruction_phase && (ccr_imode==0||(ccr_sioo==1 && instruction_sent))) // if single instruction mode or no instruction mode
-			next_phase=Address_phase;
+		if(next_phase==Instruction_phase && (ccr_imode==0||(ccr_sioo==1 && instruction_sent)))// if single instruction mode or no instruction mode
+			next_phase = Address_phase;
 		if(next_phase==Address_phase && ccr_admode==0)
 			next_phase=AlternateByte_phase;
 		if(next_phase==AlternateByte_phase && ccr_abmode==0)
@@ -356,7 +361,7 @@ package qspi;
 		if(next_phase==Dummy_phase && (ccr_fmode=='b10 && pir_interval==0))begin // TODO Check if this is correct or needs more logic.
 			next_phase=Instruction_phase;
 		end
-		if((next_phase==DataWrite_phase || next_phase==DataRead_phase) && ccr_dmode==0 && ccr_fmode!='b11)begin
+		if((next_phase == DataWrite_phase || next_phase == DataRead_phase) && ccr_dmode==0 && ccr_fmode!='b11)begin
 			if(ccr_fmode=='b01 || ccr_fmode=='b00)
 				next_phase=Idle;
 			else if(ccr_fmode=='b10)
@@ -382,7 +387,7 @@ package qspi;
 			count_val=8;
 		end
 		if(next_phase==DataRead_phase)begin
-			count_val=0;
+			count_val= 0; 
 		end
 		Bit#(1) tcf=0;
 		if(current_phase!=Idle && next_phase==Idle && (ccr_fmode=='b00 || ccr_fmode=='b01))begin // only in indirect mode raise completion of transfer TODO remove ccr_fmode=='b11 from this line.
@@ -391,7 +396,7 @@ package qspi;
 		return tuple3(count_val,tcf,next_phase);
 	endfunction
 
-	Wrapper3#(Phase,Bit#(32),Bit#(1),Tuple3#(Bit#(32),Bit#(1),Phase)) change_phase<-mkUniqueWrapper3(phase_change);
+	Wrapper3#(Phase,Bit#(32),Bit#(1),Tuple3#(Bit#(32),Bit#(1),Phase)) change_phase <-mkUniqueWrapper3(phase_change);
 
 	/* This rule receives the write request from the AXI and updates the relevant
 	QSPI register set using the lower 12 bits as address map */
@@ -610,10 +615,12 @@ package qspi;
 	rule delayed_ncs_generation;
 		delay_ncs<=ncs;
 	endrule
-	
-    rule delay_sdr;
-        wr_sdr_delayed <= wr_sdr_clock;
-    endrule
+
+    
+//	rule delay_sdr;
+//		wr_sdr_clock <= sdr_clk;
+//        wr_sdr_delayed <= sdr_delayed_clk;
+//    endrule
     
     
     /* This rule generates the clk signal. The Prescaler register defines the 
@@ -637,18 +644,24 @@ package qspi;
 				else
 					rg_clk_counter<=rg_clk_counter+1;
 				if(rg_clk_counter == half_clock_value || rg_clk_counter==cr_prescaler)begin
-					wr_sdr_clock<=rg_phase==DataRead_phase?unpack(~rg_clk):unpack(rg_clk);
+					wr_sdr_clock<= rg_phase==DataRead_phase?unpack(~rg_clk):unpack(rg_clk);
 				end
 			end
 			else begin // even division
 				if(rg_clk_counter==half_clock_value)begin
 					rg_clk<=~rg_clk;
 					rg_clk_counter<=0;
-					wr_sdr_clock<=rg_phase==DataRead_phase?unpack(~rg_clk):unpack(rg_clk);
+					wr_sdr_clock <= rg_phase==DataRead_phase ? unpack(~rg_clk): unpack(rg_clk);
+					wr_sdr_delayed <= rg_phase==DataRead_phase ? unpack(rg_clk): unpack(~rg_clk);
+//					let debug_clk = rg_phase==DataRead_phase ? unpack(~rg_clk): unpack(rg_clk);
+					$display($stime(),"half_clock_value %d ", half_clock_value);
 				end
 				else if(delay_ncs==0)
 					rg_clk_counter<=rg_clk_counter+1;
 			end
+		end
+		if(rg_phase == DataRead_phase) begin // ##
+			$display($stime(),"clk_gen is firing rg_clk_counter %d", rg_clk_counter);
 		end
 	endrule
 
@@ -673,12 +686,15 @@ package qspi;
 			else if(ccr_fmode=='b10 && wr_data_read)begin // auto_status polling mode
 				sr_ftf<=0;
 			end
-            else if(ccr_fmode=='b11 && pack(fifo.count)>={1'b0,cr_fthres}+1) begin
-                ncs<=1;
-                sr_busy<=0;
-                rg_phase<=Idle; // Will this work?
-                thres<= True;
-                rg_request_ready <= True;
+            else if(ccr_fmode=='b11) begin
+				sr_ftf<=pack(pack(fifo.count)>=({1'b0,cr_fthres}+1)); 
+				if(pack(fifo.count)>={1'b0,cr_fthres}+1) begin
+					ncs<=1;
+					sr_busy<=0;
+					rg_phase<=Idle; // Will this work?
+					thres<= True;
+					rg_request_ready <= True;
+				end
              //   $display($time,"THRES is being set to TRUE kyaaaa?");
             end
 	endrule
@@ -739,25 +755,25 @@ package qspi;
 		end
 		else if((wr_address_written && ccr_admode!=0 && (ccr_fmode=='b01 || ccr_dmode=='d0 || ccr_fmode=='b10))|| (wr_data_written && ccr_admode!=0 && ccr_dmode!=0 && ccr_fmode=='b00))begin
 			sr_busy<=1; // start some transaction
-            `ifdef verbose $display("Address Written and going to Some mode"); `endif
+            `ifdef verbose $display($stime(),": Address Written and going to Some mode"); `endif
             ncs<=0;
 			let {x,y,z}<-change_phase.func(rg_phase,0,0);
 			rg_count_bits<=x;
 			rg_count_bytes<=0;
 			rg_phase<=z;
-            `ifdef verbose $display("Mode is :",fshow(z),"Count_bits : %d",x); `endif 
+            `ifdef verbose $display($stime(),": Mode is :",fshow(z),"Count_bits : %d",x); `endif 
             if(z==DataRead_phase)
                 read_true <= True;
 		end
 		else if(wr_read_request_from_AXI && ccr_fmode=='b11 && !thres)begin // memory-mapped mode.
-            `ifdef verbose $display("Entering Memory mapped mode"); `endif
+            `ifdef verbose $display($stime(),": Entering Memory mapped mode"); `endif
 			sr_busy<=1;
 			ncs<=0;
 			let {x,y,z}<-change_phase.func(rg_phase,0,0);
 			rg_count_bits<=x;
 			rg_count_bytes<=0;
 			rg_phase<=z;
-            `ifdef verbose $display("rg_phase :",fshow(z)); `endif
+            `ifdef verbose $display($stime(),": rg_phase :",fshow(z)); `endif
             if(z==DataRead_phase)
                 read_true <= True;
 		end
@@ -776,11 +792,11 @@ package qspi;
 
 	/* Rule to transfer the instruction of 8-bits outside. THe size of instruction is fixed
 	to 8 bits by protocol. Instruction phase will always be in SDR mode */
-	rule rl_transfer_instruction(rg_phase==Instruction_phase && transfer_cond && wr_sdr_clock && !qspi_flush);
+	rule rl_transfer_instruction(rg_phase==Instruction_phase && transfer_cond && wr_sdr_clock && !qspi_flush);		
 		Bool end_of_phase=False;
 		let reverse_instruction=ccr_instruction;
 		let count_val=rg_count_bits;
-		`ifdef verbose1 $display("Executing Instruction Phase SPI Mode: %b Count_bits: %d InstructionReverse: %h",ccr_imode,rg_count_bits,reverse_instruction); `endif
+		`ifdef verbose1 $display($stime(),": Executing Instruction Phase SPI Mode: %b Count_bits: %d InstructionReverse: %h",ccr_imode,rg_count_bits,reverse_instruction); `endif
 		Bit#(4) enable_o=0;
 		if(ccr_imode=='b01)begin // single spi mode;
 			enable_o=4'b1101;
@@ -828,20 +844,52 @@ package qspi;
 
 	/* Rule to transfer the address bits of address outside. The size of address is 
 	defined by the ccr_adsize register in ccr */
-	rule rl_transfer_address(rg_phase==Address_phase && transfer_cond  && clock_cond && !qspi_flush);
-    if(half_cycle_delay) begin
+	rule rl_transfer_address(rg_phase==Address_phase && transfer_cond && !qspi_flush);
+		$display($stime(),": Address phase init");
+    if(half_cycle_delay && ccr_ddrm == 0 && clock_cond) begin
+		$display($stime(),": Address phase initial delay 1");
        half_cycle_delay<=False;
-       read_true <= True;    //A workaround for the delay .. For DDR mode, the clock should be pushed one cycle and not half
+	   read_true <= True;	
     end
-    else if(read_true)
-        read_true <= False;
-    else begin
+	else if(half_cycle_delay && ccr_ddrm == 1 && ddr_en == 0 && ccr_fmode != 'b11) begin
+		if(rg_count == 3) begin
+			ddr_en <= 1;
+			half_cycle_delay <= False;
+		end
+		else begin
+			rg_count <= rg_count + 1;
+		end
+		$display($stime(),": Address phase initial delay 2");
+	end
+	else if(ccr_ddrm == 1 && ccr_fmode == 'b11 && ddr_en == 0 && init_mm_xip_delay == 0) begin
+		let cmp = 2;
+		if(ccr_dmode == 1)
+			cmp = 3; 
+		if(rg_count == cmp) begin
+			ddr_en <= 1;
+			init_mm_xip_delay <= 1;
+		end
+		else begin
+			rg_count <= rg_count + 1;
+		end
+		$display($stime(),": Address phase initial delay 3");
+	end
+	else if(ccr_ddrm == 1 && ddr_en == 0) begin
+		rg_count <= 1;
+		ddr_en <= 1;
+		$display($stime(),": Address phase initial delay 4");
+	end
+    else if((clock_cond && ccr_ddrm == 0) || (ccr_ddrm == 1 && ddr_en == 1)) begin
+		  if(rg_count > 0) begin
+			rg_count <= 0;
+			ddr_en <= 0;
+		  end
 		  Bool end_of_phase=False;
 			Bit#(4) enable_o=0;
-		  let count_val=rg_count_bits;
+            let count_val=rg_count_bits;
 			Bit#(32) address=(ccr_fmode=='b11)?zeroExtend(mm_address):ar;
             rg_prev_addr <= truncate(address);
-            `ifdef verbose1 $display($time,"Executing Address Phase SPI Mode: %b Address Size: %d Count_bits: %d Address: %b",ccr_admode,ccr_adsize,rg_count_bits,address); `endif 
+            `ifdef verbose1 $display($time,": Executing Address Phase SPI Mode: %b Address Size: %d Count_bits: %d Address: %b",ccr_admode,ccr_adsize,rg_count_bits,address); `endif 
 		  if(ccr_admode=='b01)begin // single spi mode;
 		  	enable_o=4'b1101;
 		  	rg_output<={1'b1,1'b0,1'b0,address[rg_count_bits-1]};
@@ -878,6 +926,9 @@ package qspi;
 		  	delay_sr_tcf<=y;
 		  	rg_phase<=z;
 		  	rg_count_bytes<=0;
+			init_mm_xip_delay <= 0; 
+			if(ccr_ddrm == 1 && ccr_dmode != 1)
+				half_cycle_delay <= True;
 		    if(z==DataRead_phase)
              read_true <= True;
           end
@@ -935,74 +986,89 @@ package qspi;
 	endrule
 	
     
-    rule rl_transfer_dummy_cycle(rg_phase==Dummy_phase && transfer_cond && wr_sdr_clock && !qspi_flush);
-        let {x,y,z} <- change_phase.func(rg_phase,rg_count_bits,0);
-        Bit#(5) count_val = rg_mode_byte_counter;
-        Bit#(4) enable_o = rg_output_en;
-        `ifdef verbose $display("\t Executing Dummy Phase: rg_mode_bytes: %b rg_mode_byte_counter: %d",rg_mode_bytes, rg_mode_byte_counter); `endif
-        if(ccr_dmode==1) begin
-          if(ccr_dummy_confirmation==1) begin
-            //rg_output_en <= 4'b1101;
-            enable_o = 4'b1101;
-            rg_output <= {1'b1,1'b0,1'b0,rg_mode_bytes[rg_mode_byte_counter]};
-            if(count_val!=0)
-                count_val = count_val - 1;
-            else
-                enable_o = 4'b0000;
-          end
-          else begin
-            //rg_output_en <= 4'b1101;
-            enable_o = 4'b1101;
-            rg_output <= {1'b1,1'b0,1'b0,1'b0};
-          end
-        end
-        else if(ccr_dmode==2) begin
-          if(ccr_dummy_confirmation==1) begin
-            //rg_output_en <= 4'b1111;
-            enable_o = 4'b1111;
-            rg_output <= {1'b1,1'b0,rg_mode_bytes[rg_mode_byte_counter:rg_mode_byte_counter-1]};
-            if(count_val!=0)
-                count_val = count_val - 2;
-            else
-                enable_o = 4'b0000;
-          end
-          else begin
-            //rg_output_en <= 4'b1100;
-            enable_o = 4'b1100;
-            rg_output <= {1'b1,1'b0,1'b0,1'b0};
-          end
-        end
-        else begin
-           if(ccr_dummy_confirmation==1) begin
-            //rg_output_en <= 4'b1111;
-            enable_o = 4'b1111;
-            rg_output <= rg_mode_bytes[rg_mode_byte_counter:rg_mode_byte_counter-3];
-            if(count_val!=3)
-                 count_val = count_val - 4;
-            else
-                enable_o = 4'b0000;
-           end
-           else begin
-               //rg_output_en <= 4'b0000;
-               enable_o = 4'b0000;
-           end
-        end
-        if(rg_count_bits==0 || (rg_count_bits==1 && z!=DataRead_phase))begin // end of dummy cycles;
-			delay_sr_tcf<=y;
-			rg_phase<=z;
-            `ifdef verbose $display("From Dummy to :",fshow(z)); `endif
-			if(z==DataRead_phase)
-                read_true <= True;
-           	rg_count_bytes<=0;
-			rg_count_bits<=x;
-            rg_mode_byte_counter <= 'd-1;  //All ones
-            if(ccr_ddrm==1)
-                half_cycle_delay<=True;
+    rule rl_transfer_dummy_cycle(rg_phase==Dummy_phase && transfer_cond && !qspi_flush);
+		if(ccr_ddrm == 1 && half_cycle_delay) begin
+			if(rg_count == 1) begin
+				half_cycle_delay <= False;
+			end
+			else
+				rg_count <= rg_count + 1;
+			$display($stime(),": dummy init delay");
 		end
-		else begin
-			rg_count_bits<=rg_count_bits-1;
-            rg_mode_byte_counter <= count_val;
-            rg_output_en <= enable_o;
+		else if(clock_cond || rg_count == 1) begin
+			rg_count <= 0;
+	        let {x,y,z} <- change_phase.func(rg_phase,rg_count_bits,0);
+	        Bit#(5) count_val = rg_mode_byte_counter;
+	        Bit#(4) enable_o = rg_output_en;
+	        `ifdef verbose $display($time(),": Executing Dummy Phase: rg_mode_bytes: %b rg_mode_byte_counter: %d",rg_mode_bytes, rg_mode_byte_counter); `endif
+	        if(ccr_dmode==1) begin
+	          if(ccr_dummy_confirmation==1) begin
+	            //rg_output_en <= 4'b1101;
+	            enable_o = 4'b1101;
+	            rg_output <= {1'b1,1'b0,1'b0,rg_mode_bytes[rg_mode_byte_counter]};
+	            if(count_val!=0)
+	                count_val = count_val - 1;
+	            else
+	                enable_o = 4'b0000;
+	          end
+	          else begin
+	            //rg_output_en <= 4'b1101;
+	            enable_o = 4'b1101;
+	            rg_output <= {1'b1,1'b0,1'b0,1'b0};
+	          end
+	        end
+	        else if(ccr_dmode==2) begin
+	          if(ccr_dummy_confirmation==1) begin
+	            //rg_output_en <= 4'b1111;
+	            enable_o = 4'b1111;
+	            rg_output <= {1'b1,1'b0,rg_mode_bytes[rg_mode_byte_counter:rg_mode_byte_counter-1]};
+	            if(count_val!=0)
+	                count_val = count_val - 2;
+	            else
+	                enable_o = 4'b0000;
+	          end
+	          else begin
+	            //rg_output_en <= 4'b1100;
+	            enable_o = 4'b1100;
+	            rg_output <= {1'b1,1'b0,1'b0,1'b0};
+	          end
+	        end
+	        else begin
+	           if(ccr_dummy_confirmation==1) begin
+	            //rg_output_en <= 4'b1111;
+	            enable_o = 4'b1111;
+	            rg_output <= rg_mode_bytes[rg_mode_byte_counter:rg_mode_byte_counter-3];
+				$display($stime(),"Dummy in memory map mode is firing %h",rg_output);
+	            if(count_val!=3)
+	                 count_val = count_val - 4;
+	            else
+	                enable_o = 4'b1111; // ##
+	           end
+	           else begin
+	               //rg_output_en <= 4'b0000;
+	               enable_o = 4'b0000;
+	           end
+	        end
+	        if(rg_count_bits==0 || (rg_count_bits==1 && z!=DataRead_phase))begin // end of dummy cycles;
+				delay_sr_tcf<=y;
+				rg_phase<=z;
+	            `ifdef verbose $display("From Dummy to :",fshow(z)); `endif
+				if(z==DataRead_phase) begin
+					if(ccr_ddrm == 0)		//##
+						read_true <= True;
+					$display($stime,": read is updated in dummy phase");
+				end
+	           	rg_count_bytes<=0;
+				rg_count_bits<=x;
+	            rg_mode_byte_counter <= 'd-1;  //All ones
+	            if(ccr_ddrm==1)
+	                half_cycle_delay<=True;
+			end
+			else begin
+				rg_count_bits<=rg_count_bits-1;
+	            rg_mode_byte_counter <= count_val;
+	            rg_output_en <= enable_o;
+			end
 		end
         endrule
     
@@ -1065,18 +1131,27 @@ package qspi;
 	put Bytes in the FIFO*/
     (*descending_urgency="rl_data_read_phase,rl_read_request_from_AXI"*)
     (*descending_urgency="rl_data_read_phase,rl_write_request_from_AXI"*)
-	rule rl_data_read_phase(rg_phase==DataRead_phase /*&& ccr_fmode!='b11*/ && transfer_cond && clock_cond && !qspi_flush);
+	rule rl_data_read_phase(rg_phase==DataRead_phase /*&& ccr_fmode!='b11*/ && transfer_cond && !qspi_flush);
 		//rg_output_en<=0;
-        if(half_cycle_delay || read_true) begin
-			half_cycle_delay<=False;
-            read_true <= False;
+        if((half_cycle_delay || read_true) && ccr_ddrm == 0 && clock_cond) begin
+				half_cycle_delay<=False;
+				read_true <= False;
         end
-		else begin
+        else if((half_cycle_delay || read_true) && ccr_ddrm == 1) begin
+			if(rg_count == 2) begin
+				half_cycle_delay<=False;
+				read_true <= False;
+			end
+			else
+				rg_count <= rg_count + 1;
+        end		
+		else if(clock_cond) begin
+			rg_count <= 0;
 			Bit#(32) data_reg=dr;
 			Bit#(32) count_byte=rg_count_bytes;
 			Bit#(32) count_bits=rg_count_bits;
 			Bit#(32) data_length1=(ccr_fmode=='b11)?mm_data_length:dlr;
-            `ifdef verbose1 $display($time,"Executing DataRead Phase SPI Mode: %b DLR : %d Count_bits: %d Input :%b ccr_ddrm: %b",ccr_dmode,data_length1,rg_count_bits,rg_input,ccr_ddrm); `endif 
+            `ifdef verbose1 $display($time,": Executing DataRead Phase SPI Mode: %b DLR : %d Count_bits: %d Input :%b ccr_ddrm: %b rg_count_byte %h",ccr_dmode,data_length1,rg_count_bits,rg_input,ccr_ddrm, rg_count_bytes); `endif 
 			/* write incoming bit to the data register */
 			if(ccr_dmode==1)begin // single line mode;
 				data_reg=data_reg<<1;
@@ -1103,12 +1178,13 @@ package qspi;
 				count_bits=count_bits+1;
 			end
 
+	$display($stime()," Data read phase data_length %h data_length1 %h", data_length, data_length1);
 			/* write the last successfully received byte into the FIFO */
 			if(ccr_dmode==1)begin// single line mode
-                if(count_byte==data_length-1 && ccr_ddrm==1 && count_bits[2:0]=='b111) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
+                if(count_byte==data_length1 && ccr_ddrm==1 && count_bits[2:0]=='b111) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
                     ncs<=1;
 				if(rg_count_bits[2:0]=='b111)begin // multiple of eight bits have been read.
-					`ifdef verbose1 $display("Enquing FIFO"); `endif
+					`ifdef verbose1 $display($stime(),"Enquing FIFO count_byte %h", count_byte); `endif
 					Vector#(4,Bit#(8)) temp = newVector();
 					temp[0]=data_reg[7:0];
                     `ifdef verbose $display($time,"Single Enqueing FIFO : data is %h",temp[0]); `endif
@@ -1118,8 +1194,10 @@ package qspi;
 				end
 			end
 			else if(ccr_dmode==2) begin // dual line mode	
-                if(count_byte==data_length-1 && ccr_ddrm==1 && count_bits[1:0]=='b11) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
+                if(count_byte==data_length1 && ccr_ddrm==1 && count_bits[1:0]=='b11) begin //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
+					$display($stime(),"data read phase ncs made 1");
                     ncs<=1;
+				end
 				if(rg_count_bits[1:0]=='b11)begin // multiple of eight bits have been read.
 					`ifdef verbose1 $display("Enquing FIFO"); `endif
 					Vector#(4,Bit#(8)) temp = newVector();
@@ -1131,7 +1209,7 @@ package qspi;
 				end
 			end
 			else if(ccr_dmode==3) begin // quad line mode	
-                if(count_byte==data_length-1 && ccr_ddrm==1 && count_bits[0]=='b1) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
+                if(count_byte==data_length && ccr_ddrm==1 && count_bits[0]=='b1) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
                     ncs<=1;
 				if(rg_count_bits[0]=='b1)begin // multiple of eight bits have been read.
 					`ifdef verbose1 $display("Enquing FIFO"); `endif
@@ -1145,7 +1223,7 @@ package qspi;
 			end
 
 			bit smf=0;
-            `ifdef verbose $display("count_byte: %d data_length1: %d",count_byte,data_length1); `endif 
+            `ifdef verbose $display($stime(),"count_byte: %d data_length1: %d",count_byte,data_length1); `endif 
 			/* condition for termination of dataread_phase */
 			if(data_length1!='hFFFFFFFF)begin // if limit is not undefined
 				if(count_byte==data_length1)begin // if limit has bee reached.
@@ -1178,19 +1256,20 @@ package qspi;
                             first_read <= False;
                             //rg_request_ready <= True;
                         end
-					  end
-					    let {x,y,z}<-change_phase.func(rg_phase,rg_count_bits,smf);
+				    end
+					let {x,y,z}<-change_phase.func(rg_phase,rg_count_bits,smf);
                       /*  if(z==DataRead_phase)
                             read_true <= True;*/
-					    rg_phase<=z;
-                        `ifdef verbose  $display("rg_phase:",fshow(z),"sr_tcf: %d",y); `endif
-					    sr_tcf<=y; // set completion of transfer flag
-					    rg_count_bytes<=0;
-					    rg_count_bits<=0;
+					rg_phase<=z;
+                    `ifdef verbose  $display("rg_phase:",fshow(z),"sr_tcf: %d",y); `endif
+					sr_tcf<=y; // set completion of transfer flag
+					rg_count_bytes<=0;
+					rg_count_bits<=0;
 				end
 				else begin
 					rg_count_bytes<=count_byte;
 					rg_count_bits<=count_bits;
+					$display($stime(),": read data count bits 1");
 				end
 			end
 			else if(dcr_fsize!='h1f)begin // if limit is not infinite
@@ -1208,11 +1287,13 @@ package qspi;
 				else begin
 					rg_count_bytes<=count_byte;
 					rg_count_bits<=count_bits;
+					$display($stime(),": read data count bits 2");
 				end
 			end
-			else begin // keep looping untill abort signal is not raised.
+			else begin // keep looping until abort signal is not raised.
 				rg_count_bytes<=count_byte;
 				rg_count_bits<=count_bits;
+			    $display($stime(),": read data count bits 3");
 			end
 			dr<=data_reg;
 			sr_smf<=smf;
@@ -1306,10 +1387,10 @@ package qspi;
 	endrule
 
 	rule display_all_Registers;
-		`ifdef verbose1 $display($time,"\tPhase: ",fshow(rg_phase)," CR WRitten %d",wr_instruction_written, "Address Written: %d",wr_address_written); `endif
-		`ifdef verbose1 $display($time,"\tCR: %h\tDCR: %h\tSR: %h\tFCR: %h",cr,dcr,sr,fcr); `endif
-		`ifdef verbose1 $display($time,"\tDLR: %h\tCCR: %h\tAR: %h\tABR: %h",dlr,ccr,ar,abr); `endif
-		`ifdef verbose1 $display($time,"\tDR: %h\tPSMKR: %h\tPSMAR: %h\tPIR: %h",dr,psmkr,psmar,pir,"\n"); `endif
+		`ifdef verbose2 $display($time,"\tPhase: ",fshow(rg_phase)," CR WRitten %d",wr_instruction_written, "Address Written: %d",wr_address_written); `endif
+		`ifdef verbose2 $display($time,"\tCR: %h\tDCR: %h\tSR: %h\tFCR: %h",cr,dcr,sr,fcr); `endif
+		`ifdef verbose2 $display($time,"\tDLR: %h\tCCR: %h\tAR: %h\tABR: %h",dlr,ccr,ar,abr); `endif
+		`ifdef verbose2 $display($time,"\tDR: %h\tPSMKR: %h\tPSMAR: %h\tPIR: %h",dr,psmkr,psmar,pir,"\n"); `endif
 	endrule
 
 	`ifdef simulate
