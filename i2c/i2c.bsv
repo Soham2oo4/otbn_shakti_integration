@@ -189,6 +189,7 @@ endfunction
 //////////////////////////////////////////////////////////////////////////////
 ///////////Register Declarations/////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
+      String i2c = "";
         
         //Timing Registers
       Reg#(Bit#(1))               val_SCL        <-  mkReg(1);                    // SCL value that is sent through the inout pin using tristate
@@ -309,8 +310,8 @@ endfunction
 
 
       //Function to access Registers
-      function Tuple2#(Bool,Bit#(data_width)) get_i2c(I2C i2c);
-        case (i2c)
+      function Tuple2#(Bool,Bit#(data_width)) get_i2c(I2C i2c_state);
+        case (i2c_state)
           Control         : return tuple2(False,duplicate(mcontrolReg));   //~ Are we creating new reg each time
           Status          : return tuple2(False,duplicate(mstatusReg));
           S01             : return tuple2(False,duplicate(s01));
@@ -333,12 +334,12 @@ endfunction
       endfunction
 
       //Function to write into the registers
-      function ActionValue#(Bool) set_i2c(I2C i2c,Bit#(32) value )= actionvalue
+      function ActionValue#(Bool) set_i2c(I2C i2c_state,Bit#(32) value )= actionvalue
           Bool err=False;
-          case(i2c) 
+          case(i2c_state) 
             Control : begin
               zero <= 0;  //Indicates to the Driver that the control register has been written in the beginning
-              `logLevel(2, $format("Control Written"))
+              `logLevel( i2c, 2, $format("Control Written"))
               if(!intCond && mTransFSM != NAck) 
               	configchange <=1;
               if(value[2:1] == 2 && (intCond || mTransFSM == NAck) && bb == 0 ) begin  //RT START  CONDITIONS
@@ -347,13 +348,13 @@ endfunction
             	  mTransFSM <= RTSTA;
             	  dOutEn<= True;
             	  cOutEn<=True;
-            	  `logLevel(2, $format("Repeated Start Instruction received"))
+            	  `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
             	  controlReg <= 8'hc5 | truncate(value);       //TODO 45h Check this out
             	  val_SDA <= 1;
             	  sendInd <= 2;
               end
               else if(value[2:1] == 2 && bb == 0) begin
-              	`logLevel(2, $format("Invalid Rt Start"))
+              	`logLevel( i2c, 2, $format("Invalid Rt Start"))
               	mTransFSM <= End;
               	dOutEn <= True;
               	cOutEn <= True;
@@ -363,8 +364,8 @@ endfunction
               else
                 mcontrolReg._write(truncate(value)); 
             end
-            S01: begin s01._write(truncate(value)); `logLevel(2, $format("S01 written")) end
-            S0 : begin s0._write(truncate(value)); `logLevel(2, $format("S0 written")) pin <=1; end
+            S01: begin s01._write(truncate(value)); `logLevel( i2c, 2, $format("S01 written")) end
+            S0 : begin s0._write(truncate(value)); `logLevel( i2c, 2, $format("S0 written")) pin <=1; end
             S2 : begin
               if(eso == 0) begin
                 mod_start <= True;
@@ -373,7 +374,7 @@ endfunction
                 mTransFSM <= Idle;	 
                 s2._write(truncate(value));
               end
-              `logLevel(2, $format("S2 written")) 
+              `logLevel( i2c, 2, $format("S2 written")) 
             end
             S3 :  s3._write(truncate(value));  //~ default
             SCL: begin
@@ -384,7 +385,7 @@ endfunction
 				        c_scl._write(truncate(value));
                 mTransFSM <= Idle;	 
 				      end 
-				      `logLevel(2, $format("Received scl but eso was %d",eso))
+				      `logLevel( i2c, 2, $format("Received scl but eso was %d",eso))
 			      end 
             Time    : i2ctime._write(truncate(value));
             DRV0    : drv0_rg <= value[7:0];
@@ -414,7 +415,7 @@ endfunction
       (* mutually_exclusive = "set_scl_clock,count_scl,restore_scl" *)
 
       rule set_i2c_clock (mod_start && eso==1'b0); //Sync problems might be there - check  //~ eso is mkregU + shouldnt it be 0 
-        `logLevel(2, $format("I2C is Setting"))
+        `logLevel( i2c, 2, $format("I2C is Setting"))
         mod_start <= False;
         // TODO Currently I2C clock can be set only once when starting -- should see if it should 
         //    dynamically changed
@@ -424,7 +425,7 @@ endfunction
 
       (* doc = "This rule is used to select one of the SCL clock frequencies among the ones based on the s2 register encoding" *)
       rule set_scl_clock(scl_start && eso == 1'b0 ); //~ eso should be 0 + regU not
-        `logLevel(2, $format("SCL is Setting"))
+        `logLevel( i2c, 2, $format("SCL is Setting"))
         scl_start <= False;
         coSCL <= c_scl;
         reSCL <= c_scl;
@@ -498,21 +499,21 @@ endfunction
       (* doc = "Checks the control Reg (after Driver updates it) and based on byte loaded goes to Write/Read" *)
       rule check_control_reg(configchange == 1 && pwesoCond && !intCond && mTransFSM != Idle 
                                                     && mTransFSM !=NAck); //~ mod edge and serial on 
-        `logLevel(2, $format("Configchanged fire"))
+        `logLevel( i2c, 2, $format("Configchanged fire"))
         configchange <= 0 ;  // Discuss For More than 1 enques 
         if(controlReg[2:1] == 2  && bb==0) begin  // Start 
-          `logLevel(2, $format("Invalid Start"))
+          `logLevel( i2c, 2, $format("Invalid Start"))
         end
         else if(controlReg[2:1] == 2) begin
            mTransFSM <= STA;
            st_toggle <= True;
            val_SDA <= 1;
-           `logLevel(2, $format("Start Received"))
+           `logLevel( i2c, 2, $format("Start Received"))
            dOutEn <= True;
            cOutEn <= True;
         end
         else if(controlReg[2:1] == 1 ) begin // Stop 
-          `logLevel(2, $format("Invalid Stop",mTransFSM))
+          `logLevel( i2c, 2, $format("Invalid Stop",mTransFSM))
     			mTransFSM <= End;
     			dOutEn <= True;
     			cOutEn <= True;
@@ -539,10 +540,10 @@ endfunction
       (* doc = "Send Start bit to the Slave" *)
       //~ pwi2c & i2c on & both transrec - sta 
       rule send_start_trans(val_SCL_in == 1 && startBit && pwesoCond && bb == 1);
-        `logLevel(2, $format("Came Here",sendInd))
+        `logLevel( i2c, 2, $format("Came Here",sendInd))
         if(val_SDA == 0) begin
           mTransFSM <= SendAddr;  //~Once Cycle Delay whats 0-1 ?
-          `logLevel(2, $format("start sent"))
+          `logLevel( i2c, 2, $format("start sent"))
           bb  <= 0;        
           sta <=0 ; 
           s3 <=  'h0B;                      
@@ -554,10 +555,10 @@ endfunction
       endrule
       //~ pwi2c & i2c on & both transrec - sta
       rule send_rtstart_trans(val_SCL_in == 1 && mTransFSM == RTSTA  && pwesoCond ); 
-        `logLevel(2, $format("Here"))
+        `logLevel( i2c, 2, $format("Here"))
         if(val_SDA == 0)begin //If I read val_SDA - Next transaction is x or it is normal--- Why?  //~ it was because of code bug send ind going to -1
           mTransFSM <= Intrpt;  //~Once Cycle Delay whats 0-1 ?
-          `logLevel(2, $format("RT start sent"))
+          `logLevel( i2c, 2, $format("RT start sent"))
           pin<=0;
           i2ctimeout <=1;
           bb  <= 0;
@@ -581,16 +582,16 @@ endfunction
 		        operation <= Write;
 		      else
 		        operation <= Read;
-          `logLevel(2, $format("Address Sent"))
+          `logLevel( i2c, 2, $format("Address Sent"))
         end
         else begin
           dataBit <= dataBit - 1;
           val_SDA <= s0[dataBit-1];
-          `logLevel(2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit - 1,s0[dataBit-1]))
+          `logLevel( i2c, 2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit - 1,s0[dataBit-1]))
         end
       endrule    
       rule check_Ack(ackCond && pwsclCond);  //Should Fire When SCL is high  //~shouldn't it be pwsclcond or sclsync
-        //`logLevel(2, $format("Value : %d ,Condition : ",line_SDA,line_SDA!=0 ))
+        //`logLevel( i2c, 2, $format("Value : %d ,Condition : ",line_SDA,line_SDA!=0 ))
         dataBit <= 8;
         i2ctimeout <= 1;
         if(val_SDA_in != 0 && val_SCL == 0 ) begin //Line SCL is actually high
@@ -604,11 +605,11 @@ endfunction
               s3 <= 'h04;
           else
               s3 <= 'h05;
-          `logLevel(2, $format("Acknowledgement Not Received Bus Error"))
+          `logLevel( i2c, 2, $format("Acknowledgement Not Received Bus Error"))
         end
         else if(val_SCL == 1) begin // Acknowledgement is done // Here line scl is actually low 
           pin <= 0;
-      		`logLevel(2, $format("eni : %d",eni))
+      		`logLevel( i2c, 2, $format("eni : %d",eni))
           if(mTransFSM == SendAddr || mTransFSM == SendData )
             s3 <= 'h02;
           else
@@ -616,7 +617,7 @@ endfunction
           ad0_lrb <= 0;      
           dOutEn<= True;     
           mTransFSM <= Intrpt;
-          `logLevel(2, $format("Acknowledgement Received. Waiting For Interupt Serve ")) 
+          `logLevel( i2c, 2, $format("Acknowledgement Received. Waiting For Interupt Serve ")) 
         end
       endrule
 
@@ -636,31 +637,31 @@ endfunction
             st_toggle <= False;
         end
         else begin
-          `logLevel(2, $format("Interupt Is Served. Along with pin & control reg - %d & operation - %d ",
+          `logLevel( i2c, 2, $format("Interupt Is Served. Along with pin & control reg - %d & operation - %d ",
                                                                               controlReg,operation))
           i2ctimeout <= 1;
           st_toggle <= True;
           if(controlReg[2:1] == 2) begin
-          	`logLevel(2, $format("Invalid Start"))
+          	`logLevel( i2c, 2, $format("Invalid Start"))
           	ber <=1 ;
           	mTransFSM <= ResetI2C;
           end
           else if(controlReg[2:1] == 1) begin       //Signalling the end of transaction
             mTransFSM <= End; 
             val_SDA <= 0;
-            `logLevel(2, $format("Received Stop Condition ",val_SDA)) 
+            `logLevel( i2c, 2, $format("Received Stop Condition ",val_SDA)) 
           end
           else if(s3 == 'h0A) begin 
             mTransFSM <= SendAddr;
             dOutEn <= True;
-            `logLevel(2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
+            `logLevel( i2c, 2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
             dataBit <= dataBit - 1;
             val_SDA <= s0[dataBit - 1];
           end
           else if(operation == Write) begin
             mTransFSM <= SendData;
             dOutEn <= True;
-            `logLevel(2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
+            `logLevel( i2c, 2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
             dataBit <= dataBit - 1;
             val_SDA <= s0[dataBit - 1];
           end
@@ -677,14 +678,14 @@ endfunction
         
       (* doc = "Shift the 8-bit data through the SDA line at each low pulse of SCL" *)
       rule send_data(mTransFSM == SendData && sclSync);  
-        `logLevel(2, $format("WData: TriState SDA Value : %b", val_SDA._read))
+        `logLevel( i2c, 2, $format("WData: TriState SDA Value : %b", val_SDA._read))
         if(dataBit == 'd0) begin  //~ smthhng
           mTransFSM <= Ack;
           dOutEn <= False;
-          `logLevel(2, $format("Leaving Bus For Acknowledge"))
+          `logLevel( i2c, 2, $format("Leaving Bus For Acknowledge"))
         end 
         else begin
-          `logLevel(2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
+          `logLevel( i2c, 2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
           dataBit <= dataBit - 1;
           val_SDA <= s0[dataBit - 1];
         end
@@ -692,7 +693,7 @@ endfunction
         
       (* doc = "Receive the 8-bit data through the SDA line at each high pulse of SCL" *)
       rule receive_data(mTransFSM == ReadData && sclnSync);  //~ Rising Edge  
-        `logLevel(2, $format("Receiving Bit %d In Positive Cycle And Bit %d",dataBit - 1,val_SDA_in))
+        `logLevel( i2c, 2, $format("Receiving Bit %d In Positive Cycle And Bit %d",dataBit - 1,val_SDA_in))
         dataBit <= dataBit - 1;
         s0[dataBit - 1 ] <= val_SDA_in;        
       endrule
@@ -703,7 +704,7 @@ endfunction
           if(resetcount == 'd59) begin 
             ber <= 0;
             mTransFSM <= ResetI2C;
-            `logLevel(2, $format("Resetting"))
+            `logLevel( i2c, 2, $format("Resetting"))
             s3 <= 'h07;
           end
         end
@@ -715,13 +716,13 @@ endfunction
                                               ( dataBit == 0  || dataBit == 8) );  //~ Falling Edge 	
         if(dataBit == 0) begin
           if(!last_byte_read) begin
-            `logLevel(2, $format("Going to Ack, Taking controll of the bus btw"))
+            `logLevel( i2c, 2, $format("Going to Ack, Taking controll of the bus btw"))
             mTransFSM <= Ack;
             val_SDA <= 0;
             dOutEn <= True;
           end         
           else begin
-            `logLevel(2, $format("Going to NAck, Taking controll of the bus btw"))
+            `logLevel( i2c, 2, $format("Going to NAck, Taking controll of the bus btw"))
             mTransFSM <= NAck_1;
             val_SDA <= 1;
             dataBit <= 8 ;
@@ -748,7 +749,7 @@ endfunction
 
       (* doc = "Send a STOP bit signifying no more transaction from this master" *)
       rule send_stop_condition(stopBit && pwesoCond && val_SCL_in == 1); //~ it might be fal edge
-        `logLevel(2, $format("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read))
+        `logLevel( i2c, 2, $format("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read))
         if(val_SDA == 1) begin
           mTransFSM <= Idle;
           //  statusReg  <= 'b0000001;
@@ -768,26 +769,26 @@ endfunction
 																									AccessSize size);
    
         //TODO - What if a read request is issued to the data register
-        `logLevel(2, $format("AXI Read Request pin %d",pin))
+        `logLevel( i2c, 2, $format("AXI Read Request pin %d",pin))
         if(truncate(addr) == pack(S0)) begin
    	     pin <=1;      
-	       `logLevel(2, $format("Setting pin to 1 in read phase"))
+	       `logLevel( i2c, 2, $format("Setting pin to 1 in read phase"))
         end
    	    else if(truncate(addr) == pack(Status)) begin
-   	       `logLevel(2, $format("Clearing Status Bits"))
+   	       `logLevel( i2c, 2, $format("Clearing Status Bits"))
    	       ber <= 0;  	             
    	    end
 	     
         let {err,data} =  get_i2c(unpack(truncate(addr)));
-        `logLevel(2, $format("Register Read  %h: Value: %d ",addr,data))
+        `logLevel( i2c, 2, $format("Register Read  %h: Value: %d ",addr,data))
         return tuple2(data,err);
       endmethod
 
 		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-        `logLevel(2, $format("Wr_addr : %h Wr_data: %h", addr, data))
+        `logLevel( i2c, 2, $format("Wr_addr : %h Wr_data: %h", addr, data))
         let err <- set_i2c(unpack(truncate(addr)),truncate(data));
-        `logLevel(2, $format("Received Value %d",data))
+        `logLevel( i2c, 2, $format("Received Value %d",data))
         if(ber==1)
           return True;
         else
