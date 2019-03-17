@@ -41,6 +41,7 @@ package bram;
 	import device_common::*;
   import Assert::*;
 
+  `include "Logger.bsv"
   export Ifc_bram_axi4 (..);
   export Ifc_bram_axi4lite (..);
   export mkbram_axi4;
@@ -63,7 +64,6 @@ package bram;
              Add#(4, a__, TDiv#(data_width, 8)),  // wstrb is between 4 and 8
              Mul#(TDiv#(TSub#(data_width, 32), 4), 4, TSub#(data_width, 32)),
              Bits#(Maybe#(Bit#(TSub#(index_size, 2))), b__));
-    Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
   	// we create 2 32-bit BRAMs since the xilinx tool is easily able to map them to BRAM32BE cells
   	// which makes it easy to use data2mem for updating the bit file.
@@ -101,9 +101,8 @@ package bram;
       `ifdef ASSERT
         wr_write_index<= tagged Valid (index_address);
       `endif
-  		if(verbosity!= 0)
-        $display($time, "\t",modulename,": Recieved Write Request for Address: %h Index: %h\
- Data: %h wrstrb: %h", addr, index_address, data, strb);
+      `logLevel( bram, 0, $format("",modulename,": Recieved Write Request for Address: %h Index: %h\
+ Data: %h wrstrb: %h", addr, index_address, data, strb))
   	endmethod
   
     // The write response will always be an error.
@@ -122,9 +121,8 @@ package bram;
   		dmemLSB.a.put(0, index_address, ?);
       dmemMSB.a.put(0, index_address, ?);
       read_request_sent[1]<= True;
-  		if(verbosity!= 0)
-        $display($time, "\t",modulename,": Recieved Read Request for Address: %h Index: %h",  
-                                                                            addr, index_address);
+      `logLevel( bram, 0, $format("",modulename,": Recieved Read Request for Address: %h Index: %h",  
+                                                                            addr, index_address))
       `ifdef ASSERT
         wr_read_index<= tagged Valid (index_address);
       `endif
@@ -157,7 +155,6 @@ package bram;
     UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, msb_file, lsb_file,
         modulename);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Integer verbosity = `VERBOSITY;
     Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
     Reg#(Mem_State) write_state <-mkReg(Idle);
@@ -237,8 +234,7 @@ package bram;
         data0=duplicate(data0[7:0]);
       AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
-  		if(verbosity!=0) 
-        $display($time, "\t",modulename,": Responding Read Request with Data: %h ",data0);
+      `logLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
@@ -263,7 +259,6 @@ package bram;
     UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, msb_file, lsb_file,
       modulename);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
-    Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     Reg#(Bit#(2)) rg_size <-mkReg(3);
     Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
@@ -298,8 +293,7 @@ package bram;
         data0=duplicate(data0[7:0]);
       AXI4_Lite_Rd_Data#(data_width, user_width) r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata: data0 , 
         ruser: 0};
-  		if(verbosity!=0) 
-        $display($time, "\t",modulename,": Responding Read Request with Data: %h ",data0);
+      `logLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
@@ -365,7 +359,7 @@ package bram;
 //      D_channel_lite#(w, z) lv_resp=D_channel_lite { d_opcode : AccessAckData, d_size : rg_size, 
 //            d_source : rg_source, d_sink : ?, d_data : data0, d_error : False};
 //  		if(verbosity!=0) 
-//        $display($time, "\t",modulename,": Responding Read Request with Data: %h ", data0);
+//        `logLevel( bram, 0, $format("",modulename,": Responding Read Request with Data: %h ", data0);
 //	  	read_xactor.core_side.xactor_response.put(lv_resp);
 //    endrule
 //    interface read_slave = read_xactor.fabric_side;

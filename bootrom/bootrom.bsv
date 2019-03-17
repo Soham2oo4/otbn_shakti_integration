@@ -22,29 +22,6 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISI
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 
-Copyright (c) 2018, IIT Madras All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions
-  and the following disclaimer.  
-* Redistributions in binary form must reproduce the above copyright notice, this list of 
-  conditions and the following disclaimer in the documentation and/or other materials provided 
- with the distribution.  
-* Neither the name of IIT Madras  nor the names of its contributors may be used to endorse or 
-  promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
---------------------------------------------------------------------------------------------------
-
 Author: Neel Gala, Deepa N Sarma
 Email id: neelgala@gmail.com
 Details:
@@ -65,6 +42,7 @@ package bootrom;
   import device_common::*;
   `include "bootrom.defines"
 
+  `include "Logger.bsv"
   export mkbootrom_axi4;
   export mkbootrom_axi4lite;
 //  export mkbootrom_TLU;
@@ -87,7 +65,6 @@ package bootrom;
              Mul#(16, b__, data_width),
              Mul#(32, c__, data_width));
   
-    Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     Bit#(addr_width) base_address=fromInteger(slave_base);
   	// we create 2 32-bit BRAMs since the xilinx tool is easily able to map them to BRAM32BE cells
@@ -105,8 +82,7 @@ package bootrom;
     
     // A write request to bootrom has no significance.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
-      if(verbosity!= 0)
-    		$display($time, "\tBootROM: Illegal Write operation on BootROM");
+    	`logLevel( bootrom, 0, $format("BootROM: Illegal Write operation on BootROM"))
   	endmethod
   
     // The write response will always be an error.
@@ -122,9 +98,8 @@ package bootrom;
   		dmemLSB.put(False, index_address, ?);
       dmemMSB.put(False, index_address, ?);
       read_request_sent<= True;
-  		if(verbosity!= 0)
-        $display($time, "\tBootROM: Recieved Read Request for Address: %h Index Address: %h b: %d",  
-                                                                     addr, index_address, byte_offset);
+      `logLevel( bootrom, 0, $format("BootROM: Recieved Read Request for Address: %h \
+Index Address: %h b: %d", addr, index_address, byte_offset))
   	endmethod
   
     // respond with data from the BRAM.
@@ -149,7 +124,6 @@ package bootrom;
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width) dut <- mkbootrom(slave_base);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Integer verbosity = `VERBOSITY;
     Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
     Reg#(Mem_State) write_state <-mkReg(Idle);
@@ -208,8 +182,7 @@ package bootrom;
   		let transfer_size=rg_read_packet.arsize;
       AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
-  		if(verbosity!=0) 
-        $display($time, "\tBootROM : Responding Read Request with Data: %h ", data0);
+      `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
@@ -227,7 +200,6 @@ package bootrom;
              Mul#(32, c__, data_width));
     UserInterface#(addr_width, data_width) dut <- mkbootrom(slave_base);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
-    Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     Reg#(Bit#(2)) rg_size <-mkReg(3);
     Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
@@ -252,8 +224,7 @@ package bootrom;
       let {err, data0}<-dut.read_response;
       AXI4_Lite_Rd_Data#(data_width, user_width) r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata: data0 , 
         ruser: 0};
-  		if(verbosity!=0) 
-        $display($time, "\tBootROM : Responding Read Request with Data: %h ", data0);
+      `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
@@ -309,7 +280,7 @@ package bootrom;
 //      D_channel_lite#(w, z) lv_resp=D_channel_lite { d_opcode : AccessAckData, d_size : rg_size, 
 //            d_source : rg_source, d_sink : ?, d_data : data0, d_error : False};
 //  		if(verbosity!=0) 
-//        $display($time, "\tBootROM : Responding Read Request with Data: %h ", data0);
+//        `logLevel( bootrom, 0, $format("BootROM : Responding Read Request with Data: %h ", data0);
 //	  	s_xactor.core_side.xactor_response.put(lv_resp);
 //    endrule
 //    interface slave = s_xactor.fabric_side;
