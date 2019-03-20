@@ -73,7 +73,7 @@ interface Ifc_sdram_out#(numeric type io_width);
     method Action ipad_sdr_din(Bit#(io_width) pad_sdr_din);
 //    method Bit#(9) sdram_sdio_ctrl();
     method Bit#(io_width) osdr_dout();
-    method Bit#(8) osdr_den_n();
+    method Bit#(4) osdr_den_n();
     method Bool osdr_cke();
     method Bool osdr_cs_n();
     method Bool osdr_ras_n ();
@@ -997,7 +997,7 @@ interface Ifc_sdram_out io;
     method Bit#(io_width) osdr_dout();
         return sdr_cntrl.osdr_dout();
     endmethod
-    method Bit#(8) osdr_den_n();
+    method Bit#(4) osdr_den_n();
         return sdr_cntrl.osdr_den_n();
     endmethod
     method Bool osdr_cke();
