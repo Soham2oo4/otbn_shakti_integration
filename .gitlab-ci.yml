@@ -14,6 +14,7 @@ compile-check:
         - make TOP_FILE=onfi_template.bsv TOP_DIR=onfi
         - make TOP_FILE=plic_template.bsv TOP_DIR=plic
         - make TOP_FILE=i2c_template.bsv TOP_DIR=i2c
+        - make TOP_FILE=qspi_template.bsv TOP_DIR=qspi
     only:
         - master
     tags:
