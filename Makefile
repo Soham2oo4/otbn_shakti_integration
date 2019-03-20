@@ -17,6 +17,13 @@ VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-i
 
 ## VERILATOR__RBB_VPI_FLAGS
 
+## BFM_V_DIR:=
+VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-initial fast \
+					--no-assert --exe sim_main.cpp -Wno-STMTDLY -Wno-UNOPTFLAT \
+					-Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY 
+
+## VERILATOR__RBB_VPI_FLAGS
+
 default: full_clean generate_verilog
 
 .PHONY: compile
