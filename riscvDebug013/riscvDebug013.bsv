@@ -471,7 +471,7 @@ package riscvDebug013;
       end
       else begin
         sbError <= pack(SbOther);// lookup bresp values !
-        `logLevel( debug, 1, $format("DEBUG:Memory Access: Read ERROR:%h ",pack(SbOther))
+        `logLevel( debug, 1, $format("DEBUG:Memory Access: Read ERROR:%h ",pack(SbOther)))
       end
       sbBusy <=0; // De Assert Busy
     endrule
@@ -483,7 +483,7 @@ package riscvDebug013;
       end
       else begin
         sbError <= pack(SbOther);// lookup bresp values !
-          `logLevel( debug, 1, $format("DEBUG:Memory Access: Write ERROR:%h",pack(SbOther))
+        `logLevel( debug, 1, $format("DEBUG:Memory Access: Write ERROR:%h",pack(SbOther)))
       end
       sbBusy <=0; // De Assert Busy
     endrule
@@ -620,7 +620,7 @@ package riscvDebug013;
           // Catch Busy Access Violations
           Bit#(32) dmi_response_data = 0;
           Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
-         `logLevel( debug, 1, $format("DEBUG:DMI Addr:@%h, op:%h, Data:%h",dmi_addr,dmi_op,dmi_data);
+         `logLevel( debug, 1, $format("DEBUG:DMI Addr:@%h, op:%h, Data:%h",dmi_addr,dmi_op,dmi_data))
           // Read Operation
           if( dmi_op == 2'b01 ) begin
             case(dmi_addr)

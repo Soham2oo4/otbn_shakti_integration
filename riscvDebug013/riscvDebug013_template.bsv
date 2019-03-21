@@ -31,10 +31,13 @@ Email id: command.paul@gmail.com
 package riscvDebug013_template;
 
   import riscvDebug013::*;
-  (*synthesize*)
-  module mkdummy(Empty);
+  import debug_types::*;
 
-    RiscvDebugInterface013 device <- mkRiscvDebugModule();
+  (*synthesize*)
+  module mkdummy(Ifc_riscvDebug013);
+    let ifc();
+    mkriscvDebug013 _temp(ifc);
+    return (ifc);
   endmodule
 endpackage
 

@@ -4,5 +4,5 @@ TOP_MODULE:=mkdummy
 
 ############# User changes to be done below #################
 TOP_DIR:= riscvDebug013
-TOP_FILE:= riscvDebug013_testbench.bsv
+TOP_FILE:= riscvDebug013_template.bsv
 

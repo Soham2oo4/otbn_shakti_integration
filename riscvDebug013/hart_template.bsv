@@ -76,8 +76,7 @@ package hart_template;
     endrule
 
     //   Interface Population   
-    method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),
-                                      Bit#(DXLEN))abstract_command)if (!(isValid(rg_abst_response)));
+    method Action   abstractOperation(AbstractRegOp abstract_command)if (!(isValid(rg_abst_response)));
       // Condition that a new request will come in after the previous one has been serviced
       $display($time,"ABC\tAbstract Operation Recieved"); 
       rg_abst_response <= tagged Valid zeroExtend(32'hbebecafe) ;
