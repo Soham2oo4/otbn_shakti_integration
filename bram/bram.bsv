@@ -93,7 +93,6 @@ package bram;
     `ifdef ASSERT
       let offset = addr-fromInteger(slave_base);
       Bit#(TSub#(addr_width,index_size)) upper_bits = truncateLSB(offset);
-      dynamicAssert(upper_bits==0,"Access is out of range in BRAM");
     `endif
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
 			dmemLSB.b.put(truncate(strb),index_address,truncate(data));
@@ -115,7 +114,6 @@ package bram;
     `ifdef ASSERT
       let offset = addr-fromInteger(slave_base);
       Bit#(TSub#(addr_width,index_size)) upper_bits = truncateLSB(offset);
-      dynamicAssert(upper_bits==0,"Access is out of range in BRAM");
     `endif
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
   		dmemLSB.a.put(0, index_address, ?);
