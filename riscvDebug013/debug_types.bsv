@@ -5,121 +5,6 @@ package debug_types;
   import Connectable::*;
   // Limit What is Exported !
 
-  // Helpful Macros
-  `define FIVO(x) fromInteger(valueOf(x))
-
-  // Interface
-    //Interface between Debug Module and DTM (eg. JtagDTM)
-	interface Ifc_DM_DTM;
-    interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
-    interface Get#(Bit#(34)) getResponse;
-    interface Reset dmactive_reset;
-  endinterface
-
-  
-  interface Debug_Hart_Ifc;
-    method ActionValue#(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(DXLEN))) abstractOperation;
-    method Action  abstractReadResponse(Bit#(DXLEN) abstractResponse);  
-    (*always_enabled,always_ready*)
-    method Bit#(1) haltRequest();
-    (*always_enabled,always_ready*)
-    method Bit#(1) resumeRequest();
-    (*always_enabled,always_ready*)
-    method Bit#(1) hart_reset();                               // Signal TO Reset HART -Active HIGH
-    (*always_enabled,always_ready*)
-    method Action  set_have_reset(Bit#(1) have_reset);
-    (*always_enabled,always_ready*)
-    method Action  set_halted(Bit#(1) halted);
-    (*always_enabled,always_ready*)
-    method Action  set_unavailable(Bit#(1) unavailable);  
-    (*always_enabled,always_ready*)
-    method Bit#(1) dm_active;
-    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
-  endinterface
-    
-	// Interface between Debug Module and SOC
-  interface Ifc_riscvDebug013;
-    interface Ifc_DM_DTM dtm;
-    interface Debug_Hart_Ifc hart;
-    interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
-    method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
-    interface Reset dmactive_reset;
-  endinterface
-
-  interface Hart_Debug_Ifc;
-    method Action   abstractOperation(Tuple3#(Bit#(1),Bit#(AbstractAddrWidth),Bit#(DXLEN))abstract_command);
-    method ActionValue#(Bit#(DXLEN)) abstractReadResponse;
-    (*always_enabled,always_ready*)
-    method Action   haltRequest(Bit#(1) halt_request);
-    (*always_enabled,always_ready*)
-    method Action   resumeRequest(Bit#(1) resume_request);
-    (*always_enabled,always_ready*)
-    method Action   hartReset(Bit#(1) hart_reset_v); // Change to reset type // Signal TO Reset HART -Active HIGH
-    (*always_enabled,always_ready*)
-    method Action   notify_dm_active(Bit#(1) dm_active);
-    (*always_enabled,always_ready*)
-    method Bit#(1)  has_reset;
-    (*always_enabled,always_ready*)
-    method Bit#(1)  is_halted;
-    (*always_enabled,always_ready*)
-    method Bit#(1)  is_unavailable;
-  endinterface
-
-  // Thses rules can fire iff the hart is available where capture that on the debug module side
-  // Every interface pairing is a seperate rule to prevent any implict conditions blocking others
-  // Abstract Interface has implict conditions , abstract operations are guarded.
-  instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
-    module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
-      
-      rule operation;
-        let x <- debug_module.abstractOperation;
-        hart.abstractOperation(x);
-      endrule
-
-      rule response;
-        let x <- hart.abstractReadResponse();
-        debug_module.abstractReadResponse(x);
-      endrule
-      
-      rule connect_halt_req;
-        if(debug_module.dm_active == 1)
-          hart.haltRequest(debug_module.haltRequest());
-        else
-          hart.haltRequest(0);
-      endrule
-
-      rule connect_resume_req;
-        if(debug_module.dm_active == 1)
-          hart.resumeRequest(debug_module.resumeRequest());
-        else
-          hart.resumeRequest(0);
-      endrule
-
-      rule connect_hart_reset;
-        if(debug_module.dm_active == 1)
-          hart.hartReset(debug_module.hart_reset());
-        else 
-          hart.hartReset(0);
-      endrule
-      rule connect_halted;
-        debug_module.set_halted(hart.is_halted());
-      endrule
-
-      rule connect_available;
-        debug_module.set_unavailable(hart.is_unavailable());
-      endrule
-
-      rule connect_has_reset;
-        debug_module.set_have_reset(hart.has_reset);
-      endrule
-
-      rule connect_dm_active;
-        hart.notify_dm_active(debug_module.dm_active);
-      endrule
-
-    endmodule
-  endinstance
-
   // Constants
 	typedef enum {    Abst_NoError = 3'b000        , Abst_Busy = 3'b001,
 			          		Abst_NotSupported = 3'b010   , Abst_Exception = 3'b011,
@@ -189,6 +74,129 @@ package debug_types;
   typedef 1   HartCount;
   typedef 1   AxiID;
 
+  typedef struct {
+    Bool        read_write;
+    Bit#(14)    address;
+    Bit#(DXLEN) writedata;
+  `ifdef spfpu
+    Bool        rftype;   // false:irf, true:frf
+  `endif } AbstractRegOp deriving(Bits, Eq, FShow);
+
+
+  // Helpful Macros
+  `define FIVO(x) fromInteger(valueOf(x))
+
+  // Interface
+    //Interface between Debug Module and DTM (eg. JtagDTM)
+	interface Ifc_DM_DTM;
+    interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
+    interface Get#(Bit#(34)) getResponse;
+    interface Reset dmactive_reset;
+  endinterface
+
+  
+  interface Debug_Hart_Ifc;
+    method ActionValue#(AbstractRegOp) abstractOperation;
+    method Action  abstractReadResponse(Bit#(DXLEN) abstractResponse);  
+    (*always_enabled,always_ready*)
+    method Bit#(1) haltRequest();
+    (*always_enabled,always_ready*)
+    method Bit#(1) resumeRequest();
+    (*always_enabled,always_ready*)
+    method Bit#(1) hart_reset();                               // Signal TO Reset HART -Active HIGH
+    (*always_enabled,always_ready*)
+    method Action  set_have_reset(Bit#(1) have_reset);
+    (*always_enabled,always_ready*)
+    method Action  set_halted(Bit#(1) halted);
+    (*always_enabled,always_ready*)
+    method Action  set_unavailable(Bit#(1) unavailable);  
+    (*always_enabled,always_ready*)
+    method Bit#(1) dm_active;
+    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
+  endinterface
+    
+	// Interface between Debug Module and SOC
+  interface Ifc_riscvDebug013;
+    interface Ifc_DM_DTM dtm;
+    interface Debug_Hart_Ifc hart;
+    interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+    method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
+    interface Reset dmactive_reset;
+  endinterface
+
+  interface Hart_Debug_Ifc;
+    method Action   abstractOperation( AbstractRegOp cmd);
+    method ActionValue#(Bit#(DXLEN)) abstractReadResponse;
+    (*always_enabled,always_ready*)
+    method Action   haltRequest(Bit#(1) halt_request);
+    (*always_enabled,always_ready*)
+    method Action   resumeRequest(Bit#(1) resume_request);
+    (*always_enabled,always_ready*)
+    method Action   hartReset(Bit#(1) hart_reset_v); // Change to reset type // Signal TO Reset HART -Active HIGH
+    (*always_enabled,always_ready*)
+    method Action   dm_active(Bit#(1) dm_active);
+    (*always_enabled,always_ready*)
+    method Bit#(1)  has_reset;
+    (*always_enabled,always_ready*)
+    method Bit#(1)  is_halted;
+    (*always_enabled,always_ready*)
+    method Bit#(1)  is_unavailable;
+  endinterface
+
+  // Thses rules can fire iff the hart is available where capture that on the debug module side
+  // Every interface pairing is a seperate rule to prevent any implict conditions blocking others
+  // Abstract Interface has implict conditions , abstract operations are guarded.
+  instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
+    module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
+      
+      rule operation;
+        let x <- debug_module.abstractOperation;
+        hart.abstractOperation(x);
+      endrule
+
+      rule response;
+        let x <- hart.abstractReadResponse();
+        debug_module.abstractReadResponse(x);
+      endrule
+      
+      rule connect_halt_req;
+        if(debug_module.dm_active == 1)
+          hart.haltRequest(debug_module.haltRequest());
+        else
+          hart.haltRequest(0);
+      endrule
+
+      rule connect_resume_req;
+        if(debug_module.dm_active == 1)
+          hart.resumeRequest(debug_module.resumeRequest());
+        else
+          hart.resumeRequest(0);
+      endrule
+
+      rule connect_hart_reset;
+        if(debug_module.dm_active == 1)
+          hart.hartReset(debug_module.hart_reset());
+        else 
+          hart.hartReset(0);
+      endrule
+      rule connect_halted;
+        debug_module.set_halted(hart.is_halted());
+      endrule
+
+      rule connect_available;
+        debug_module.set_unavailable(hart.is_unavailable());
+      endrule
+
+      rule connect_has_reset;
+        debug_module.set_have_reset(hart.has_reset);
+      endrule
+
+      rule connect_dm_active;
+        hart.dm_active(debug_module.dm_active);
+      endrule
+
+    endmodule
+  endinstance
 
   // HART Valid Abstract Access Filter 
   // Each individual register (aside from GPRs) may

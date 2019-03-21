@@ -44,10 +44,9 @@ package riscvDebug013;
   import ConcatReg::*;
   import ConfigReg::*;
   import DReg::*;
+  `include "Logger.bsv"
 
   import debug_types::*;
-
-  typedef 0 VERBOSE;
 
   `define FIVO(x) fromInteger(valueOf(x))
 
@@ -62,6 +61,8 @@ package riscvDebug013;
   (* conflict_free = "responseSystemBusWrite,dtm_putCommand_put"*)
   (* conflict_free = "responseSystemBusRead, dtm_putCommand_put"*)
   module mkriscvDebug013(Ifc_riscvDebug013);
+
+    String debug = "";
 
     Clock curr_clk <- exposeCurrentClock;                                  // current default clock
     Reset curr_reset<-exposeCurrentReset;                                  // current default reset
@@ -100,18 +101,18 @@ package riscvDebug013;
     Reg#(Bit#(9)) dmstatusPad0  = readOnlyReg(0);                         //- dmstatus b31-23
     Reg#(Bit#(1)) impEbreak     = readOnlyReg(0);                         //- dmstatus b22      -RW
     Reg#(Bit#(2)) dmstatusPad1  = readOnlyReg(0);                         //- dmstatus b21-20
-    Wire#(Bit#(1)) allHaveReset  <- mkWire();                             //- dmstatus b19      - R
-    Wire#(Bit#(1)) anyHaveReset  <- mkWire();                             //- dmstatus b18      - R
-    Wire#(Bit#(1)) allResumeAck  <- mkWire();                             //- dmstatus b17      - R
-    Wire#(Bit#(1)) anyResumeAck  <- mkWire();                             //- dmstatus b16      - R
-    Wire#(Bit#(1)) allNonExistent<- mkWire();                             //- dmstatus b15      - R
-    Wire#(Bit#(1)) anyNonExistent<- mkWire();                             //- dmstatus b14      - R
-    Wire#(Bit#(1)) allUnAvail    <- mkWire();                             //- dmstatus b13      - R
-    Wire#(Bit#(1)) anyUnAvail    <- mkWire();                             //- dmstatus b12      - R
-    Wire#(Bit#(1)) allRunning    <- mkWire();                             //- dmstatus b11      - R
-    Wire#(Bit#(1)) anyRunning    <- mkWire();                             //- dmstatus b10      - R
-    Wire#(Bit#(1)) allHalted     <- mkWire();                             //- dmstatus b9       - R
-    Wire#(Bit#(1)) anyHalted     <- mkWire();                             //- dmstatus b8       - R
+    Wire#(Bit#(1)) allHaveReset  <- mkReg(1);//mkWire();                             //- dmstatus b19      - R
+    Wire#(Bit#(1)) anyHaveReset  <- mkReg(1);//mkWire();                             //- dmstatus b18      - R
+    Wire#(Bit#(1)) allResumeAck  <- mkReg(0);//mkWire();                             //- dmstatus b17      - R
+    Wire#(Bit#(1)) anyResumeAck  <- mkReg(0);//mkWire();                             //- dmstatus b16      - R
+    Wire#(Bit#(1)) allNonExistent<- mkReg(0);//mkWire();                             //- dmstatus b15      - R
+    Wire#(Bit#(1)) anyNonExistent<- mkReg(0);//mkWire();                             //- dmstatus b14      - R
+    Wire#(Bit#(1)) allUnAvail    <- mkReg(0);//mkWire();                             //- dmstatus b13      - R
+    Wire#(Bit#(1)) anyUnAvail    <- mkReg(0);//mkWire();                             //- dmstatus b12      - R
+    Wire#(Bit#(1)) allRunning    <- mkReg(1);//mkWire();                             //- dmstatus b11      - R
+    Wire#(Bit#(1)) anyRunning    <- mkReg(1);//mkWire();                             //- dmstatus b10      - R
+    Wire#(Bit#(1)) allHalted     <- mkReg(0);//mkWire();                             //- dmstatus b9       - R
+    Wire#(Bit#(1)) anyHalted     <- mkReg(0);//mkWire();                             //- dmstatus b8       - R
     Reg#(Bit#(1)) authenticated <- mkReg(0);                              //- dmstatus b7       - R
     Reg#(Bit#(1)) authbusy      <- mkReg(0,reset_by derived_reset);       //- dmstatus b6       - R
     Reg#(Bit#(1)) hasResetHaltRequest = readOnlyReg(1);                   //- dmstatus b5       - R
@@ -196,10 +197,10 @@ package riscvDebug013;
     Reg#(Bit#(1)) abst_ar_postExec = readOnlyReg(0);                      //- command b18       -RW
     Reg#(Bit#(1)) abst_ar_transfer  <- mkReg(0,reset_by derived_reset);   //- command b17       -RW
     Reg#(Bit#(1)) abst_ar_write <- mkReg(0,reset_by derived_reset);       //- command b16       -RW
-    Reg#(Bit#(16))abst_ar_regNo <- mkReg(0,reset_by derived_reset);       //- command b15-0     -RW
+    Reg#(Bit#(16))abst_ar_regno <- mkReg(0,reset_by derived_reset);       //- command b15-0     -RW
 
     Reg#(Bit#(32)) abst_command = concatReg8(   abst_ar_cmdType,abst_ar_pad0,abst_ar_aarSize,
-        abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_transfer,abst_ar_write,abst_ar_regNo);
+        abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_transfer,abst_ar_write,abst_ar_regno);
 
     // abstractauto DM 'h18
 
@@ -295,6 +296,11 @@ package riscvDebug013;
       end
     endrule
 
+    rule display;
+      `logLevel( debug, 0, $format("DEBUG: Halt:%b",haltReq))
+      `logLevel( debug, 0, $format("DEBUG: ResumeReq:%b",resumeReq))
+    endrule
+
     rule rl_set_dm_status_bits;   // One Cycle delay in update of values , Convert to wires 
       Bit#(HartCount) lv_hawsel = 0;
       for(Integer i=0 ; i < valueOf(HartCount); i = i+1)begin
@@ -327,7 +333,6 @@ package riscvDebug013;
         lv_sel_UnAvail[i]     =  vrg_unavailable[i]   & lv_hawsel[i];
         lv_sel_Running[i]     =  (~vrg_halted[i])       & lv_hawsel[i];
         lv_sel_Halted[i]      =  vrg_halted[i]        & lv_hawsel[i];  
-        //$display("RC Status for hart %d, %h,%h,%h,%h,%h,%h,",i,vrg_have_reset[i],vrg_resume_ack[i],rg_non_existent[i],vrg_unavailable[i],(~vrg_halted[i]),vrg_halted[i]);
       end
 
       allHaveReset    <= (lv_sel_HaveReset == lv_hawsel)?1:0;
@@ -427,18 +432,17 @@ package riscvDebug013;
       end
       // Bus Access
       if(detect_error == pack(SbNoError))begin
-        if(valueOf(VERBOSE)==1)
-          $display($time, "X\tDebug:Memory Access - Address : %h ,operation %b ",address,readAccess);
+          `logLevel( debug, 1, $format("DEBUG:Memory Access-Addr:%h ,Op:%b ",address,readAccess))
         if(readAccess)begin
           let read_request = AXI4_Rd_Addr {araddr: truncate(address),aruser: 0, arlen: 0,
-            arsize:truncate(size),arburst: 'b01,arid:`FIVO(AxiID)};
+            arsize:truncate(size),arburst: 'b01,arid:`FIVO(AxiID), arprot:'d3};
           master_xactor.i_rd_addr.enq(read_request);
         end
         else begin
           let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
             wstrb: truncate(write_strobe),wlast:True, wid:`FIVO(AxiID)};
           let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0,
-            awlen: 0, awsize: size[2:0],awburst: 'b01,awid:`FIVO(AxiID)};
+            awlen: 0, awsize: size[2:0],awburst: 'b01,awid:`FIVO(AxiID), awprot:'d3};
           master_xactor.i_wr_addr.enq(request_address) ;
           master_xactor.i_wr_data.enq(request_data) ;
         end
@@ -451,8 +455,7 @@ package riscvDebug013;
         sbBusy <= 1; // Assert Busy
       end
       else begin
-        if(valueOf(VERBOSE)==1)
-          $display($time, "XE\tDebug:Memory Access ERROR ",detect_error);
+          `logLevel( debug, 1, $format("DEBUG:Memory Access ERROR ",detect_error))
       end
       sbError <= detect_error;
       startSBAccess <= 0; // Transaction has been issued , disable trigger
@@ -468,8 +471,7 @@ package riscvDebug013;
       end
       else begin
         sbError <= pack(SbOther);// lookup bresp values !
-        if(valueOf(VERBOSE)==1)
-          $display($time, "XE\tDebug:Memory Access: Read ERROR %h AXI:%h ",pack(SbOther),response.rresp);
+        `logLevel( debug, 1, $format("DEBUG:Memory Access: Read ERROR:%h ",pack(SbOther))
       end
       sbBusy <=0; // De Assert Busy
     endrule
@@ -477,13 +479,11 @@ package riscvDebug013;
     rule responseSystemBusWrite(sbBusy==1);
       let response <- pop_o(master_xactor.o_wr_resp) ;
       if(response.bresp == AXI4_OKAY && (response.bid==`FIVO(AxiID)))begin
-        if(valueOf(VERBOSE)==1)
-          $display($time, "WS\tDEBUG: Write Done Successfully");
+          `logLevel( debug, 1, $format("DEBUG: Write Done Successfully"))
       end
       else begin
         sbError <= pack(SbOther);// lookup bresp values !
-        if(valueOf(VERBOSE)==1)
-          $display($time, "XE\tDebug:Memory Access: Write ERROR %h AXI:%h",pack(SbOther),response.bresp);
+          `logLevel( debug, 1, $format("DEBUG:Memory Access: Write ERROR:%h",pack(SbOther))
       end
       sbBusy <=0; // De Assert Busy
     endrule
@@ -508,7 +508,7 @@ package riscvDebug013;
       Bit#(3) lv_abst_cmderr;
       if((abst_ar_cmdType == 0) && (abst_ar_transfer == 1) )begin
         if(vrg_unavailable[lv_hart_id] == 0)
-          lv_abst_cmderr = fn_abstract_reg_op_permitted(truncate(abst_ar_regNo),vrg_halted[lv_hart_id],
+          lv_abst_cmderr = fn_abstract_reg_op_permitted(truncate(abst_ar_regno),vrg_halted[lv_hart_id],
                                                       abst_ar_write,abst_ar_aarSize);
         else 
           lv_abst_cmderr = pack(Abst_WrongState);
@@ -518,16 +518,14 @@ package riscvDebug013;
     
       if(lv_abst_cmderr == 0)begin
         abst_command_good <=2'd3;   
-        if(valueOf(VERBOSE)==1)
-          $display($time, "ACG\tDebug:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
-          lv_hart_id,abst_ar_regNo,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr);
+        `logLevel( debug, 1, $format("DEBUG:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+          lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr))
       end
       else begin
         abst_busy <= 0;
         abst_command_good <=2'd0;
-        if(valueOf(VERBOSE)==1)
-          $display($time, "ACB\tDebug:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
-          lv_hart_id,abst_ar_regNo,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr);
+          `logLevel( debug, 1, $format("ACB\tDebug:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+          lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr))
       end
 
       abst_cmderr <= lv_abst_cmderr;
@@ -541,17 +539,22 @@ package riscvDebug013;
       hart_interface_vector[i] = interface Debug_Hart_Ifc
         // Issue a Command iff command good is asserted
         // Get this out of the vector !
-        method ActionValue#(Tuple3#(Bit#(1) ,Bit#(AbstractAddrWidth),Bit#(DXLEN))) abstractOperation 
+        method ActionValue#(AbstractRegOp) abstractOperation 
                                                     if((abst_command_good == 2'd3) && (abst_busy == 1));
           Bit#(DXLEN) data_frame = truncate({abst_data[1],abst_data[0]});
           abst_command_good <= 2'd2;
-          return tuple3(abst_ar_write,truncate(abst_ar_regNo),truncate(data_frame));
+          return AbstractRegOp{read_write   : unpack(abst_ar_write),
+                               address      : truncate(abst_ar_regno),
+                               writedata    : truncate(data_frame)
+                             `ifdef spfpu
+                               ,rftype       : (abst_ar_regno >'h101f ) //TODO compare base for fpu?
+                              `endif } ;
         endmethod
 
         method Action  abstractReadResponse(Bit#(DXLEN) responseData) 
                                                     if((abst_command_good == 2'd2) && (abst_busy == 1));
           if(abst_ar_aarPostIncrement == 1)  
-            abst_ar_regNo <= abst_ar_regNo + 1;
+            abst_ar_regno <= abst_ar_regno + 1;
           abst_data[0] <= responseData[31:0]; 
           if ((valueOf(DXLEN) == 64 )&& (abst_ar_aarSize == 3'd3 ))
             abst_data[1] <= responseData[63:32];
@@ -617,8 +620,7 @@ package riscvDebug013;
           // Catch Busy Access Violations
           Bit#(32) dmi_response_data = 0;
           Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
-          if(valueOf(VERBOSE) == 1)
-            $display($time ,"*\tDebug DMI Access@ %h , op %h , Data %h",dmi_addr,dmi_op,dmi_data);
+         `logLevel( debug, 1, $format("DEBUG:DMI Addr:@%h, op:%h, Data:%h",dmi_addr,dmi_op,dmi_data);
           // Read Operation
           if( dmi_op == 2'b01 ) begin
             case(dmi_addr)
@@ -761,7 +763,6 @@ package riscvDebug013;
                               if (sbBusy == 1)
                                 sbBusyError <=1;
                             end
-              `FIVO(HALTSUM0):           haltSum0 <= dmi_data;
               default:begin
                 if((dmi_addr >= `FIVO(ABSTRACTDATASTART)) && (dmi_addr<= `FIVO(ABSTRACTDATAEND)))begin
                   if(abst_busy == 1)
