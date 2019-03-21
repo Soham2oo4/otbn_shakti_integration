@@ -117,7 +117,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 	ReadOnly#(Bit#(1))	crossed_bs_chain_tdi	<-mkNullCrossingWire(invert_clock,wr_bs_chain_tdi);
 	ReadOnly#(Bit#(1))	crossed_debug_tdi		<-mkNullCrossingWire(invert_clock,wr_debug_tdi);
 	ReadOnly#(Bit#(32))	crossed_dtmcontrol_shiftreg<-mkNullCrossingWire(invert_clock,dtmcontrol_shiftreg);
-	ReadOnly#(Bit#(1)) crossed_output_tdo<-mkNullCrossingWire(def_clk,rg_tdo);
+	ReadOnly#(Bit#(1)) crossed_output_tdo<- mkNullCrossingWire(def_clk,rg_tdo);
 	ReadOnly#(Bit#(40)) crossed_dmiaccess_shiftreg<-mkNullCrossingWire(invert_clock,dmiaccess_shiftreg[0]);
 
    Bit#(1) bypass_sel   = crossed_instruction == `BYPASS?1:0;
@@ -136,7 +136,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 
 	/*== This rule implements the TAPs STATE MACHINE====== */
 	rule just_display;
-		$display($time,"\tTAPSTATE: ",fshow(tapstate),"\tINSTRUCTION: %h",instruction_shiftreg);
+		if(valueOf(`VERBOSITY)>1) $display($time,"\tTAPSTATE: ",fshow(tapstate),"\tINSTRUCTION: %h",instruction_shiftreg);
 	endrule
 	rule tap_state_machine;
 		case(tapstate)
@@ -171,7 +171,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 	endrule
 
 	rule dmireset_generated(wr_dmireset_generated);
-		$display($time,"\tDTM: Received DMIRESET");
+		if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: Received DMIRESET");
 		dmiaccess_shiftreg[1][1:0]<='d0;
 		response_status<=0;
 		capture_repsonse_from_dm<=False;
@@ -199,19 +199,19 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 			CaptureDR:	if(dmi_sel==1) 
 				if(response_from_DM.notEmpty)begin 
 					let x=response_from_DM.first[33:0];
-					$display($time,"\tDTM: Getting response: data %h op: %h",x[33:2],x[1:0]);
+					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: Getting response: data %h op: %h",x[33:2],x[1:0]);
 					x[1:0]=x[1:0]|response_status;// keeping the lower 2 bits sticky
 					dmiaccess_shiftreg[0][33:0]<=x; 
 					response_status<=x[1:0];
 					response_from_DM.deq; 
-					$display($time,"\tDTM: New DMIACCESS value: %h",x);
+					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: New DMIACCESS value: %h",x);
 					capture_repsonse_from_dm<=False;
 					dmistat<=x[1:0];
 				end
 				else begin
 					if(capture_repsonse_from_dm)
 						response_status<=3;
-					$display($time,"\tDTM: RESPONSE NOT AVAILABLE. DMIACCESS: %h",dmiaccess_shiftreg[0]);
+						if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: RESPONSE NOT AVAILABLE. DMIACCESS: %h",dmiaccess_shiftreg[0]);
 				end
 			ShiftDR:		if(dmi_sel==1) dmiaccess_shiftreg[0]<={wr_tdi,dmiaccess_shiftreg[0][39:1]};
 			UpdateDR:	if(dmi_sel==1) 
@@ -219,10 +219,10 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 					request_to_DM.enq(dmiaccess_shiftreg[0]);
 					dmiaccess_shiftreg[0][1:0]<='d3;
 					capture_repsonse_from_dm<=True;
-					$display($time,"\tDTM: Sending request to Debug: %h",dmiaccess_shiftreg[0]);
+					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: Sending request to Debug: %h",dmiaccess_shiftreg[0]);
 				end
 				else begin
-					$display($time,"\tDTM: REQUEST NOT SERVED capture: %b DMIACCESS: %h",capture_repsonse_from_dm,dmiaccess_shiftreg[0]);
+					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: REQUEST NOT SERVED capture: %b DMIACCESS: %h",capture_repsonse_from_dm,dmiaccess_shiftreg[0]);
 //					dmistat<=3;
 //					response_from_DM.enq('d3);
 				end

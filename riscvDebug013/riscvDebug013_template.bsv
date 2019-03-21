@@ -22,69 +22,22 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISI
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 
-Author: Neel Gala
-Email id: neelgala@gmail.com
-Details:
+Author: Paul George
+Email id: command.paul@gmail.com 
 
 --------------------------------------------------------------------------------------------------
 */
-package jtagdtm_template;
-  import Vector::*;
-  import FIFOF::*;
-  import DReg::*;
-  import SpecialFIFOs::*;
-  import BRAMCore::*;
-  import FIFO::*;
-  import Clocks::*;
 
-  import jtagdtm::*;
-  import rbb_jtag::*;
+package riscvDebug013_template;
+
+  import riscvDebug013::*;
+  import debug_types::*;
+
   (*synthesize*)
-  module mkdummy(Empty);
-
-    Clock defaultclk <- exposeCurrentClock;
-
-    MakeClockIfc#(Bit#(1)) tck_clk <-mkUngatedClock(1);
-    MakeResetIfc trst <- mkReset(0,False,tck_clk.new_clk);
-
-    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingReg(tck_clk.new_clk,0);
-		CrossingReg#(Bit#(1)) tms<-mkNullCrossingReg(tck_clk.new_clk,0);
-		CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst);
-		
-    Ifc_jtag_driver_sim openocd <- mkRbbJtag();
-    Ifc_jtagdtm jtag_tap <- mkjtagdtm(clocked_by tck_clk.new_clk, reset_by trst.new_rst);
-
-    // Connecting rules
-    rule rl_join_tdi;
-      tdi <= openocd.wire_tdi();
-    endrule
-
-    rule rl_join_tms;
-      tms <= openocd.wire_tms();
-    endrule
-
-    rule rl_join_tdo;
-      tdo <= jtag_tap.tdo();
-    endrule
-
-    rule rl_join_tck;
-      tck_clk.setClockValue(openocd.wire_tck());
-    endrule
-    
-    rule rl_join_trst;
-      if(openocd.wire_trst() == 1)
-        trst.assertReset();
-    endrule
-
-    rule assignment;
-      jtag_tap.tms_i(tms.crossed);
-      jtag_tap.tdi_i(tdi.crossed);
-    endrule
-
-    rule assignmentr;
-      openocd.wire_tdo(tdo.crossed);
-    endrule
-
+  module mkdummy(Ifc_riscvDebug013);
+    let ifc();
+    mkriscvDebug013 _temp(ifc);
+    return (ifc);
   endmodule
 endpackage
 
