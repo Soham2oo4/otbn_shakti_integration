@@ -6,4 +6,4 @@
 `define BYPASS 'h1f
 `define DTMCONTROL 'h10
 `define DMIACCESS 'h11
-`define IDCODEVALUE 32'h10e31913
+`define IDCODEVALUE 32'h100039d3
