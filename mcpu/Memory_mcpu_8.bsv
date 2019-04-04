@@ -19,7 +19,6 @@ Email id: deepans.88@gmail.com
 package Memory_mcpu_8;
 import BRAMCore :: *;
 
-
 //typedef enum{Send_req,Get_resp} Mem_state deriving(Bits,Eq);
 
 typedef enum
@@ -115,27 +114,27 @@ Bool store_data=(s_wr_l==1'b0)&&(s_ds_l==1'b0);
 rule rcv_req((slave_state==RCV_REQ)&&(start_rd||start_wr));
         
 
-        `ifdef verbose $display("...SELECTING SLAVE WITH PORT WIDTH 32....")`endif
-       	if(start_wr)
-
-
+  `ifdef verbose $display("MCPU : ...SELECTING SLAVE WITH PORT WIDTH 8....");`endif
+   if(start_wr)
 	begin
 		`ifdef verbose $display("Write_cycle"); `endif
 		s_dsack_0_l<=1'b0;
 		s_dsack_1_l<=1'b1;
     `ifdef IGCAR_ACCESS_FAULT
-    if(s_addr >=32'h50000000)
+    if(s_addr >= 32'h40000000)
     s_berr_l<=1'b0;
+    if(s_addr >= 32'h40000000)
+		`ifdef verbose $display("BERR"); `endif
     `endif
     slave_state<=DET_DS;
 	end
 	else
 		begin
- 		$display("Starting read from address",$time);
+ 		$display(" MCPU :Starting read from address",$time);
 	  slave_state<=DET_DS;
 		Bit#(TSub#(mem_size,0)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:0];
                 dmemLSB.b.put(0,index_address,?);
-		`ifdef verbose $display("Index Address : %h",index_address);`endif
+		`ifdef verbose $display("MCPU: Index Address : %h",index_address);`endif
 		end
       
 endrule
@@ -150,8 +149,10 @@ rule send_ack(slave_state==DET_DS );
 	if(s_wr_l==1'b1)
 	begin
     `ifdef IGCAR_ACCESS_FAULT
-    if(s_addr >=32'h50000000)
+    if(s_addr >= 32'h40000000)
     s_berr_l<=1'b0;
+    if(s_addr >= 32'h40000000)
+		`ifdef verbose $display("BERR"); `endif
     `endif
 		s_dsack_0_l<=1'b0;
 		s_dsack_1_l<=1'b1;		

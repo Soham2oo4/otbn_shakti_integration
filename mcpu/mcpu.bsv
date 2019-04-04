@@ -23,7 +23,6 @@ This module
 4.Includes a transactor converting 64 bit transactions to multiple 32 bit transactions
 5.Modifies the data alignment as per endianness of the slave addressed
 */
-
 package mcpu;
 
 	/* ======== Package imports ======= */
@@ -42,8 +41,6 @@ package mcpu;
 	import mcpu_master :: *;
   import mcpu_defines :: *;
 	/*================================== */
-
-
 	interface Ifc_mcpu_top;
   interface Mcpu_out proc_ifc;
 	interface  Data_bus_inf proc_dbus;
@@ -79,7 +76,6 @@ package mcpu;
     FIFOF#(Bit#(`Reg_width_mcpu_slave)) ff_address <-mkSizedFIFOF(2);//To store request address of instruction
 		FIFOF#(Data_mode) ff_req<-mkSizedFIFOF(2);//To keep track of last pending request
     Reg#(Bit#(2)) rg_port_count <- mkReg(0);
-		Reg#(Bit#(32)) rg_inst_rcvd <- mkReg(0);
     Reg#(Bit#(3)) rg_endian  <- mkReg(0);
     Reg#(Bool) dw_write <- mkReg(False);
     Reg#(Bool) dw_read  <-mkReg(False);
@@ -88,11 +84,12 @@ package mcpu;
     Reg#(Bit#(`PADDR)) dw_addr <-mkReg(0);
     Reg#(Bit#(`PADDR)) dw_read_addr <-mkReg(0);
     Reg#(Bit#(32))dw_data<-mkReg(0);
-    Reg#(Bit#(32))data_buff<-mkReg(0);
+    Reg#(Bit#(32))data_buff<-mkReg(0);//for 32 to 64 transaction+
 //.......................SEND_REQUEST_TO_MEMORY.................................................//
 		rule check_wr_request_to_memory(!dw_write && !dw_read);
       let info<-pop_o(s_xactor.o_wr_addr);
       let data<-pop_o(s_xactor.o_wr_data);
+      //For the first four cycles SRAM remains little endian
       Bool sram_big =False;
       if (rg_endian<2)
         rg_endian <= rg_endian+1;
@@ -107,7 +104,8 @@ package mcpu;
 			request.fun_code=3'b111;	
       proc_master.get_req(request);
       ff_id.enq(info.awid);
-      `ifdef verbose $display("Enqueing write request onto mcpu for address %h with id %h with mode%h   endianness:%b rg_endian :%h data:%h transfer_size:%h",info.awaddr,info.awid,request.mode,sram_big,rg_endian,request.wr_data,info.awsize);`endif
+      `ifdef verbose $display("Enqueuing write request onto mcpu");`endif
+      //`ifdef verbose $display("Enqueing write request onto mcpu for address %h with id %h with mode%h endianness:%b rg_endian :%h data:%h transfer_size:%h",info.awaddr,info.awid,request.mode,sram_big,rg_endian,request.wr_data,info.awsize);`endif
       ff_address.enq(info.awaddr);
       case(request.mode)
 	  		2'b00 :if(info.awsize==3'b011)
@@ -124,7 +122,6 @@ package mcpu;
         begin
           dw_data<=data.wdata[31:0];
           `ifdef verbose $display("Data_to_be_written_in _next_cycle :%h",data.wdata[31:0]);`endif
-
         end
         else
         begin
@@ -169,7 +166,7 @@ package mcpu;
        request.fun_code=3'b111;
    //incude mode 32 and send the address
       `ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode\
-       %h endianness %b rg_endian:%h",info.araddr,info.arid,sram_big,rg_endian);`endif
+       %h endianness %b rg_endian:%h",info.araddr,info.arid,request.mode,sram_big,rg_endian);`endif
 
         case(request.mode)
 			  2'b00 :if(info.arsize ==3'b011)
@@ -198,8 +195,8 @@ package mcpu;
       if (dw_read_addr[31:4]==28'hFFFF_FFF)
        request.fun_code=3'b111;
    //incude mode 32 and send the address
-      `ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode\
-      %h endianness %b rg_endian:%h",dw_read_addr+4,ff_id.first,sram_big,rg_endian);`endif
+`ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode\
+      %h endianness %b rg_endian:%h",dw_read_addr+4,ff_id.first,request.mode,sram_big,rg_endian);`endif
 
       proc_master.get_req(request);		
       dw_read<=False;
@@ -221,7 +218,7 @@ package mcpu;
   send_write_response_from_memory_to_mem_stage_32"*)
 
   rule send_read_response_from_memory_to_mem_stage_8(ff_req.first==DATA_MODE_8_READ); 
-    let response <-proc_master.resp();
+    let response =proc_master.put_resp(); 
 		ff_req.deq();
     let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:duplicate(response.data[7:0]),
     rlast:True, ruser: 0, rid: ff_id.first };
@@ -229,13 +226,15 @@ package mcpu;
 		r.rresp = AXI4_SLVERR;
 		ff_address.deq();
 		s_xactor.i_rd_data.enq(r);
+    if (response.berr==1'b1)
+		`ifdef verbose $display("MCPU:SLV_ERR");`endif
 		`ifdef verbose $display("Data received %h with id %h to mem_stage",response.data,ff_id.first());`endif
 		ff_id.deq();
 	endrule
                 
       
 	rule send_read_response_from_memory_to_mem_stage_16(ff_req.first==DATA_MODE_16_READ);
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
 			if(response.port_type==2'b10 )begin
 					ff_req.deq();
           let r = AXI4_Rd_Data {rresp: AXI4_OKAY,rdata:duplicate(response.data[15:0]),rlast:True,
@@ -299,7 +298,7 @@ package mcpu;
 	endrule
 
   rule send_read_response_from_memory_to_mem_stage_32(ff_req.first==DATA_MODE_32_READ); 
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data}),rlast:True,ruser: 0,
@@ -309,8 +308,7 @@ package mcpu;
 				ff_address.deq;
         s_xactor.i_rd_data.enq(r);
 		    ff_id.deq();
-				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h ",response.data,
-        ff_id.first(),ff_address.first());`endif
+				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h ",response.data,ff_id.first(),ff_address.first());`endif
       end
 
 			// SLAVE_PORT is 16 bit
@@ -338,13 +336,10 @@ package mcpu;
 				ff_address.deq;
         response_berr<=1'b0;
         s_xactor.i_rd_data.enq(r);
-	      `ifdef verbose $display("mcpu: Data received %h with id %h from mem_stage from address %h",{response.data[15:0],
-        response_buff[15:0]},ff_id.first(),ff_address.first());`endif
+	      `ifdef verbose $display("mcpu: Data received %h with id %h from mem_stage from address %h",  {response.data[15:0],response_buff[15:0]},ff_id.first(),ff_address.first());`endif
         `ifdef verbose
 	      if(endian(ff_address.first,response.endian_big)==Big)
-	       $display("mcpu :Data received %h with id %h from mem_stage from address %h",{response_buff[15:0],
-        response.data[15:0]},ff_id.first(),ff_address.first());`endif
-
+	       $display("mcpu :Data received %h with id %h from mem_stage from address %h",{response_buff[15:0],response.data[15:0]},ff_id.first(),ff_address.first());`endif
 			end
 
 			else if(response.port_type==2'b01)
@@ -395,7 +390,7 @@ package mcpu;
 		endrule
 
   rule send_read_response_from_memory_to_mem_stage_64_READ1(ff_req.first==DATA_MODE_64_READ1); 
-			let response <-proc_master.resp();
+			let response = proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         data_buff<=response.data;
@@ -421,7 +416,7 @@ package mcpu;
 				rg_port_count<=0;
 				response_buff<=0;
 	      if(endian(ff_address.first,response.endian_big)==Big)
-	      data_buff <= {response_buff[15:0],response.data[15:0]};
+	      data_buff <={response_buff[15:0],response.data[15:0]};
         else
         data_buff<={response.data[15:0],response_buff[15:0]};
       	if(response.berr==1'b1||response_berr==1'b1)
@@ -481,7 +476,7 @@ package mcpu;
 		endrule
 
   rule send_read_response_from_memory_to_mem_stage_64_READ2(ff_req.first==DATA_MODE_64_READ2); 
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:{response.data,data_buff},rlast:True,ruser: 0,
@@ -580,7 +575,7 @@ package mcpu;
 
 
 		rule send_write_response_from_memory_to_mem_stage_8(ff_req.first==DATA_MODE_8_WRITE);//MEMORY WRITE RESP TO DCACHE
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
 			ff_req.deq();
 		  let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY,  bid: ff_id.first};
 			if (response.berr==1'b1)
@@ -593,7 +588,7 @@ package mcpu;
 		endrule
                 
     rule send_write_response_from_memory_to_mem_stage_16(ff_req.first==DATA_MODE_16_WRITE);
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
 			`ifdef verbose $display("Received respons from port_type %h",response.port_type);`endif
 
 			if(response.port_type==2'b10 )begin
@@ -641,7 +636,7 @@ package mcpu;
 		endrule
 
   	rule send_write_response_from_memory_to_mem_stage_32(ff_req.first==DATA_MODE_32_WRITE); 
-      let response <-proc_master.resp();
+      let response =proc_master.put_resp();
       if(response.port_type==2'b00)
       begin
 
@@ -702,7 +697,7 @@ package mcpu;
 		endrule
 
   	rule send_write_response_from_memory_to_mem_stage_64_WRITE1(ff_req.first==DATA_MODE_64_WRITE1); 
-      let response <-proc_master.resp();
+      let response =proc_master.put_resp();
       if(response.port_type==2'b00)
       begin		
         ff_req.deq();
@@ -755,7 +750,7 @@ package mcpu;
 		endrule
 
   	rule send_write_response_from_memory_to_mem_stage_64_WRITE2(ff_req.first==DATA_MODE_64_WRITE2); 
-      let response <-proc_master.resp();
+      let response =proc_master.put_resp();
       if(response.port_type==2'b00)
       begin		
         ff_req.deq();
