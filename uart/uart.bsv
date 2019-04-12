@@ -237,8 +237,8 @@ package uart;
                            numeric type data_width, 
                            numeric type user_width, 
                            numeric type depth);
-		interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
-		interface RS232 io;
+		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+		(*prefix=""*) interface RS232 io;
  	endinterface
 
 	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate)

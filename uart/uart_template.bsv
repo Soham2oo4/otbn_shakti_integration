@@ -34,11 +34,12 @@ import uart::*;
 import device_common::*;
 
 (*synthesize*)
-module mkdummy#(Clock uart_clock, Reset uart_reset)(Empty);
+module mkdummy#(Clock uart_clock, Reset uart_reset)(Ifc_uart_axi4#(32, 64, 0, 16));
 	let core_clock<-exposeCurrentClock;
 	let core_reset<-exposeCurrentReset;
-	//Ifc_uart_axi4lite#(32,16,0, 32) uart <- mkuart_axi4lite(uart_clock,uart_reset, 105);
-	Ifc_uart_axi4#(32,16,0, 3) uart1 <- mkuart_axi4(uart_clock,uart_reset, 35);
+  let ifc();
+  mkuart_axi4#(core_clock, core_reset, 16) _temp(ifc);
+  return ifc;
 endmodule
 
 (*synthesize*)
