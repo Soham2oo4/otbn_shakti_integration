@@ -360,7 +360,7 @@ package riscvDebug013;
     rule access_system_bus((sbError == 0) && (sbBusyError == 0) && (sbBusy == 0) && (startSBAccess == 1) );
       Bit#(64) write_data = 0;
       Bit#(DPADDR) address = 0;
-      Bit#(4)  size = 0;      // size in bytes
+      Bit#(3)  size = 0;      // size in bytes
       Bit#(8)  write_strobe = 0;
       Bool readAccess = (sb_read_write == 1); //((sbReadOnAddr ==1) || (sbReadOnData==1));
       Bit#(3) align = 0;
@@ -371,61 +371,61 @@ package riscvDebug013;
         0:begin
             if(sbAccess8 == 0)
               detect_error = pack(SbSize);
-            size = 1 ;
+            size = 0 ;
             write_data = duplicate(sbData0[7:0]);
             write_strobe = 8'b0000_0001;
           end
         1:begin
             if(sbAccess16 == 0)
               detect_error = pack(SbSize);
-            size = 2 ;
+            size = 1 ;
             write_data = duplicate(sbData0[15:0]);
             write_strobe = 8'b0000_0011;
           end
         2:begin
             if(sbAccess32 == 0)
               detect_error = pack(SbSize);
-            size = 4 ;
+            size = 2 ;
             write_data = duplicate(sbData0);
             write_strobe = 8'b0000_1111;
           end
         3:begin
             if(sbAccess64 == 0)
               detect_error = pack(SbSize);
-            size = 8 ;
+            size = 3 ;
             write_data = {sbData1,sbData0};
             write_strobe = 8'b1111_1111;
           end
       endcase
 
       // Address
+      address = truncate({sbAddress1,sbAddress0});
       if(readAccess)begin
-        address = truncate({sbAddress1,sbAddress0});
         //align = {0,sbAddress0[1:0]};    // All Memory can be accessed Word Aligned (32b aligned) ?
         // mis-aligned detect - REad
-        if((size == 8) && (sbAddress0[1:0] != 0)) // How are 64 bit reads to be aligned ?
+        if((size == 3) && (sbAddress0[2:0] != 0)) // How are 64 bit reads to be aligned ?
           detect_error = pack(SbAlign);
-        else if((size == 4) && (sbAddress0[1:0] != 0))
+        else if((size == 2) && (sbAddress0[1:0] != 0))
           detect_error = pack(SbAlign);
-        else if((size == 2) && (sbAddress0[0] != 0))
+        else if((size == 1) && (sbAddress0[0] != 0))
           detect_error = pack(SbAlign);
       end
       else begin
         // Addresses WORD Aligned
         if(valueOf(DXLEN)==64)begin
-          address = truncate({sbAddress1,sbAddress0[31:3],3'b000});
+          //address = truncate({sbAddress1,sbAddress0[31:3],3'b000});
           align = sbAddress0[2:0];
         end
         else if(valueOf(DXLEN)==32)begin
-          address = truncate({sbAddress1,sbAddress0[31:2],2'b00});
+          //address = truncate({sbAddress1,sbAddress0[31:2],2'b00});
           align = {0,sbAddress0[1:0]};
         end
         // mis-aligned Detect - Write
-        if((size == 8) && (align[2:0] !=0))
+        if((size == 3) && (align[2:0] !=0))
           detect_error = pack(SbAlign);
-        else if((size == 4) && (align[1:0] !=0 ))
+        else if((size == 2) && (align[1:0] !=0 ))
           detect_error = pack(SbAlign);
-        else if((size == 2) && (align[0]   !=0 ))
+        else if((size == 1) && (align[0]   !=0 ))
           detect_error = pack(SbAlign);
         else
           write_strobe = write_strobe<<(align);
@@ -435,20 +435,21 @@ package riscvDebug013;
           `logLevel( debug, 1, $format("DEBUG:Memory Access-Addr:%h ,Op:%b ",address,readAccess))
         if(readAccess)begin
           let read_request = AXI4_Rd_Addr {araddr: truncate(address),aruser: 0, arlen: 0,
-            arsize:truncate(size),arburst: 'b01,arid:`FIVO(AxiID), arprot:'d3};
+            arsize: size, arburst: 'b01,arid:`FIVO(AxiID), arprot:'d3};
           master_xactor.i_rd_addr.enq(read_request);
         end
         else begin
           let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
             wstrb: truncate(write_strobe),wlast:True, wid:`FIVO(AxiID)};
           let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0,
-            awlen: 0, awsize: size[2:0],awburst: 'b01,awid:`FIVO(AxiID), awprot:'d3};
+            awlen: 0, awsize: size, awburst: 'b01,awid:`FIVO(AxiID), awprot:'d3};
           master_xactor.i_wr_addr.enq(request_address) ;
           master_xactor.i_wr_data.enq(request_data) ;
         end
 
         if(sbAutoIncrement == 1)begin
-          Bit#(64)lv_new_address = {sbAddress1,sbAddress0} + zeroExtend(size);
+          Bit#(4) offset = 1 << size;
+          Bit#(64) lv_new_address = {sbAddress1,sbAddress0} + zeroExtend(offset);
           sbAddress0 <= lv_new_address[31:0];
           sbAddress1 <= lv_new_address[63:32];
           end
