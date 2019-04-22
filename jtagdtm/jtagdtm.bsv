@@ -8,6 +8,7 @@ package jtagdtm;
 	import DReg::*;
 /*======= Project imports ===== */
 	`include "jtagdefines.bsv"
+  `include "Logger.bsv"
 /*============================== */
 
 interface Ifc_jtagdtm;
@@ -67,6 +68,8 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 
 	(*synthesize*)
 	module mkjtagdtm(Ifc_jtagdtm);
+
+  String jtag = "" ; // for logger
 	Clock def_clk<-exposeCurrentClock;
 	Clock invert_clock<-invertCurrentClock;
 	Reset invert_reset<-mkAsyncResetFromCR(0,invert_clock);
@@ -136,7 +139,8 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 
 	/*== This rule implements the TAPs STATE MACHINE====== */
 	rule just_display;
-		if(valueOf(`VERBOSITY)>1) $display($time,"\tTAPSTATE: ",fshow(tapstate),"\tINSTRUCTION: %h",instruction_shiftreg);
+	  `logLevel( jtag, 0, $format("\tTAPSTATE: ",fshow(tapstate),"\tINSTRUCTION: %h",
+                                                                            instruction_shiftreg))
 	endrule
 	rule tap_state_machine;
 		case(tapstate)
@@ -171,7 +175,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 	endrule
 
 	rule dmireset_generated(wr_dmireset_generated);
-		if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: Received DMIRESET");
+	 `logLevel( jtag, 0, $format("\tDTM: Received DMIRESET"))
 		dmiaccess_shiftreg[1][1:0]<='d0;
 		response_status<=0;
 		capture_repsonse_from_dm<=False;
@@ -199,19 +203,20 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 			CaptureDR:	if(dmi_sel==1) 
 				if(response_from_DM.notEmpty)begin 
 					let x=response_from_DM.first[33:0];
-					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: Getting response: data %h op: %h",x[33:2],x[1:0]);
+					`logLevel( jtag, 0, $format("\tDTM: Getting response: data %h op: %h",x[33:2],x[1:0]))
 					x[1:0]=x[1:0]|response_status;// keeping the lower 2 bits sticky
 					dmiaccess_shiftreg[0][33:0]<=x; 
 					response_status<=x[1:0];
 					response_from_DM.deq; 
-					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: New DMIACCESS value: %h",x);
+					 `logLevel( jtag, 0, $format("\tDTM: New DMIACCESS value: %h",x))
 					capture_repsonse_from_dm<=False;
 					dmistat<=x[1:0];
 				end
 				else begin
 					if(capture_repsonse_from_dm)
 						response_status<=3;
-						if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: RESPONSE NOT AVAILABLE. DMIACCESS: %h",dmiaccess_shiftreg[0]);
+   				`logLevel( jtag, 0, $format("\tDTM: RESPONSE NOT AVAILABLE. DMIACCESS: %h",
+                                                                            dmiaccess_shiftreg[0]))
 				end
 			ShiftDR:		if(dmi_sel==1) dmiaccess_shiftreg[0]<={wr_tdi,dmiaccess_shiftreg[0][39:1]};
 			UpdateDR:	if(dmi_sel==1) 
@@ -219,12 +224,11 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 					request_to_DM.enq(dmiaccess_shiftreg[0]);
 					dmiaccess_shiftreg[0][1:0]<='d3;
 					capture_repsonse_from_dm<=True;
-					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: Sending request to Debug: %h",dmiaccess_shiftreg[0]);
+					`logLevel( jtag, 0, $format("\tDTM: Sending request to Debug: %h",dmiaccess_shiftreg[0]))
 				end
 				else begin
-					if(valueOf(`VERBOSITY)>1) $display($time,"\tDTM: REQUEST NOT SERVED capture: %b DMIACCESS: %h",capture_repsonse_from_dm,dmiaccess_shiftreg[0]);
-//					dmistat<=3;
-//					response_from_DM.enq('d3);
+				  `logLevel( jtag, 0, $format("\tDTM: REQUEST NOT SERVED capture: %b DMIACCESS: %h",
+                                                    capture_repsonse_from_dm,dmiaccess_shiftreg[0]))
 				end
 		endcase
 	endrule
