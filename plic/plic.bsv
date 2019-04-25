@@ -46,9 +46,9 @@ package plic;
 
 	typedef struct {
 		Bit#(paddr) 			 address;
-		Bit#(TLog#(TDiv#(paddr,8)))  transfer_size;	
+		Bit#(TLog#(TDiv#(data_width,8)))  transfer_size;	
 		Bit#(1)					 u_signed;
-		Bit#(3)						byte_offset;
+		Bit#(TLog#(TDiv#(data_width,8)))						byte_offset;
 		Bit#(data_width) write_data;
 		Access_type			 ld_st;
 	} UncachedMemReq#(numeric type paddr, numeric type data_width) deriving(Bits, Eq);
@@ -411,7 +411,7 @@ endmodule
 				let aw <- pop_o(s_xactor.o_wr_addr);
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
-				Bit#(3) byte_offset=0;
+				Bit#(TLog#(TDiv#(data_width,8))) byte_offset=0;
 				for(Integer i=3; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
@@ -488,7 +488,7 @@ endmodule
 				let aw <- pop_o(s_xactor.o_wr_addr);
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
-				Bit#(3) byte_offset=0;
+				Bit#(TLog#(TDiv#(data_width,8))) byte_offset=0;
 				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
@@ -508,7 +508,7 @@ endmodule
 				let wr_req=rg_wrpacket;
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
-				Bit#(3) byte_offset=0;
+				Bit#(TLog#(TDiv#(data_width,8))) byte_offset=0;
 				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
