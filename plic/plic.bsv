@@ -239,12 +239,12 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											for(Integer i = 0; i < 8; i = i+1)
 												temp[i] = pack(rg_ip[source_id + fromInteger(i)][1]);
 										end
-										else if(loop==16) begin
+										else if(loop==16 && v_no_of_ir_pins >= 16) begin
 											source_id = source_id << 4;
 											for(Integer i = 0; i < 16; i = i+1)
 												temp[i] = pack(rg_ip[source_id + fromInteger(i)][1]);
 										end
-										else if(loop==32) begin
+										else if(loop==32 && v_no_of_ir_pins >= 32) begin
 											source_id = source_id << 5;
 											for(Integer i = 0; i < 32; i = i+1)
 												temp[i] = pack(rg_ip[source_id + fromInteger(i)][1]);
@@ -260,13 +260,13 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											rg_ip[source_id + fromInteger(i)][1] <= unpack(mem_req.write_data[i]); 
 											end	
 										end
-										else if(loop==16)begin
+										else if(loop==16 && v_no_of_ir_pins >= 16)begin
 											for(Integer i = 0; i < 16; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : pending interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
 											rg_ip[source_id + fromInteger(i)][1] <= unpack(mem_req.write_data[i]); 
 											end
 										end
-										else if(loop==32)begin
+										else if(loop==32 && v_no_of_ir_pins >= 32)begin
 											for(Integer i = 0; i < 32; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : pending interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
 											rg_ip[source_id + fromInteger(i)][1] <= unpack(mem_req.write_data[i]); 
@@ -287,13 +287,13 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											for(Integer i = 0; i < 8; i = i+1)
 											temp[i] = pack(rg_ie[source_id + fromInteger(i)]);
 										end
-										if(loop==16)	
+										if(loop==16 && v_no_of_ir_pins >= 16)	
 										begin								
 											source_id = source_id << 4;	
 											for(Integer i = 0; i < 16; i = i+1)
 											temp[i] = pack(rg_ie[source_id + fromInteger(i)]);
 										end
-										if(loop==32)	
+										if(loop==32 && v_no_of_ir_pins >= 32)	
 										begin								
 											source_id = source_id << 5;	
 											for(Integer i = 0; i < 32; i = i+1)
@@ -312,14 +312,14 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											rg_ie[source_id + fromInteger(i)] <= unpack(mem_req.write_data[i]); 
 											end
 										end
-										if(loop==16)begin
+										if(loop==16 && v_no_of_ir_pins >= 16)begin
 											source_id=source_id<<4;
 											for(Integer i = 0; i < 16; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : enabled interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
 											rg_ie[source_id + fromInteger(i)] <= unpack(mem_req.write_data[i]); 
 											end
 										end
-										if(loop==32)begin
+										if(loop==32 && v_no_of_ir_pins >= 32)begin
 											source_id=source_id<<5;
 											for(Integer i = 0; i < 32; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : enabled interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
