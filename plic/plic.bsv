@@ -46,9 +46,9 @@ package plic;
 
 	typedef struct {
 		Bit#(paddr) 			 address;
-		Bit#(TLog#(TDiv#(paddr,8)))  transfer_size;	
+		Bit#(TLog#(TDiv#(data_width,8)))  transfer_size;	
 		Bit#(1)					 u_signed;
-		Bit#(3)						byte_offset;
+		Bit#(TLog#(TDiv#(data_width,8)))						byte_offset;
 		Bit#(data_width) write_data;
 		Access_type			 ld_st;
 	} UncachedMemReq#(numeric type paddr, numeric type data_width) deriving(Bits, Eq);
@@ -239,12 +239,12 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											for(Integer i = 0; i < 8; i = i+1)
 												temp[i] = pack(rg_ip[source_id + fromInteger(i)][1]);
 										end
-										else if(loop==16) begin
+										else if(loop==16 && v_no_of_ir_pins >= 16) begin
 											source_id = source_id << 4;
 											for(Integer i = 0; i < 16; i = i+1)
 												temp[i] = pack(rg_ip[source_id + fromInteger(i)][1]);
 										end
-										else if(loop==32) begin
+										else if(loop==32 && v_no_of_ir_pins >= 32) begin
 											source_id = source_id << 5;
 											for(Integer i = 0; i < 32; i = i+1)
 												temp[i] = pack(rg_ip[source_id + fromInteger(i)][1]);
@@ -260,13 +260,13 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											rg_ip[source_id + fromInteger(i)][1] <= unpack(mem_req.write_data[i]); 
 											end	
 										end
-										else if(loop==16)begin
+										else if(loop==16 && v_no_of_ir_pins >= 16)begin
 											for(Integer i = 0; i < 16; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : pending interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
 											rg_ip[source_id + fromInteger(i)][1] <= unpack(mem_req.write_data[i]); 
 											end
 										end
-										else if(loop==32)begin
+										else if(loop==32 && v_no_of_ir_pins >= 32)begin
 											for(Integer i = 0; i < 32; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : pending interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
 											rg_ip[source_id + fromInteger(i)][1] <= unpack(mem_req.write_data[i]); 
@@ -287,13 +287,13 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											for(Integer i = 0; i < 8; i = i+1)
 											temp[i] = pack(rg_ie[source_id + fromInteger(i)]);
 										end
-										if(loop==16)	
+										if(loop==16 && v_no_of_ir_pins >= 16)	
 										begin								
 											source_id = source_id << 4;	
 											for(Integer i = 0; i < 16; i = i+1)
 											temp[i] = pack(rg_ie[source_id + fromInteger(i)]);
 										end
-										if(loop==32)	
+										if(loop==32 && v_no_of_ir_pins >= 32)	
 										begin								
 											source_id = source_id << 5;	
 											for(Integer i = 0; i < 32; i = i+1)
@@ -312,14 +312,14 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 											rg_ie[source_id + fromInteger(i)] <= unpack(mem_req.write_data[i]); 
 											end
 										end
-										if(loop==16)begin
+										if(loop==16 && v_no_of_ir_pins >= 16)begin
 											source_id=source_id<<4;
 											for(Integer i = 0; i < 16; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : enabled interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
 											rg_ie[source_id + fromInteger(i)] <= unpack(mem_req.write_data[i]); 
 											end
 										end
-										if(loop==32)begin
+										if(loop==32 && v_no_of_ir_pins >= 32)begin
 											source_id=source_id<<5;
 											for(Integer i = 0; i < 32; i = i+1) begin
 											`ifdef verbose $display($time,"\tPLIC : enabled interrupt  %b id %d", mem_req.write_data[i], source_id);`endif
@@ -411,7 +411,7 @@ endmodule
 				let aw <- pop_o(s_xactor.o_wr_addr);
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
-				Bit#(3) byte_offset=0;
+				Bit#(TLog#(TDiv#(data_width,8))) byte_offset=0;
 				for(Integer i=3; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
@@ -488,7 +488,7 @@ endmodule
 				let aw <- pop_o(s_xactor.o_wr_addr);
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
-				Bit#(3) byte_offset=0;
+				Bit#(TLog#(TDiv#(data_width,8))) byte_offset=0;
 				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
@@ -508,7 +508,7 @@ endmodule
 				let wr_req=rg_wrpacket;
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
-				Bit#(3) byte_offset=0;
+				Bit#(TLog#(TDiv#(data_width,8))) byte_offset=0;
 				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
