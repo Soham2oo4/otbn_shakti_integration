@@ -226,8 +226,9 @@ package mcpu;
 		r.rresp = AXI4_SLVERR;
 		ff_address.deq();
 		s_xactor.i_rd_data.enq(r);
+    `ifdef verbose
     if (response.berr==1'b1)
-		`ifdef verbose $display("MCPU:SLV_ERR");`endif
+		 $display("MCPU:SLV_ERR");`endif
 		`ifdef verbose $display("Data received %h with id %h to mem_stage",response.data,ff_id.first());`endif
 		ff_id.deq();
 	endrule
