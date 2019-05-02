@@ -30,7 +30,7 @@ Details:
 */
 package dmi_tap;
 	import Clocks::*;
-  import FIFO :: *;
+  import FIFOF :: *;
   import SpecialFIFOs :: *;
   `include "Logger.bsv"
 
@@ -68,18 +68,20 @@ package dmi_tap;
 	  Wire#(Bit#(1)) wr_tdi <- mkDWire(0);
 	
 	  Reg#(Bit#(1)) rg_tdo <- mkRegA(0, clocked_by invert_clock, reset_by invert_reset);
-    ReadOnly#(Bit#(1)) crossed_output_tdo <- mkNullCrossingWire(def_clk,rg_tdo);
+	  Reg#(Bool)		capture_repsonse_from_dm<-mkRegA(False);
 	
 	  Reg#(Bit#(40)) dmiaccess_shiftreg[2] <- mkCReg(2,'d2);
+	  ReadOnly#(Bit#(40)) crossed_dmiaccess_shiftreg<-mkNullCrossingWire(invert_clock,dmiaccess_shiftreg[0]);
   	Reg#(Bit#(2))	response_status <- mkReg(0);
 
+	  Bit#(1) dmiaccess_tdo=crossed_dmiaccess_shiftreg[0][0];
     // ------------ FIFOs to communicate with the DM --------- //
   	FIFOF#(Bit#(40)) request_to_DM <- mkUGFIFOF1();
 	  FIFOF#(Bit#(34)) response_from_DM <- mkUGFIFOF1();
   	// -------------------------------------------------------- //
 
     rule shift_capture_update(wr_select == 1);
-      if(wr_capture) begin
+      if(wr_capture == 1) begin
 				if(response_from_DM.notEmpty)begin 
 					let x = response_from_DM.first[33 : 0];
 					`logLevel( jtag, 0, $format("\tDTM : Getting response : data %h op: %h",x[33 : 2],x[1 : 0]))
@@ -96,11 +98,12 @@ package dmi_tap;
 						response_status <= 3;
    				`logLevel( jtag, 0, $format("\tDTM : RESPONSE NOT AVAILABLE. DMIACCESS: %h",
                                                                             dmiaccess_shiftreg[0]))
+        end
       end
       else if(wr_shift == 1)begin
         dmiaccess_shiftreg[0]<={wr_tdi,dmiaccess_shiftreg[0][39:1]};
       end
-      if(wr_update == 1) begin
+      else if(wr_update == 1) begin
 				if(request_to_DM.notFull && dmiaccess_shiftreg[0][1:0]!=0 && capture_repsonse_from_dm==False)begin
 					request_to_DM.enq(dmiaccess_shiftreg[0]);
 					dmiaccess_shiftreg[0][1:0]<='d3;
@@ -134,9 +137,9 @@ package dmi_tap;
 		  wr_tms <= in;
   	endmethod
   	method Action tdi(Bit#(1) in);
-	  	wr_tdi <= tdi;
+	  	wr_tdi <= in;
   	endmethod
-	  method tdo = crossed_output_tdo;
+	  method tdo = dmiaccess_tdo;
 	  method Action response_from_dm(Bit#(34) responsedm) if(response_from_DM.notFull);
 		  if(capture_repsonse_from_dm)
 			  response_from_DM.enq(responsedm);
