@@ -88,26 +88,6 @@ typedef enum    {
 
 // ================================================
 // I2C Registers Map -- Custom for now. Should Adhere to the Driver
-typedef enum {
-    //Registers
-     S2         = 'h00,
-     Control    = 'h08,
-     S0         = 'h10,
-     Status     = 'h18,
-     S01        = 'h20,
-     S3         = 'h28,
-     Time       = 'h30,
-     SCL        = 'h38,     
-     DRV0       = 'h40,     
-     DRV1       = 'h48,     
-     DRV2       = 'h50,     
-     PD         = 'h58,     
-     PPEN       = 'h60,     
-     PRG_SLEW   = 'h68,     
-     PUQ        = 'h70,     
-     PWRUPZHL   = 'h78,     
-     PWRUP_PULL_EN= 'h80     
-}I2C deriving (Bits, Eq);
 
 typedef Bit#(8) I2C_RegWidth;
 
@@ -150,15 +130,6 @@ endfunction
        method Bit#(1) sda_out;
        method Action sda_in(Bit#(1) in);
        method Bool sda_out_en;
-       method Bit#(1) i2c_DRV0;
-       method Bit#(1) i2c_DRV1;
-       method Bit#(1) i2c_DRV2;
-       method Bit#(1) i2c_PD;
-       method Bit#(1) i2c_PPEN;
-       method Bit#(1) i2c_PRG_SLEW;
-       method Bit#(1) i2c_PUQ;
-       method Bit#(1) i2c_PWRUPZHL;
-       method Bit#(1) i2c_PWRUP_PULL_EN;
     endinterface
 
         
@@ -310,34 +281,25 @@ endfunction
 
 
       //Function to access Registers
-      function Tuple2#(Bool,Bit#(data_width)) get_i2c(I2C i2c_state);
+      function Tuple2#(Bool,Bit#(data_width)) get_i2c(Bit#(8) i2c_state);
         case (i2c_state)
-          Control         : return tuple2(False,duplicate(mcontrolReg));   //~ Are we creating new reg each time
-          Status          : return tuple2(False,duplicate(mstatusReg));
-          S01             : return tuple2(False,duplicate(s01));
-          S0              : return tuple2(False,duplicate(s0));
-          S2              : return tuple2(False,duplicate(s2));
-          S3              : return tuple2(False,duplicate(s3)); 
-          Time            : return tuple2(False,duplicate(i2ctime));
-          SCL             : return tuple2(False,duplicate(c_scl));
-          DRV0            : return tuple2(False,duplicate(drv0_rg));
-          DRV1            : return tuple2(False,duplicate(drv1_rg));
-          DRV2            : return tuple2(False,duplicate(drv2_rg));
-          PD              : return tuple2(False,duplicate(pd_rg));
-          PPEN            : return tuple2(False,duplicate(ppen_rg));
-          PRG_SLEW        : return tuple2(False,duplicate(prg_slew_rg));
-          PUQ             : return tuple2(False,duplicate(puq_rg));
-          PWRUPZHL        : return tuple2(False,duplicate(pwrupzhl_rg));
-          PWRUP_PULL_EN   : return tuple2(False,duplicate(pwrup_pull_en_rg));
+          `Control         : return tuple2(False,duplicate(mcontrolReg));   //~ Are we creating new reg each time
+          `Status          : return tuple2(False,duplicate(mstatusReg));
+          `S01             : return tuple2(False,duplicate(s01));
+          `S0              : return tuple2(False,duplicate(s0));
+          `S2              : return tuple2(False,duplicate(s2));
+          `S3              : return tuple2(False,duplicate(s3)); 
+          `Time            : return tuple2(False,duplicate(i2ctime));
+          `SCL             : return tuple2(False,duplicate(c_scl));
           default : return tuple2(True,0);
         endcase
       endfunction
 
       //Function to write into the registers
-      function ActionValue#(Bool) set_i2c(I2C i2c_state,Bit#(32) value )= actionvalue
+      function ActionValue#(Bool) set_i2c(Bit#(8) i2c_state,Bit#(32) value )= actionvalue
           Bool err=False;
           case(i2c_state) 
-            Control : begin
+            `Control : begin
               zero <= 0;  //Indicates to the Driver that the control register has been written in the beginning
               `logLevel( i2c, 2, $format("Control Written"))
               if(!intCond && mTransFSM != NAck) 
@@ -364,9 +326,9 @@ endfunction
               else
                 mcontrolReg._write(truncate(value)); 
             end
-            S01: begin s01._write(truncate(value)); `logLevel( i2c, 2, $format("S01 written")) end
-            S0 : begin s0._write(truncate(value)); `logLevel( i2c, 2, $format("S0 written")) pin <=1; end
-            S2 : begin
+            `S01: begin s01._write(truncate(value)); `logLevel( i2c, 2, $format("S01 written")) end
+            `S0 : begin s0._write(truncate(value)); `logLevel( i2c, 2, $format("S0 written")) pin <=1; end
+            `S2 : begin
               if(eso == 0) begin
                 mod_start <= True;
                 scl_start <= True;
@@ -376,8 +338,8 @@ endfunction
               end
               `logLevel( i2c, 2, $format("S2 written")) 
             end
-            S3 :  s3._write(truncate(value));  //~ default
-            SCL: begin
+            `S3 :  s3._write(truncate(value));  //~ default
+            `SCL: begin
 				      if(eso == 0) begin 
                 mod_start <= True;
                 scl_start <= True;
@@ -387,16 +349,7 @@ endfunction
 				      end 
 				      `logLevel( i2c, 2, $format("Received scl but eso was %d",eso))
 			      end 
-            Time    : i2ctime._write(truncate(value));
-            DRV0    : drv0_rg <= value[7:0];
-            DRV1    : drv1_rg <= value[7:0];
-            DRV2    : drv2_rg <= value[7:0];
-            PD      : pd_rg   <= value[7:0];
-            PPEN    : ppen_rg <= value[7:0];
-            PRG_SLEW: prg_slew_rg <= value[7:0];
-            PUQ     : puq_rg  <= value[7:0];
-            PWRUPZHL: pwrupzhl_rg <= value[7:0];
-            PWRUP_PULL_EN    : pwrup_pull_en_rg <= value[7:0];
+            `Time    : i2ctime._write(truncate(value));
             default : err=True;
           endcase
           return err;
@@ -770,25 +723,25 @@ endfunction
    
         //TODO - What if a read request is issued to the data register
         `logLevel( i2c, 2, $format("AXI Read Request pin %d",pin))
-        if(truncate(addr) == pack(S0)) begin
+        if(truncate(addr) == `S0) begin
    	     pin <=1;      
 	       `logLevel( i2c, 2, $format("Setting pin to 1 in read phase"))
         end
-   	    else if(truncate(addr) == pack(Status)) begin
+   	    else if(truncate(addr) == `Status) begin
    	       `logLevel( i2c, 2, $format("Clearing Status Bits"))
    	       ber <= 0;  	             
    	    end
 	     
-        let {err,data} =  get_i2c(unpack(truncate(addr)));
-        `logLevel( i2c, 2, $format("Register Read  %h: Value: %d ",addr,data))
+        let {err,data} =  get_i2c(truncate(addr));
+        `logLevel( i2c, 2, $format("Register Read  %h: Value: %h erR:%b",addr,data,err))
         return tuple2(data,err);
       endmethod
 
 		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
         `logLevel( i2c, 2, $format("Wr_addr : %h Wr_data: %h", addr, data))
-        let err <- set_i2c(unpack(truncate(addr)),truncate(data));
-        `logLevel( i2c, 2, $format("Received Value %d",data))
+        let err <- set_i2c(truncate(addr),truncate(data));
+        `logLevel( i2c, 2, $format("Received Value %h err:%b",data,err))
         if(ber==1)
           return True;
         else
@@ -813,33 +766,6 @@ endfunction
         endmethod
         method Bool sda_out_en;
             return (dOutEn && eso == 1'b1);
-        endmethod
-        method Bit#(1) i2c_DRV0;
-            return drv0_rg[0];
-        endmethod
-        method Bit#(1) i2c_DRV1;
-            return drv1_rg[0];
-        endmethod
-        method Bit#(1) i2c_DRV2;
-            return drv2_rg[0];
-        endmethod
-        method Bit#(1) i2c_PD;
-            return pd_rg[0];
-        endmethod
-        method Bit#(1) i2c_PPEN;
-            return ppen_rg[0];
-        endmethod
-        method Bit#(1) i2c_PRG_SLEW;
-            return prg_slew_rg[0];
-        endmethod
-        method Bit#(1) i2c_PUQ;
-            return puq_rg[0];
-        endmethod
-        method Bit#(1) i2c_PWRUPZHL;
-            return pwrupzhl_rg[0];
-        endmethod
-        method Bit#(1) i2c_PWRUP_PULL_EN;
-            return pwrup_pull_en_rg[0];
         endmethod
       endinterface
         
