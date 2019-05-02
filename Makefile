@@ -4,7 +4,7 @@
 
 include Makefile.inc
 
-TOP_MODULE:=mkdummy
+TOP_MODULE:=mkdmi_tap
 BSVBUILDDIR:=./build/
 VERILOGDIR:=./verilog/
 BSVINCDIR:= .:%/Prelude:%/Libraries:%/Libraries/BlueNoC:$(SUPPORTED):$(DIR)
