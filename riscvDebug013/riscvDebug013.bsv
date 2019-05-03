@@ -471,7 +471,8 @@ package riscvDebug013;
 				Bit#(TAdd#(TLog#(TDiv#(DXLEN,8)),3)) lv_shift = {rg_lower_addr_bits, 3'd0};
         Bit#(DXLEN) resp= response.rdata >> lv_shift;
         sbData0<=resp[31:0] ;
-        sbData1<=resp[63:32] ;
+				if(valueOf(DXLEN)==64)
+        	sbData1<=resp[63:32] ;
       end
       else begin
         sbError <= pack(SbOther);// lookup bresp values !
