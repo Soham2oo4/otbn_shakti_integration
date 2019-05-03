@@ -274,6 +274,7 @@ package riscvDebug013;
     Reg#(Bit#(32)) sbData2 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
     Reg#(Bit#(32)) sbData3 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
 
+		Reg#(Bit#(TLog#(TDiv#(DXLEN,8)))) rg_lower_addr_bits <- mkReg(0);	//Store lower address bits
     /*      MODULE RULES      */
     //-RULE: Assert derived_reset when dm is inactive
     rule generate_derived_reset(dmActive==0);
@@ -437,6 +438,7 @@ package riscvDebug013;
           let read_request = AXI4_Rd_Addr {araddr: truncate(address),aruser: 0, arlen: 0,
             arsize: size, arburst: 'b01,arid:`FIVO(AxiID), arprot:'d3};
           master_xactor.i_rd_addr.enq(read_request);
+					rg_lower_addr_bits<= truncate(address);
         end
         else begin
           let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
@@ -466,7 +468,8 @@ package riscvDebug013;
       let response <- pop_o(master_xactor.o_rd_data);
       // if width less than 32 upper bits can take on anything - spec
       if (response.rresp==AXI4_OKAY && (response.rid==`FIVO(AxiID))) begin
-        Bit #(64) resp=zeroExtend (response.rdata);
+				Bit#(TAdd#(TLog#(TDiv#(DXLEN,8)),3)) lv_shift = {rg_lower_addr_bits, 3'd0};
+        Bit#(DXLEN) resp= response.rdata >> lv_shift;
         sbData0<=resp[31:0] ;
         sbData1<=resp[63:32] ;
       end
