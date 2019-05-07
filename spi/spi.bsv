@@ -64,7 +64,17 @@ typedef struct{
 	bit		 rxne;
 } Sr_cfg deriving (Bits, Eq);
 
-	
+typedef enum{
+			 IDLE,
+			 START_TRANSMIT,
+			 DATA_TRANSMIT
+		} Transmit_state deriving(Bits, Eq, FShow)
+			 		
+typedef enum{
+			 IDLE,
+			 START_RECEIVE,
+			 DATA_RECEIVE
+		} Receive_state deriving(Bits, Eq, FShow)
 
 
 interface Ifc_spi_out;
@@ -93,6 +103,7 @@ endinterface
 
 module mkspi(Ifc_spi);
 
+//TODO need to initialise the config register
 Reg#(Bit#(Cr1_cfg)) rg_spi_cfg_cr1    <- mkReg(0);
 Reg#(Bit#(Cr2_cfg)) rg_spi_cfg_cr2    <- mkReg(0);
 Reg#(Bit#(Sr_cfg))	rg_spi_cfg_sr     <- mkReg(0);
@@ -100,7 +111,24 @@ Reg#(Bit#(32))		rg_spi_cfg_dr     <- mkReg(0);
 Reg#(Bit#(32))		rg_spi_cfg_crcpr  <- mkReg(0);
 Reg#(Bit#(32))		rg_spi_cfg_rxcrcr <- mkReg(0);
 Reg#(Bit#(32))		rg_spi_cfg_txcrcr <- mkReg(0);
-Reg#(Bit#(3))
+Reg#(Bit#(3)) 		rg_clk_counter	  <- mkReg(0);
+
+Wire#(bit)			wr_spi_in_io1		  <- mkWire();
+Wire#(bit)			wr_spi_in_io2		  <- mkWire();
+Wire#(bit)			wr_spi_out_io1		  <- mkWire();
+Wire#(bit)			wr_spi_out_io2		  <- mkWire();
+Wire#(bit)			wr_spi_en_io1		  <- mkWire();
+Wire#(bit)			wr_spi_en_io2		  <- mkWire();
+
+Reg#(Transmit_state) rg_transmit_state <- mkReg(IDLE);
+Reg#(Receive_state)	 rg_receive_state  <- mkReg(IDLE);
+
+Reg#(Bit#(8))		rg_data_tx		   <- mkReg(0);
+Reg#(Bit#(8))		rg_data_rx		   <- mkReg(0);
+Reg#(Bit#(8))		rg_data_counter	   <- mkReg(0);
+
+FIFOLevelIfc#(Bit#(8), `TXFIFO_DEPTH)		tx_fifo				  <- mkFIFOLevel();
+FIFOLevelIfc#(Bit#(8), `TXFIFO_DEPTH)		rx_fifo				  <- mkFIFOLevel();
 
 function Action fn_wr_cfg_reg(Bit#(32) data, Bit#(`ADDR) address);
    
@@ -109,7 +137,7 @@ function Action fn_wr_cfg_reg(Bit#(32) data, Bit#(`ADDR) address);
    case(truncate(addr)) 
 
        `CR1    : rg_spi_cfg_cr1		<= Cr1_cfg{
-											rsvd : 0,
+											rsvd 	  : 0,
 											bidimode  : data[15],
 											bidioe    : data[14],
 											crcen     : data[13],
@@ -189,6 +217,25 @@ function Bit#(32) fn_rd_cfg_reg(Bit#(addr_cntrl_width) address);
    endcase
 endfunction
 
+// This rule takes care of the bidirectional mode of the controller, full-
+// duplex, simplex and duplex (software programmable)
+rule rl_bidimode_bidioe;
+	if(rg_spi_cfg_cr1.bidimode == 0) begin // full duplex mode
+		wr_spi_en_io1 <= 1;
+		wr_spi_en_io2 <= 0;
+	end
+	else if(rg_spi_cfg_cr1.bidioe == 1) begin // transmit only mode
+		wr_spi_en_io2 <= 1;					  // Master mode so mosi pin is used
+	end
+	else if(rg_spi_cfg_cr1.bidioe == 0) begin //receive only mode
+		wr_spi_en_io2 <= 0;					  // Master mode so mosi pin is used
+	end
+endrule //TODO do we need rxonly mode also.. if bidioe is disabled isn't that enough?
+
+//TODO MSTR reg need to be used for control of the circuit
+//TODO CPHA(clock phase) should be taken care in the trasmit and receive state machine
+
+
 rule rl_write_to_cfg;
 	fn_wr_cfg_reg(wr_write_data, wr_write_addr);
 endrule
@@ -196,20 +243,180 @@ endrule
 rule rl_read_from_cfg;
 	wr_rd_data <= fn_rd_cfg_reg(wr_rd_addr);
 endrule
+
+// This rule takes care of the chip select pin control
+rule rl_chip_select_control;
+	if(rg_spi_cfg_cr1.ssm == 1)
+		rg_nss <= rg_spi_cfg_cr1.ssi;
+    else begin
+		if(rg_spi_cfg_cr2.ssoe == 1) begin
+		   if(rg_spi_cfg_cr1.spe == 1)
+		   	rg_nss <= 0;
+		   else
+		   	rg_nss <= 1;
+		end
+	end		
+endrule
+
 // This rule generates the clock according to software specified baudrate
 rule rl_generate_clk_baud_rate;
-	if(rg_spi_cfg_cr1.br == rg_clk_counter) begin
-		rg_clk <= ~rg_clk;
-		rg_clk_counter <= 0;
+	if(rg_nss == 1) begin // chip select is active low
+		rg_clk <= rg_spi_cfg_cr1.cpol == 0 ? 0 : 1;
 	end
-	else
-		rg_clk_counter <= rg_clk_counter + 1;
+    else begin	
+		if(rg_spi_cfg_cr1.br == rg_clk_counter) begin
+			rg_clk <= ~rg_clk;
+			rg_clk_counter <= 0;
+		end
+		else
+			rg_clk_counter <= rg_clk_counter + 1;
+	end
 endrule
 
-rule rl_transmit_idle(rg_transmit_state == IDLE)
-	if()
+/*************** TRANSMIT STATE *******************/
+// This rule is the deciding point to start the transmit state machine
+// this state machine starts when the tx_fifo is notempty and spi is enabled
+rule rl_transmit_idle(rg_transmit_state == IDLE);
+	if(rg_spi_cfg_cr1.spe == 1 && tx_fifo.notEmpty()) begin
+		rg_trasmit_state <= START;
+		rg_data_tx <= tx_fifo.first();
+		rg_spi_cfg_sr.bsy <= 1;
+		tx_fifo.deq;
 endrule
 
+rule rl_transmit_start(rg_trasmit_state == START_TRANSMIT);
+	if(rg_spi_cfg_cr1.cpha == 1 && rg_spi_cfg_cr1.cpol == 1 && rg_clk == 1) begin
+		wr_clk <= rg_clk;
+		rg_transmit_state <= DATA_TRANSMIT;
+	end
+	else if(rg_spi_cfg_cr1.cpha == 1 && rg_spi_cfg_cr1.cpol == 0 && rg_clk == 0) begin
+		wr_clk <= rg_clk;
+		rg_transmit_state <= DATA_TRANSMIT;
+	end
+	else if(rg_spi_cfg_cr1.cpha == 0 && rg_spi_cfg_cr1.cpol == 1 && rg_clk == 1) begin
+		wr_clk <= rg_clk;
+		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			wr_spi_in_io1 	<= rg_data_tx[0];
+			rg_data_tx 		<= rg_data_tx >> 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		else begin
+			wr_spi_in_io1 	<= rg_data_tx[7];
+			rg_data_tx    	<= rg_data_tx << 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		rg_transmit_state <= DATA_TRANSMIT;
+	end
+	else if(rg_spi_cfg_cr1.cpha == 0 && rg_spi_cfg_cr1.cpol == 0 && rg_clk == 0) begin
+		wr_clk <= rg_clk;
+		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			wr_spi_in_io1 	<= rg_data_tx[0];
+			rg_data_tx 		<= rg_data_tx >> 1;
+			rg_data_counter <= rg_data_counter + 1;	
+		end
+		else begin
+			wr_spi_in_io1 	<= rg_data_tx[7];
+			rg_data_tx    	<= rg_data_tx << 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		rg_transmit_state <= DATA_TRANSMIT;
+	end
+endrule
+
+rule rl_data_transmit(rg_transmit_state == DATA_TRANSMIT) begin
+	if(rg_data_counter < 8 && tx_fifo.notEmpty()) begin
+		wr_clk <= rg_clk;
+		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			wr_spi_in_io1 <= rg_data_tx[0];
+			rg_data_tx <= rg_data_tx >> 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		else begin
+			wr_spi_in_io1 <= rg_data_tx[7];
+			rg_data_tx    <= rg_data_tx << 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		if(rg_data_counter == 7)
+			rg_data_tx <= tx_fifo.first; //TODO rg_data_tx is updated twice need to takecare 
+			tx_fifo.deq
+			rg_data_counter <= 0;
+	end
+	else begin
+		rg_data_counter <= 0;
+		rg_trasmit_state <= IDLE;
+	end
+endrule
+		
+/************* RECEIVE STATE ************/
+ 	
+rule rl_receive_idle(rg_receive_state == IDLE);
+	if() // TODO define trigger event to start receive state to be defined
+		rg_transmit_state <= START_RECEIVE;
+endrule
+
+rule rl_receive_start_receive(rg_receive_state == START_RECEIVE);
+	if(rg_spi_cfg_cr1.cpha == 1 && rg_spi_cfg_cr1.cpol == 1 && rg_clk == 1) begin
+		wr_clk <= rg_clk;
+		rg_receive_state <= DATA_RECEIVE;
+	end
+	else if(rg_spi_cfg_cr1.cpha == 1 && rg_spi_cfg_cr1.cpol == 0 && rg_clk == 0) begin
+		wr_clk <= rg_clk;
+		rg_receive_state <= DATA_RECEIVE;
+	end
+	else if(rg_spi_cfg_cr1.cpha == 0 && rg_spi_cfg_cr1.cpol == 1 && rg_clk == 1) begin
+		wr_clk <= rg_clk;
+		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			Bit#(8) data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
+			rg_data_rx <= data_rx >> 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		else begin
+			Bit#(8) data_rx = {rg_data_rx[7:1], wr_spi_in_io2};
+			rg_data_rx 		<= data_rx << 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		rg_receive_state <= DATA_RECEIVE;
+	end
+	else if(rg_spi_cfg_cr1.cpha == 0 && rg_spi_cfg_cr1.cpol == 0 && rg_clk == 0) begin
+		wr_clk <= rg_clk;
+		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			Bit#(8) data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
+			rg_data_rx <= data_rx >> 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		else begin
+			Bit#(8) data_rx = {rg_data_rx[7:1], wr_spi_in_io2};
+			rg_data_rx 		<= data_rx << 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		rg_receive_state <= DATA_RECEIVE;
+	end
+endrule
+
+rule rl_data_receive(rg_receive_state == DATA_RECEIVE) begin
+	if(rg_data_counter < 8 ) begin
+		wr_clk <= rg_clk;
+		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			Bit#(8) data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
+			rg_data_rx <= data_rx >> 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		else begin
+			Bit#(8) data_rx = {rg_data_rx[7:1], wr_spi_in_io2};
+			rg_data_rx 		<= data_rx << 1;
+			rg_data_counter <= rg_data_counter + 1;
+		end
+		if(rg_data_counter == 7)
+			rx_fifo.enq(rg_data_rx); //TODO rg_data_rx should concatenated with the last bit based 
+			rg_data_counter <= 0;	 // on lsbfirst value
+	end
+	else begin
+		rg_data_counter <= 0;
+		rg_receive_state <= IDLE;
+	end
+endrule
+	
+	
 interface Ifc_spi_app app_interface;
 	method Bit#(`WDC) data_to_app;
 		return wr_rd_data; // TODO hook created need to be changed later
