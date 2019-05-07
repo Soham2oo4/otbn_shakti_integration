@@ -61,7 +61,7 @@ package xilinxdtm;
     Wire#(Bit#(1)) wr_shift<-mkDWire(0);
     Wire#(Bit#(1)) wr_update<-mkDWire(0);
   /*========= Main Data Register =========== */
-    Reg#(Bit# (139)) srg_mdr <- mkRegA(0);
+    Reg#(Bit# (139)) srg_mdr <- mkReg(0);
 
     Wire#(Bool) wr_dmi_hardreset <- mkDWire(False);
     Wire#(Bool) wr_dmi_reset <- mkDWire(False);
@@ -80,76 +80,73 @@ package xilinxdtm;
   	ReadOnly#(Bit#(1)) crossed_output_tdo <- mkNullCrossingWire(def_clk,rg_tdo);
     
     Reg#(Bit#(5)) rg_pseudo_ir <- mkReg(0);
-    Reg#(Bool) rg_idr <- mkReg(False);
 
-  	/*======= perform dtmcontrol shifts ======== */
+    /*======= perform dtmcontrol shifts ======== */
   	rule generate_tdo_outputpin;
   	  rg_tdo <= crossed_srg_mdr[0];
   	endrule
     //-------------------------
-    rule shift_mdr((wr_sel == 1'b1) && (wr_shift == 1'b1) );
+    rule shift_mdr((wr_sel == 1'b1) && (wr_shift == 1'b1));
       srg_mdr<={wr_tdi,srg_mdr[138:1]};
     endrule
 
-    rule tunneled_update ((wr_sel == 1'b1) && (wr_update ==1'b1) && (wr_capture ==1'b0));
+    Reg#(Bit#(41)) rg_packet <- mkReg(0);
+
+    rule tunneled_update ((wr_sel == 1'b1) && (wr_update ==1'b1) && (wr_capture ==1'b0) && (wr_shift == 1'b0) );
       Bit#(139) mdr_data_r = srg_mdr;
       Bit#(1) idr = mdr_data_r[138];
       Bit#(7) message_len = mdr_data_r[137:131];
       Bit#(128) scan_input = mdr_data_r[130:3];
+      // Skipping message length and trying to only capture the IR :?
+      let packet = scan_input[127:87];
 
-      if (idr == 1'b0) begin
-        // The length has to be 5 bits or else this is an error
-        //if(message_len == 7'd5)begin
-          rg_pseudo_ir <= scan_input[127:123];
-          rg_idr <= True;
-        //end
+      if(idr == 1'b0)begin
+        rg_pseudo_ir <= scan_input[127:123];
       end
       else begin
-        rg_idr <= False;
         if (rg_pseudo_ir == 5'h10)begin
           // ONLY DMI HARD RESET AND RESET BITS ARE WRITABLE
           wr_dmi_hardreset <= (scan_input[113] == 1'b1); // W1 behavior
-          wr_dmi_reset <= (scan_input[112] == 1'b1); // W1 behavior
+          wr_dmi_reset <= (scan_input[112] == 1'b1); // W1 behavior // W1 is asserted
         end
         else if  (rg_pseudo_ir == 5'h11)begin
-          if(request_to_DM.notFull && (response_status ==0 )&& capture_repsonse_from_dm==False)begin
-            request_to_DM.enq(scan_input[127:88]);
-            //dmiaccess_shiftreg[0][1:0]<='d3;
+          if(request_to_DM.notFull && capture_repsonse_from_dm==False)begin
+            request_to_DM.enq(packet[39:0]);
             capture_repsonse_from_dm<=True;
           end
+          rg_packet <= packet[40:0];
         end
       end
+      srg_mdr <= 0;
     endrule
-    rule tunneled_capture(wr_sel == 1'b1 && (wr_capture == 1'b1) && (wr_update ==1'b0));
-      Bit#(139) capture_frame = 0;
-      //Bit#(139) capture_frame = 139'h3AAAAAAAAAAAAAAAAffff0000ffff0000ff;
-      // if (rg_idr) begin
-      //   capture_frame[138:5] = 0;
-      //   capture_frame[4:0] = rg_pseudo_ir;
-      // end
-      // else begin
-      if (rg_pseudo_ir == 5'h10)begin
-        // ONLY DMI HARD RESET AND RESET BITS ARE WRITABLE
-        capture_frame[138:32] = 0;
-        capture_frame[31:0] = {14'h0AAA, pack(wr_dmi_hardreset),pack(wr_dmi_reset),1'd0,idle,dmistat,abits,version};
-        end
+
+    rule tunneled_capture(wr_sel == 1'b1 && (wr_capture == 1'b1) && (wr_update ==1'b0) && (wr_shift == 1'b0) );
+      Bit#(139) capture_frame = 139'hFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+      if (rg_pseudo_ir == 5'h10) begin
+        capture_frame[138:40] = 0;
+        capture_frame[39:0] = { 19'd0, pack(wr_dmi_hardreset),pack(wr_dmi_reset),1'd0,idle,dmistat,abits,version,3'b000};
+      end
       else if  (rg_pseudo_ir == 5'h11)begin
-        capture_frame[138:34] = 0;
+        //capture_frame[138:37] = 0;
         if(response_from_DM.notEmpty)begin 
           let x=response_from_DM.first[33:0];
           x[1:0]=x[1:0]|response_status;// keeping the lower 2 bits sticky
-          capture_frame[33:0] = x; 
-          response_status<=x[1:0];
+          capture_frame[36:0] = {x,3'b000};  
           response_from_DM.deq; 
           capture_repsonse_from_dm<=False;
           dmistat<=x[1:0];
         end
         else if(capture_repsonse_from_dm) begin
-            response_status<=3;
-            capture_frame[33:0] = zeroExtend(2'b11);
+          response_status<=3;
+          capture_frame[43:0] = {rg_packet[40:0],3'b000};
         end
+        else begin
+          capture_frame[43:0] = {rg_packet[40:0],3'b000};
+        end
+      end 
+      else begin
+        capture_frame[43:0] = {rg_packet[40:0],3'b000};
       end
-      // end 
       srg_mdr <= capture_frame;
     endrule
     //-------------------------
@@ -200,3 +197,4 @@ package xilinxdtm;
     //-------------------------
 	endmodule
 endpackage
+
