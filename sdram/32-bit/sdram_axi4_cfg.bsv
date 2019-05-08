@@ -64,8 +64,8 @@ import FIFOLevel ::*;
 //import device_common::*;
 
 export Ifc_sdram_out      (..);
-export Ifc_sdram_wrap     (..); // interface export
-export mksdram_wrap;        // module export    
+export Ifc_sdram_wrap_axi4     (..); // interface export
+export mksdram_wrap_axi4;        // module export    
 
 
 interface Ifc_sdram_out#(numeric type io_width);
@@ -85,7 +85,7 @@ interface Ifc_sdram_out#(numeric type io_width);
     interface Clock sdram_clk;    
 endinterface
 
-interface Ifc_sdram_wrap#(
+interface Ifc_sdram_wrap_axi4#(
 						   numeric type addr_cntrl_width,
 						   numeric type data_cntrl_width,
 						   numeric type addr_width, 
@@ -130,7 +130,7 @@ endfunction
 
 //(*synthesize*)
 //(*preempts="rl_send_rd_data, rl_check_drop"*)    
-module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap#(
+module mksdram_wrap_axi4 `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap_axi4#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
 													  addr_width, 
