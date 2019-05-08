@@ -19,4 +19,4 @@ compile-check:
     only:
         - master
     tags:
-        - devices-compile-check
+        - shakti-runner
