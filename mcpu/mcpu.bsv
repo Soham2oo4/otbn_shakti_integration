@@ -292,7 +292,7 @@ package mcpu;
   send_write_response_from_memory_to_mem_stage_32"*)
 
   rule send_read_response_from_memory_to_mem_stage_8(ff_req.first==DATA_MODE_8_READ); 
-      let response <-proc_master.resp();
+    let response =proc_master.put_resp(); 
       ff_req.deq();
       let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:duplicate(response.data[7:0]),
       rlast:False, ruser: 0, rid: ff_id.first };
@@ -312,7 +312,7 @@ package mcpu;
                 
       
 	rule send_read_response_from_memory_to_mem_stage_16(ff_req.first==DATA_MODE_16_READ);
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
 			if(response.port_type==2'b10 )begin
 					ff_req.deq();
           let r = AXI4_Rd_Data {rresp: AXI4_OKAY,rdata:duplicate(response.data[15:0]),rlast:True,
@@ -398,7 +398,7 @@ package mcpu;
 	endrule
 
   rule send_read_response_from_memory_to_mem_stage_32(ff_req.first==DATA_MODE_32_READ); 
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data}),rlast:True,ruser: 0,
@@ -515,7 +515,7 @@ package mcpu;
 		endrule
 
   rule send_read_response_from_memory_to_mem_stage_64_READ1(ff_req.first==DATA_MODE_64_READ1); 
-			let response <-proc_master.resp();
+			let response = proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         data_buff<=response.data;
@@ -601,7 +601,7 @@ package mcpu;
 		endrule
 
   rule send_read_response_from_memory_to_mem_stage_64_READ2(ff_req.first==DATA_MODE_64_READ2); 
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:{response.data,data_buff},rlast:True,ruser: 0,
@@ -721,7 +721,7 @@ package mcpu;
 
 
 		rule send_write_response_from_memory_to_mem_stage_8(ff_req.first==DATA_MODE_8_WRITE);//MEMORY WRITE RESP TO DCACHE
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
 			ff_req.deq();
 		  let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY,  bid: ff_id.first};
 			if (response.berr==1'b1)
@@ -734,7 +734,7 @@ package mcpu;
 		endrule
                 
     rule send_write_response_from_memory_to_mem_stage_16(ff_req.first==DATA_MODE_16_WRITE);
-			let response <-proc_master.resp();
+			let response =proc_master.put_resp();
 			`ifdef verbose $display("Received respons from port_type %h",response.port_type);`endif
 
 			if(response.port_type==2'b10 )begin
@@ -782,7 +782,7 @@ package mcpu;
 		endrule
 
   	rule send_write_response_from_memory_to_mem_stage_32(ff_req.first==DATA_MODE_32_WRITE); 
-      let response <-proc_master.resp();
+      let response =proc_master.put_resp();
       if(response.port_type==2'b00)
       begin
 
@@ -843,7 +843,7 @@ package mcpu;
 		endrule
 
   	rule send_write_response_from_memory_to_mem_stage_64_WRITE1(ff_req.first==DATA_MODE_64_WRITE1); 
-      let response <-proc_master.resp();
+      let response =proc_master.put_resp();
       if(response.port_type==2'b00)
       begin		
         ff_req.deq();
@@ -896,7 +896,7 @@ package mcpu;
 		endrule
 
   	rule send_write_response_from_memory_to_mem_stage_64_WRITE2(ff_req.first==DATA_MODE_64_WRITE2); 
-      let response <-proc_master.resp();
+      let response =proc_master.put_resp();
       if(response.port_type==2'b00)
       begin		
         ff_req.deq();
