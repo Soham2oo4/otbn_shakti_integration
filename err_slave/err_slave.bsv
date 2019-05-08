@@ -38,15 +38,17 @@ package err_slave;
 
 	import AXI4_Types:: *;
 	import AXI4_Fabric:: *;
+	import AXI4_Lite_Types:: *;
+	import AXI4_Lite_Fabric:: *;
   import Semi_FIFOF::*;
   
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  interface Ifc_err_slave#(numeric type awidth, numeric type dwidth, numeric type uwidth);
+  interface Ifc_err_slave_axi4#(numeric type awidth, numeric type dwidth, numeric type uwidth);
     interface AXI4_Slave_IFC#(awidth, dwidth, uwidth) slave;
   endinterface
 
-  module mkerr_slave(Ifc_err_slave#(awidth, dwidth, uwidth));
+  module mkerr_slave_axi4(Ifc_err_slave_axi4#(awidth, dwidth, uwidth));
 	  AXI4_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Mem_State) read_state <- mkReg(Idle);
     Reg#(Mem_State) write_state <- mkReg(Idle);
@@ -63,7 +65,7 @@ package err_slave;
     endrule
 
     rule send_error_response(read_state == Burst);
-      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp : AXI4_DECERR, rdata: ? , 
+      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_DECERR, rdata: 0 , 
         rlast : rg_readburst_counter == rg_read_length, ruser : 0, rid : rg_rd_id};
       if(rg_readburst_counter == rg_read_length)
         read_state <= Idle;
@@ -91,6 +93,28 @@ package err_slave;
 	  	  s_xactor.i_wr_resp.enq (rg_write_response);
         write_state <= Idle;
       end
+    endrule
+    interface slave = s_xactor.axi_side;
+  endmodule
+  
+  interface Ifc_err_slave_axi4lite#(numeric type awidth, numeric type dwidth, numeric type uwidth);
+    interface AXI4_Lite_Slave_IFC#(awidth, dwidth, uwidth) slave;
+  endinterface
+  
+  module mkerr_slave_axi4lite(Ifc_err_slave_axi4lite#(awidth, dwidth, uwidth));
+	  AXI4_Lite_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
+    rule receive_read_request;
+      let ar<-pop_o(s_xactor.o_rd_addr);
+      AXI4_Lite_Rd_Data#(data_width, user_width) r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_DECERR, rdata:0 , 
+        ruser: 0};
+      s_xactor.i_rd_data.enq(r);
+    endrule
+
+    rule receive_write_request;
+      let aw <- pop_o (s_xactor.o_wr_addr);
+      let w  <- pop_o (s_xactor.o_wr_data);
+	    let b = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_DECERR, buser: aw.awuser};
+  	 	s_xactor.i_wr_resp.enq (b);
     endrule
     interface slave = s_xactor.axi_side;
   endmodule
