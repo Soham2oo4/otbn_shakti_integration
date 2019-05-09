@@ -106,7 +106,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response if(read_request_sent);
       let {offset, size}=rg_req;
       Bit#(data_width) data={dmemMSB.read(), dmemLSB.read()};
-      return tuple2(False, data_shift(data,size,offset));
+      return tuple2(False, data);
     endmethod
   endmodule
 
