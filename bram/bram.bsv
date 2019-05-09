@@ -217,19 +217,6 @@ package bram;
     rule read_response;
       wr_read_ack<=True;
       let {err, data0}<-dut.read_response;
-  		let transfer_size=rg_read_packet.arsize;
-      `ifdef RV64
-        let shift_amount = {3'b0, rg_read_packet.araddr[2:0]}<<3;
-      `else
-        let shift_amount = {3'b0, rg_read_packet.araddr[1:0]}<<3;
-      `endif
-      data0=data0>>shift_amount;
-      if(transfer_size=='d2)
-        data0=duplicate(data0[31:0]);
-      else if(transfer_size=='d1)
-        data0=duplicate(data0[15:0]);
-      else if(transfer_size=='d0)
-        data0=duplicate(data0[7:0]);
       AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
       `logLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
@@ -280,15 +267,6 @@ package bram;
     // get data from the memory. shift,  truncate, duplicate based on the size and offset.
     rule read_response;
       let {err, data0}<-dut.read_response;
-  		let transfer_size=rg_size;
-      let shift_amount = {3'b0, rg_offset}<<3;
-      data0=data0>>shift_amount;
-      if(transfer_size=='d2)
-        data0=duplicate(data0[31:0]);
-      else if(transfer_size=='d1)
-        data0=duplicate(data0[15:0]);
-      else if(transfer_size=='d0)
-        data0=duplicate(data0[7:0]);
       AXI4_Lite_Rd_Data#(data_width, user_width) r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata: data0 , 
         ruser: 0};
       `logLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
