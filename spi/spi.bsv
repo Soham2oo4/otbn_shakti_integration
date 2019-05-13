@@ -1,18 +1,33 @@
 package spi;
 
 import Semi_FIFOF        :: *;
-import AXI4_Types   :: *;
-import AXI4_Fabric  :: *;
+import FIFOLevel::*;
+import AXI4_Lite_Types   :: *;
+import AXI4_Lite_Fabric  :: *;
+import FIFOF::*;
+import Clocks::*;
+import SpecialFIFOs::*;
+import FIFO::*;
+import BUtils::*;
+`include "defined_parameters.bsv"
 
+`define TXFIFO_DEPTH 4
+`define CR1     8'h00
+`define CR2     8'h04
+`define SR      8'h08
+`define DR      8'h0C
+`define CRCPR   8'h10
+`define RXCRCR  8'h14
+`define TXCRCR  8'h18
 
 typedef struct{
-		Bit#(`ADDR) addr;
+		Bit#(`PADDR) addr;
 		Bit#(3) burst_size;
-		Bit#(`WDC) wdata;
+		Bit#(`Reg_width) wdata;
 } Write_req deriving (Bits, Eq);
 
 typedef struct{
-		Bit#(`ADDR) addr;
+		Bit#(`PADDR) addr;
 		Bit#(3)  burst_size;
 } Read_req deriving (Bits, Eq);
 
@@ -68,13 +83,13 @@ typedef enum{
 			 IDLE,
 			 START_TRANSMIT,
 			 DATA_TRANSMIT
-		} Transmit_state deriving(Bits, Eq, FShow)
+		} Transmit_state deriving(Bits, Eq, FShow);
 			 		
 typedef enum{
 			 IDLE,
 			 START_RECEIVE,
 			 DATA_RECEIVE
-		} Receive_state deriving(Bits, Eq, FShow)
+		} Receive_state deriving(Bits, Eq, FShow);
 
 
 interface Ifc_spi_out;
@@ -85,7 +100,7 @@ interface Ifc_spi_out;
 endinterface
 
 interface Ifc_spi_app;
-	method Bit#(`WDC) data_to_app;
+	method Bit#(`Reg_width) data_to_app;
 	method Action read_request(Read_req rd_req);
 	method Action write_request(Write_req wr_req);
 endinterface
@@ -97,28 +112,72 @@ endinterface
 
 interface Ifc_spi_controller;
 	interface Ifc_spi_out spi_out;
-    interface AXI4_Lite_Slave_IFC#(`ADDR, `WDC, `USERSPACE) axi4_slave;
+    interface AXI4_Lite_Slave_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_slave;
 endinterface
 	
 
 module mkspi(Ifc_spi);
 
 //TODO need to initialise the config register
-Reg#(Bit#(Cr1_cfg)) rg_spi_cfg_cr1    <- mkReg(0);
-Reg#(Bit#(Cr2_cfg)) rg_spi_cfg_cr2    <- mkReg(0);
-Reg#(Bit#(Sr_cfg))	rg_spi_cfg_sr     <- mkReg(0);
+Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkReg(Cr1_cfg{
+											rsvd 	  : 0,
+											bidimode  : 0,
+											bidioe    : 0,
+											crcen     : 0,
+											crcnext   : 0,
+											crcl	  : 0,
+											rxonly	  : 0,
+											ssm		  : 0,
+											ssi		  : 0,
+											lsbfirst  : 0,
+											spe		  : 0,
+											br		  : 0,
+											mstr	  : 0,
+											cpol	  : 0,
+											cpha	  : 0
+										});
+Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkReg(Cr2_cfg{
+											rsvd	: 0,
+											ldma_tx : 0,
+											ldma_rx : 0,
+											frxth	: 0,
+											ds		: 0,
+											txeie	: 0,
+											rxneie  : 0,
+											errie	: 0,
+											frf		: 0,
+											nssp	: 0,
+											ssoe    : 0,
+											txdmaen : 0,
+											rxdmaen : 0
+										});
+Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkReg(Sr_cfg{
+											rsvd1  : 0,
+											ftlvl  : 0,
+											frlvl  : 0,
+											fre	   : 0,
+//											bsy	   : 0, // read_only reg
+											ovr	   : 0,
+											modf   : 0,
+											crcerr : 0,
+											rsvd2  : 0,
+											txe	   : 0,
+											rxne   : 0});
 Reg#(Bit#(32))		rg_spi_cfg_dr     <- mkReg(0);
 Reg#(Bit#(32))		rg_spi_cfg_crcpr  <- mkReg(0);
 Reg#(Bit#(32))		rg_spi_cfg_rxcrcr <- mkReg(0);
 Reg#(Bit#(32))		rg_spi_cfg_txcrcr <- mkReg(0);
 Reg#(Bit#(3)) 		rg_clk_counter	  <- mkReg(0);
+Reg#(bit)			tx_data_en		  <- mkReg(0);
 
+// MOSI and MISO signals of the spi
 Wire#(bit)			wr_spi_in_io1		  <- mkWire();
 Wire#(bit)			wr_spi_in_io2		  <- mkWire();
 Wire#(bit)			wr_spi_out_io1		  <- mkWire();
 Wire#(bit)			wr_spi_out_io2		  <- mkWire();
 Wire#(bit)			wr_spi_en_io1		  <- mkWire();
 Wire#(bit)			wr_spi_en_io2		  <- mkWire();
+Wire#(bit)			wr_clk				  <- mkWire();
 
 Reg#(Transmit_state) rg_transmit_state <- mkReg(IDLE);
 Reg#(Receive_state)	 rg_receive_state  <- mkReg(IDLE);
@@ -127,10 +186,21 @@ Reg#(Bit#(8))		rg_data_tx		   <- mkReg(0);
 Reg#(Bit#(8))		rg_data_rx		   <- mkReg(0);
 Reg#(Bit#(8))		rg_data_counter	   <- mkReg(0);
 
+Reg#(bit)			rg_nss			   <- mkReg(1);
+Reg#(bit)			rg_clk			   <- mkReg(0);
+
+
+Wire#(Bit#(`PADDR))     wr_write_addr  <- mkWire();
+Wire#(Bit#(`Reg_width)) wr_write_data  <- mkWire();
+Wire#(Bit#(`PADDR))     wr_rd_addr	   <- mkWire();
+Wire#(Bit#(`Reg_width)) wr_rd_data     <- mkWire();
+
+//Embedded fifo for receive and transmit
 FIFOLevelIfc#(Bit#(8), `TXFIFO_DEPTH)		tx_fifo				  <- mkFIFOLevel();
 FIFOLevelIfc#(Bit#(8), `TXFIFO_DEPTH)		rx_fifo				  <- mkFIFOLevel();
 
-function Action fn_wr_cfg_reg(Bit#(32) data, Bit#(`ADDR) address);
+//This function writes to configuration registers
+function Action fn_wr_cfg_reg(Bit#(32) data, Bit#(`PADDR) address);
    
    action
    Bit#(8) addr = truncate(address);
@@ -183,8 +253,10 @@ function Action fn_wr_cfg_reg(Bit#(32) data, Bit#(`ADDR) address);
 											txe	   : data[1],
 											rxne   : data[0]};
       
-       `DR     : rg_spi_cfg_dr		<= data;
-      
+       `DR     : begin
+			rg_spi_cfg_dr		<= data;
+			tx_data_en			<= 1;
+     	end 
        `CRCPR  : rg_spi_cfg_crcpr   <= data;
       
        `RXCRCR : rg_spi_cfg_rxcrcr  <= data;
@@ -196,15 +268,16 @@ function Action fn_wr_cfg_reg(Bit#(32) data, Bit#(`ADDR) address);
   endaction 
 endfunction
 
-function Bit#(32) fn_rd_cfg_reg(Bit#(addr_cntrl_width) address);
+// This function returns the configuration register 
+function Bit#(32) fn_rd_cfg_reg(Bit#(`PADDR) address);
   Bit#(8) addr = truncate(address);
   case(addr)
 
-       `CR1    : return rg_spi_cfg_cr1;
+       `CR1    : return pack(rg_spi_cfg_cr1);
 
-       `CR2    : return rg_spi_cfg_cr2;
+       `CR2    : return pack(rg_spi_cfg_cr2);
        
-       `SR     : return rg_spi_cfg_sr;
+       `SR     : return pack(rg_spi_cfg_sr);
       
        `DR     : return rg_spi_cfg_dr;
       
@@ -216,6 +289,22 @@ function Bit#(32) fn_rd_cfg_reg(Bit#(addr_cntrl_width) address);
       
    endcase
 endfunction
+
+//This rule takes data from the configration register DR and puts it into the
+//tx_fifo in the 8 bit format.
+rule rl_transmit_data_to_fifo(tx_data_en == 1);
+	if(rg_data_counter < 4) begin //  why 4 ? the data is of 32 bit (four 8bit data)
+		let data = rg_spi_cfg_dr[7:0];
+		tx_fifo.enq(data);
+		rg_spi_cfg_dr <= rg_spi_cfg_dr >> 8;
+		rg_data_counter <= rg_data_counter + 1;
+		$display($stime()," SPI: DR to  tx_fifo data %x", data);
+	end
+	else begin
+		rg_data_counter <= 0;
+		tx_data_en		<= 0;
+	end
+endrule
 
 // This rule takes care of the bidirectional mode of the controller, full-
 // duplex, simplex and duplex (software programmable)
@@ -237,25 +326,18 @@ endrule //TODO do we need rxonly mode also.. if bidioe is disabled isn't that en
 
 
 rule rl_write_to_cfg;
-	fn_wr_cfg_reg(wr_write_data, wr_write_addr);
+	fn_wr_cfg_reg(truncate(wr_write_data), wr_write_addr);
+	$display($stime()," SPI: Write request wr_addr %x wr_data %x ",wr_write_addr, wr_write_data);
 endrule
 
 rule rl_read_from_cfg;
-	wr_rd_data <= fn_rd_cfg_reg(wr_rd_addr);
+	wr_rd_data <= duplicate(fn_rd_cfg_reg(wr_rd_addr));
 endrule
 
 // This rule takes care of the chip select pin control
 rule rl_chip_select_control;
 	if(rg_spi_cfg_cr1.ssm == 1)
 		rg_nss <= rg_spi_cfg_cr1.ssi;
-    else begin
-		if(rg_spi_cfg_cr2.ssoe == 1) begin
-		   if(rg_spi_cfg_cr1.spe == 1)
-		   	rg_nss <= 0;
-		   else
-		   	rg_nss <= 1;
-		end
-	end		
 endrule
 
 // This rule generates the clock according to software specified baudrate
@@ -273,18 +355,29 @@ rule rl_generate_clk_baud_rate;
 	end
 endrule
 
+//TODO need to add the error flags, rg_clk control in all the rules 
+
 /*************** TRANSMIT STATE *******************/
 // This rule is the deciding point to start the transmit state machine
 // this state machine starts when the tx_fifo is notempty and spi is enabled
 rule rl_transmit_idle(rg_transmit_state == IDLE);
 	if(rg_spi_cfg_cr1.spe == 1 && tx_fifo.notEmpty()) begin
-		rg_trasmit_state <= START;
+		rg_transmit_state <= START_TRANSMIT;
 		rg_data_tx <= tx_fifo.first();
 		rg_spi_cfg_sr.bsy <= 1;
-		tx_fifo.deq;
+		rg_nss <= 0;
+//		tx_fifo.deq;
+		$display($stime," SPI: Transmit state has started");
+	end
+	else begin
+		rg_nss <= 1;
+		$display($stime," SPI: Transmit state IDLE");
+	end
 endrule
 
-rule rl_transmit_start(rg_trasmit_state == START_TRANSMIT);
+// This rule transmits first bit with respect to clock phase configured
+rule rl_transmit_start(rg_transmit_state == START_TRANSMIT);
+	$display($stime()," SPI: First Transmit bit is being transmitted");
 	if(rg_spi_cfg_cr1.cpha == 1 && rg_spi_cfg_cr1.cpol == 1 && rg_clk == 1) begin
 		wr_clk <= rg_clk;
 		rg_transmit_state <= DATA_TRANSMIT;
@@ -296,12 +389,12 @@ rule rl_transmit_start(rg_trasmit_state == START_TRANSMIT);
 	else if(rg_spi_cfg_cr1.cpha == 0 && rg_spi_cfg_cr1.cpol == 1 && rg_clk == 1) begin
 		wr_clk <= rg_clk;
 		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
-			wr_spi_in_io1 	<= rg_data_tx[0];
+			wr_spi_out_io1 	<= rg_data_tx[0];
 			rg_data_tx 		<= rg_data_tx >> 1;
 			rg_data_counter <= rg_data_counter + 1;
 		end
 		else begin
-			wr_spi_in_io1 	<= rg_data_tx[7];
+			wr_spi_out_io1 	<= rg_data_tx[7];
 			rg_data_tx    	<= rg_data_tx << 1;
 			rg_data_counter <= rg_data_counter + 1;
 		end
@@ -310,12 +403,12 @@ rule rl_transmit_start(rg_trasmit_state == START_TRANSMIT);
 	else if(rg_spi_cfg_cr1.cpha == 0 && rg_spi_cfg_cr1.cpol == 0 && rg_clk == 0) begin
 		wr_clk <= rg_clk;
 		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
-			wr_spi_in_io1 	<= rg_data_tx[0];
+			wr_spi_out_io1 	<= rg_data_tx[0];
 			rg_data_tx 		<= rg_data_tx >> 1;
 			rg_data_counter <= rg_data_counter + 1;	
 		end
 		else begin
-			wr_spi_in_io1 	<= rg_data_tx[7];
+			wr_spi_out_io1 	<= rg_data_tx[7];
 			rg_data_tx    	<= rg_data_tx << 1;
 			rg_data_counter <= rg_data_counter + 1;
 		end
@@ -323,35 +416,58 @@ rule rl_transmit_start(rg_trasmit_state == START_TRANSMIT);
 	end
 endrule
 
-rule rl_data_transmit(rg_transmit_state == DATA_TRANSMIT) begin
-	if(rg_data_counter < 8 && tx_fifo.notEmpty()) begin
+//This rule transmits the remaining data from the tx_fifo until it get empty
+rule rl_data_transmit(rg_transmit_state == DATA_TRANSMIT);
+	let data_tx = 0; // debug
 		wr_clk <= rg_clk;
-		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
-			wr_spi_in_io1 <= rg_data_tx[0];
-			rg_data_tx <= rg_data_tx >> 1;
-			rg_data_counter <= rg_data_counter + 1;
+		if(rg_data_counter < 6 && rg_clk == 0) begin
+			if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+				data_tx = rg_data_tx[0];
+				wr_spi_out_io1 <= rg_data_tx[0];
+				rg_data_tx <= rg_data_tx >> 1;
+				rg_data_counter <= rg_data_counter + 1;
+			end
+			else begin
+				wr_spi_out_io1 <= rg_data_tx[7];
+				rg_data_tx    <= rg_data_tx << 1;
+				rg_data_counter <= rg_data_counter + 1;
+			end
 		end
-		else begin
-			wr_spi_in_io1 <= rg_data_tx[7];
-			rg_data_tx    <= rg_data_tx << 1;
-			rg_data_counter <= rg_data_counter + 1;
+		else if(rg_data_counter == 6 && rg_clk == 0) begin
+			if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+				data_tx = rg_data_tx[0];
+				wr_spi_out_io1 <= rg_data_tx[0];
+				rg_data_tx <= rg_data_tx >> 1;
+				rg_data_counter <= rg_data_counter + 1;
+				tx_fifo.deq();
+			end
+			else begin
+				data_tx = rg_data_tx[7];
+				wr_spi_out_io1 <= rg_data_tx[7];
+				rg_data_tx <= rg_data_tx << 1;
+				rg_data_counter <= rg_data_counter + 1;
+				tx_fifo.deq();
+			end
 		end
-		if(rg_data_counter == 7)
-			rg_data_tx <= tx_fifo.first; //TODO rg_data_tx is updated twice need to takecare 
-			tx_fifo.deq
-			rg_data_counter <= 0;
-	end
-	else begin
-		rg_data_counter <= 0;
-		rg_trasmit_state <= IDLE;
-	end
+		else if(rg_data_counter == 7 && rg_clk == 0) begin
+				data_tx = rg_data_tx[0];
+				wr_spi_out_io1 <= rg_data_tx[0];
+				if(tx_fifo.notEmpty())
+					rg_data_tx <= tx_fifo.first; 
+				rg_data_counter <= 0;
+		end
+	$display($stime()," SPI: DATA_TRANSMIT data %x",data_tx);
+	if(!tx_fifo.notEmpty()) begin
+		rg_transmit_state <= IDLE;
+		$display($stime()," SPI: Transmit state going to idle");
+	end	
 endrule
 		
 /************* RECEIVE STATE ************/
- 	
+//This rule will decide the start of the receive state machine 	
 rule rl_receive_idle(rg_receive_state == IDLE);
-	if() // TODO define trigger event to start receive state to be defined
-		rg_transmit_state <= START_RECEIVE;
+	if(rg_receive_state != IDLE) // TODO define trigger event to start receive state to be defined
+		rg_receive_state <= START_RECEIVE;
 endrule
 
 rule rl_receive_start_receive(rg_receive_state == START_RECEIVE);
@@ -393,22 +509,30 @@ rule rl_receive_start_receive(rg_receive_state == START_RECEIVE);
 	end
 endrule
 
-rule rl_data_receive(rg_receive_state == DATA_RECEIVE) begin
+rule rl_data_receive(rg_receive_state == DATA_RECEIVE);
 	if(rg_data_counter < 8 ) begin
 		wr_clk <= rg_clk;
-		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
-			Bit#(8) data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
-			rg_data_rx <= data_rx >> 1;
-			rg_data_counter <= rg_data_counter + 1;
+		if(rg_data_counter < 7) begin
+			if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+				Bit#(8) data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
+				rg_data_rx <= data_rx >> 1;
+				rg_data_counter <= rg_data_counter + 1;
+			end
+			else begin
+				Bit#(8) data_rx = {rg_data_rx[7:1], wr_spi_in_io2};
+				rg_data_rx 		<= data_rx << 1;
+				rg_data_counter <= rg_data_counter + 1;
+			end
 		end
-		else begin
-			Bit#(8) data_rx = {rg_data_rx[7:1], wr_spi_in_io2};
-			rg_data_rx 		<= data_rx << 1;
-			rg_data_counter <= rg_data_counter + 1;
+		else if(rg_data_counter == 7) begin
+			Bit#(8) data = 0;
+			if(rg_spi_cfg_cr1.lsbfirst == 1)
+				data = {wr_spi_in_io2, rg_data_rx[6:0]};
+			else
+				data = {rg_data_rx[7:1], wr_spi_in_io2};
+			rx_fifo.enq(data);  
+			rg_data_counter <= 0;
 		end
-		if(rg_data_counter == 7)
-			rx_fifo.enq(rg_data_rx); //TODO rg_data_rx should concatenated with the last bit based 
-			rg_data_counter <= 0;	 // on lsbfirst value
 	end
 	else begin
 		rg_data_counter <= 0;
@@ -418,7 +542,7 @@ endrule
 	
 	
 interface Ifc_spi_app app_interface;
-	method Bit#(`WDC) data_to_app;
+	method Bit#(`Reg_width) data_to_app;
 		return wr_rd_data; // TODO hook created need to be changed later
 	endmethod
 	method Action read_request(Read_req rd_req);
@@ -427,18 +551,34 @@ interface Ifc_spi_app app_interface;
 	endmethod		
 	method Action write_request(Write_req wr_req);
 		wr_write_addr <= wr_req.addr; //TODO hook created and if needed in future use burst size
-		wr_write_data <= wr_req.data; // or remove from the struct itself
+		wr_write_data <= wr_req.wdata; // or remove from the struct itself
+	endmethod
+endinterface
+
+
+interface Ifc_spi_out spi_out;
+	method bit mosi;
+		return wr_spi_out_io1;
+	endmethod
+	method bit sclk;
+		return wr_clk;
+	endmethod
+	method Action miso(bit dat);
+		wr_spi_in_io2 <= dat ;
+	endmethod
+    method bit nss;
+		return rg_nss;
 	endmethod
 endinterface
 
 endmodule
 
-
+(*synthesize*)
 module mkspi_controller#(Clock slow_clk, Reset slow_rst)(Ifc_spi_controller);
 
 
 
-AXI4_Lite_Slave_Xactor_IFC #(`ADDR, `WDC, `USERSPACE)  s_xactor_spi <- mkAXI4_Lite_Slave_Xactor;
+AXI4_Lite_Slave_Xactor_IFC #(`PADDR, `Reg_width, `USERSPACE)  s_xactor_spi <- mkAXI4_Lite_Slave_Xactor;
 
 Ifc_spi spi <- mkspi(clocked_by slow_clk, reset_by slow_rst);
 
@@ -451,7 +591,7 @@ SyncFIFOIfc#(Write_req) 		ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
 SyncFIFOIfc#(Read_req)			ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
 // This SyncFIFO only used for data may be in future the whole AXI response
 // will be used
-SyncFIFOIfc#(Bit#(`WDC))		ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
+SyncFIFOIfc#(Bit#(`Reg_width))		ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
 
 // considering spi controller wont get burst transaction address and data are
 // popped from same rule(moreover AXI_Lite is used which doesnt support burst mode), otherwise 
@@ -459,12 +599,13 @@ SyncFIFOIfc#(Bit#(`WDC))		ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slo
 rule rl_write_request_from_core;
 	let aw <- pop_o(s_xactor_spi.o_wr_addr);
 	let w  <- pop_o(s_xactor_spi.o_wr_data);
+	$display($stime()," SPI: Controller Write Channel");
  	ff_wr_req.enq(Write_req {
 							  addr : truncate(aw.awaddr),
 							  burst_size : aw.awsize,
 							  wdata : w.wdata });	
 
-	let w_resp = AXI4_Wr_Resp {bresp: AXI4_OKAY, buser: 0, bid: aw.awid};
+	let w_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_OKAY, buser: 0};
     s_xactor_spi.i_wr_resp.enq(w_resp);
 endrule
 
@@ -476,7 +617,6 @@ endrule
 
 rule rl_read_request_from_core;      		
 	let ar <- pop_o(s_xactor_spi.o_rd_addr);
-	rg_rid <= ar.arid;
 	ff_rd_req.enq(Read_req {
 							addr : ar.araddr,
 							burst_size : ar.arsize});
@@ -495,10 +635,14 @@ endrule
 rule rl_read_response_to_core;
 	let rdata = ff_sync_rd_resp.first();
 	ff_sync_rd_resp.deq();
-	let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: rdata, rlast: True,
-	 ruser: 0, rid: rg_rid};
+	let r = AXI4_Lite_Rd_Data{rresp: AXI4_LITE_OKAY, rdata: rdata, ruser: 0};
 	s_xactor_spi.i_rd_data.enq(r);
 endrule
+
+
+interface spi_out = spi.spi_out;
+
+interface axi4_slave = s_xactor_spi.axi_side;
 
 endmodule
 
