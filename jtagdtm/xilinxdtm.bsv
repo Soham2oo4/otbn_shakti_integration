@@ -92,7 +92,8 @@ package xilinxdtm;
 
     Reg#(Bit#(41)) rg_packet <- mkReg(0);
 
-    rule tunneled_update ((wr_sel == 1'b1) && (wr_update ==1'b1) && (wr_capture ==1'b0) && (wr_shift == 1'b0) );
+    rule tunneled_update ((wr_sel == 1'b1) && (wr_update ==1'b1) && (wr_capture ==1'b0) &&
+                          (wr_shift == 1'b0) );
       Bit#(139) mdr_data_r = srg_mdr;
       Bit#(1) idr = mdr_data_r[138];
       Bit#(7) message_len = mdr_data_r[137:131];
@@ -120,11 +121,13 @@ package xilinxdtm;
       srg_mdr <= 0;
     endrule
 
-    rule tunneled_capture(wr_sel == 1'b1 && (wr_capture == 1'b1) && (wr_update ==1'b0) && (wr_shift == 1'b0) );
+    rule tunneled_capture((wr_sel == 1'b1) && (wr_capture == 1'b1) && (wr_update ==1'b0) && 
+                          (wr_shift == 1'b0) );
       Bit#(139) capture_frame = 139'hFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
       if (rg_pseudo_ir == 5'h10) begin
         capture_frame[138:40] = 0;
-        capture_frame[39:0] = { 19'd0, pack(wr_dmi_hardreset),pack(wr_dmi_reset),1'd0,idle,dmistat,abits,version,3'b000};
+        capture_frame[39:0] = { 19'd0, pack(wr_dmi_hardreset),pack(wr_dmi_reset),
+                                1'd0,idle,dmistat,abits,version,3'b000};
       end
       else if  (rg_pseudo_ir == 5'h11)begin
         //capture_frame[138:37] = 0;
