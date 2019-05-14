@@ -12,12 +12,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 */
 /*
-
 Author: Deepa N Sarma
 Email id: deepans.88@gmail.com
 
 This module
 1.Transalates  AXI master request to mcpu master request
+2.Provides support for burst transfers
 2.Manages dynamic bus sizing which is a feature of mcpu
 3.Transalates mcpu response to AXI response
 4.Includes a transactor converting 64 bit transactions to multiple 32 bit transactions
@@ -34,6 +34,7 @@ package mcpu;
 	import  AXI4_Fabric ::*;
 	import  Semi_FIFOF ::*;
  	import BUtils::*;
+  import device_common ::*;
 	/*================================== */
 
 	/*========= Project imports ======== */
@@ -66,7 +67,6 @@ package mcpu;
        return 2'b10;
   else
        return 2'b00;//32 bit transfer
-
   endfunction
           
 	(*synthesize*)
@@ -89,13 +89,21 @@ package mcpu;
     Reg#(Bit#(`PADDR)) dw_addr <-mkReg(0);
     Reg#(Bit#(`PADDR)) rg_burst_addr <-mkReg(0);
     Reg#(Bit#(`PADDR)) dw_read_addr <-mkReg(0);
+    Reg#(Bit#(2)) rg_burst <-mkReg(0);
     Reg#(Bit#(8)) rg_arlen <-mkReg(0);
+    Reg#(Bit#(4)) rg_awid <-mkReg(0);
+    Reg#(Bit#(8)) rg_counter <-mkReg(0);
     Reg#(Bit#(3)) rg_size <-mkReg(0);
     Reg#(Bit#(32))dw_data<-mkReg(0);
     Reg#(Bit#(32))data_buff<-mkReg(0);
-    Reg#(Bool)burst_mode <-mkReg(False);
-//.......................SEND_REQUEST_TO_MEMORY.................................................//
-		rule check_wr_request_to_memory(!dw_write && !dw_read);
+    Reg#(Bool)read_burst_mode <-mkReg(False);
+    Reg#(Bool)write_burst_mode <-mkReg(False);
+
+//.......................SEND_REQUEST_TO_MEMORY..................................................//
+//...............................................................................................//
+
+		rule check_wr_request_to_memory(!dw_write && !dw_read && !read_burst_mode && !write_burst_mode);
+      
       let info<-pop_o(s_xactor.o_wr_addr);
       let data<-pop_o(s_xactor.o_wr_data);
       Bool sram_big =False;
@@ -103,18 +111,42 @@ package mcpu;
         rg_endian <= rg_endian+1;
       else
         sram_big  = True;
+      
       `ifdef verbose $display("Data: %h",data.wdata); `endif
+      
       let request=Req_mcpu{addr:truncate(info.awaddr),wr_data:truncate(data.wdata),
       mode:modeconv_mcpu(info.awsize),fun_code:3'b010,rd_req:0,endian_big:sram_big};
+
+
       if(info.awsize==3'b011 && endian(info.awaddr,True)==Big)
       request.wr_data = data.wdata[63:32];
+     
+      //Burst_transfers
+      if (info.awlen!=0)
+      begin
+        write_burst_mode <= True;
+        rg_counter   <= info.awlen-8'd1;
+        rg_arlen   <= info.awlen;
+        rg_burst_addr <= info.awaddr;
+        rg_size <=info.awsize;
+        rg_awid <=info.awid;
+        ff_last.enq(False);
+        $display("sending first word write request burst_mode from address %h",info.awaddr); 
+      end
+      else
+        ff_last.enq(True);
+      
+      //Accessing interrupt registers 
       if(info.awaddr[31:4]==28'hFFFF_FFF)
 			request.fun_code=3'b111;	
       proc_master.get_req(request);
       ff_id.enq(info.awid);
-      `ifdef verbose $display("Enqueing write request onto mcpu for address %h with id %h with mode%h\
-      endianness:%b rg_endian :%h data:%h transfer_size:%h",info.awaddr,info.awid,request.mode,sram_big,rg_endian,request.wr_data,info.awsize);`endif
+
+      `ifdef verbose $display("Enqueing write request onto mcpu for address %h with id %h with\
+      mode%h endianness:%b rg_endian :%h data:%h transfer_size:%h\
+      ",info.awaddr,info.awid,request.mode,sram_big,rg_endian,request.wr_data,info.awsize);`endif
       ff_address.enq(info.awaddr);
+
       case(request.mode)
 	  		2'b00 :if(info.awsize==3'b011)
                ff_req.enq(DATA_MODE_64_WRITE1);
@@ -129,38 +161,121 @@ package mcpu;
         if(endian(info.awaddr,True)==Big)
         begin
           dw_data<=data.wdata[31:0];
-          `ifdef verbose $display("Data_to_be_written_in _next_cycle :%h",data.wdata[31:0]);`endif
-
+          `ifdef verbose $display("Data_to_be_written_in_next_cycle:%h",data.wdata[31:0]);`endif
         end
         else
         begin
           dw_data<=data.wdata[63:32];
-          `ifdef verbose $display("Data_to_be_written_in _next_cycle :%h",data.wdata[63:32]);`endif
+          `ifdef verbose $display("Data_to_be_written_in_next_cycle:%h",data.wdata[63:32]);`endif
         end
       end
+     
+    endrule
 
-  	endrule
 
-		rule check_wr_request_to_memory_dw_write(dw_write);
+		rule check_wr_request_to_memory_burst(!dw_write && !dw_read && write_burst_mode);
+      
+      let addr = rg_burst_addr;
+      let data<-pop_o(s_xactor.o_wr_data);
+      
+      
       Bool sram_big =False;
       if (rg_endian<2)
         rg_endian <= rg_endian+1;
       else
         sram_big  = True;
+      `ifdef verbose $display("Data: %h",data.wdata); `endif
+
+      if (data.wlast)
+      begin
+         ff_last.enq(True);
+        write_burst_mode <=False;
+      end
+      else
+      begin
+        ff_last.enq(False);
+      end
+       
+     //Generating address for burst_transfers
+      if(rg_size!=0)
+      addr= axi4burst_addrgen(rg_arlen,rg_size,rg_burst,rg_burst_addr);
+      
+      rg_burst_addr<=addr;
+
+
+      let request=Req_mcpu{addr:truncate(addr),wr_data:truncate(data.wdata),
+      mode:modeconv_mcpu(rg_size),fun_code:3'b010,rd_req:0,endian_big:sram_big};
+      
+      if(rg_size==3'b011 && endian(addr,True)==Big)
+      request.wr_data = data.wdata[63:32];
+     
+      //accessing nterrupt registers 
+      if(addr[31:4]==28'hFFFF_FFF)
+			request.fun_code=3'b111;	
+
+      proc_master.get_req(request);
+      ff_id.enq(rg_awid);
+      `ifdef verbose $display("Enqueing write request onto mcpu for address %h with id %h with\
+      mode%h endianness:%b rg_endian :%h data:%h transfer_size:%h\
+      ",addr,rg_awid,request.mode,sram_big,rg_endian,request.wr_data,rg_size);`endif
+      
+      ff_address.enq(addr);
+
+      $display("Sending burst no: %d wlast: %b",rg_counter,data.wlast);
+
+      case(request.mode)
+	  		2'b00 :if(rg_size==3'b011)
+               ff_req.enq(DATA_MODE_64_WRITE1);
+               else
+               ff_req.enq(DATA_MODE_32_WRITE);
+      	2'b01 :ff_req.enq(DATA_MODE_8_WRITE);
+      	2'b10 :ff_req.enq(DATA_MODE_16_WRITE);
+      endcase
+      
+      if(rg_size==3'b011)begin
+        dw_write<=True;
+        dw_addr<=addr;
+        if(endian(addr,True)==Big)
+        begin
+          dw_data<=data.wdata[31:0];
+          `ifdef verbose $display("Data_to_be_written_in_next_cycle:%h",data.wdata[31:0]);`endif
+        end
+        else
+        begin
+          dw_data<=data.wdata[63:32];
+          `ifdef verbose $display("Data_to_be_written_in_next_cycle:%h",data.wdata[63:32]);`endif
+        end
+      end
+
+  	endrule
+
+
+
+		rule check_wr_request_to_memory_dw_write(dw_write);
+      
+      Bool sram_big =False;
+      if (rg_endian<2)
+        rg_endian <= rg_endian+1;
+      else
+        sram_big  = True;
+
       let request=Req_mcpu{addr:dw_addr+4,wr_data:dw_data,mode:2'b00,fun_code:3'b010,rd_req:0,endian_big:sram_big};
+
+      //accessing  interrupt_registers
       if(dw_addr[31:4]==28'hFFFF_FFF)
  			request.fun_code=3'b111;	
       proc_master.get_req(request);
-      //ff_id.enq(info.awid);
+
       `ifdef verbose $display("Enqueing write request onto mcpu for address %h with id %h with mode\
       %h endianness: %b rg_endian :%h data:%h",dw_addr+4,ff_id.first,request.mode,sram_big,rg_endian,dw_data);`endif
-
       ff_address.enq(dw_addr);
       dw_write<=False;
       ff_req.enq(DATA_MODE_64_WRITE2);
+
   	endrule
 
-	rule check_read_request_to_memory(!dw_write && !dw_read && !burst_mode);
+	  rule check_read_request_to_memory(!dw_write && !dw_read && !read_burst_mode && !write_burst_mode);
+      
       let info<- pop_o(s_xactor.o_rd_addr);
       ff_id.enq(info.arid);
       ff_address.enq(info.araddr);
@@ -173,21 +288,21 @@ package mcpu;
       //For burst transfers:-
       if (info.arlen!=0)
       begin
-        burst_mode <= True;
-        rg_arlen   <= info.arlen-8'd1;
+        read_burst_mode <= True;
+        rg_counter <= info.arlen-8'd1;
+        rg_arlen   <= info.arlen;
         rg_burst_addr <= info.araddr;
         rg_size <=info.arsize;
+        rg_burst<=info.arburst;
         ff_last.enq(False);
+        $display("Sending first word request burst_mode from address %h",info.araddr); 
       end
       else
         ff_last.enq(True);
-      let request=Req_mcpu{addr:truncate(info.araddr),wr_data:?,mode:modeconv_mcpu(info.arsize),
-      fun_code:3'b010,rd_req:1,endian_big:sram_big};
-      if (info.araddr[31:4]==28'hFFFF_FFF)
-       request.fun_code=3'b111;
-   //incude mode 32 and send the address
-      `ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode \
-       %h",info.araddr,info.arid,modeconv_mcpu(info.arsize));`endif
+        let request=Req_mcpu{addr:truncate(info.araddr),wr_data:?,mode:modeconv_mcpu(info.arsize),
+        fun_code:3'b010,rd_req:1,endian_big:sram_big};
+        if (info.araddr[31:4]==28'hFFFF_FFF)
+        request.fun_code=3'b111;
             
         case(request.mode)
 			  2'b00 :if(info.arsize ==3'b011)
@@ -196,50 +311,53 @@ package mcpu;
                 ff_req.enq(DATA_MODE_32_READ);
       	2'b01 :ff_req.enq(DATA_MODE_8_READ);
       	2'b10 :ff_req.enq(DATA_MODE_16_READ);
-      endcase
+        endcase
       proc_master.get_req(request);
       if(info.arsize==3'b011)begin
         dw_read<=True;
         dw_read_addr<=info.araddr;
       end
- endrule
+
+    endrule
 
 
-	rule check_read_request_to_memory_burst(!dw_write && !dw_read && burst_mode);
+	 rule check_read_request_to_memory_burst(!dw_write && !dw_read && read_burst_mode);
      
       let addr = rg_burst_addr;
-     //sram is little-endian for first four cycles and big-endian after that 
+      //sram is little-endian for first four cycles and big-endian after that 
       Bool sram_big=False;
       if (rg_endian <2)
         rg_endian <= rg_endian+1;
       else
         sram_big = True;
       //tracking the count for burst transfers:-
-      if (rg_arlen!=0)
+      if (rg_counter!=0)
       begin
-        rg_arlen <= rg_arlen-8'd1;
+        rg_counter <= rg_counter-8'd1;
         ff_last.enq(False);
       end
       else
       begin
-        burst_mode <=False;
+        read_burst_mode <=False;
         ff_last.enq(True);//Enqueuing last word info
       end
- 
+       
+       let shift =  32'b1;
      //Generating address for burst_transfers
+
+     
       if(rg_size!=0)
-        addr = rg_burst_addr<<rg_size;
-      else
-        addr = rg_burst_addr;
+      addr= axi4burst_addrgen(rg_arlen,rg_size,rg_burst,rg_burst_addr);
+      rg_burst_addr<=addr;
       
+      ff_address.enq(addr);
       let request=Req_mcpu{addr:truncate(addr),wr_data:?,mode:modeconv_mcpu(rg_size),
       fun_code:3'b010,rd_req:1,endian_big:sram_big};
       //function code if accessing interrupt registers(reading interrupt_vector)
-      if (addr[31:4]==28'hFFFF_FFF)
+      if (rg_burst_addr[31:4]==28'hFFFF_FFF)
        request.fun_code=3'b111;
-      `ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode \
-       %h",info.araddr,info.arid,modeconv_mcpu(info.arsize));`endif
-
+      //`ifdef verbose $display("Enqueing read request onto mcpu for address %h with id  with mode \
+      // %h",addr,modeconv_mcpu(rg_size));`endif
         case(request.mode)
 			  2'b00 :if(rg_size ==3'b011)
                 ff_req.enq(DATA_MODE_64_READ1);
@@ -250,14 +368,17 @@ package mcpu;
       endcase
       proc_master.get_req(request);
       if(rg_size==3'b011)begin
+        $display("MCPU:dw_read_cycle_1_burst %h from addr %h",rg_arlen,addr);
         dw_read<=True;
         dw_read_addr<=addr;
       end
- endrule
+
+   endrule
 
 
 
-	rule check_read_request_to_memory_dw_read(dw_read);
+	 rule check_read_request_to_memory_dw_read(dw_read);
+      
       ff_address.enq(dw_read_addr);
       Bool sram_big=False;
       if (rg_endian <2)
@@ -268,18 +389,25 @@ package mcpu;
       fun_code:3'b010,rd_req:1,endian_big:sram_big};
       if (dw_read_addr[31:4]==28'hFFFF_FFF)
        request.fun_code=3'b111;
+       $display("MCPU:dw_read_cycle_2 from addr %h",dw_read_addr+4);
+   
    //incude mode 32 and send the address
-      `ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode\
-      %h endianness %b rg_endian:%h",dw_read_addr+4,ff_id.first,sram_big,rg_endian);`endif
+   //`ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode\
+   // %h endianness %b rg_endian:%h",dw_read_addr+4,ff_id.first,sram_big,rg_endian);`endif
 
       proc_master.get_req(request);		
       dw_read<=False;
       ff_req.enq(DATA_MODE_64_READ2);
- endrule
+
+   endrule
 
 
   (* preempts = "check_read_request_to_memory,check_wr_request_to_memory"*)
+  (* mutually_exclusive = "check_read_request_to_memory_burst,check_wr_request_to_memory"*)
+  (* mutually_exclusive = "check_read_request_to_memory_burst,check_wr_request_to_memory_burst"*)
+  (* mutually_exclusive = "check_read_request_to_memory_burst,check_wr_request_to_memory_dw_write"*)
   (* preempts = "check_read_request_to_memory_dw_read,check_wr_request_to_memory_dw_write"*)
+  (* preempts = "check_wr_request_to_memory_burst,check_read_request_to_memory"*)
 
 //...................................SEND RESPONSE TO MEMORY...............................//
 //While sending response to memory slave_width is checked. If slave width is lesser than 
@@ -298,7 +426,10 @@ package mcpu;
       rlast:False, ruser: 0, rid: ff_id.first };
       //checking last word for burst_transfers
       if(ff_last.first)
-      r.rlast=True;
+      begin
+        r.rlast=True;
+        ff_id.deq; //id remains same through out burst
+      end
       r.rid=ff_id.first;
       ff_last.deq;
 
@@ -307,7 +438,6 @@ package mcpu;
       ff_address.deq();
       s_xactor.i_rd_data.enq(r);
       `ifdef verbose $display("Data received %h with id %h to mem_stage",response.data,ff_id.first());`endif
-      ff_id.deq();
 	endrule
                 
       
@@ -315,20 +445,25 @@ package mcpu;
 			let response =proc_master.put_resp();
 			if(response.port_type==2'b10 )begin
 					ff_req.deq();
-          let r = AXI4_Rd_Data {rresp: AXI4_OKAY,rdata:duplicate(response.data[15:0]),rlast:True,
+          let r = AXI4_Rd_Data {rresp: AXI4_OKAY,rdata:duplicate(response.data[15:0]),rlast:False,
           ruser: 0, rid: ff_id.first };
+          
+          
           
           //checking last word for burst_transfers
           if(ff_last.first)
-          r.rlast=True;
+          begin
+            r.rlast=True;
+            ff_id.deq;
+          end
           r.rid=ff_id.first;
           ff_last.deq;
+
     			
           if(response.berr==1'b1)
 					r.rresp = AXI4_SLVERR;
 					ff_address.deq();
 					s_xactor.i_rd_data.enq(r);
-		      ff_id.deq();
 					`ifdef verbose $display("Data received %h with id %h to mem_stage",response.data,ff_id.first());`endif
 
 			end						
@@ -344,16 +479,19 @@ package mcpu;
 
              //checking last word for burst_transfers
             let r = AXI4_Rd_Data {rresp: AXI4_OKAY,rdata:duplicate({response.data[7:0],
-            response_buff[7:0]}),rlast:True,ruser: 0,rid: ff_id.first };
+            response_buff[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
             if(endian(ff_address.first,response.endian_big)==Big)
             r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:duplicate({response_buff[7:0],
-            response.data[7:0]}),rlast:True,ruser: 0,rid: ff_id.first };
+            response.data[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
             if(response.berr==1'b1||response_berr==1'b1)
             r.rresp = AXI4_SLVERR;
 
           //checking last word for burst_transfers
             if(ff_last.first)
-            r.rlast=True;
+            begin
+              r.rlast=True;
+              ff_id.deq;
+            end
             r.rid=ff_id.first;
             ff_last.deq;
             rg_port_count<=0;
@@ -361,7 +499,6 @@ package mcpu;
             s_xactor.i_rd_data.enq(r);
             response_buff<=0;
             response_berr<=0;
-            ff_id.deq();
             `ifdef verbose
             if(endian(ff_address.first,response.endian_big)==Big)
             `ifdef verbose $display("Data received %h with id %h to mem_stage",{response_buff[7:0],
@@ -379,18 +516,20 @@ package mcpu;
 					response_buff<=0;
           response_berr<=0;
           let r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate(response.data[15:0]),
-          rlast:True,ruser: 0,rid: ff_id.first };
+          rlast:False,ruser: 0,rid: ff_id.first };
 
           //checking last word for burst_transfers
           if(ff_last.first)
-          r.rlast=True;
+          begin
+            r.rlast=True;
+            ff_id.deq;
+          end
           r.rid=ff_id.first;
           ff_last.deq;
 
     			if(response.berr==1'b1)
 					r.rresp = AXI4_SLVERR;
 					ff_address.deq();
-			   	ff_id.deq();
           s_xactor.i_rd_data.enq(r);
 					`ifdef verbose $display("Data received %h with id %h mem_stage",{response.data[15:0]},ff_id.first());`endif
 
@@ -401,20 +540,22 @@ package mcpu;
 			let response =proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
-        let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data}),rlast:True,ruser: 0,
+        let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data}),rlast:False,ruser: 0,
         rid: ff_id.first };
     		if(response.berr == 1'b1)
 			  r.rresp = AXI4_SLVERR;
         
         //checking last word for burst_transfers
         if(ff_last.first)
-        r.rlast=True;
+        begin
+          r.rlast=True;
+          ff_id.deq;
+        end
         r.rid=ff_id.first;
         ff_last.deq;
 				
         ff_address.deq;
         s_xactor.i_rd_data.enq(r);
-		    ff_id.deq();
 				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h ",response.data,
         ff_id.first(),ff_address.first());`endif
       end
@@ -430,19 +571,21 @@ package mcpu;
 			end
 			else
 			begin	
-				ff_id.deq();
 				ff_req.deq();
 				rg_port_count<=0;
 				response_buff<=0;
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data[15:0],
-        response_buff[15:0]}),rlast:True,ruser: 0,rid: ff_id.first };
+        response_buff[15:0]}),rlast:False,ruser: 0,rid: ff_id.first };
 	      if(endian(ff_address.first,response.endian_big)==Big)
 	      r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({response_buff[15:0],
-        response.data[15:0]}),rlast:True,ruser:0,rid: ff_id.first };
+        response.data[15:0]}),rlast:False,ruser:0,rid: ff_id.first };
         
         //checking last word for burst_transfers
         if(ff_last.first)
-        r.rlast=True;
+        begin
+          r.rlast=True;
+          ff_id.deq;
+        end
         r.rid=ff_id.first;
         ff_last.deq;
       	
@@ -475,7 +618,6 @@ package mcpu;
           if(response.berr==1'b1)
             response_berr<=1'b1;
           response_buff<={response.data[7:0],response_buff[31:8]};`endif
-
           end
 					rg_port_count<=rg_port_count+1;
 				end
@@ -486,24 +628,26 @@ package mcpu;
 					response_buff<=0;
           response_berr<=0;
           let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({
-          response.data[7:0],response_buff[31:8]}),rlast:True,ruser:0,rid: ff_id.first };
+          response.data[7:0],response_buff[31:8]}),rlast:False,ruser:0,rid: ff_id.first };
 	        if(endian(ff_address.first,response.endian_big)==Big)
-          r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({response_buff[23:0],response.data[7:0]}),rlast:True,ruser: 0,rid: ff_id.first };
+          r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({response_buff[23:0],response.data[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
     			if(response.berr==1'b1||response_berr==1'b1)    		
 					r.rresp = AXI4_SLVERR;
       		ff_address.deq;
 
           //checking last word for burst_transfers
           if(ff_last.first)
-          r.rlast=True;
+          begin
+            r.rlast=True;
+            ff_id.deq;
+          end
           r.rid=ff_id.first;
           ff_last.deq;
 
 					s_xactor.i_rd_data.enq(r);
-		    	 ff_id.deq();
-           `ifdef verbose
+          `ifdef verbose
 	        if(endian(ff_address.first,response.endian_big)!=Big)
-		   		`ifdef verbose $display("Data received %h with id %h to mem_stage",{response.data[7:0],
+		   	  `ifdef verbose $display("Data received %h with id %h to mem_stage",{response.data[7:0],
           response_buff[31:8]},ff_id.first());`endif
 
           else
@@ -547,8 +691,8 @@ package mcpu;
       	if(response.berr==1'b1||response_berr==1'b1)
 		    err_buff<=True;
 				ff_address.deq;
-	      `ifdef verbose $display("Data received %h with id %h from mem_stage",{response.data[15:0],
-        response_buff[15:0]},ff_id.first());`endif
+	      `ifdef verbose $display("64_READ1: Data received %h with id %h from mem_stage from address %h",{response.data[15:0],
+        response_buff[15:0]},ff_id.first(),ff_address.first());`endif
         `ifdef verbose
 	      if(endian(ff_address.first,response.endian_big)==Big)
 	       $display("Data received %h with id %h from mem_stage",{response_buff[15:0],
@@ -604,10 +748,10 @@ package mcpu;
 			let response =proc_master.put_resp();
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
-        let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:{response.data,data_buff},rlast:True,ruser: 0,
+        let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:{response.data,data_buff},rlast:False,ruser: 0,
         rid: ff_id.first };
         if(endian((ff_address.first),True)==Big)
-        r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({data_buff,response.data}),rlast:True,ruser: 0,
+        r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({data_buff,response.data}),rlast:False,ruser: 0,
         rid: ff_id.first };
     		if(response.berr == 1'b1||err_buff)
 			  r.rresp = AXI4_SLVERR;
@@ -615,13 +759,15 @@ package mcpu;
 
         //checking last word for burst_transfers
         if(ff_last.first)
-        r.rlast=True;
+        begin
+          r.rlast=True;
+          ff_id.deq;
+        end
         r.rid=ff_id.first;
         ff_last.deq;
 
         s_xactor.i_rd_data.enq(r);
-		    ff_id.deq();
-				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h ",     response.data,
+				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h ", response.data,
         ff_id.first(),ff_address.first());`endif
 
 			end
@@ -637,29 +783,30 @@ package mcpu;
 			end
 			else
 			begin	
-				ff_id.deq();
 				ff_req.deq();
 				rg_port_count<=0;
 				response_buff<=0;
         response_berr<=1'b0;
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data[15:0],
-        response_buff[15:0],data_buff}),rlast:True,ruser: 0,rid: ff_id.first };
+        response_buff[15:0],data_buff}),rlast:False,ruser: 0,rid: ff_id.first };
 	      if(endian(ff_address.first,response.endian_big)==Big)
 	      r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({data_buff,response_buff[15:0],
-        response.data[15:0]}),rlast:True,ruser:0,rid: ff_id.first };
+        response.data[15:0]}),rlast:False,ruser:0,rid: ff_id.first };
       	if(response.berr==1'b1||err_buff||response_berr==1'b1)
 				r.rresp = AXI4_SLVERR;
 
         //checking last word for burst_transfers
         if(ff_last.first)
-        r.rlast=True;
+        begin
+          r.rlast=True;
+          ff_id.deq;
+        end
         r.rid=ff_id.first;
         ff_last.deq;
-
 				ff_address.deq;
         s_xactor.i_rd_data.enq(r);
-	      `ifdef verbose $display("Data received %h with id %h from mem_stage",{response.data[15:0],
-        response_buff[15:0],data_buff},ff_id.first());`endif
+	      `ifdef verbose $display("64:READ2 Data received %h with id %h from mem_stage from address %h",{response.data[15:0],
+        response_buff[15:0],data_buff},ff_id.first(),ff_address.first);`endif
         `ifdef verbose
 	      if(endian(ff_address.first,response.endian_big)==Big)
 	       $display("Data received %h with id %h from mem_stage",{data_buff,response_buff[15:0],
@@ -692,21 +839,25 @@ package mcpu;
 					response_buff<=0;
           response_berr<=0;
           let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({
-          response.data[7:0],response_buff[31:8],data_buff}),rlast:True,ruser:0,rid: ff_id.first };
+          response.data[7:0],response_buff[31:8],data_buff}),rlast:False,ruser:0,rid: ff_id.first };
 	        if(endian(ff_address.first,response.endian_big)==Big)
-          r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({data_buff,response_buff[23:0],response.data[7:0]}),rlast:True,ruser: 0,rid: ff_id.first };
+          r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({data_buff,response_buff[23:0],response.data[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
     			if(response.berr==1'b1||err_buff||response_berr==1'b1)    		
 					r.rresp = AXI4_SLVERR; 
 					ff_address.deq;
-					s_xactor.i_rd_data.enq(r);
-        
+
+
           //checking last word for burst_transfers
           if(ff_last.first)
-          r.rlast=True;
+          begin 
+            r.rlast=True;
+            ff_id.deq;
+          end
           r.rid=ff_id.first;
           ff_last.deq;
 
-		    	 ff_id.deq();
+					s_xactor.i_rd_data.enq(r);
+        
           `ifdef verbose
 	        if(endian(ff_address.first,response.endian_big)!=Big)
 		   		`ifdef verbose $display("Data received %h with id %h to mem_stage",{response.data[7:0],
@@ -728,6 +879,8 @@ package mcpu;
 			resp.bresp=AXI4_SLVERR;
 			ff_id.deq();
 			ff_address.deq();
+      ff_last.deq();
+      if(ff_last.first)
 	   	s_xactor.i_wr_resp.enq(resp);
 	  	`ifdef verbose $display($time,"\t CORE: Received Write Response: from address %h id %h",
       ff_address.first,ff_id.first); `endif
@@ -740,13 +893,18 @@ package mcpu;
 			if(response.port_type==2'b10 )begin
 			  ff_req.deq();
 		   	ff_id.deq();
+
 				`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
 		    let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
 			  ff_address.deq();
 			  if (response.berr==1'b1)
 			  resp.bresp=AXI4_SLVERR;
+         
+        ff_last.deq();
+        if(ff_last.first)
 	    	s_xactor.i_wr_resp.enq(resp);
-			end					
+			end	
+
 			else if(response.port_type==2'b01)
 				if(rg_port_count==0)begin
 					rg_port_count<=rg_port_count+1;
@@ -763,6 +921,8 @@ package mcpu;
 				  resp.bresp=AXI4_SLVERR;
           response_berr<=1'b0;
   				ff_id.deq();
+          ff_last.deq();
+          if(ff_last.first)
 	    		s_xactor.i_wr_resp.enq(resp);
 				end
 			else
@@ -777,6 +937,8 @@ package mcpu;
 					if (response.berr==1'b1)
 					resp.bresp=AXI4_SLVERR;
 					ff_id.deq();
+          ff_last.deq();
+          if(ff_last.first)
 	    		s_xactor.i_wr_resp.enq(resp);
 				end
 		endrule
@@ -794,6 +956,8 @@ package mcpu;
         resp.bresp=AXI4_SLVERR;
         ff_id.deq();
         ff_address.deq();
+        ff_last.deq();
+        if(ff_last.first)
         s_xactor.i_wr_resp.enq(resp);
 		end
 
@@ -814,6 +978,8 @@ package mcpu;
 			if (response.berr==1'b1||response_berr==1'b1)
 			resp.bresp=AXI4_SLVERR;
       response_berr<=1'b0;
+      ff_last.deq();
+      if(ff_last.first)
 	  	s_xactor.i_wr_resp.enq(resp);
 			`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
 
@@ -836,6 +1002,8 @@ package mcpu;
 				resp.bresp=AXI4_SLVERR;
 				ff_id.deq();
         response_berr<=1'b0;
+        ff_last.deq();
+        if(ff_last.first)
 	  		s_xactor.i_wr_resp.enq(resp);
 				`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
 				end
@@ -847,8 +1015,6 @@ package mcpu;
       if(response.port_type==2'b00)
       begin		
         ff_req.deq();
-        `ifdef verbose $display($time,"CORE: Received Write Response:with id %h and address %h",
-        ff_id.first,ff_address.first); `endif
         let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
         if(response.berr==1'b1)
         err_buff<=True;
@@ -871,7 +1037,6 @@ package mcpu;
       if(response.berr==1'b1||response_berr==1'b1)
       err_buff<=True;
       response_berr<=1'b0;
-			`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
 
 		end
 		else if(response.port_type==2'b01)
@@ -890,7 +1055,6 @@ package mcpu;
          err_buff<=True;
          response_berr<=1'b0;
 				rg_port_count<=0;
-				`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
 				end
 			end
 		endrule
@@ -900,64 +1064,76 @@ package mcpu;
       if(response.port_type==2'b00)
       begin		
         ff_req.deq();
-        `ifdef verbose $display($time,"CORE: Received Write Response:with id %h and address %h",
-        ff_id.first,ff_address.first); `endif
+			  `ifdef verbose $display($time,"CORE: Received Write Response:to address %h",ff_address.first); `endif
         let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
         if (response.berr==1'b1||err_buff)
         resp.bresp=AXI4_SLVERR;
         ff_id.deq();
         ff_address.deq();
         response_berr<=1'b0;
+        if(ff_last.first)
         s_xactor.i_wr_resp.enq(resp);
-		end
+        ff_last.deq;
+      end
 
-		else if(response.port_type==2'b10)
-		if(rg_port_count==0)
-		begin
-      if(response.berr==1'b1)
-      response_berr<=1'b1;
-			rg_port_count<=rg_port_count+1;
-		end
-		else
-		begin	
-			ff_req.deq();
-			ff_address.deq();
-			rg_port_count<=0;
-		  ff_id.deq();
-			let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
-			if (response.berr==1'b1||err_buff||response_berr==1'b1)
-			resp.bresp=AXI4_SLVERR;
-      response_berr<=1'b0;
-	  	s_xactor.i_wr_resp.enq(resp);
-			`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
-
-		end
-		else if(response.port_type==2'b01)
-		begin
-			if(rg_port_count<3)
-				begin
-          if(response.berr==1'b1)
-          response_berr<=1'b1;
-					rg_port_count<=rg_port_count+1;
-				end
-			else
-				begin
-				ff_req.deq();
-				ff_address.deq();
-				rg_port_count<=0;
+      else if(response.port_type==2'b10)
+      if(rg_port_count==0)
+      begin
+        if(response.berr==1'b1)
+        response_berr<=1'b1;
+        rg_port_count<=rg_port_count+1;
+      end
+      else
+      begin	
+        ff_req.deq();
+        ff_address.deq();
+        rg_port_count<=0;
+        ff_id.deq();
+        let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
+        if (response.berr==1'b1||err_buff||response_berr==1'b1)
+        resp.bresp=AXI4_SLVERR;
         response_berr<=1'b0;
-			let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
-				if (response.berr==1'b1||response_berr==1'b1||err_buff)
-				resp.bresp=AXI4_SLVERR;
-				ff_id.deq();
-	  		s_xactor.i_wr_resp.enq(resp);
-				`ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
-				end
-			end
-    err_buff<=False;
-		endrule				
+        if(ff_last.first)
+        begin
+        s_xactor.i_wr_resp.enq(resp);
+        `ifdef verbose $display($time,"CORE: Received Write Response:to address %h",ff_address.first); `endif
+        end
+
+        `ifdef verbose $display($time,"\t VME: Received Write Response:to address %h",ff_address.first); `endif
+        ff_last.deq;
+      end
+
+      else if(response.port_type==2'b01)
+      begin
+        if(rg_port_count<3)
+          begin
+            if(response.berr==1'b1)
+            response_berr<=1'b1;
+            rg_port_count<=rg_port_count+1;
+          end
+        else
+          begin
+          ff_req.deq();
+          ff_address.deq();
+          rg_port_count<=0;
+          response_berr<=1'b0;
+          let resp =  AXI4_Wr_Resp {bresp: AXI4_OKAY, bid: ff_id.first};
+          if (response.berr==1'b1||response_berr==1'b1||err_buff)
+          resp.bresp=AXI4_SLVERR;
+          ff_id.deq();
+          if(ff_last.first)
+          s_xactor.i_wr_resp.enq(resp);
+          ff_last.deq;
+          `ifdef verbose $display($time,"CORE: Received Write Response:"); `endif
+          end
+        end
+      err_buff<=False;
+      endrule	
+
 		interface proc_ifc  = proc_master.mcpu_interface;
 		interface proc_dbus = proc_master.data_bus;
 	  interface slave_axi_mcpu = s_xactor.axi_side;
+
+
 endmodule
 endpackage
