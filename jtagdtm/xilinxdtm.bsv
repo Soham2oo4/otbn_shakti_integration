@@ -1,21 +1,21 @@
 package xilinxdtm;
 /*====== Package imports ======= */
-	import Clocks::*;
-	import ConcatReg::*;
-	import FIFO::*;
-	import FIFOF::*;
-	import SpecialFIFOs::*;
-	import DReg::*;
+  import Clocks::*;
+  import ConcatReg::*;
+  import FIFO::*;
+  import FIFOF::*;
+  import SpecialFIFOs::*;
+  import DReg::*;
 /*======= Project imports ===== */
-	`include "jtagdefines.bsv"
+  `include "jtagdefines.bsv"
   `include "Logger.bsv"
 /*============================== */
 
   interface Ifc_xilinxdtm;
-  	/*======== JTAG input pins ===== */
-  	(*always_enabled,always_ready*)
-  	method Action tms_i(Bit#(1) tms);
-  	(*always_enabled,always_ready*)
+    /*======== JTAG input pins ===== */
+    (*always_enabled,always_ready*)
+    method Action tms_i(Bit#(1) tms);
+    (*always_enabled,always_ready*)
     method Action tdi_i(Bit#(1) tdi);
     /*    Shift Register Control     */
     (*always_enabled,always_ready*)
@@ -28,33 +28,33 @@ package xilinxdtm;
     method Action shift_i (Bit#(1) shift);
     (* always_enabled,always_ready*)
     method Action update_i (Bit#(1) update);
-  	/*======= JTAG Output Pins ====== */
-  	(*always_enabled,always_ready*)
+    /*======= JTAG Output Pins ====== */
+    (*always_enabled,always_ready*)
     method Bit#(1) tdo;
 
-  	/*======== DMI Interface ============= */
-  	method Action response_from_dm(Bit#(34) responsedm);
-  	method ActionValue#(Bit#(40)) request_to_dm;
+    /*======== DMI Interface ============= */
+    method Action response_from_dm(Bit#(34) responsedm);
+    method ActionValue#(Bit#(40)) request_to_dm;
   endinterface
   
   function Reg#(t) readOnlyReg(t r);
     return (interface Reg;
-       method t _read = r;
-       method Action _write(t x) = noAction;
+      method t _read = r;
+      method Action _write(t x) = noAction;
     endinterface);
   endfunction
 	
-	(*synthesize*)
-	module mkxilinxdtm(Ifc_xilinxdtm);
-  	Clock def_clk<-exposeCurrentClock;
-  	Clock invert_clock<-invertCurrentClock;
-  	Reset invert_reset<-mkAsyncResetFromCR(0,invert_clock);
-  	/*========= FIFOs to communicate with the DM==== */
-  	FIFOF#(Bit#(40)) request_to_DM <-mkUGFIFOF1();
-  	FIFOF#(Bit#(34)) response_from_DM <-mkUGFIFOF1();
-  	/*=== Wires to capture the input pins === */
-  	Wire#(Bit#(1)) wr_tms<-mkDWire(0);
-  	Wire#(Bit#(1)) wr_tdi<-mkDWire(0);
+  (*synthesize*)
+  module mkxilinxdtm(Ifc_xilinxdtm);
+    Clock def_clk<-exposeCurrentClock;
+    Clock invert_clock<-invertCurrentClock;
+    Reset invert_reset<-mkAsyncResetFromCR(0,invert_clock);
+    /*========= FIFOs to communicate with the DM==== */
+    FIFOF#(Bit#(40)) request_to_DM <-mkUGFIFOF1();
+    FIFOF#(Bit#(34)) response_from_DM <-mkUGFIFOF1();
+    /*=== Wires to capture the input pins === */
+    Wire#(Bit#(1)) wr_tms<-mkDWire(0);
+    Wire#(Bit#(1)) wr_tdi<-mkDWire(0);
     Wire#(Bit#(1)) wr_capture<-mkDWire(0);
     Wire#(Bit#(1)) wr_run_test<-mkDWire(0);
     Wire#(Bit#(1)) wr_sel<-mkDWire(0);
@@ -72,19 +72,19 @@ package xilinxdtm;
     Reg#(Bit#(4))	version = readOnlyReg('d1);
     
     Reg#(Bit#(2))	response_status<-mkReg(0);
-  	Reg#(Bool)		capture_repsonse_from_dm<-mkRegA(False);
+    Reg#(Bool)		capture_repsonse_from_dm<-mkRegA(False);
     Reg#(Bit#(1)) rg_tdo<-mkRegA(0, clocked_by invert_clock, reset_by invert_reset);
 
 
     ReadOnly#(Bit#(139))	crossed_srg_mdr <- mkNullCrossingWire(invert_clock,srg_mdr);
-  	ReadOnly#(Bit#(1)) crossed_output_tdo <- mkNullCrossingWire(def_clk,rg_tdo);
+    ReadOnly#(Bit#(1)) crossed_output_tdo <- mkNullCrossingWire(def_clk,rg_tdo);
     
     Reg#(Bit#(5)) rg_pseudo_ir <- mkReg(0);
 
     /*======= perform dtmcontrol shifts ======== */
-  	rule generate_tdo_outputpin;
-  	  rg_tdo <= crossed_srg_mdr[0];
-  	endrule
+    rule generate_tdo_outputpin;
+      rg_tdo <= crossed_srg_mdr[0];
+    endrule
     //-------------------------
     rule shift_mdr((wr_sel == 1'b1) && (wr_shift == 1'b1));
       srg_mdr<={wr_tdi,srg_mdr[138:1]};
@@ -151,15 +151,15 @@ package xilinxdtm;
     endrule
     //-------------------------
     rule dmihardreset_generated(wr_dmi_hardreset);
-  		request_to_DM.deq;
-  		response_from_DM.deq;
-  		capture_repsonse_from_dm<=False;
-  	endrule
+      request_to_DM.deq;
+      response_from_DM.deq;
+      capture_repsonse_from_dm<=False;
+    endrule
 
     rule dmireset_generated(wr_dmi_reset);
-       response_status<=0;
-       capture_repsonse_from_dm<=False;
-     endrule
+      response_status<=0;
+      capture_repsonse_from_dm<=False;
+    endrule
     //-------------------------
     method Action tms_i(Bit#(1) tms);
       wr_tms <= tms;
@@ -187,14 +187,13 @@ package xilinxdtm;
     endmethod
     //-------------------------
     method Action response_from_dm(Bit#(34) responsedm) if(response_from_DM.notFull);
-  		if(capture_repsonse_from_dm)
-  			response_from_DM.enq(responsedm);
-  	endmethod
-  	method ActionValue#(Bit#(40)) request_to_dm if(request_to_DM.notEmpty);
-  		request_to_DM.deq;
-  		return request_to_DM.first;
+      if(capture_repsonse_from_dm)
+        response_from_DM.enq(responsedm);
+    endmethod
+    method ActionValue#(Bit#(40)) request_to_dm if(request_to_DM.notEmpty);
+      request_to_DM.deq;
+      return request_to_DM.first;
     endmethod
     //-------------------------
-	endmodule
+  endmodule
 endpackage
-
