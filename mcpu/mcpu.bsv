@@ -79,25 +79,25 @@ package mcpu;
     FIFOF#(Bit#(`Reg_width_mcpu_slave)) ff_address <-mkSizedFIFOF(2);//To store request address of instruction
 		FIFOF#(Data_mode) ff_req<-mkSizedFIFOF(2);//To keep track of last pending request
 		FIFOF#(Bool) ff_last<-mkSizedFIFOF(2);//To keep track of last pending request
-    Reg#(Bit#(2)) rg_port_count <- mkReg(0);
+    Reg#(Bit#(2)) rg_port_count <- mkReg(0);//To keep track of multi cycle requests
 		Reg#(Bit#(32)) rg_inst_rcvd <- mkReg(0);
-    Reg#(Bit#(3)) rg_endian  <- mkReg(0);
-    Reg#(Bool) dw_write <- mkReg(False);
-    Reg#(Bool) dw_read  <-mkReg(False);
-    Reg#(Bool) err_buff  <-mkReg(False);
-    Reg#(Bit#(1)) response_berr  <-mkReg(0);
-    Reg#(Bit#(`PADDR)) dw_addr <-mkReg(0);
-    Reg#(Bit#(`PADDR)) rg_burst_addr <-mkReg(0);
-    Reg#(Bit#(`PADDR)) dw_read_addr <-mkReg(0);
-    Reg#(Bit#(2)) rg_burst <-mkReg(0);
-    Reg#(Bit#(8)) rg_arlen <-mkReg(0);
-    Reg#(Bit#(4)) rg_awid <-mkReg(0);
-    Reg#(Bit#(8)) rg_counter <-mkReg(0);
-    Reg#(Bit#(3)) rg_size <-mkReg(0);
-    Reg#(Bit#(32))dw_data<-mkReg(0);
-    Reg#(Bit#(32))data_buff<-mkReg(0);
-    Reg#(Bool)read_burst_mode <-mkReg(False);
-    Reg#(Bool)write_burst_mode <-mkReg(False);
+    Reg#(Bit#(3)) rg_endian  <- mkReg(0);//Dynamic endianness indicator
+    Reg#(Bool) dw_write <- mkReg(False);//Double word write
+    Reg#(Bool) dw_read  <-mkReg(False);//Double word read
+    Reg#(Bool) err_buff  <-mkReg(False);//Buffer the bus_error across double word writes
+    Reg#(Bit#(1)) response_berr  <-mkReg(0);//Bus error
+    Reg#(Bit#(`PADDR)) dw_addr <-mkReg(0);//Double word address
+    Reg#(Bit#(`PADDR)) rg_burst_addr <-mkReg(0);//Buffer addresses for bursts
+    Reg#(Bit#(`PADDR)) dw_read_addr <-mkReg(0);//Buffer addresses for double word transactions
+    Reg#(Bit#(2)) rg_burst <-mkReg(0);//Buffer arburst for burst transfer
+    Reg#(Bit#(8)) rg_arlen <-mkReg(0);//Buffer burst length
+    Reg#(Bit#(4)) rg_awid <-mkReg(0);//Buffer id
+    Reg#(Bit#(8)) rg_counter <-mkReg(0);//Counter to initiate read bursts
+    Reg#(Bit#(3)) rg_size <-mkReg(0);//Buffer burst size
+    Reg#(Bit#(32))dw_data<-mkReg(0);//Buffer double word data
+    Reg#(Bit#(32))data_buff<-mkReg(0);//Buffer response if takes multi cycle
+    Reg#(Bool)read_burst_mode <-mkReg(False);//read burst active
+    Reg#(Bool)write_burst_mode <-mkReg(False);//write burst active
 
 //.......................SEND_REQUEST_TO_MEMORY..................................................//
 //...............................................................................................//
@@ -106,6 +106,7 @@ package mcpu;
       
       let info<-pop_o(s_xactor.o_wr_addr);
       let data<-pop_o(s_xactor.o_wr_data);
+
       Bool sram_big =False;
       if (rg_endian<2)
         rg_endian <= rg_endian+1;
@@ -128,10 +129,12 @@ package mcpu;
         rg_counter   <= info.awlen-8'd1;
         rg_arlen   <= info.awlen;
         rg_burst_addr <= info.awaddr;
+        rg_burst <= info.awburst;
         rg_size <=info.awsize;
         rg_awid <=info.awid;
         ff_last.enq(False);
-        $display("sending first word write request burst_mode from address %h",info.awaddr); 
+        `ifdef verbose $display("sending first word write request burst_mode from \
+        address %h",info.awaddr);`endif 
       end
       else
         ff_last.enq(True);
@@ -146,7 +149,7 @@ package mcpu;
       mode%h endianness:%b rg_endian :%h data:%h transfer_size:%h\
       ",info.awaddr,info.awid,request.mode,sram_big,rg_endian,request.wr_data,info.awsize);`endif
       ff_address.enq(info.awaddr);
-
+      //Request scheduling
       case(request.mode)
 	  		2'b00 :if(info.awsize==3'b011)
                ff_req.enq(DATA_MODE_64_WRITE1);
@@ -155,6 +158,8 @@ package mcpu;
       	2'b01 :ff_req.enq(DATA_MODE_8_WRITE);
       	2'b10 :ff_req.enq(DATA_MODE_16_WRITE);
       endcase
+      
+      //Managing double word transfers
       if(info.awsize==3'b011)begin
         dw_write<=True;
         dw_addr<=info.awaddr;
@@ -172,13 +177,13 @@ package mcpu;
      
     endrule
 
-
+    //Burst writes
 		rule check_wr_request_to_memory_burst(!dw_write && !dw_read && write_burst_mode);
       
       let addr = rg_burst_addr;
       let data<-pop_o(s_xactor.o_wr_data);
       
-      
+      //Controlling dynamic endianess of sram 
       Bool sram_big =False;
       if (rg_endian<2)
         rg_endian <= rg_endian+1;
@@ -186,6 +191,8 @@ package mcpu;
         sram_big  = True;
       `ifdef verbose $display("Data: %h",data.wdata); `endif
 
+       
+      //Generating last word for endianness
       if (data.wlast)
       begin
          ff_last.enq(True);
@@ -209,7 +216,7 @@ package mcpu;
       if(rg_size==3'b011 && endian(addr,True)==Big)
       request.wr_data = data.wdata[63:32];
      
-      //accessing nterrupt registers 
+      //accessing interrupt registers 
       if(addr[31:4]==28'hFFFF_FFF)
 			request.fun_code=3'b111;	
 
@@ -221,8 +228,9 @@ package mcpu;
       
       ff_address.enq(addr);
 
-      $display("Sending burst no: %d wlast: %b",rg_counter,data.wlast);
-
+      `ifdef verbose $display("Sending burst no: %d wlast: %b",rg_counter,data.wlast);`endif
+      
+      //Request scheduling
       case(request.mode)
 	  		2'b00 :if(rg_size==3'b011)
                ff_req.enq(DATA_MODE_64_WRITE1);
@@ -232,6 +240,8 @@ package mcpu;
       	2'b10 :ff_req.enq(DATA_MODE_16_WRITE);
       endcase
       
+      
+      //Managing double word transfers
       if(rg_size==3'b011)begin
         dw_write<=True;
         dw_addr<=addr;
@@ -295,7 +305,8 @@ package mcpu;
         rg_size <=info.arsize;
         rg_burst<=info.arburst;
         ff_last.enq(False);
-        $display("Sending first word request burst_mode from address %h",info.araddr); 
+        `ifdef verbose $display("Sending first word request burst_mode from address\ 
+        %h",info.araddr);`endif 
       end
       else
         ff_last.enq(True);
@@ -304,6 +315,7 @@ package mcpu;
         if (info.araddr[31:4]==28'hFFFF_FFF)
         request.fun_code=3'b111;
             
+       //Request scheduling
         case(request.mode)
 			  2'b00 :if(info.arsize ==3'b011)
                 ff_req.enq(DATA_MODE_64_READ1);
@@ -313,6 +325,8 @@ package mcpu;
       	2'b10 :ff_req.enq(DATA_MODE_16_READ);
         endcase
       proc_master.get_req(request);
+
+      //Managing double word transaction
       if(info.arsize==3'b011)begin
         dw_read<=True;
         dw_read_addr<=info.araddr;
@@ -344,8 +358,6 @@ package mcpu;
        
        let shift =  32'b1;
      //Generating address for burst_transfers
-
-     
       if(rg_size!=0)
       addr= axi4burst_addrgen(rg_arlen,rg_size,rg_burst,rg_burst_addr);
       rg_burst_addr<=addr;
@@ -356,9 +368,10 @@ package mcpu;
       //function code if accessing interrupt registers(reading interrupt_vector)
       if (rg_burst_addr[31:4]==28'hFFFF_FFF)
        request.fun_code=3'b111;
-      //`ifdef verbose $display("Enqueing read request onto mcpu for address %h with id  with mode \
-      // %h",addr,modeconv_mcpu(rg_size));`endif
-        case(request.mode)
+      
+       
+       //Request scheduling
+      case(request.mode)
 			  2'b00 :if(rg_size ==3'b011)
                 ff_req.enq(DATA_MODE_64_READ1);
                else
@@ -367,8 +380,11 @@ package mcpu;
       	2'b10 :ff_req.enq(DATA_MODE_16_READ);
       endcase
       proc_master.get_req(request);
+
+           
+      //Managing double word transaction
       if(rg_size==3'b011)begin
-        $display("MCPU:dw_read_cycle_1_burst %h from addr %h",rg_arlen,addr);
+        `ifdef verbose $display("MCPU:dw_read_cycle_1_burst %h from addr %h",rg_arlen,addr);`endif
         dw_read<=True;
         dw_read_addr<=addr;
       end
@@ -380,6 +396,8 @@ package mcpu;
 	 rule check_read_request_to_memory_dw_read(dw_read);
       
       ff_address.enq(dw_read_addr);
+      
+      //sram is little-endian for first four cycles and big-endian after that 
       Bool sram_big=False;
       if (rg_endian <2)
         rg_endian <= rg_endian+1;
@@ -387,13 +405,12 @@ package mcpu;
         sram_big = True;
       let request=Req_mcpu{addr:dw_read_addr+4,wr_data:?,mode:2'b00,
       fun_code:3'b010,rd_req:1,endian_big:sram_big};
+      
+      //Managing double word transaction
       if (dw_read_addr[31:4]==28'hFFFF_FFF)
        request.fun_code=3'b111;
-       $display("MCPU:dw_read_cycle_2 from addr %h",dw_read_addr+4);
+       `ifdef verbose $display("MCPU:dw_read_cycle_2 from addr %h",dw_read_addr+4);`endif
    
-   //incude mode 32 and send the address
-   //`ifdef verbose $display("Enqueing read request onto mcpu for address %h with id %h with mode\
-   // %h endianness %b rg_endian:%h",dw_read_addr+4,ff_id.first,sram_big,rg_endian);`endif
 
       proc_master.get_req(request);		
       dw_read<=False;
@@ -598,7 +615,7 @@ package mcpu;
         response_buff[15:0]},ff_id.first(),ff_address.first());`endif
         `ifdef verbose
 	      if(endian(ff_address.first,response.endian_big)==Big)
-	       $display("mcpu :Data received %h with id %h from mem_stage from address %h",{response_buff[15:0],
+	       ifdef verbose $display("mcpu :Data received %h with id %h from mem_stage from address %h",{response_buff[15:0],
         response.data[15:0]},ff_id.first(),ff_address.first());`endif
 
 			end
@@ -666,7 +683,8 @@ package mcpu;
     		if(response.berr == 1'b1)
 			  err_buff <= True;
 				ff_address.deq;
-				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h ",response.data,
+				`ifdef verbose $display("Data received %h with id %h from mem_stage from address %h\
+        ",response.data,
         ff_id.first(),ff_address.first());`endif
 
 			end
@@ -691,13 +709,12 @@ package mcpu;
       	if(response.berr==1'b1||response_berr==1'b1)
 		    err_buff<=True;
 				ff_address.deq;
-	      `ifdef verbose $display("64_READ1: Data received %h with id %h from mem_stage from address %h",{response.data[15:0],
-        response_buff[15:0]},ff_id.first(),ff_address.first());`endif
+	      `ifdef verbose $display("64_READ1: Data received %h with id %h from mem_stage from \
+        address %h",{response.data[15:0],response_buff[15:0]},ff_id.first(),ff_address.first());`endif
         `ifdef verbose
 	      if(endian(ff_address.first,response.endian_big)==Big)
-	       $display("Data received %h with id %h from mem_stage",{response_buff[15:0],
-        response.data[15:0]},ff_id.first());`endif
-
+	        $display("Data received %h with id %h from mem_stage \
+         ",{response_buff[15:0],response.data[15:0]},ff_id.first());`endif
 			end
 
 			else if(response.port_type==2'b01)
@@ -705,17 +722,18 @@ package mcpu;
 			if(rg_port_count<3)
 				begin
 					if(endian(ff_address.first,response.endian_big) == Big )begin
-          `ifdef verbose $display("Data received from mem_stage_8_bit %h response_buff: %h",response.data[7:0],response_buff);`endif
+          `ifdef verbose $display("Data received from mem_stage_8_bit %h response_buff:\
+          %h",response.data[7:0],response_buff);`endif
 					response_buff<={response_buff[23:0],response.data[7:0]};
       	  if(response.berr==1'b1)
 		       response_berr<=1'b1;
           end
           else begin
-          `ifdef verbose $display("Data received from mem_stage_8_bit_le %h",response.data[7:0]);`endif
+          `ifdef verbose $display("Data received from mem_stage_8_bit_le\
+          %h",response.data[7:0]);`endif
 					response_buff<={response.data[7:0],response_buff[31:8]};
       	  if(response.berr==1'b1)
 		       response_berr<=1'b1;
-            
           end
 					rg_port_count<=rg_port_count+1;
 				end
@@ -809,7 +827,7 @@ package mcpu;
         response_buff[15:0],data_buff},ff_id.first(),ff_address.first);`endif
         `ifdef verbose
 	      if(endian(ff_address.first,response.endian_big)==Big)
-	       $display("Data received %h with id %h from mem_stage",{data_buff,response_buff[15:0],
+	        $display("Data received %h with id %h from mem_stage",{data_buff,response_buff[15:0],
         response.data[15:0]},ff_id.first());`endif
 
 			end
