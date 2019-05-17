@@ -73,16 +73,6 @@ package bram;
                    mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size,2))),False,lsb_file,False);
   
     Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
-    `ifdef ASSERT 
-      Wire#(Maybe#(Bit#(TSub#(index_size,2)))) wr_write_index <- mkDWire(tagged Invalid);
-      Wire#(Maybe#(Bit#(TSub#(index_size,2)))) wr_read_index <- mkDWire(tagged Invalid);
-  
-
-      rule check_assertions(True);
-        if(wr_read_index matches tagged Valid .rd &&& wr_write_index matches tagged Valid .wr)
-            dynamicAssert(wr!=rd,"BRAM Module: Read and Write to the same index");
-      endrule
-    `endif
 
     // A write request to memory. Single cycle operation.
     // This model assumes that the master sends the data strb aligned for the data_width bytes. 
@@ -90,16 +80,9 @@ package bram;
     // And the data on the write channel is assumed to be duplicated.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
       let {addr, data, strb}=req;
-    `ifdef ASSERT
-      let offset = addr-fromInteger(slave_base);
-      Bit#(TSub#(addr_width,index_size)) upper_bits = truncateLSB(offset);
-    `endif
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
 			dmemLSB.b.put(truncate(strb),index_address,truncate(data));
 			dmemMSB.b.put(truncateLSB(strb),index_address,truncateLSB(data));
-      `ifdef ASSERT
-        wr_write_index<= tagged Valid (index_address);
-      `endif
       `logLevel( bram, 0, $format("",modulename,": Recieved Write Request for Address: %h Index: %h\
  Data: %h wrstrb: %h", addr, index_address, data, strb))
   	endmethod
@@ -111,19 +94,12 @@ package bram;
   
     // capture a read_request and latch the address on a BRAM.
     method Action read_request (Bit#(addr_width) addr);
-    `ifdef ASSERT
-      let offset = addr-fromInteger(slave_base);
-      Bit#(TSub#(addr_width,index_size)) upper_bits = truncateLSB(offset);
-    `endif
 			Bit#(TSub#(index_size,2)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset+1];
   		dmemLSB.a.put(0, index_address, ?);
       dmemMSB.a.put(0, index_address, ?);
       read_request_sent[1]<= True;
       `logLevel( bram, 0, $format("",modulename,": Recieved Read Request for Address: %h Index: %h",  
                                                                             addr, index_address))
-      `ifdef ASSERT
-        wr_read_index<= tagged Valid (index_address);
-      `endif
   	endmethod
   
     // respond with data from the BRAM.
