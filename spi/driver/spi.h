@@ -27,6 +27,7 @@
 
 // defining SPI_CR2 register
 
+#define SPI_RX_START	(1 << 15)
 #define SPI_LDMA_TX		(1 << 14)
 #define SPI_LDMA_RX		(1 << 13)
 #define SPI_FRXTH		(1 << 12)
@@ -73,6 +74,28 @@ int get_spi(int* addr)
 }
 
 void spi_init(){
-set_spi(spi_cr1, (SPI_SSM|SPI_LSBFIRST|SPI_SPE));
+set_spi(spi_cr1, (SPI_LSBFIRST|SPI_CPOL));
 }
 
+void spi_enable(){
+set_spi(spi_cr1, (SPI_LSBFIRST|SPI_CPOL|SPI_SPE));
+}
+
+void spi_rx_enable(){
+set_spi(spi_cr2, (SPI_RX_START));
+}
+
+int spi_rxne_enable(){
+	int value = 0;
+	while (!(value & 0x1)){
+		waitfor(100);
+		value = get_spi(spi_sr);
+	}
+	return 1;
+}	
+
+
+void waitfor(unsigned int secs) {
+	unsigned int time = 0;
+	while(time++ < secs);
+}
