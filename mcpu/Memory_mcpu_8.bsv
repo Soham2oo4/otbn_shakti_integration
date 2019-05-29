@@ -18,6 +18,7 @@ Email id: deepans.88@gmail.com
 
 package Memory_mcpu_8;
 import BRAMCore :: *;
+`include "Logger.bsv"
 
 //typedef enum{Send_req,Get_resp} Mem_state deriving(Bits,Eq);
 
@@ -66,7 +67,7 @@ method Action rd_byte_31_24(Bit #(8) d3);
 endinterface:Mcpu_slave_8
 
 module mkMemory_8 (Mcpu_slave_8#(base_address,mem_size));
-	
+String mcpu_slave_8 = " ";	
 	BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,0)),Bit#(8),TDiv#(8,8)) dmemLSB <- mkBRAMCore2BE(valueOf(TExp#(TSub#(mem_size,0))),False);
 
 //Defining the slave interface lines
@@ -113,8 +114,7 @@ Bool store_data=(s_wr_l==1'b0)&&(s_ds_l==1'b0);
 
 rule rcv_req((slave_state==RCV_REQ)&&(start_rd||start_wr));
         
-
-  `ifdef verbose $display("MCPU : ...SELECTING SLAVE WITH PORT WIDTH 8....");`endif
+   `logLevel(mcpu_slave_8, 1, $format("Selecting MCPU_SLAVe_8"))
    if(start_wr)
 	begin
 		`ifdef verbose $display("Write_cycle"); `endif
@@ -128,14 +128,11 @@ rule rcv_req((slave_state==RCV_REQ)&&(start_rd||start_wr));
     `endif
     slave_state<=DET_DS;
 	end
-	else
-		begin
- 		$display(" MCPU :Starting read from address",$time);
+	else begin
 	  slave_state<=DET_DS;
 		Bit#(TSub#(mem_size,0)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:0];
                 dmemLSB.b.put(0,index_address,?);
-		`ifdef verbose $display("MCPU: Index Address : %h",index_address);`endif
-		end
+  end
       
 endrule
 
@@ -149,27 +146,26 @@ rule send_ack(slave_state==DET_DS );
 	if(s_wr_l==1'b1)
 	begin
     `ifdef IGCAR_ACCESS_FAULT
-    if(s_addr >= 32'h40000000)
-    s_berr_l<=1'b0;
-    if(s_addr >= 32'h40000000)
-		`ifdef verbose $display("BERR"); `endif
-    `endif
-		s_dsack_0_l<=1'b0;
-		s_dsack_1_l<=1'b1;		
-		slave_state<=END_REQ;
-  	Bit#(8) data0 = dmemLSB.b.read();
-	  `ifdef verbose $display("8 bit data_read : %h",data0,$time);`endif
-    data_out_4<=data0;
-    data_control<=4'b1111;
+      if(s_addr >= 32'h40000000)
+      s_berr_l<=1'b0;
+		`endif
+     s_dsack_0_l<=1'b0;
+     s_dsack_1_l<=1'b1;		
+		 slave_state<=END_REQ;
+  	 Bit#(8) data0 = dmemLSB.b.read();
+     `logLevel( mcpu_slave_8, 1, $format("8 bit data read %h",data0))
+      data_out_4<=data0;
+      data_control<=4'b1111;
 	end
 	  else	if(store_data)
 		
 	begin
-		`ifdef verbose $display("Writing to addr %0d ",s_addr,$time);`endif 
-		slave_state<=END_REQ;
-		Bit#(TSub#(mem_size,0)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:0];
-    `ifdef verbose $display("Index_address : %h",index_address);`endif 	
-		dmemLSB.b.put(1,index_address,data_in_4);
+     
+     `logLevel( mcpu_master_slave_8, 1, $format("Writing to address",s_addr))
+		  slave_state<=END_REQ;
+		  Bit#(TSub#(mem_size,0)) index_address=(s_addr-fromInteger(valueOf(base_address)))
+      [valueOf(mem_size)-1:0];
+		  dmemLSB.b.put(1,index_address,data_in_4);
 			
   end 
 
@@ -178,15 +174,14 @@ endrule
 //Releases bus if data strobe is released//
 rule end_req(slave_state==END_REQ);
 
-if((s_ds_l==1) &&(s_as_l==1))
-begin
-s_dsack_0_l<=1;
-s_dsack_1_l<=1;
-s_berr_l<=1;
-s_halt_l<=1;
-data_control<=4'b0000;
-`ifdef verbose $display("SLAVE_STATE:3 Releasing bus ",$time); `endif
-slave_state<=RCV_REQ;
+if((s_ds_l==1) &&(s_as_l==1))begin
+  s_dsack_0_l<=1;
+  s_dsack_1_l<=1;
+  s_berr_l<=1;
+  s_halt_l<=1;
+  data_control<=4'b0000;
+ `logLevel( mcpu_master_slave_8, 1, $format("SLAVE STATE :Releasing bus"))
+  slave_state<=RCV_REQ;
 end
 
 endrule
