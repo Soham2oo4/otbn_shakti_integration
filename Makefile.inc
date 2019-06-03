@@ -3,6 +3,6 @@ SUPPORTED:=./uart:./pwm:./bootrom:./clint:./common_bsv:./fabrics/axi4:./fabrics/
 TOP_MODULE:=mkdummy
 
 ############# User changes to be done below #################
-TOP_DIR:= jtagdtm
-TOP_FILE:= dmi_tap.bsv
+TOP_DIR:= riscvDebug013
+TOP_FILE:= riscvDebug013_template.bsv
 
