@@ -21,55 +21,30 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
+
+Author: Neel Gala
+Email id: neelgala@gmail.com
+Details:
+
+--------------------------------------------------------------------------------------------------
 */
-// Bluespec wrapper, created by Import BVI Wizard
-// Created on: Tue May 07 16:15:27 IST 2019
-// Created by: vishvesh
-// Bluespec version: 2018.10.beta1 2018-10-17 e1df8052c
+package spi_template;
+  import Vector::*;
+  import FIFOF::*;
+  import DReg::*;
+  import SpecialFIFOs::*;
+  import BRAMCore::*;
+  import FIFO::*;
 
+  import spi :: *;
 
-interface Ifc_spi_model;
-	(*always_ready , always_enabled*)
-	method Action iss (bit ss);
-	(*always_ready , always_enabled*)
-	method Action isclk (bit sclk);
-	(*always_ready , always_enabled*)
-	method Action imosi (bit mosi);
-	(*always_enabled*)
-	method bit omiso ();
-endinterface
-
-import "BVI" spi_slave_model =
-module mkspi_slave_model  (Ifc_spi_model);
-
-	parameter Tp = 1;
-
-	default_clock clk_clk;
-	default_reset rst_rst;
-
-	input_clock clk_clk (clk)  <- exposeCurrentClock;
-	input_reset rst_rst (rst) clocked_by(clk_clk)  <- exposeCurrentReset;
-
-
-	method iss (ss )
-		 enable((*inhigh*)iss_enable) clocked_by(clk_clk) reset_by(rst_rst);
-	method isclk (sclk )
-		 enable((*inhigh*)isclk_enable) clocked_by(clk_clk) reset_by(rst_rst);
-	method imosi (mosi )
-		 enable((*inhigh*)imosi_enable) clocked_by(clk_clk) reset_by(rst_rst);
-	method miso omiso ()
-		 clocked_by(clk_clk) reset_by(rst_rst);
-
-	schedule iss C iss;
-	schedule iss CF isclk;
-	schedule iss CF imosi;
-	schedule iss CF omiso;
-	schedule isclk C isclk;
-	schedule isclk CF imosi;
-	schedule isclk CF omiso;
-	schedule imosi C imosi;
-	schedule imosi CF omiso;
-	schedule omiso CF omiso;
-endmodule
-
+  (*synthesize*)
+  module mkdummy(Ifc_spi_controller#(32, 64, 0));
+	  let core_clock<-exposeCurrentClock;
+  	let core_reset<-exposeCurrentReset;
+    let ifc();
+    mkspi_controller#(core_clock, core_reset) _temp(ifc);
+    return ifc;
+  endmodule
+endpackage
 
