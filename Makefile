@@ -8,7 +8,7 @@ TOP_MODULE:=mkdummy
 BSVBUILDDIR:=./build/
 VERILOGDIR:=./verilog/
 BSVINCDIR:= .:%/Prelude:%/Libraries:%/Libraries/BlueNoC:$(SUPPORTED):$(DIR)
-define_macros:=-D VERBOSITY=2 -D ASSERT=True 
+define_macros:=-D VERBOSITY=2 -D ASSERT=True -D CORE_AXI4=True
 
 ## BFM_V_DIR:=
 VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-initial fast \
