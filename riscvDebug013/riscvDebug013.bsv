@@ -40,7 +40,11 @@ package riscvDebug013;
   import BUtils::*;
   import Semi_FIFOF::*;
   import Clocks::*;
+`ifdef CORE_AXI4
   import AXI4_Types::*;
+`elsif CORE_AXI4Lite
+  import AXI4_Lite_Types::*;
+`endif
   import ConcatReg::*;
   import ConfigReg::*;
   import DReg::*;
@@ -352,7 +356,11 @@ package riscvDebug013;
     endrule
 
     /*    System Bus ACCESS   */
+  `ifdef CORE_AXI4
     AXI4_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
+  `elsif CORE_AXI4Lite
+    AXI4_Lite_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Lite_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
+  `endif
 
     //+ rule :: access_system_bus
     //+
@@ -435,16 +443,28 @@ package riscvDebug013;
       if(detect_error == pack(SbNoError))begin
           `logLevel( debug, 1, $format("DEBUG:Memory Access-Addr:%h ,Op:%b ",address,readAccess))
         if(readAccess)begin
+        `ifdef CORE_AXI4
           let read_request = AXI4_Rd_Addr {araddr: truncate(address),aruser: 0, arlen: 0,
             arsize: size, arburst: 'b01,arid:`FIVO(AxiID), arprot:'d3};
+        `elsif CORE_AXI4Lite
+          let read_request = AXI4_Lite_Rd_Addr {araddr: truncate(address),aruser: 0,
+            arsize: truncate(size), arprot:'d3};
+        `endif
           master_xactor.i_rd_addr.enq(read_request);
 					rg_lower_addr_bits<= truncate(address);
         end
         else begin
+        `ifdef CORE_AXI4
           let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
             wstrb: truncate(write_strobe),wlast:True, wid:`FIVO(AxiID)};
           let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0,
             awlen: 0, awsize: size, awburst: 'b01,awid:`FIVO(AxiID), awprot:'d3};
+        `elsif CORE_AXI4Lite
+          let request_data  = AXI4_Lite_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
+            wstrb: truncate(write_strobe)};
+          let request_address = AXI4_Lite_Wr_Addr{ awaddr: address, awuser:0,
+                                                    awsize: truncate(size), awprot:'d3};
+        `endif
           master_xactor.i_wr_addr.enq(request_address) ;
           master_xactor.i_wr_data.enq(request_data) ;
         end
@@ -467,7 +487,11 @@ package riscvDebug013;
     rule responseSystemBusRead(sbBusy==1);
       let response <- pop_o(master_xactor.o_rd_data);
       // if width less than 32 upper bits can take on anything - spec
+    `ifdef CORE_AXI4
       if (response.rresp==AXI4_OKAY && (response.rid==`FIVO(AxiID))) begin
+    `elsif CORE_AXI4Lite
+      if (response.rresp==AXI4_LITE_OKAY) begin
+    `endif
 				Bit#(TAdd#(TLog#(TDiv#(DXLEN,8)),3)) lv_shift = {rg_lower_addr_bits, 3'd0};
         Bit#(DXLEN) resp= response.rdata >> lv_shift;
         sbData0<=resp[31:0] ;
@@ -483,7 +507,11 @@ package riscvDebug013;
 
     rule responseSystemBusWrite(sbBusy==1);
       let response <- pop_o(master_xactor.o_wr_resp) ;
+    `ifdef CORE_AXI4
       if(response.bresp == AXI4_OKAY && (response.bid==`FIVO(AxiID)))begin
+    `elsif CORE_AXI4Lite
+      if(response.bresp == AXI4_LITE_OKAY)begin
+    `endif
           `logLevel( debug, 1, $format("DEBUG: Write Done Successfully"))
       end
       else begin

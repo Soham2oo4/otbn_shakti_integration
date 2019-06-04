@@ -36,16 +36,18 @@ package debug_halt_loop;
 
   import AXI4_Types::*;
   import AXI4_Fabric::*;
+  import AXI4_Lite_Types::*;
+  import AXI4_Lite_Fabric::*;
   import Semi_FIFOF::*;
   import BUtils::*;
 
-  interface Ifc_debug_halt_loop#(numeric type awidth, 
+  interface Ifc_debug_halt_loop_axi4#(numeric type awidth, 
                                 numeric type dwidth, 
                                 numeric type uwidth);
     interface AXI4_Slave_IFC#(awidth, dwidth, uwidth) slave;
   endinterface
 
-  module mkdebug_halt_loop(Ifc_debug_halt_loop#(awidth, dwidth, uwidth))
+  module mkdebug_halt_loop_axi4(Ifc_debug_halt_loop_axi4#(awidth, dwidth, uwidth))
     provisos(Add#(a__, dwidth, 128),
              Mul#(32, b__, dwidth),
              Mul#(16, c__, dwidth),
@@ -86,6 +88,56 @@ package debug_halt_loop;
       let aw <- pop_o(s_xactor.o_wr_addr);
       let w <- pop_o(s_xactor.o_wr_data);
 	    let b = AXI4_Wr_Resp {bresp : AXI4_SLVERR, buser : aw.awuser, bid : w.wid};
+  	  s_xactor.i_wr_resp.enq (b);
+    endrule
+
+    interface slave = s_xactor.axi_side;
+  endmodule
+  
+  interface Ifc_debug_halt_loop_axi4lite#(numeric type awidth, 
+                                numeric type dwidth, 
+                                numeric type uwidth);
+    interface AXI4_Lite_Slave_IFC#(awidth, dwidth, uwidth) slave;
+  endinterface
+
+  module mkdebug_halt_loop_axi4lite(Ifc_debug_halt_loop_axi4lite#(awidth, dwidth, uwidth))
+    provisos(Add#(a__, dwidth, 128),
+             Mul#(32, b__, dwidth),
+             Mul#(16, c__, dwidth),
+             Mul#(8, d__, dwidth));
+    AXI4_Lite_Slave_Xactor_IFC#(awidth, dwidth, uwidth) s_xactor <- mkAXI4_Lite_Slave_Xactor;
+    Reg#(Bit#(32)) instr_array [4];
+    instr_array[0] <- mkReg('h0000100f); // fence.i
+    instr_array[1] <- mkReg('h00000013); // nop
+    instr_array[2] <- mkReg('hffdff06f); // j pc -4
+    instr_array[3] <- mkReg('h0000006f); // self-loop
+
+    rule recieve_read;
+      let req <- pop_o(s_xactor.o_rd_addr);
+
+      AXI4_Lite_Rd_Data#(dwidth, uwidth) resp = AXI4_Lite_Rd_Data {rresp : AXI4_LITE_OKAY, rdata: ? , 
+        ruser : req.aruser};
+
+      Bit#(128) line = {instr_array[3], instr_array[2], instr_array[1], instr_array[0]};
+      line = line >> {req.araddr[3:0],3'b0};
+
+      Bit#(dwidth) data = truncate(line);
+      case (req.arsize) 
+        'd0: data = duplicate(data[7:0]); // byte access
+        'd1: data = duplicate(data[15:0]); // half-word access
+        'd2: data = duplicate(data[31:0]); // word access
+        default: data = data;
+      endcase
+
+      resp.rdata = data;
+
+      s_xactor.i_rd_data.enq(resp);
+    endrule
+
+    rule receive_write;
+      let aw <- pop_o(s_xactor.o_wr_addr);
+      let w <- pop_o(s_xactor.o_wr_data);
+	    let b = AXI4_Lite_Wr_Resp {bresp : AXI4_LITE_SLVERR, buser : aw.awuser};
   	  s_xactor.i_wr_resp.enq (b);
     endrule
 

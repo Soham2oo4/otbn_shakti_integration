@@ -111,6 +111,7 @@ typedef enum{
 		} Receive_state deriving(Bits, Eq, FShow);
 
 
+(*always_ready, always_enabled*)
 interface Ifc_spi_io;
 	method bit mosi;
 	method bit sclk;
