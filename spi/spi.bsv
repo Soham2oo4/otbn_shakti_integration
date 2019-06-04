@@ -135,7 +135,7 @@ interface Ifc_spi_controller#(numeric type addr_width,
                               numeric type data_width,
                               numeric type user_width);
 	interface Ifc_spi_io io;
-  interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) axi_slave;
+  interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 endinterface
 	
 (*conflict_free="rl_transmit_data_to_fifo, rl_transmit_start"*)
@@ -693,7 +693,7 @@ module mkspi_controller#(Clock slow_clk, Reset slow_rst)(Ifc_spi_controller#(add
   
   interface io = spi.io;
   
-  interface axi_slave = s_xactor_spi.axi_side;
+  interface slave = s_xactor_spi.axi_side;
 
 endmodule
 
