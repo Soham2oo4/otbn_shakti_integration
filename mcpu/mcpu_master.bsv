@@ -26,6 +26,7 @@ package mcpu_master;
 //import TriState ::*;
 import FIFOF ::*;
 import mcpu_defines ::*;
+`include "Logger.bsv"
 //import Clocks ::*;
 /*
    READ CYCLE
@@ -125,6 +126,10 @@ Data_mode :01 byte
   (*synthesize*)
 
     module mkmcpumaster(Mcpu_master);
+
+
+
+    String mcpu_master = " ";
     //Fifos to get request and send response
     FIFOF #(Req_mcpu) ff_cpu_req <- mkFIFOF;
     FIFOF #(Resp_mcpu) ff_cpu_resp <- mkFIFOF;
@@ -176,14 +181,18 @@ Data_mode :01 byte
     rule rcv_req_new(rg_master_state == RCV_REQ && rg_cntl_wd == 2'b00 && (halt_l == 1'b1) &&
     (berr_l==1'b1)) ;//To recieve new request
       let req =mcpu_req;
-      $display("MASTER_STATE 1: receiving request to address %h req_type:%h fun_code:%h ",req.addr,req.rd_req,req.fun_code,$time);
+
+      `logLevel( mcpu_master, 1, $format("MCPU_MASTER:Request received to address %h req_type\
+      %h",req.addr,req.rd_req))
+      `logLevel( mcpu_master, 1, $format("MCPU_MASTER:funcode: %h mode of operation:\
+      %h",req.fun_code,req.mode))
+
      // ff_cpu_req.deq();
       rg_addr <= req.addr;
       rg_mode <= req.mode;
       rg_addr_en <= True;
       rg_fun_code_en <= True;
       rg_mode_en <= True;
-      $display("mode of operation %b",req.mode);
       rg_fun_code <= req.fun_code;
       rg_wr_l <= req.rd_req;
       rg_master_state <= PRC_REQ_1;
@@ -294,7 +303,7 @@ Data_mode :01 byte
      */
 
     rule prc_req_1(rg_master_state==PRC_REQ_1);
-     `ifdef verbose $display("MASTER_STATE 2: Activating address strobe",$time);`endif
+      `logLevel( mcpu_master, 1, $format("MASTER_STATE 2: Activating address strobe"))
       rg_as_l <= 0;
       rg_master_state <= PRC_REQ_2; 
       rg_ds_l <= 0;
@@ -303,12 +312,12 @@ Data_mode :01 byte
     endrule
     /*
        In PRC_REQ_2
-       1. Data strobe is asserted in write  cycle on receiving ack,halt or bus error cycle
+       1.Wait till ack received
      */
     
     rule prc_req_2(rg_master_state==PRC_REQ_2);		
     begin
-  //    $display("MASTER_STATE_3 ",$time);
+      `logLevel(mcpu_master,1,$format("MASTER_STATE_3 :WAIT"))
       if (({dsack_0_l,dsack_1_l}!=2'b11)||(berr_l==1'b0)||(halt_l==1'b0))
       begin
       rg_master_state <= PRC_REQ_3;
@@ -322,11 +331,12 @@ Data_mode :01 byte
      */
 
     rule req_wait((rg_master_state == PRC_REQ_3)&&(({dsack_0_l,dsack_1_l} != 2'b11)||
-    (berr_l == 1'b0)||(halt_l == 1'b0)));  
+    (berr_l == 1'b0)||(halt_l == 1'b0))); 
+
       rg_master_state <= LATCH_DATA;
-      $display(" MASTER_STATE_4:",$time); 
+      `logLevel(mcpu_master,1,$format(" MASTER_STATE_4"))
+
       if({dsack_0_l,dsack_1_l} == rg_mode) begin
-        $display("detected response with mode %h",rg_mode,$time);
         rg_cntl_wd <= 2'b00;//Done can take the next request
       end
       //if a 32 bit word r/w  fro/to  a 16 bit port      
@@ -353,43 +363,38 @@ Data_mode :01 byte
       else if(berr_l==1'b0) begin			
           let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,8'b0},
           berr:1};
-          `ifdef verbose $display("Master receiving bus_error");`endif
           mcpu_resp<=resp_data;
       end
       else
       if (rg_mode==2'b01 )//Receiving 8 bit data
       case({dsack_0_l,dsack_1_l})
-       //......................................SLAVE PORT..............................//:-32 byte
-      //.......................................................................................
+//......................................SLAVE PORT..............................//:-32 byte
+//.......................................................................................
        2'b00 :
        case({rg_addr[1],rg_addr[0]})//Position where byte read from depends on A1,A0          
            2'b00 :
             begin
-              `ifdef verbose $display("Master recieved data %h rg_addr:00",rg_data_in_4);`endif
               let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-                rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-             mcpu_resp<=resp_data; 
+              rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
              end
            2'b01 :
             begin
               let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
               rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data;
-             `ifdef verbose $display("Master recieved data %h rg_addr 01",rg_data_in_3);`endif
             end
           2'b10 :
           begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-              rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            `ifdef verbose $display("Master recieved data %h rg_addr :10",rg_data_in_2);`endif
-            mcpu_resp<=resp_data;
+             let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
+             rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+             mcpu_resp<=resp_data;
           end
           2'b11 :
           begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-              rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            `ifdef verbose $display("Master recieved data %h rg_addr: 11",rg_data_in_1);`endif
-            mcpu_resp<=resp_data;
+             let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
+             rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+             mcpu_resp<=resp_data;
           end
       endcase
 
@@ -420,27 +425,29 @@ Data_mode :01 byte
         if(rg_mode==2'b10)//Receiving 16 bit data
         
         case({dsack_0_l,dsack_1_l})
-          //...........SLAVE PORT....................:-32 byte
+        //..........................SLAVE PORT......................................32 byte
           2'b00 :
               case({rg_addr[1],rg_addr[0]})//Position where byte read from depends on A1,A0          
+                  
                   2'b00 :
                   begin
                    let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_3,
-                      rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                   rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
                    if(endian(rg_addr,rg_sram_big)==Big)
-                    resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,
-                      rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                    mcpu_resp<=resp_data;
+                   resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,
+                   rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                   mcpu_resp<=resp_data;
                   end
+
                   2'b10 :
                   begin
-                  let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_1,
-                    rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                  if (endian(rg_addr,rg_sram_big)==Big)
-                    resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_2,
-                      rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                  mcpu_resp<=resp_data;
-                end
+                   let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_1,
+                   rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                   if (endian(rg_addr,rg_sram_big)==Big)
+                   resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_2,
+                   rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                   mcpu_resp<=resp_data;
+                  end
 
               endcase
 
@@ -460,8 +467,8 @@ Data_mode :01 byte
             let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_3,rg_data_in_4},
             berr:0,port_type:{dsack_0_l,dsack_1_l}};      
             if (endian(rg_addr,rg_sram_big)==Big)
-              resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_4,rg_data_in_3},
-              berr:0,port_type:{dsack_0_l,dsack_1_l}};
+            resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_4,rg_data_in_3},
+            berr:0,port_type:{dsack_0_l,dsack_1_l}};
             mcpu_resp<=resp_data;
           end
 
@@ -475,39 +482,37 @@ Data_mode :01 byte
           begin
             let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{rg_data_in_1,rg_data_in_2,rg_data_in_3,rg_data_in_4},
             berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            `ifdef verbose $display("Master recieved data %h",{rg_data_in_1,rg_data_in_2,rg_data_in_3,rg_data_in_4});`endif
             if (endian(rg_addr,rg_sram_big)==Big)
-              resp_data = Resp_mcpu{endian_big:rg_sram_big,
-              data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+            resp_data = Resp_mcpu{endian_big:rg_sram_big,
+            data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
             mcpu_resp<=resp_data; 
-
           end
         //.......................................16 bit port....................................//	
         2'b10 :
         begin
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_3,rg_data_in_4},
-          berr:0,port_type:{dsack_0_l,dsack_1_l}};
-          if(endian(rg_addr,rg_sram_big)==Big)
-          resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,rg_data_in_3},
-          berr:0,port_type:{dsack_0_l,dsack_1_l}};
-          mcpu_resp<=resp_data;
+            let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_3,rg_data_in_4},
+            berr:0,port_type:{dsack_0_l,dsack_1_l}};
+            if(endian(rg_addr,rg_sram_big)==Big)
+            resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,rg_data_in_3},
+            berr:0,port_type:{dsack_0_l,dsack_1_l}};
+            mcpu_resp<=resp_data;
         end
 
         //........................If slave is an 8 bit port......................................//		
         2'b01  : 
         begin
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4},
-          berr:0,port_type:{dsack_0_l,dsack_1_l}};
-          mcpu_resp<=resp_data;
+            let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4},
+            berr:0,port_type:{dsack_0_l,dsack_1_l}};
+            mcpu_resp<=resp_data;
         end
 
         endcase
 
         else
         begin
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big,
-          data:{24'b0,rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-          mcpu_resp<=resp_data;
+            let resp_data = Resp_mcpu{endian_big:rg_sram_big,
+            data:{24'b0,rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+            mcpu_resp<=resp_data;
         end
         rg_master_state<=END_REQ;
     endrule
@@ -520,7 +525,7 @@ Data_mode :01 byte
    */
 
     rule end_req(rg_master_state==END_REQ);
-      `ifdef verbose $display("\tMASTER_STATE_6:Releasing data strobes",$time);`endif
+      `logLevel( mcpu_master, 1, $format("MASTER_STATE 6:Releasing data strobes"))
       rg_ds_l<=1;
       rg_as_l<=1;
       rg_data_control<=4'b0000;
@@ -532,7 +537,7 @@ Data_mode :01 byte
         if(((dsack_0_l!=0)&&(dsack_1_l!=0))||(berr_l!=1'b0))
         rg_master_state<=RCV_REQ;
         if(rg_cntl_wd==2'b00) begin
-          `ifdef verbose $display("\tMASTER_STATE_7:Releasing address strobes",$time);`endif
+          `logLevel( mcpu_master, 1, $format("MASTER_STATE 7:Releasing data strobes"))
           rg_addr_en<=False;
           rg_mode_en<=False;
           rg_fun_code_en<=False;

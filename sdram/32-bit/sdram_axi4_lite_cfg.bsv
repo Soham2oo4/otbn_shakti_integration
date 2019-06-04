@@ -50,6 +50,8 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package sdram_axi4_lite_cfg;
 `include "sdram.defines"
 import Semi_FIFOF        :: *;
+import AXI4_Lite_Types   :: *;
+import AXI4_Lite_Fabric  :: *;
 import AXI4_Types   :: *;
 import AXI4_Fabric  :: *;
 import bsvmksdrc_top :: *;
@@ -64,11 +66,8 @@ import FIFOLevel ::*;
 //import device_common::*;
 
 export Ifc_sdram_out      (..);
-export Ifc_sdram_wrap     (..); // interface export
-export mksdram_wrap;        // module export    
-
-`define verbose
-`define sdram_ext_clk
+export Ifc_sdram_wrap_axi4lite     (..); // interface export
+export mksdram_wrap_axi4lite;        // module export    
 
 interface Ifc_sdram_out#(numeric type io_width);
 	(*always_enabled,always_ready*)
@@ -87,7 +86,7 @@ interface Ifc_sdram_out#(numeric type io_width);
     interface Clock sdram_clk;    
 endinterface
 
-interface Ifc_sdram_axi4#(
+interface Ifc_sdram_wrap_axi4lite#(
 						   numeric type addr_cntrl_width,
 						   numeric type data_cntrl_width,
 						   numeric type addr_width, 
@@ -97,7 +96,7 @@ interface Ifc_sdram_axi4#(
                            numeric type rfrsh_timer_width,
                            numeric type rfrsh_row_width);                       
       interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave_mem;
-      interface AXI4_Lite_Slave_IFC#(addr_cntrl_width, data_cntrl_width, user_width) slave_cfg;
+      interface AXI4_Slave_IFC#(addr_cntrl_width, data_cntrl_width, user_width) slave_cfg;
 	 (*always_ready, always_enabled*)
       interface Ifc_sdram_out#(io_width) io;
 endinterface
@@ -132,7 +131,7 @@ endfunction
 
 //(*synthesize*)
 //(*preempts="rl_send_rd_data, rl_check_drop"*)    
-module mksdram_wrap#(Clock slow_clk, Reset slow_rst) (Ifc_sdram_wrap#(
+module mksdram_wrap_axi4lite `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap_axi4lite#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
 													  addr_width, 
