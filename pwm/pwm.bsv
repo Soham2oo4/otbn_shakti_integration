@@ -44,6 +44,7 @@ package pwm;
 
   typedef enum {Byte=0, HWord=1, Word=2, DWord=3} AccessSize deriving(Bits,Eq,FShow);
 
+  (*always_ready, always_enabled*)
 	interface PWMIO;
 		method Bit#(1) pwm_o;
 	endinterface
