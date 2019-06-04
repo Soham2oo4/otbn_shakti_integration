@@ -2,6 +2,7 @@ package debug_types;
 
   import GetPut :: *;
   import AXI4_Types::*;
+  import AXI4_Lite_Types::*;
   import Connectable::*;
   // Limit What is Exported !
 
@@ -119,7 +120,11 @@ package debug_types;
   interface Ifc_riscvDebug013;
     interface Ifc_DM_DTM dtm;
     interface Debug_Hart_Ifc hart;
+  `ifdef CORE_AXI4
     interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+  `elsif CORE_AXI4Lite
+    interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+  `endif
     method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
     interface Reset dmactive_reset;
   endinterface
