@@ -150,6 +150,16 @@ endinterface
 (*conflict_free="rl_transmit_data_to_fifo, rl_receive_fifo_to_read_datareg"*)
 (*conflict_free="rl_transmit_start, rl_receive_fifo_to_read_datareg"*)
 (*conflict_free="rl_data_transmit, rl_receive_fifo_to_read_datareg"*)
+(*conflict_free="rl_transmit_idle, rl_receive_fifo_to_read_datareg"*)
+(*conflict_free="rl_write_to_cfg, rl_data_receive"*)
+(*conflict_free="rl_write_to_cfg, rl_transmit_idle"*)
+(*preempts="rl_transmit_idle, rl_chip_select_control"*)
+(*preempts="rl_receive_idle, rl_chip_select_control"*)
+(*preempts="rl_data_receive, rl_chip_select_control"*)
+(*preempts="rl_receive_fifo_to_read_datareg, rl_write_to_cfg"*)
+(*preempts="rl_transmit_data_to_fifo, rl_write_to_cfg"*)
+
+
 module mkspi(Ifc_spi#(addr_width, data_width))
   provisos(
           Add#(a__, 8, addr_width),
@@ -343,8 +353,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   endrule
   
   // This rule takes care of the chip select pin control
-  rule rl_chip_select_control;
-  	if(rg_spi_cfg_cr1.ssm == 1)
+  rule rl_chip_select_control(rg_spi_cfg_cr1.ssm == 1);
   		rg_nss <= rg_spi_cfg_cr1.ssi;
   endrule
   
