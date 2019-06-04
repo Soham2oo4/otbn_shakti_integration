@@ -138,58 +138,28 @@ interface Ifc_spi_controller#(numeric type addr_width,
   interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) axi4_slave;
 endinterface
 	
-
+(*conflict_free="rl_transmit_data_to_fifo, rl_transmit_start"*)
+(*conflict_free="rl_transmit_data_to_fifo, rl_data_transmit"*)
+(*conflict_free="rl_transmit_data_to_fifo, rl_receive_start_receive"*)
+(*conflict_free="rl_transmit_start, rl_receive_start_receive"*)
+(*conflict_free="rl_data_transmit, rl_receive_start_receive"*)
+(*conflict_free="rl_transmit_data_to_fifo, rl_data_receive"*)
+(*conflict_free="rl_transmit_idle, rl_data_receive"*)
+(*conflict_free="rl_transmit_start,rl_data_receive"*)
+(*conflict_free="rl_data_transmit, rl_data_receive"*)
+(*conflict_free="rl_transmit_data_to_fifo, rl_receive_fifo_to_read_datareg"*)
+(*conflict_free="rl_transmit_start, rl_receive_fifo_to_read_datareg"*)
+(*conflict_free="rl_data_transmit, rl_receive_fifo_to_read_datareg"*)
 module mkspi(Ifc_spi#(addr_width, data_width))
   provisos(
           Add#(a__, 8, addr_width),
           Add#(b__, 32, data_width),
           Mul#(32, c__, data_width));
 
-  Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkReg(Cr1_cfg{
-  											rsvd 	  : 0,
-  											bidimode  : 0,
-  											bidioe    : 0,
-  											crcen     : 0,
-  											crcnext   : 0,
-  											crcl	  : 0,
-  											rxonly	  : 0,
-  											ssm		  : 0,
-  											ssi		  : 0,
-  											lsbfirst  : 0,
-  											spe		  : 0,
-  											br		  : 0,
-  											mstr	  : 0,
-  											cpol	  : 0,
-  											cpha	  : 0
-  										});
-  Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkReg(Cr2_cfg{
-  											rsvd	: 0,
-  											rx_start : 0,
-  											ldma_tx : 0,
-  											ldma_rx : 0,
-  											frxth	: 0,
-  											ds		: 0,
-  											txeie	: 0,
-  											rxneie  : 0,
-  											errie	: 0,
-  											frf		: 0,
-  											nssp	: 0,
-  											ssoe    : 0,
-  											txdmaen : 0,
-  											rxdmaen : 0
-  										});
-  Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkConfigReg(Sr_cfg{
-  											rsvd1  : 0,
-  											ftlvl  : 0,
-  											frlvl  : 0,
-  											fre	   : 0,
-  //											bsy	   : 0, // read_only reg
-  											ovr	   : 0,
-  											modf   : 0,
-  											crcerr : 0,
-  											rsvd2  : 0,
-  											txe	   : 0,
-  											rxne   : 0});
+
+  Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkReg(unpack(0));
+  Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkReg(unpack(0));
+  Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkConfigReg(unpack(0));
   Reg#(Bit#(32))		rg_spi_cfg_dr     <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_crcpr  <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_rxcrcr <- mkReg(0);
@@ -200,7 +170,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   // MOSI and MISO signals of the spi
   Wire#(bit)			wr_spi_in_io1		<- mkWire();
   Wire#(bit)			wr_spi_in_io2		<- mkWire();
-  Reg#(bit)			wr_spi_out_io1		<- mkReg(0);//TODO making wr_spi_out_io1 as Reg
+  Reg#(bit)			  wr_spi_out_io1		<- mkReg(0);//TODO making wr_spi_out_io1 as Reg
   Wire#(bit)			wr_spi_out_io2		<- mkWire();
   Wire#(bit)			wr_spi_en_io1		<- mkWire();
   Wire#(bit)			wr_spi_en_io2		<- mkWire();
@@ -513,13 +483,13 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   endrule
   		
   /************* RECEIVE STATE ************/
-  //This rule will decide the start of the receive state machine 	
-  rule rl_receive_idle(rg_receive_state == IDLE);
-  	if(rg_spi_cfg_cr2.rx_start == 1 && rg_transmit_state == IDLE) begin // TODO define trigger event to start receive state to be defined
+  //This rule will decide the start of the receive state machine 
+  // TODO define trigger event to start receive state to be defined
+  rule rl_receive_idle(rg_receive_state == IDLE && rg_spi_cfg_cr2.rx_start == 1 
+                                                && rg_transmit_state == IDLE); 
   		rg_receive_state <= START_RECEIVE;
   		rg_nss <= 0;
   		`logLevel( spi, 0, $format(" SPI : Receive has started"))
-  	end
   endrule
   
   rule rl_receive_start_receive(rg_receive_state == START_RECEIVE && rg_nss == 0);
