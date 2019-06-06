@@ -21,6 +21,38 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
+mmap-start
+slave_bound: 16 bytes
+
+schema-start
+module:
+    type: string
+    regex: ^pwm$
+type:
+    type: string
+    regex: ^device$
+clusters:
+    type: list
+    schema:
+        type: string
+roles:
+    type: dict
+    schema:
+        master:
+            type: list
+        slave:
+            type: list
+parameters:
+    type: dict
+    schema:
+        pwmwidth:
+            type: integer
+            min: 8
+        clock:
+            type: integer
+            max: 1
+schema-end
+--------------------------------------------------------------------------------------------------
 */
 
 package pwm_template;

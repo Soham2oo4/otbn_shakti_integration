@@ -21,6 +21,42 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
+mmap-start
+slave_bound: 12 bytes
+
+schema-start
+module:
+    type: string
+    regex: ^clint$
+type:
+    type: string
+    regex: ^device$
+clusters:
+    type: list
+    schema:
+        type: string
+roles:
+    type: dict
+    schema:
+        master:
+            type: list
+            schema:
+                type: string
+                regex: ^(null$
+                nullable: True
+        slave:
+            type: list
+parameters:
+    type: dict
+    schema:
+        msip_size:
+            type: integer
+        clock:
+            type: string
+            regex: ^null$
+            nullable: True
+schema-end
+--------------------------------------------------------------------------------------------------
 */
 package clint_template;
 	

@@ -21,6 +21,43 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
+schema-start
+module:
+    type: string
+    regex: ^bram$
+type:
+    type: string
+    regex: ^device$
+clusters:
+    type: list
+    schema:
+        type: string
+roles:
+    type: dict
+    schema:
+        master:
+            type: list
+            schema:
+                type: string
+                regex: ^(null$
+                nullable: True
+        slave:
+            type: list
+parameters:
+    type: dict
+    schema:
+        index_size:
+            type: integer
+        clock:
+            type: string
+            regex: ^null$
+            nullable: True
+        msb_file:
+            type: string
+        lsb_file:
+            type: string
+schema-end
+--------------------------------------------------------------------------------------------------
 */
 package bram_template;
   import bram::*;
