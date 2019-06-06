@@ -82,15 +82,6 @@ package gpio;
 		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 		method Vector#(ionum,Bit#(1))   gpio_out;
 		method Vector#(ionum,Bit#(1))   gpio_out_en;
-		method Vector#(ionum,Bit#(1))   gpio_DRV0;
-		method Vector#(ionum,Bit#(1))   gpio_DRV1;
-		method Vector#(ionum,Bit#(1))   gpio_DRV2;
-		method Vector#(ionum,Bit#(1))   gpio_PD;
-		method Vector#(ionum,Bit#(1))   gpio_PPEN;
-		method Vector#(ionum,Bit#(1))   gpio_PRG_SLEW;
-		method Vector#(ionum,Bit#(1))   gpio_PUQ;
-		method Vector#(ionum,Bit#(1))   gpio_PWRUPZHL;
-		method Vector#(ionum,Bit#(1))   gpio_PWRUP_PULL_EN;
   endinterface
 	interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
     (*always_ready,always_enabled*)
@@ -109,15 +100,6 @@ package gpio;
 		Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigReg(False));
 		Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigReg(0));	
 		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) drv0_reg			<-replicateM(mkConfigReg(1'b1));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) drv1_reg			<-replicateM(mkConfigReg(1'b1));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) drv2_reg			<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) pd_reg				<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) ppen_reg			<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) prg_slew_reg		<-replicateM(mkConfigReg(1'b1));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) puq_reg				<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) pwrupzhl_reg		<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) pwrup_pull_en_reg	<-replicateM(mkConfigReg(0));	
 		Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigReg(0));
 
     let vionum = valueOf(ionum);
@@ -144,60 +126,6 @@ package gpio;
 		  		temp[i]=pack(direction_reg[i]);
 		  	return temp;
 		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_DRV0;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(drv0_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_DRV1;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(drv1_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_DRV2;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(drv2_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PD;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(pd_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PPEN;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(ppen_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PRG_SLEW;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(prg_slew_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PUQ;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(puq_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PWRUPZHL;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(pwrupzhl_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PWRUP_PULL_EN;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(pwrup_pull_en_reg[i]);
-		  	return temp;
-		  endmethod
     endinterface;
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
@@ -217,36 +145,9 @@ package gpio;
 			if( addr[6:0]>=`dir_reg && addr[6:0]<`dataout_reg )
 				for(Integer i=0;i<vionum ;i=i+1)
 					direction_reg[i]<=unpack(datamask[i]);
-			else if(addr[6:0]>=`dataout_reg  && addr[6:0]<`drv0_reg )
+			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< (`dataout_reg+8) )
 				for(Integer i=0;i<vionum ;i=i+1)
 					dataout_register[i]<=datamask[i];
-			else if(addr[6:0]>=`drv0_reg  && addr[6:0]<`drv1_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					drv0_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`drv1_reg  && addr[6:0]<`drv2_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					drv1_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`drv2_reg  && addr[6:0]<`addr_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					drv2_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`addr_reg  && addr[6:0]<`ppen_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					pd_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`ppen_reg  && addr[6:0]<`prg_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					ppen_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`prg_reg  && addr[6:0]<`puq_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					prg_slew_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`puq_reg  && addr[6:0]<`pwrupzhl_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					puq_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`pwrupzhl_reg && addr[6:0]<`pwruppull_reg  )
-				for(Integer i=0;i<vionum ;i=i+1)
-					pwrupzhl_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`pwruppull_reg && addr[6:0]< (`pwruppull_reg+8) )
-				for(Integer i=0;i<vionum ;i=i+1)
-					pwrup_pull_en_reg[i]<=datamask[i];
 			else
 				success=False;
 			return success;	
@@ -264,45 +165,9 @@ package gpio;
 				for(Integer i=0;i<vionum ;i=i+1)
 					temp[i]=pack(direction_reg[i]);
 			end
-			else if(addr[6:0]>=`dataout_reg  && addr[6:0]<`drv0_reg ) begin
+			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< (`dataout_reg + 8)) begin
 				for(Integer i=0;i<vionum ;i=i+1)
 					temp[i]=datain_register[i];
-			end
-			else if(addr[6:0]>=`drv0_reg  && addr[6:0]<`drv1_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=drv0_reg[i];
-			end
-			else if(addr[6:0]>=`drv1_reg  && addr[6:0]<`drv2_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=drv1_reg[i];
-			end
-			else if(addr[6:0]>=`drv2_reg  && addr[6:0]<`addr_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=drv2_reg[i];
-			end
-			else if(addr[6:0]>=`addr_reg  && addr[6:0]<`ppen_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=pd_reg[i];
-			end
-			else if(addr[6:0]>=`ppen_reg  && addr[6:0]<`prg_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=ppen_reg[i];
-			end
-			else if(addr[6:0]>=`prg_reg  && addr[6:0]<`puq_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=prg_slew_reg[i];
-			end
-			else if(addr[6:0]>=`puq_reg  && addr[6:0]<`pwrupzhl_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=puq_reg[i];
-			end
-			else if(addr[6:0]>=`pwrupzhl_reg && addr[6:0]<`pwruppull_reg  )begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=pwrupzhl_reg[i];
-			end
-			else if(addr[6:0]>=`pwruppull_reg && addr[6:0]< (`pwruppull_reg+8) )begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=pwrup_pull_en_reg[i];
 			end
 			else
 				success=False;
