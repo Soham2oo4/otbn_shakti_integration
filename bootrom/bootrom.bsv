@@ -119,13 +119,13 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
   module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, data_width,
-                                                                          user_width, index_width))
+                                                                          user_width, index_size))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width), 
              Add#(3, d__, TLog#(data_width)));
-    UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
+    UserInterface#(addr_width, data_width, index_size) dut <- mkbootrom(slave_base);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
@@ -198,12 +198,12 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
 
 
   module mkbootrom_axi4lite#(parameter Integer slave_base)(Ifc_bootrom_axi4lite#(addr_width,
-                                                              data_width, user_width, index_width))
+                                                              data_width, user_width, index_size))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width));
-    UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
+    UserInterface#(addr_width, data_width, index_size) dut <- mkbootrom(slave_base);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     Reg#(Bit#(2)) rg_size <-mkReg(3);

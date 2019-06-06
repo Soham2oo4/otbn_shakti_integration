@@ -43,12 +43,12 @@ roles:
 parameters:
     type: dict
     schema:
-        bootaddrwidth:
-            type: integer
         clock:
             type: string
             regex: ^null$
             nullable: True
+        index_size:
+            type: integer
 schema-end
 --------------------------------------------------------------------------------------------------
 */
