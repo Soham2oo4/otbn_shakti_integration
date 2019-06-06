@@ -55,6 +55,8 @@ parameters:
             type: string
             regex: ^null$
             nullable: True
+        tick_count:
+            type: integer
 schema-end
 --------------------------------------------------------------------------------------------------
 */
