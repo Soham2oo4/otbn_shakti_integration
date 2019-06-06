@@ -56,6 +56,8 @@ parameters:
             type: string
         lsb_file:
             type: string
+        modulename:
+            type: string
 schema-end
 --------------------------------------------------------------------------------------------------
 */
