@@ -41,6 +41,11 @@ package err_slave;
 	import AXI4_Lite_Types:: *;
 	import AXI4_Lite_Fabric:: *;
   import Semi_FIFOF::*;
+
+  export Ifc_err_slave_axi4 (..);
+  export Ifc_err_slave_axi4lite (..);
+  export mkerr_slave_axi4;
+  export mkerr_slave_axi4lite;
   
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
