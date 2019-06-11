@@ -40,6 +40,15 @@ roles:
             type: list
         slave:
             type: list
+mmap:
+    type: dict
+    schema:
+        fixed:
+            type: boolean
+        base:
+            type: integer
+        size:
+            type: integer
 parameters:
     type: dict
     schema:

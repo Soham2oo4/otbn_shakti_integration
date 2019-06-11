@@ -26,9 +26,6 @@ Author: Neel Gala
 Email id: neelgala@gmail.com
 Details:
 
-mmap-start
-slave_bound: 12 bytes
-
 schema-start
 module:
     type: string
@@ -51,6 +48,17 @@ roles:
                 nullable: True
         slave:
             type: list
+mmap:
+    type: dict
+    schema:
+        fixed:
+            type: boolean
+        base:
+            type: integer
+        size:
+            type: integer
+            default: 16
+            readonly: True
 parameters:
     type: dict
     schema:

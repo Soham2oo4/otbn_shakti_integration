@@ -21,8 +21,6 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
-mmap-start
-slave_bound: 16 bytes
 
 schema-start
 module:
@@ -46,6 +44,17 @@ roles:
                 nullable: True
         slave:
             type: list
+mmap:
+    type: dict
+    schema:
+        fixed:
+            type: boolean
+        base:
+            type: integer
+        size:
+            type: integer
+            default: 16
+            readonly: True
 parameters:
     type: dict
     schema:
