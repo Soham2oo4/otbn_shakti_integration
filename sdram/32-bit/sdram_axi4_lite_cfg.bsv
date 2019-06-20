@@ -50,10 +50,10 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package sdram_axi4_lite_cfg;
 `include "sdram.defines"
 import Semi_FIFOF        :: *;
-import AXI4_Lite_Types   :: *;
-import AXI4_Lite_Fabric  :: *;
 import AXI4_Types   :: *;
 import AXI4_Fabric  :: *;
+import AXI4_Lite_Types   :: *;
+import AXI4_Lite_Fabric  :: *;
 import bsvmksdrc_top :: *;
 import BUtils            ::*;
 import Connectable ::*;
@@ -96,7 +96,7 @@ interface Ifc_sdram_wrap_axi4lite#(
                            numeric type rfrsh_timer_width,
                            numeric type rfrsh_row_width);                       
       interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave_mem;
-      interface AXI4_Slave_IFC#(addr_cntrl_width, data_cntrl_width, user_width) slave_cfg;
+      interface AXI4_Lite_Slave_IFC#(addr_cntrl_width, data_cntrl_width, user_width) slave_cfg;
 	 (*always_ready, always_enabled*)
       interface Ifc_sdram_out#(io_width) io;
 endinterface
@@ -401,7 +401,6 @@ Wire#(Bit#(data_width))                 wr_app_rd_data <- mkWire(clocked_by clk0
 
 Reg#(Bit#(4))     rg_rid          <- mkReg(0, clocked_by clk0, reset_by rst0);
 //Reg#(bit)         rg_rd_not_active_flag <- mkSyncRegToCC(0,clk0, rst0);
-Reg#(Bit#(4))     rg_ctrl_rid     <- mkReg(0);
 Reg#(Bit#(4))     rg_wid          <- mkReg(0);
 
 Reg#(Write_split_states) rg_wr_split_states <- mkReg(IDLE); 
@@ -511,7 +510,7 @@ Reg#(bit)     rg_odd_len     <- mkReg(0);
 `endif
 // hardcoding the parameter value to resolve provisos
 AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Slave_Xactor;
-AXI4_Slave_Xactor_IFC #(addr_cntrl_width, data_cntrl_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Slave_Xactor;
+AXI4_Lite_Slave_Xactor_IFC #(addr_cntrl_width, data_cntrl_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Lite_Slave_Xactor;
 Ifc_sdram#(io_width, rfrsh_timer_width, rfrsh_row_width) sdr_cntrl <- mksdrc_top(clocked_by clk0, reset_by rst0);
 
 function Action fn_wr_cntrl_reg(Bit#(data_cntrl_width) data, Bit#(addr_cntrl_width) address);
@@ -612,17 +611,25 @@ function Bit#(data_cntrl_width) fn_rd_cntrl_reg(Bit#(addr_cntrl_width) address);
 endfunction
           
 //(*preempts="(rl_pop_read_request, rl_send_rd_data, rl_send_read_data, rl_flush_redundant_data), rl_write_transaction_write_start"*)
+(*conflict_free="rl_for_writing_ctrl_reg, rl_perform_write_to_ctrl"*)
+(*conflict_free="rl_for_read_cntrl_reg, rl_send_ctrl_read_response"*)
+(*conflict_free="rl_for_read_cntrl_reg, sync_ctr_response"*)
+(*conflict_free="rl_write_split_state, synchronize_write_response"*)
+(*conflict_free="rl_pop_read_request, rl_send_rd_data"*)
+(*preempts="rl_intial_polling, rl_write_transaction_write_start"*)
+(*preempts="rl_intial_polling, rl_write_transaction_write_first"*)
+(*preempts="rl_intial_polling, rl_write_transaction_write_data"*)
 
 rule rl_for_writing_ctrl_reg(ff_sync_ctrl_write.notFull);
     let aw <- pop_o(s_xactor_cntrl_reg.o_wr_addr);
     let w  <- pop_o(s_xactor_cntrl_reg.o_wr_data);
     `ifdef verbose $display($time,"\tSDRAM: control_reg written addr %x data %x", aw.awaddr, w.wdata); `endif
-	let status = AXI4_OKAY;
+	let status = AXI4_LITE_OKAY;
 	if(aw.awprot[0] == 1)
 	  ff_sync_ctrl_write.enq(tuple2(aw.awaddr,w.wdata));
 	else
-	 status = AXI4_SLVERR;
-    let w_resp = AXI4_Wr_Resp {bresp: status, buser: 0, bid: aw.awid}; 
+	 status = AXI4_LITE_SLVERR;
+    let w_resp = AXI4_Lite_Wr_Resp {bresp: status, buser: 0}; 
     s_xactor_cntrl_reg.i_wr_resp.enq(w_resp);
 endrule
 
@@ -638,11 +645,10 @@ rule rl_for_read_cntrl_reg;
     let ar <- pop_o(s_xactor_cntrl_reg.o_rd_addr);
 	if(ar.arprot[0] == 1) begin
 	  ff_sync_ctrl_read.enq(ar.araddr);
-	  rg_ctrl_rid<=ar.arid;
 	end
 	else begin
-		let r = AXI4_Rd_Data {rresp: AXI4_SLVERR, rdata:? ,
-		rlast: True, ruser: 0, rid: rg_ctrl_rid};
+		let r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, rdata:? ,
+		ruser: 0};
 		s_xactor_cntrl_reg.i_rd_data.enq(r);
 	end
  endrule
@@ -654,8 +660,8 @@ endrule
 
 rule sync_ctr_response(ff_sync_ctrl_read_response.notEmpty);
 	ff_sync_ctrl_read_response.deq;
-    let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:ff_sync_ctrl_read_response.first ,
-    rlast: True, ruser: 0, rid: rg_ctrl_rid};
+    let r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata:ff_sync_ctrl_read_response.first ,
+     ruser: 0};
     s_xactor_cntrl_reg.i_rd_data.enq(r);
 endrule
 

@@ -608,6 +608,14 @@ function Bit#(data_cntrl_width) fn_rd_cntrl_reg(Bit#(addr_cntrl_width) address);
 endfunction
           
 //(*preempts="(rl_pop_read_request, rl_send_rd_data, rl_send_read_data, rl_flush_redundant_data), rl_write_transaction_write_start"*)
+(*conflict_free="rl_for_writing_ctrl_reg, rl_perform_write_to_ctrl"*)
+(*conflict_free="rl_for_read_cntrl_reg, rl_send_ctrl_read_response"*)
+(*conflict_free="rl_for_read_cntrl_reg, sync_ctr_response"*)
+(*conflict_free="rl_write_split_state, synchronize_write_response"*)
+(*conflict_free="rl_pop_read_request, rl_send_rd_data"*)
+(*preempts="rl_intial_polling, rl_write_transaction_write_start"*)
+(*preempts="rl_intial_polling, rl_write_transaction_write_first"*)
+(*preempts="rl_intial_polling, rl_write_transaction_write_data"*)
 
 rule rl_for_writing_ctrl_reg(ff_sync_ctrl_write.notFull);
     let aw <- pop_o(s_xactor_cntrl_reg.o_wr_addr);
