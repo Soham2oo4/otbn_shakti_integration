@@ -126,6 +126,17 @@ endfunction
 
 //(*synthesize*)
 //(*preempts="rl_send_rd_data, rl_check_drop"*)    
+(*conflict_free="rl_for_writing_ctrl_reg, rl_perform_write_to_ctrl"*)
+(*conflict_free="rl_for_read_cntrl_reg, sync_ctr_response"*)
+(*conflict_free="rl_write_transaction_write_start, rl_write_transaction_write_first"*)
+(*conflict_free="rl_write_transaction_write_start, rl_write_transaction_write_data"*)
+(*conflict_free="rl_intial_polling, rl_write_transaction_write_start"*)
+(*conflict_free="rl_intial_polling, rl_write_transaction_write_first"*)
+(*conflict_free="rl_intial_polling, rl_write_transaction_write_data"*)
+(*conflict_free="rl_read_idle_state, rl_send_rd_data"*)
+(*conflict_free="rl_parallel_data_enq, synchronize_write_response"*)
+(*conflict_free="rl_intial_polling, rl_pop_read_request"*)
+(*conflict_free="rl_write_transaction_write_start, rl_pop_read_request"*)
 module mksdram_wrap `ifdef sdram_ext_clk #(Clock slow_clk, Reset slow_rst)`endif (Ifc_sdram_wrap#(
 													  addr_cntrl_width,
 													  data_cntrl_width,
@@ -590,13 +601,10 @@ rule rl_paralel_read_req_enq(rg_polling_status == True && rg_wr_trnc_flg == Fals
     `ifdef verbose	$display($time,"\tSDRAM: Got Read request from AXI for AddresS: %h arsize %h",ar.araddr, ar.arsize); `endif
 endrule
 
-rule rl_read_idle_state(rg_read_states == IDLE);
-    if(ff_rd_addr.notEmpty() == True) begin
-	    rg_rd_trnc_flg <= True;
-        rg_read_states <= START_READ;
-        `ifdef verbose  $display($time,"\tSDRAM: READ IDLE state"); `endif
-    end
-
+rule rl_read_idle_state(rg_read_states == IDLE && ff_rd_addr.notEmpty() == True);
+    rg_rd_trnc_flg <= True;
+    rg_read_states <= START_READ;
+    `ifdef verbose  $display($time,"\tSDRAM: READ IDLE state"); `endif
 endrule
 
 rule rl_pop_read_request(wr_sdr_init_done == True && rg_read_states == START_READ && (rg_write_states == IDLE || 
@@ -615,10 +623,6 @@ rg_app_req_wr_n <= 1;
 rg_read_states <= READ_DATA;
 `ifdef verbose $display($time,"\t SSSSS SDRAM START_READ length "); `endif
 endrule
-
-//rule rl_check_drop(wr_app_rd_valid == True);
-//	$display($stime(),"\tSDRAM: Controller packet drop");
-//endrule
 
 rule rl_send_rd_data(wr_app_rd_valid == True);
     `ifdef verbose $display($time,"\tSDRAM: READ DATA1 state %x",wr_app_rd_data); `endif
