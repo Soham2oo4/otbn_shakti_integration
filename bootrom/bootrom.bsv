@@ -73,10 +73,10 @@ package bootrom;
 
     // in case data_width is 32-bits, dmemMSB width becomes 0 and only dmemLSB is functional
     BRAM_PORT#(Bit#(index_size ), Bit#(TSub#(data_width, 32))) dmemMSB <- 
-                                     mkBRAMCore1Load(valueOf(TExp#(13)), False, "boot.MSB", False);
+                                     mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "boot.MSB", False);
 
     BRAM_PORT#(Bit#(index_size ), Bit#(32)) dmemLSB <- 
-                                     mkBRAMCore1Load(valueOf(TExp#(13)), False, "boot.LSB", False);
+                                     mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "boot.LSB", False);
   
     Reg#(Bool) read_request_sent <-mkDReg(False);
     Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkReg(tuple2(0,Byte));
