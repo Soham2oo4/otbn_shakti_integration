@@ -4,6 +4,7 @@ package debug_types;
   import AXI4_Types::*;
   import AXI4_Lite_Types::*;
   import Connectable::*;
+
   // Limit What is Exported !
 
   // Constants
@@ -49,6 +50,39 @@ package debug_types;
   typedef 7'h3e SBDATA2;
   typedef 7'h3f SBDATA3;
   typedef 7'h40 HALTSUM0;
+
+  /*- Debug Slave Memory Map (if enabled) 
+    IO Class Slave :: DO NOT CACHE ACCESSES TO THIS DEVICE !
+    Offset :: Contents
+      0x0     Fence 
+      0x4     Halted Loop - nop
+      0x8     Halted Loop - Ebreak
+      0xC     Program Buffer 0
+      0x10    Program Buffer F
+      0x4c    Ebreak
+      0x50    Abstract Data 0 ( Not Required but here for the time being till fleshed out )
+      0x7C    Abstract Data C ( Not Required but here for the time being till fleshed out )
+    0x80-0x9F Shakti Read GPR ROM.
+    0xA0-0xBF Shakti Read FPR ROM.
+    0xC0-0xDF Shakti Read CSR ROM.
+  */
+  typedef 8'h10 DTVEC_PROG_BUF_OFFSET ;
+  typedef 8'h50 DTVEC_ABST_MEM_OFFSET ;
+  typedef 8'h80 DTVEC_PROG_BUF_EXCEPTION;
+  typedef 8'h88 DTVEC_PROG_BUF_EBREAK;
+  //typedef 8'h80 END_OF_DEBUG_MEM_OFFSET; // For Now No Abstract Traps
+
+  typedef enum {
+    QA_PBuf_Disable = 'b0000,
+    QA_Halt         = 'b0001,
+    QA_wait_halted  = 'b0010, 
+    PBuf_Trap       = 'b0011,
+    PBuf_wait_Trap  = 'b0100,
+    PBuf_wait_Exit  = 'b0101,
+    PBUf_handle_Exit= 'b0110,
+    QA_Resume       = 'b0111,
+    QA_wait_Resume  = 'b1000
+  } QA_PBuf_State deriving(Bits, Eq, FShow);
 
   // Abst Reg Map
   typedef 14  AbstractAddrWidth;  // Limited Extended abstract reg space
@@ -98,9 +132,11 @@ package debug_types;
   
   interface Debug_Hart_Ifc;
     method ActionValue#(AbstractRegOp) abstractOperation;
-    method Action  abstractReadResponse(Bit#(DXLEN) abstractResponse);  
+    method Action  abstractReadResponse(Bit#(DXLEN) abstractResponse); 
     (*always_enabled,always_ready*)
     method Bit#(1) haltRequest();
+    (*always_enabled,always_ready*)
+    method Bit#(1) halt_to_program_buffer(); // Prolly replace this with lesser wires later after removing abstract commands ?? Yes
     (*always_enabled,always_ready*)
     method Bit#(1) resumeRequest();
     (*always_enabled,always_ready*)
@@ -117,7 +153,7 @@ package debug_types;
   endinterface
     
 	// Interface between Debug Module and SOC
-  interface Ifc_riscvDebug013;
+  interface Ifc_riscvDebug013_simple;
     interface Ifc_DM_DTM dtm;
     interface Debug_Hart_Ifc hart;
   `ifdef CORE_AXI4
@@ -129,9 +165,26 @@ package debug_types;
     interface Reset dmactive_reset;
   endinterface
 
+  	// Interface between Debug Module and SOC
+    interface Ifc_riscvDebug013;
+      interface Ifc_DM_DTM dtm;
+      interface Debug_Hart_Ifc hart;
+    `ifdef CORE_AXI4
+      interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+      interface AXI4_Slave_IFC#(DPADDR, DXLEN, 0 ) debug_slave;
+    `elsif CORE_AXI4Lite
+      interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+      interface AXI4_Lite_Slave_IFC#(DPADDR, DXLEN, 0 ) debug_slave;
+    `endif
+      method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
+      interface Reset dmactive_reset;
+    endinterface
+
   interface Hart_Debug_Ifc;
     method Action   abstractOperation( AbstractRegOp cmd);
     method ActionValue#(Bit#(DXLEN)) abstractReadResponse;
+    (*always_enabled,always_ready*)
+    method Action   halt_to_program_buffer(Bit#(1) debug_interrupt); // Prolly replace this with lesser wires later after removing abstract commands ?? Yes
     (*always_enabled,always_ready*)
     method Action   haltRequest(Bit#(1) halt_request);
     (*always_enabled,always_ready*)
@@ -153,17 +206,15 @@ package debug_types;
   // Abstract Interface has implict conditions , abstract operations are guarded.
   instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
     module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
-      
-      rule operation;
-        let x <- debug_module.abstractOperation;
-        hart.abstractOperation(x);
-      endrule
+      // Unconditional connections
+      mkConnection( debug_module.halt_to_program_buffer,
+                    hart.halt_to_program_buffer);
+      mkConnection( debug_module.abstractOperation,
+                    hart.abstractOperation);
+      mkConnection( hart.abstractReadResponse,
+                    debug_module.abstractReadResponse); 
 
-      rule response;
-        let x <- hart.abstractReadResponse();
-        debug_module.abstractReadResponse(x);
-      endrule
-      
+      // Conditional connections
       rule connect_halt_req;
         if(debug_module.dm_active == 1)
           hart.haltRequest(debug_module.haltRequest());
@@ -178,12 +229,20 @@ package debug_types;
           hart.resumeRequest(0);
       endrule
 
+      rule connect_trap_program_buffer;
+        if(debug_module.dm_active == 1)
+          hart.halt_to_program_buffer(debug_module.halt_to_program_buffer());
+        else
+          hart.halt_to_program_buffer(0);
+      endrule
+
       rule connect_hart_reset;
         if(debug_module.dm_active == 1)
           hart.hartReset(debug_module.hart_reset());
         else 
           hart.hartReset(0);
       endrule
+
       rule connect_halted;
         debug_module.set_halted(hart.is_halted());
       endrule
@@ -224,9 +283,9 @@ package debug_types;
     // Fliter
     if((address >= `FIVO(Abst_reg_address_CSR0)) && (address < `FIVO(Abst_reg_address_GPR0)))begin
       if(address != 14'h07b0)                                     // discriminate basis csr existing
-        lv_bad_register = 0;
+        lv_bad_register = 1;
       else
-        lv_bad_register = 0;
+        lv_bad_register = 1;
     end
     else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < `FIVO(Abst_reg_address_FPR0)))
       lv_bad_register = 0;

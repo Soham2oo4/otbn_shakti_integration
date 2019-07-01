@@ -28,7 +28,7 @@ Email id: command.paul@gmail.com
 
 package riscvDebug013_testbench;
 
-  import riscvDebug013::*;
+  import riscvDebug013Pbuf::*;
   import hart_template::*;
 
   import StmtFSM::*;
