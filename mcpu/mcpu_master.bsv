@@ -172,7 +172,7 @@ Data_mode :01 byte
     //............Tristate signals...............//
     /*
      */
-    (* mutually_exclusive = "rcv_req_new,prc_req,prc_req_1,prc_req_2,req_wait,end_req" *)
+    (* mutually_exclusive = "rcv_req_new,prc_req,prc_req_1,prc_req_2,end_req" *)
 
     /* REQ_RCV rg_master_state....
        1. Master receives request
@@ -305,37 +305,40 @@ Data_mode :01 byte
     rule prc_req_1(rg_master_state==PRC_REQ_1);
       `logLevel( mcpu_master, 1, $format("MASTER_STATE 2: Activating address strobe"))
       rg_as_l <= 0;
-      rg_master_state <= PRC_REQ_2; 
-      rg_ds_l <= 0;
-      if(rg_wr_l==1'b0)
-      rg_data_control <= 4'b1111;
+      if(rg_wr_l==1'b1)
+      begin
+        rg_ds_l <= 0;
+        if(({dsack_0_l,dsack_1_l} != 2'b11)||(berr_l == 1'b0)||(halt_l == 1'b0))
+        rg_master_state <= LATCH_DATA;
+      end
+      else 
+        rg_master_state <= PRC_REQ_2;
+        if(rg_wr_l==1'b0)
+        rg_data_control <= 4'b1111;
     endrule
     /*
        In PRC_REQ_2
-       1.Wait till ack received
+       2.Data_strobe is asserted for write cycle
+       3.On acknowledgement goes to latch data state
      */
     
     rule prc_req_2(rg_master_state==PRC_REQ_2);		
     begin
-      `logLevel(mcpu_master,1,$format("MASTER_STATE_3 :WAIT"))
-      if (({dsack_0_l,dsack_1_l}!=2'b11)||(berr_l==1'b0)||(halt_l==1'b0))
-      begin
-      rg_master_state <= PRC_REQ_3;
-      end
+      `logLevel(mcpu_master,1,$format("MASTER_STATE_3 :Activating data strobe write"))
+       rg_ds_l<=1'b0;
+       if(({dsack_0_l,dsack_1_l} != 2'b11)||(berr_l == 1'b0)||(halt_l == 1'b0))
+        rg_master_state<=LATCH_DATA;
     end
     endrule
 
-    /*In WAIT_RESP
-      1. Master waits for response
-      2. On receiving response,goes to next state
-     */
 
-    rule req_wait((rg_master_state == PRC_REQ_3)&&(({dsack_0_l,dsack_1_l} != 2'b11)||
-    (berr_l == 1'b0)||(halt_l == 1'b0))); 
+//.......................Latch_data when not using tristatebuffers.............................//
+//........................In LATCH DATA state................................................../
+//........................Latches on-to data and response.....................................//
 
-      rg_master_state <= LATCH_DATA;
-      `logLevel(mcpu_master,1,$format(" MASTER_STATE_4"))
-
+    rule latch_data(rg_master_state==LATCH_DATA);
+    
+      //setting control bits for multicycle transfers
       if({dsack_0_l,dsack_1_l} == rg_mode) begin
         rg_cntl_wd <= 2'b00;//Done can take the next request
       end
@@ -347,13 +350,7 @@ Data_mode :01 byte
       else if({dsack_0_l,dsack_1_l} == 2'b01 && rg_mode != 2'b01)begin
         rg_cntl_wd <= 2'b01;
       end
-    endrule
 
-//.......................Latch_data when not using tristatebuffers.............................//
-//........................In LATCH DATA state................................................../
-//........................Latches on-to data and response.....................................//
-
-    rule latch_data(rg_master_state==LATCH_DATA);
       if(berr_l==1'b0 && halt_l==1'b0) begin
           rg_retry<=1;
       end
