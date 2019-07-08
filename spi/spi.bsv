@@ -556,9 +556,10 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   		else if(rg_data_counter == 7) begin
   			Bit#(8) data = 0;
   			if(rg_spi_cfg_cr1.lsbfirst == 1)
-  				data = {wr_spi_in_io2, rg_data_rx[6 : 0]};
+  				data = {wr_spi_in_io2, rg_data_rx[6 : 0]};				
   			else
   				data = {rg_data_rx[7 : 1], wr_spi_in_io2};
+			rg_bit_count <= rg_bit_count + 1;
   			rx_fifo.enq(data);  
   			rg_data_counter <= 0;
   	    `logLevel( spi, 0, $format(" SPI : DATA_RECEIVE case2 counter %x data_rx %x", 
@@ -584,6 +585,7 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
 rule rl_abort_tx_rx (wr_transfer_en == True && wr_clk_en == 0 && (rg_spi_cfg_cr1.spe == 1 || 
 	 rg_spi_cfg_cr2.rx_start == 1) && (rg_bit_count == (rg_spi_cfg_cr1.total_bit_tx - 1) ||
 	  rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1)));
+	Bit#(8) data = 0;
 	if(rg_spi_cfg_cr2.rx_start == 0 && rg_transmit_state != IDLE && rg_bit_count == (rg_spi_cfg_cr1.total_bit_tx - 1)) begin
 		rg_transmit_state <= IDLE;
 		rg_spi_cfg_sr.bsy <= 0;
@@ -595,22 +597,31 @@ rule rl_abort_tx_rx (wr_transfer_en == True && wr_clk_en == 0 && (rg_spi_cfg_cr1
 		rg_bit_count <= 0;
 	end
 	else if(rg_receive_state != IDLE && rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1)) begin
-		Bit#(8) data = {rg_data_rx[6: 0], 0};
+  			if(rg_spi_cfg_cr1.lsbfirst == 1)
+  				data = {wr_spi_in_io2, rg_data_rx[6 : 0]};				
+  			else
+  				data = {rg_data_rx[7 : 1], wr_spi_in_io2};
 		rg_receive_state  <= IDLE;
 		rg_data_counter	  <= 0;
 		rx_fifo.enq(data);
 		rg_spi_cfg_cr2 <= unpack(0);
 		rg_tx_rx_start <= 0;
-		rg_nss <= 1;
+//		rg_nss <= 1;
 	end	
-	$display($stime()," SPI: ABORT rg_data_rx %x", rg_data_rx);
+	$display($stime()," SPI: ABORT rg_data_rx %x", data);
 endrule
 
   rule rl_receive_fifo_to_read_datareg(rx_fifo.notEmpty && rg_receive_state == IDLE);
-  	Bit#(96) data = rg_concat_reg;	
-  	data[95 : 88] = rx_fifo.first();
+  	Bit#(96) data = rg_concat_reg;
+	if(rg_spi_cfg_cr1.lsbfirst == 1)	
+	  	data[95 : 88] = rx_fifo.first();
+	else
+		data[7:0] = rx_fifo.first;
   	if(rg_data_counter < 12) begin
-  		rg_concat_reg <= data >> 8;
+		if(rg_spi_cfg_cr1.lsbfirst == 1)
+	  		rg_concat_reg <= data >> 8;
+		else
+	  		rg_concat_reg <= data << 8;
   		rg_data_counter <= rg_data_counter + 1;
 		rx_fifo.deq();
   	end
