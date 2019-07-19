@@ -403,7 +403,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 			 (~b2x_req) ? `XFR_IDLE :
 			 (b2x_read) ? `XFR_READ :
 			 (b2x_write) ? `XFR_WRITE : `XFR_IDLE;
-
+	   temp_addr = 0;	// ##
 	end // case: `XFR_IDLE
 	   
 	`XFR_READ : begin
@@ -450,7 +450,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	      end // else: !if(~l_wrap)
 		 
 	      next_xfr_st = (sdr_init_done) ? ((b2x_req & ~mgmt_req & b2x_read) ? `XFR_READ : `XFR_RDWT) : `XFR_IDLE;
-
+		  temp_addr = 0; // ## 
 	   end // if (l_xfr_end)
 
 	   else begin
@@ -488,7 +488,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 			 (~rd_pipe_mt) ? `XFR_RDWT :
 			 (~mgmt_req & b2x_req & b2x_write) ? `XFR_WRITE : 
 			 `XFR_IDLE;
-
+	   temp_addr = 0; //##
 	end // case: `XFR_RDWT
 	
 	`XFR_WRITE : begin
@@ -499,7 +499,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	   cb_pre_ok = 1'b0;
 	   wrok = l_xfr_end & ~mgmt_req;
 	   sel_mgmt = 1'b0;
-
+	   temp_addr = 0;  //##
 	   if (l_xfr_end) begin		  // End of transfer
 
 	      if (~l_wrap) begin
