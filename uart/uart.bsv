@@ -99,7 +99,7 @@ package uart;
       if( addr[3:0]==`StatusReg && size==Byte)begin
         return tuple2(duplicate(wr_status),True);
       end
-			else if( addr[3:0]==`TxReg && size==Byte)begin
+			else if( addr[3:0]==`RxReg && size==Byte)begin
 				Bit#(8) data<-uart.tx.get; 
 				return tuple2(duplicate(data),True);
 			end
@@ -112,7 +112,7 @@ package uart;
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-			if(addr[3:0]==`RxReg && size==Byte)begin
+			if(addr[3:0]==`TxReg && size==Byte)begin
 				uart.rx.put(truncate(data));//putting write data in the UART
 				return True;
 			end
