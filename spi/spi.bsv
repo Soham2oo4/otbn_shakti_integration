@@ -50,9 +50,8 @@ typedef struct{
 } Read_req#(numeric type addr_width) deriving (Bits, Eq);
 
 typedef struct{
-	Bit#(2)  rsvd;
-	Bit#(7)  total_bit_rx;
-	Bit#(7)  total_bit_tx;
+	Bit#(8)  total_bit_rx;
+	Bit#(8)  total_bit_tx;
 	bit 	 bidimode;
 	bit		 bidioe;
 	bit		 crcen;
@@ -184,6 +183,8 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   Reg#(Bit#(32))		rg_spi_cfg_dr1     <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_dr2     <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_dr3     <- mkReg(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr4     <- mkReg(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr5     <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_crcpr   <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_rxcrcr  <- mkReg(0);
   Reg#(Bit#(32))		rg_spi_cfg_txcrcr  <- mkReg(0);
@@ -205,14 +206,14 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   Reg#(Bit#(8))		rg_data_tx		   <- mkReg(0);
   Reg#(Bit#(8))		rg_data_rx		   <- mkReg(0);
   Reg#(Bit#(8))		rg_data_counter	   	   <- mkReg(0);
-  Reg#(Bit#(7))		rg_bit_count	   	   <- mkReg(0);
+  Reg#(Bit#(8))		rg_bit_count	   	   <- mkReg(0);
   Reg#(bit)			rg_transfer_done   <- mkReg(0);
   Reg#(bit)			rg_tx_rx_start	   <- mkReg(0);
   
   Reg#(bit)			rg_nss			   <- mkReg(1);
   Reg#(bit)			rg_clk			   <- mkReg(0);
   
-  Reg#(Bit#(96))  rg_concat_reg = concatReg3(rg_spi_cfg_dr1, rg_spi_cfg_dr2, rg_spi_cfg_dr3); 
+  Reg#(Bit#(160))  rg_concat_reg = concatReg5(rg_spi_cfg_dr1, rg_spi_cfg_dr2, rg_spi_cfg_dr3, rg_spi_cfg_dr4, rg_spi_cfg_dr5); 
   Wire#(Bit#(addr_width))     wr_write_addr  <- mkWire();
   Wire#(Bit#(data_width))     wr_write_data  <- mkWire();
   Wire#(Bit#(addr_width))     wr_rd_addr	 <- mkWire();
@@ -232,19 +233,26 @@ module mkspi(Ifc_spi#(addr_width, data_width))
      Bit#(8) addr = truncate(address);
      case(addr) 
   
-         `CR1    : rg_spi_cfg_cr1		<= unpack(data);
+         `CR1   : rg_spi_cfg_cr1	<= unpack(data);
   
-         `CR2    : rg_spi_cfg_cr2		<= unpack(data);
+         `CR2   : rg_spi_cfg_cr2	<= unpack(data);
          
-         `SR     : rg_spi_cfg_sr		<= unpack(data);        
+         `SR    : rg_spi_cfg_sr		<= unpack(data);        
 
-         `DR1     : rg_spi_cfg_dr1		<= data;
+         `DR1   : rg_spi_cfg_dr1	<= data;
 		 
-		 `DR2     : rg_spi_cfg_dr2		<= data;
+	 `DR2   : rg_spi_cfg_dr2	<= data;
 
-		 `DR3	  : begin
-					rg_spi_cfg_dr3		<= data;
-		  			tx_data_en			<= 1;
+	 `DR3	: rg_spi_cfg_dr3	<= data;
+
+	 `DR4	: rg_spi_cfg_dr4	<= data;
+
+	 `DR5	: begin
+					rg_spi_cfg_dr5	<= data;
+		  			tx_data_en	<= 1;
+					rg_data_counter <= 0;
+					rg_bit_count	<= 0;
+					tx_fifo.clear();
        	  end 
          `CRCPR  : rg_spi_cfg_crcpr   <= data;
         
@@ -270,9 +278,13 @@ module mkspi(Ifc_spi#(addr_width, data_width))
         
          `DR1     : return rg_spi_cfg_dr1;
 
-		 `DR2     : return rg_spi_cfg_dr2;
+	 `DR2     : return rg_spi_cfg_dr2;
 
-		 `DR3     : return rg_spi_cfg_dr3;
+	 `DR3     : return rg_spi_cfg_dr3;
+
+	 `DR4	  : return rg_spi_cfg_dr4;
+
+	 `DR5	  : return rg_spi_cfg_dr5;
         
          `CRCPR  : return rg_spi_cfg_crcpr;
         
@@ -293,17 +305,25 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   //This rule takes data from the configration register DR and puts it into the
   //tx_fifo in the 8 bit format.
   rule rl_transmit_data_to_fifo(tx_data_en == 1);
-  	if(rg_data_counter < 12) begin //  why 4 ? the data is of 32 bit (four 8bit data)
-  		let data = rg_concat_reg[7 : 0];
+  	if(rg_data_counter < 20) begin //  why 4 ? the data is of 32 bit (four 8bit data)
+  		Bit#(8) data = 0;
+		 if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+			data = rg_concat_reg[7 : 0];
+  		 	rg_concat_reg <= rg_concat_reg >> 8;
+		end
+		else begin
+			data = rg_concat_reg [159: 152];
+  		 	rg_concat_reg <= rg_concat_reg << 8;
+	    end	
   		tx_fifo.enq(data);
-  		rg_concat_reg <= rg_concat_reg >> 8;
-  		if(rg_data_counter < 11) 
+  		if(rg_data_counter < 19) 
   			rg_data_counter <= rg_data_counter + 1;
   		else begin
   			rg_data_counter <= 0;
   			tx_data_en      <= 0;
   		end
   		`logLevel( spi, 0, $format(" SPI : DR to  tx_fifo data %x", data))
+  		 $display($stime," SPI : DR to  tx_fifo data %x rg_data_counter %d", data, rg_data_counter);
   	end
   endrule
   
@@ -329,6 +349,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   	fn_wr_cfg_reg(truncate(wr_write_data), wr_write_addr);
   	`logLevel( spi, 0, $format(" SPI : Write request wr_addr %x wr_data %x ",wr_write_addr,
                                                                               wr_write_data))
+  	$display($stime," SPI : Write request wr_addr %x wr_data %x ",wr_write_addr, wr_write_data);
   endrule
   
   rule rl_read_from_cfg;
@@ -379,37 +400,36 @@ module mkspi(Ifc_spi#(addr_width, data_width))
 //		tx_fifo.deq;
 		`logLevel( spi, 0, $format(" SPI : Transmit state has started rg_data_tx %x", 
                                                                                   tx_fifo.first()))
+		$display($stime," SPI : Transmit state has started rg_data_tx %x",tx_fifo.first());
   	end
-  	else if(rg_spi_cfg_cr1.spe == 1 && rg_spi_cfg_cr2.rx_imm_start == 0)begin
+  	else if(wr_clk_en == 0 && wr_transfer_en == True && rg_spi_cfg_cr1.spe == 1 && rg_spi_cfg_cr2.rx_imm_start == 0)begin
   		rg_nss <= 1;
 		rg_spi_cfg_cr1.spe <= 0;
   		`logLevel( spi, 0, $format(" SPI : Transmit state is in idle"))
+  		$display($stime," SPI : Transmit state is in idle");
   	end
   endrule
 
 // This rule transmits first bit with respect to clock phase configured
 rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
-//	if(rg_spi_cfg_cr1.cpha == 1 && wr_clk_en == 1) begin
-//		rg_transmit_state <= DATA_TRANSMIT;
-//`logLevel( spi, 0, $format(" SPI : START_TRANSMIT case1 counter %x", rg_data_counter))
-//	end
   	if(wr_clk_en == 1 || (wr_clk_en == 0 && rg_spi_cfg_cr1.cpha == 1) && wr_transfer_en == True) begin
   		let data = 0;
   //		wr_clk <= rg_clk;		
   		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
   			data = rg_data_tx[0];
   			wr_spi_out_io1 	<= rg_data_tx[0];
-  			rg_data_tx 		<= rg_data_tx >> 1;
-  			rg_data_counter <= rg_data_counter + 1;
+  			rg_data_tx 	<= rg_data_tx >> 1;
   		end
   		else begin
   			data = rg_data_tx[7];
   			wr_spi_out_io1 	<= rg_data_tx[7];
   			rg_data_tx    	<= rg_data_tx << 1;
-  			rg_data_counter <= rg_data_counter + 1;
   		end
+		rg_bit_count <= rg_bit_count + 1;
+		rg_data_counter <= rg_data_counter + 1;
   	  `logLevel( spi, 0, $format(" SPI : START_TRANSMIT case2 counter %x data %x", rg_data_counter, 
                                                                                   data))
+  	  $display($stime," SPI : START_TRANSMIT case2 counter %x data %x rg_bit_count %x", rg_data_counter,data, rg_bit_count);
   		rg_transmit_state <= DATA_TRANSMIT;
   	end	
  endrule
@@ -421,6 +441,7 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
   
   //This rule transmits the remaining data from the tx_fifo until it get empty
   rule rl_data_transmit(rg_transmit_state == DATA_TRANSMIT && rg_nss == 0);
+	//$display($stime," Data transmit rule fired : %d ",rg_data_counter);
   	let data_tx = 0; // debug
   //		wr_clk <= rg_clk;
   		if(rg_data_counter < 6 && wr_clk_en == 0 && wr_transfer_en == True) begin
@@ -438,8 +459,10 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
   				rg_data_counter <= rg_data_counter + 1;
 				rg_bit_count	<= rg_bit_count + 1;
   			end
-  	    `logLevel( spi, 0, $format(" SPI : DATA_TRANSMIT case 1 data %x rg_data_counter %x ",
+  	    `logLevel( spi, 0, $format(" SPI : DATA_TRANSMIT case 1 data %x rg_data_counter %x",
                                                                          data_tx, rg_data_counter))
+  	    $display($stime," SPI : DATA_TRANSMIT case 1 data %x rg_data_counter %x rg_bit_count %d ", 
+		data_tx, rg_data_counter, rg_bit_count);
   		end
   		else if(rg_data_counter == 6 && wr_clk_en == 0 && wr_transfer_en == True) begin
   			if(rg_spi_cfg_cr1.lsbfirst == 1) begin
@@ -460,6 +483,8 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
   			end
   	    `logLevel( spi, 0, $format(" SPI : DATA_TRANSMIT case 2 data %x rg_data_counter %x ",
                                                                           data_tx, rg_data_counter))
+  	    $display($stime," SPI : DATA_TRANSMIT case 2 data %x rg_data_counter %x rg_bit_count %d ",data_tx,
+		 rg_data_counter, rg_bit_count);
   		end
   		else if(rg_data_counter == 7 && wr_clk_en == 0 && wr_transfer_en == True && rg_transfer_done == 0) begin
   				if(rg_spi_cfg_cr1.lsbfirst == 1) begin
@@ -478,8 +503,11 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
   				else begin
 					rg_transfer_done <= 1;
 				end
+				rg_bit_count <= rg_bit_count + 1;
   	      `logLevel( spi, 0, $format(" SPI : DATA_TRANSMIT case 3 data %x rg_data_counter %x ",
                                                                           data_tx, rg_data_counter))
+  	      $display($stime," SPI : DATA_TRANSMIT case 3 data %x rg_data_counter %x rg_bit_count %d",
+		  data_tx, rg_data_counter, rg_bit_count);
   		end
   	if(!tx_fifo.notEmpty() && wr_clk_en == 0 && wr_transfer_en == True && rg_transfer_done == 1) begin
   		rg_transmit_state <= IDLE;
@@ -491,6 +519,7 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
 		
 		rg_spi_cfg_sr.bsy <= 0;
   		`logLevel( spi, 0, $format(" SPI : Transmit state going to idle"))
+  		$display($stime," SPI : Transmit state going to idle");
   	end	
   endrule
   		
@@ -504,6 +533,13 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
 		rg_bit_count    <= 0;
   		rg_nss <= 0;
   		`logLevel( spi, 0, $format(" SPI : Receive has started"))
+  		$display($stime," SPI : Receive has started");
+  endrule
+
+  rule rl_receive_idle_stop(rg_receive_state == IDLE && rg_transmit_state == IDLE && 
+	(rg_spi_cfg_cr2.rx_start == 0 || rg_spi_cfg_cr2.rx_imm_start == 0) 
+	&& wr_clk_en == 0 && wr_transfer_en == True);
+	rg_nss <= 1;
   endrule
   
   rule rl_receive_start_receive(rg_receive_state == START_RECEIVE && rg_nss == 0);
@@ -512,6 +548,7 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   //		wr_clk <= rg_clk;
   		rg_receive_state <= DATA_RECEIVE;
   	  `logLevel( spi, 0, $format(" SPI : START_RECEIVE case1 counter %x", rg_data_counter))
+  	  $display($stime," SPI : START_RECEIVE case1 counter %x", rg_data_counter);
   	end
   	else if(rg_spi_cfg_cr1.cpha == 0 && wr_clk_en == 1 && wr_transfer_en == True) begin
   //		wr_clk <= rg_clk;
@@ -528,6 +565,7 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
 			rg_bit_count	<= rg_bit_count + 1;
   		end
   	  `logLevel( spi, 0, $format(" SPI : START_RECEIVE case2 counter %x", rg_data_counter))
+  	  $display($stime," SPI : START_RECEIVE case2 counter %x", rg_data_counter);
   		rg_receive_state <= DATA_RECEIVE;
   	end
   endrule
@@ -552,17 +590,22 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   			end
   	    `logLevel( spi, 0, $format(" SPI : DATA_RECEIVE case1 counter %x data_rx %x", 
                                                                           rg_data_counter, data_rx))
+  	    $display($stime," SPI : DATA_RECEIVE case1 counter %x data_rx %x rg_bit_count %d",rg_data_counter, data_rx,
+		 rg_bit_count);
   		end
   		else if(rg_data_counter == 7) begin
   			Bit#(8) data = 0;
   			if(rg_spi_cfg_cr1.lsbfirst == 1)
-  				data = {wr_spi_in_io2, rg_data_rx[6 : 0]};
+  				data = {wr_spi_in_io2, rg_data_rx[6 : 0]};				
   			else
   				data = {rg_data_rx[7 : 1], wr_spi_in_io2};
+			rg_bit_count <= rg_bit_count + 1;
   			rx_fifo.enq(data);  
   			rg_data_counter <= 0;
   	    `logLevel( spi, 0, $format(" SPI : DATA_RECEIVE case2 counter %x data_rx %x", 
                                                                             rg_data_counter, data))
+  	    $display($stime," SPI : DATA_RECEIVE case2 counter %x data_rx %x rg_bit_count %d",rg_data_counter, data,
+		rg_bit_count);
   		end
   	end
   //	end
@@ -573,60 +616,91 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   		rg_spi_cfg_cr2 <= unpack(0); // rx_start and rx_imm_start are updated to zero
 		rg_tx_rx_start <= 0;
   	  `logLevel( spi, 0, $format(" SPI : DATA_RECEIVE going to receive done"))
+  	  $display($stime," SPI : DATA_RECEIVE going to receive done");
   	end
   endrule
   
   rule rl_receive_done(rg_receive_state == RECEIVE_DONE);
   	rg_receive_state <= IDLE;
   	`logLevel( spi, 0, $format(" SPI : RECEIVE_DONE going to idle"))
+  	$display($stime," SPI : RECEIVE_DONE going to idle");
   endrule
   
-rule rl_abort_tx_rx (wr_transfer_en == True && wr_clk_en == 0 && (rg_spi_cfg_cr1.spe == 1 || 
-	 rg_spi_cfg_cr2.rx_start == 1) && (rg_bit_count == (rg_spi_cfg_cr1.total_bit_tx - 1) ||
-	  rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1)));
-	if(rg_spi_cfg_cr2.rx_start == 0 && rg_transmit_state != IDLE && rg_bit_count == (rg_spi_cfg_cr1.total_bit_tx - 1)) begin
+rule rl_abort_tx_rx (wr_transfer_en == True &&  (rg_spi_cfg_cr1.spe == 1 && 
+(rg_bit_count == rg_spi_cfg_cr1.total_bit_tx - 1) && rg_transmit_state != IDLE ) ||
+((rg_spi_cfg_cr2.rx_start == 1 || rg_spi_cfg_cr2.rx_imm_start == 1) && 
+rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1) && rg_receive_state != IDLE));
+	Bit#(8) data = 0;
+	let data_tx = 0;
+	if(rg_spi_cfg_cr2.rx_start == 0 && rg_transmit_state != IDLE 
+	&& rg_bit_count == (rg_spi_cfg_cr1.total_bit_tx - 1) && wr_clk_en == 0) begin
+  		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
+  			data_tx = rg_data_tx[0];
+  			wr_spi_out_io1 <= rg_data_tx[0];
+  		end
+  		else begin
+  			data_tx = rg_data_tx[7];
+  			wr_spi_out_io1 <= rg_data_tx[7];
+		end
 		rg_transmit_state <= IDLE;
 		rg_spi_cfg_sr.bsy <= 0;
 		if(rg_spi_cfg_cr2.rx_imm_start == 1)
 			rg_tx_rx_start <= 1;
-		else
-			rg_nss <= 1;
 		tx_fifo.clear();
 		rg_bit_count <= 0;
+	$display($stime()," SPI: ABORT tx %x", data_tx);
 	end
-	else if(rg_receive_state != IDLE && rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1)) begin
-		Bit#(8) data = {rg_data_rx[6: 0], 0};
+	else if(rg_receive_state != IDLE && rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1)
+	&& wr_clk_en == 1) begin
+  			if(rg_spi_cfg_cr1.lsbfirst == 1)
+  				data = {wr_spi_in_io2, rg_data_rx[6 : 0]};				
+  			else
+  				data = {rg_data_rx[7 : 1], wr_spi_in_io2};
 		rg_receive_state  <= IDLE;
 		rg_data_counter	  <= 0;
 		rx_fifo.enq(data);
 		rg_spi_cfg_cr2 <= unpack(0);
 		rg_tx_rx_start <= 0;
-		rg_nss <= 1;
+//		rg_nss <= 1;
+	$display($stime()," SPI: ABORT rg_data_rx %x", data);
 	end	
-	$display($stime()," SPI: ABORT rg_data_rx %x", rg_data_rx);
 endrule
 
   rule rl_receive_fifo_to_read_datareg(rx_fifo.notEmpty && rg_receive_state == IDLE);
-  	Bit#(96) data = rg_concat_reg;	
-  	data[95 : 88] = rx_fifo.first();
-  	if(rg_data_counter < 12) begin
-  		rg_concat_reg <= data >> 8;
+  	Bit#(160) data = rg_concat_reg;
+	if(rg_spi_cfg_cr1.lsbfirst == 1)	
+	  	data[159 : 152] = rx_fifo.first();
+	else
+		data[7:0] = rx_fifo.first;
+  	if(rg_data_counter < 19) begin
+		if(rg_spi_cfg_cr1.lsbfirst == 1)
+	  		rg_concat_reg <= data >> 8;
+		else
+	  		rg_concat_reg <= data << 8;
   		rg_data_counter <= rg_data_counter + 1;
 		rx_fifo.deq();
   	end
   	else begin
-  		rg_concat_reg <= data;
+		rg_concat_reg <= data;
   		rg_spi_cfg_sr.rxne <= 1;
 		rx_fifo.deq();
   		rg_data_counter <= 0;
   	end
     `logLevel( spi, 0, $format(" SPI : rx_fifo to dr reg %x",data))
+    $display($stime," SPI : rx_fifo to dr reg %x",data);
   endrule
   	
 rule rl_abort_bitcount_finish(!rx_fifo.notEmpty && rg_receive_state ==IDLE &&
 	rg_bit_count == rg_spi_cfg_cr1.total_bit_rx - 1);
 		rg_spi_cfg_sr.rxne <= 1;
+		if(rg_data_counter < 19 && rg_data_counter != 0) begin
+			if(rg_spi_cfg_cr1.lsbfirst == 1)
+	  			rg_concat_reg <= rg_concat_reg << 8;
+			else
+	  			rg_concat_reg <= rg_concat_reg >> 8;
+		end
 		rg_data_counter <= 0;
+		rg_bit_count	<= 0;
 endrule	
 	
   	
@@ -675,7 +749,6 @@ module mkspi_controller#(Clock slow_clk, Reset slow_rst)(Ifc_spi_controller#(add
   
   Ifc_spi#(addr_width, data_width) spi <- mkspi(clocked_by slow_clk, reset_by slow_rst);
   
-  Reg#(Bit#(4)) rg_rid <- mkReg(0);
   
   SyncFIFOIfc#(Write_req#(addr_width, data_width)) 		ff_wr_req   <- mkSyncFIFOFromCC(1, slow_clk);
 
@@ -694,6 +767,7 @@ module mkspi_controller#(Clock slow_clk, Reset slow_rst)(Ifc_spi_controller#(add
   	let aw <- pop_o(s_xactor_spi.o_wr_addr);
   	let w  <- pop_o(s_xactor_spi.o_wr_data);
   	`logLevel( spi, 0, $format(" SPI : Controller Write Channel"))
+  	$display($stime," SPI : Controller Write Channel");
    	ff_wr_req.enq(Write_req {
   							  addr : truncate(aw.awaddr),
   							  burst_size : zeroExtend(aw.awsize),
