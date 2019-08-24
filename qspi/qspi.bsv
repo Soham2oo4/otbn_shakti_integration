@@ -47,10 +47,6 @@ package qspi;
     interface QSPI_out;
     /*(* always_ready, result="clk_o" *) 		*/	method bit clk_o;
 		/*(* always_ready, result="io_o" *) 		*/	method Bit#(4) io_o;
-    	/*(* always_ready, result="io0_sdio_ctrl" *)         */ method Bit#(9) io0_sdio_ctrl;
-    	/*(* always_ready, result="io1_sdio_ctrl" *)         */ method Bit#(9) io1_sdio_ctrl;
-    	/*(* always_ready, result="io2_sdio_ctrl" *)         */ method Bit#(9) io2_sdio_ctrl;
-    	/*(* always_ready, result="io3_sdio_ctrl" *)         */ method Bit#(9) io3_sdio_ctrl;
 		/*(* always_ready, result="io_enable" *)*/ 	method Bit#(4) io_enable;
 		/*(* always_ready, always_enabled *)   	*/	method Action io_i ((* port="io_i" *) Bit#(4) io_in);    // in
 		/*(* always_ready, result="ncs_o" *) 		*/	method bit ncs_o;
@@ -59,7 +55,7 @@ package qspi;
     interface Ifc_qspi_controller#(numeric type addr_width,
                                    numeric type data_width,
                                    numeric type user_width);
-   		interface QSPI_out out;
+   		interface QSPI_out io;
 		  method Action write_req(Maybe#(Write_req#(addr_width,data_width)) wr_req);
 		  method Maybe#(AXI4_Lite_Resp) write_resp;
 		  method Action rd_req(Maybe#(Read_req#(addr_width)) req);
@@ -285,10 +281,6 @@ package qspi;
 	Reg#(Bit#(16)) lptr_timeout <-mkReg(0); // timeout period
 	Reg#(Bit#(32)) lptr =conditionalWrite(concatReg2(readOnlyReg(16'd0),lptr_timeout),sr_busy==0); // low power timeout register.
     Reg#(Bool) thres <- mkReg(False);
-    Reg#(Bit#(32)) sdio0r   <- mkReg(32'h00000073);
-    Reg#(Bit#(32)) sdio1r   <- mkReg(32'h00000073);
-    Reg#(Bit#(32)) sdio2r   <- mkReg(32'h00000073);
-    Reg#(Bit#(32)) sdio3r   <- mkReg(32'h00000073);
     Reg#(Bool) rg_request_ready <- mkReg(True);
 	Reg#(Bit#(4)) rg_count <- mkReg(0);
 	Reg#(bit) ddr_en	<- mkReg(0);
@@ -316,10 +308,6 @@ package qspi;
                 `PSMAR      : psmar; 
                 `PIR        : pir;
                 `LPTR       : lptr;
-                `SDIO0      : sdio0r;
-                `SDIO1      : sdio1r;
-                `SDIO2      : sdio2r;
-                `SDIO3      : sdio3r;
                 default:  readOnlyReg(0);
     endcase
     ); 
@@ -1440,22 +1428,10 @@ package qspi;
 		endrule
 	`endif
 
-    interface QSPI_out out;
+    interface QSPI_out io;
     	method bit clk_o;
 	    	return delay_ncs==1?dcr_ckmode:rg_clk;
         endmethod
-    	method Bit#(9) io0_sdio_ctrl;
-	    	return sdio0r[8:0];
-    	endmethod
-    	method Bit#(9) io1_sdio_ctrl;
-	    	return sdio1r[8:0];
-    	endmethod
-    	method Bit#(9) io2_sdio_ctrl;
-	    	return sdio2r[8:0];
-    	endmethod
-    	method Bit#(9) io3_sdio_ctrl;
-	    	return sdio3r[8:0];
-    	endmethod
     	method Bit#(4) io_o;
 	    	return rg_output;
     	endmethod
@@ -1495,7 +1471,7 @@ endmodule
 interface Ifc_qspi_axi4lite#(numeric type addr_width,
 					numeric type data_width,
 					numeric type user_width); 
-	interface QSPI_out out;
+	interface QSPI_out io;
 	interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 	method Bit#(6) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
 endinterface
@@ -1576,7 +1552,7 @@ module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_
 	endrule
 		
 	
-	interface out = qspi.out;
+	interface io = qspi.io;
 
     interface slave = s_xactor.axi_side;
 
@@ -1589,7 +1565,7 @@ endmodule
 interface Ifc_qspi_axi4#(numeric type addr_width,
 					numeric type data_width,
 					numeric type user_width); 
-	interface QSPI_out out;
+	interface QSPI_out io;
 	interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
 	method Bit#(6) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
 endinterface
@@ -1681,7 +1657,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 	endrule
 		
 	
-	interface out = qspi.out;
+	interface io = qspi.io;
 
     interface slave = s_xactor.axi_side;
 
