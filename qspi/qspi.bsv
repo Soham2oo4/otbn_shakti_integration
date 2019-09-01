@@ -1008,15 +1008,17 @@ package qspi;
     
     rule rl_transfer_dummy_cycle(rg_phase==Dummy_phase && transfer_cond && !qspi_flush);
 		if(ccr_ddrm == 1 && half_cycle_delay) begin
-			if(rg_count == 1) begin
+			if(rg_count == 0) begin
 				half_cycle_delay <= False;
+				ddr_en <= 1;
 			end
 			else
 				rg_count <= rg_count + 1;
 			$display($stime(),": dummy init delay");
 		end
-		else if(clock_cond || rg_count == 1) begin
+		else if((clock_cond && ccr_ddrm == 0) || (ccr_ddrm == 1 && ddr_en == 1)) begin
 			rg_count <= 0;
+			ddr_en <= 0;
 	        let {x,y,z} <- change_phase.func(rg_phase,rg_count_bits,0);
 	        Bit#(5) count_val = rg_mode_byte_counter;
 	        Bit#(4) enable_o = rg_output_en;
@@ -1090,6 +1092,8 @@ package qspi;
 	            rg_output_en <= enable_o;
 			end
 		end
+		else
+			ddr_en <= 1;
         endrule
     
     

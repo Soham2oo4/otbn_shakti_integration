@@ -3,7 +3,7 @@
 
 #define WRITEB 8
 #define ERASE 1024
-#define MEM_TYPE_N25Q256_ID 0x9d199d19
+#define MEM_TYPE_N25Q256_ID 0x9d189d18
 char fail_bit = 0;
 int status = 0;
 
@@ -396,7 +396,7 @@ int main()
 //    uart_init();
     int ar_read,i,j;
     int write_address = 0x0;
-    waitfor(100); //Time for Micron to start, maybe?
+    waitfor(400); //Time for Micron to start, maybe?
     if(flashMemInit()) //Because of STARTUPE2 primitive, the run fails for the first time it is programmed since three clock cycles are skipped. Run again
         return -1;  //Didn't work
 
@@ -405,7 +405,7 @@ int main()
 	status = flashReadStatusRegister();                                                             
     printf("\t qspi status register %08x\n",status);
 	//only for Quad write operation
-/*                                                
+                                                
     if(flashWriteVolatileConfigReg(0x40404040)){                                                     
          printf("\t Volatile Configuration Register not Set -- Diagnose\n");                         
          return -1;                                                                                  
@@ -413,7 +413,7 @@ int main()
     status = 0;                                                                                     
     status = wait_for_wip();                                                                        
     printf("\t qspi write  status register %08x\n",status);
-  */                        
+                        
 	//Erasing and Writing a bunch of Data    
 	for(i=0;i<WRITEB;i+=4){
         if(i%ERASE==0){
@@ -424,8 +424,8 @@ int main()
             printf("\t Erase Completed Successfully \n");
        }
 
-//     pageProgramQuadSPI(write_data[i], write_data[i+1], write_data[i+2], write_data[i+3], write_address); 
-       pageProgramSingleSPI(write_data[i], write_data[i+1], write_data[i+2], write_data[i+3], write_address); 
+     pageProgramQuadSPI(write_data[i], write_data[i+1], write_data[i+2], write_data[i+3], write_address); 
+//     pageProgramSingleSPI(write_data[i], write_data[i+1], write_data[i+2], write_data[i+3], write_address); 
        printf(" Data sent : %08x, %08x, %08x and %08x \n",write_data[i],write_data[i+1],write_data[i+2],write_data[i+3]);
        write_address+=16;
     }
