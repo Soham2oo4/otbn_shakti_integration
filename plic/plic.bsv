@@ -30,7 +30,7 @@ package plic;
 							.
 							.
 		Interrupt priority registers :
-							rg_priority_0 : 0C000000     /*32 bits per source*/
+							rg_priority_0 : 0C000000     //32 bits per source
 							rg_priority_1 : 0C000004
 							rg_priority_2 : 0C000008
 							.
