@@ -626,10 +626,10 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   	$display($stime," SPI : RECEIVE_DONE going to idle");
   endrule
   
-rule rl_abort_tx_rx (wr_transfer_en == True &&  (rg_spi_cfg_cr1.spe == 1 && 
+rule rl_abort_tx_rx (wr_transfer_en == True &&  (rg_spi_cfg_cr1.spe == 1 && (
 (rg_bit_count == rg_spi_cfg_cr1.total_bit_tx - 1) && rg_transmit_state != IDLE ) ||
 ((rg_spi_cfg_cr2.rx_start == 1 || rg_spi_cfg_cr2.rx_imm_start == 1) && 
-rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1) && rg_receive_state != IDLE));
+rg_bit_count == (rg_spi_cfg_cr1.total_bit_rx - 1) && rg_receive_state != IDLE)));
 	Bit#(8) data = 0;
 	let data_tx = 0;
 	if(rg_spi_cfg_cr2.rx_start == 0 && rg_transmit_state != IDLE 
