@@ -204,13 +204,13 @@ package pwm;
 				Bool success =True;
 				let pw=valueOf(pwmwidth);
 				AccessSize allowed_access=(pw==8)?Byte:(pw==16)?HWord:Word;
-				if(addr==`ControlReg && size==Byte)
+				if(addr [3:0] ==`ControlReg && size==Byte)
 					control<=truncate(data);
-				else if( addr==`PeriodReg && allowed_access==size)
+				else if( addr [3:0] ==`PeriodReg && allowed_access==size)
 					period<=truncate(data);
-				else if( addr==`DutyReg && allowed_access==size)
+				else if( addr [3:0] ==`DutyReg && allowed_access==size)
 					duty_cycle<=truncate(data);
-				else if( addr==`ClockReg && allowed_access==size)
+				else if( addr [3:0] ==`ClockReg && allowed_access==size)
 					clock_divisor<=truncate(data);
 				else
 					 success=False;
@@ -222,13 +222,13 @@ package pwm;
 				let pw=valueOf(pwmwidth);
 				Bit#(data_width) data=0;
 				AccessSize allowed_access=(pw==8)?Byte:(pw==16)?HWord:Word;
-				if(addr==`ControlReg && size==Byte)
+				if(addr[3:0]==`ControlReg && size==Byte)
 					data=duplicate(control);
-				else if( addr==`PeriodReg && allowed_access==size)
+				else if( addr [3:0] ==`PeriodReg && allowed_access==size)
 					data=duplicate(period);
-				else if( addr==`DutyReg && allowed_access==size)
+				else if( addr [3:0] ==`DutyReg && allowed_access==size)
 					data=duplicate(duty_cycle);
-				else if( addr==`ClockReg && allowed_access==size)
+				else if( addr [3:0] ==`ClockReg && allowed_access==size)
 					data=duplicate(clock_divisor);
 				else
 					 success=False;
