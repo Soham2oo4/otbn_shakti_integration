@@ -14,5 +14,5 @@
 `define PSMAR	'h28
 `define PIR		'h2c
 `define LPTR	'h30
-`define STARTMM 'h0000000
-`define ENDMM	'hFFFFFFF
+`define STARTMM 'h10000000
+`define ENDMM	'h1FFFFFFF

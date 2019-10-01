@@ -473,18 +473,18 @@ package qspi;
 		let arsize = axir.burst_size;
         Bool request_ready = True;
         `ifdef verbose $display($time,"\tReceived AXI read request to Address: %h Size: %h",araddr,arsize); `endif
-		if((araddr[27:0]>=`STARTMM && araddr[27:0]<=`ENDMM) && araddr[31]==1'b1)begin // memory mapped space
+		if(araddr>=`STARTMM && araddr<=`ENDMM)begin // memory mapped space
             
             wr_read_request_from_AXI<=True;   //Could this lead to some error? Need to think about this, without fail
             AXI4_Lite_Resp axi4_rresp = AXI4_LITE_OKAY;
 			mm_address<=truncate(araddr);
             Bit#(4) data_length = arsize==0?1:arsize==1?2:arsize==2?4:8; 
 			mm_data_length<= zeroExtend(data_length);
-            Bit#(28) address_limit = 1 << dcr_fsize;
-
+            Bit#(32) address_limit = 1 << dcr_fsize;
+			Bit#(32) qspi_mm_addr = zeroExtend(araddr[27:0]);
             //It is forbidden to access the flash bank area before the SPI is properly configured -- fmode is '11??
             //If not sending a SLVERR now if the mode is not memory mapped and if an access is made outside allowed
-            if(ccr_fmode!='b11 || araddr[27:0] > address_limit) begin
+            if(ccr_fmode!='b11 || qspi_mm_addr > address_limit) begin
                 `ifdef verbose $display("Sending Slave Error ccr_fmode: %h mm_address: %h address_limit: %h dcr_fsize: %h",ccr_fmode,mm_address,address_limit, dcr_fsize); `endif
                 axi4_rresp = AXI4_LITE_SLVERR;
 //              let r = AXI4_Lite_Rd_Data {rresp: axi4_rresp, rdata: 0 , ruser: 0};
