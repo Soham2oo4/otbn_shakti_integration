@@ -4,11 +4,10 @@
 // 0x4: U R R R
 // 0x8: U R R R
 
-// Parameters - Max number of channels is 15. If more channels are needed, address comparison bits in write and read requests should be increased
+// Parameters
 	`define PWMWIDTH 32
 
 // Memory Map
-`define Pwm_Channels	2
 `define Pwm_clock			'h00
 `define Pwm_control			'h04
 `define Pwm_period			'h08
