@@ -133,17 +133,17 @@ package pwm;
 	
 		// ======= Actual Counter and PWM signal generation ======== //
 		// Registers at Down clock
-	    Vector#(`Pwm_Channels,Reg#(Bit#(1))) pwm_output 		<- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
+	  Vector#(`Pwm_Channels,Reg#(Bit#(1))) pwm_output 		<- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
 		Vector#(`Pwm_Channels,Reg#(Bit#(1))) pwm_comp_output <- replicateM(mkReg(0,clocked_by downclock, reset_by downreset));
-	    Vector#(`Pwm_Channels,Reg#(Bit#(pwmwidth))) counter 	<- replicateM(mkReg(100,clocked_by downclock,reset_by downreset));
-	    Vector#(`Pwm_Channels,Reg#(Bit#(1))) interrupt 		<- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
+	  Vector#(`Pwm_Channels,Reg#(Bit#(pwmwidth))) counter 	<- replicateM(mkReg(100,clocked_by downclock,reset_by downreset));
+	  Vector#(`Pwm_Channels,Reg#(Bit#(1))) interrupt 		<- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
 		Vector#(`Pwm_Channels,Reg#(Bit#(1))) pwm_rise_interrupt <- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
 		Vector#(`Pwm_Channels,Reg#(Bit#(1))) pwm_fall_interrupt <- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
 		Vector#(`Pwm_Channels,Reg#(Bit#(1))) pwm_halfperiod_interrupt <- replicateM(mkReg(0,clocked_by downclock, reset_by downreset));	
 
 		// Registers at bus clock
 		Vector#(`Pwm_Channels,Reg#(Bit#(pwmwidth))) duty_cycle 	<- replicateM(mkReg(0));                           
-        Vector#(`Pwm_Channels,Reg#(Bit#(pwmwidth))) period 		<- replicateM(mkReg(0));
+    Vector#(`Pwm_Channels,Reg#(Bit#(pwmwidth))) period 		<- replicateM(mkReg(0));
 		Vector#(`Pwm_Channels,Reg#(Bit#(16))) deadbanddelay 		<- replicateM(mkReg(0));
 
 		// Wires which sync value from down clock to bus clock
@@ -154,15 +154,6 @@ package pwm;
 		Vector#(`Pwm_Channels,ReadOnly#(Bit#(1))) sync_rise_interrupt;
 		Vector#(`Pwm_Channels,ReadOnly#(Bit#(1))) sync_fall_interrupt;
 		Vector#(`Pwm_Channels,ReadOnly#(Bit#(1))) sync_halfperiod_interrupt;
-		for(Integer i=0; i< `Pwm_Channels; i=i+1) begin
-			pwm_signal[i] 					<- 	mkNullCrossingWire(bus_clock,pwm_output[i]);
-			pwm_comp_signal[i] 				<-	mkNullCrossingWire(bus_clock,pwm_comp_output[i]);
-			interrupt_signal[i]				<-	mkNullCrossingWire(bus_clock,interrupt[i]);
-			sync_counter[i]					<-	mkNullCrossingWire(bus_clock,counter[i]);
-			sync_rise_interrupt[i]			<-	mkNullCrossingWire(bus_clock,pwm_rise_interrupt[i]);
-			sync_fall_interrupt[i]			<-	mkNullCrossingWire(bus_clock,pwm_fall_interrupt[i]);
-			sync_halfperiod_interrupt[i]	<-	mkNullCrossingWire(bus_clock,pwm_halfperiod_interrupt[i]);	
-		end	
 
 		// Wires which sync value from bus clock to down clock
 		Vector#(`Pwm_Channels,ReadOnly#(Bit#(pwmwidth))) sync_duty_cycle;
@@ -173,6 +164,14 @@ package pwm;
 		Vector#(`Pwm_Channels,ReadOnly#(Bit#(1))) sync_fall_interrupt_enable;
 		Vector#(`Pwm_Channels,ReadOnly#(Bit#(1))) sync_halfperiod_interrupt_enable;
 		for(Integer i=0; i<`Pwm_Channels; i=i+1) begin
+			pwm_signal[i] 					<- 	mkNullCrossingWire(bus_clock,pwm_output[i]);
+			pwm_comp_signal[i] 				<-	mkNullCrossingWire(bus_clock,pwm_comp_output[i]);
+			interrupt_signal[i]				<-	mkNullCrossingWire(bus_clock,interrupt[i]);
+			sync_counter[i]					<-	mkNullCrossingWire(bus_clock,counter[i]);
+			sync_rise_interrupt[i]			<-	mkNullCrossingWire(bus_clock,pwm_rise_interrupt[i]);
+			sync_fall_interrupt[i]			<-	mkNullCrossingWire(bus_clock,pwm_fall_interrupt[i]);
+			sync_halfperiod_interrupt[i]	<-	mkNullCrossingWire(bus_clock,pwm_halfperiod_interrupt[i]);	
+
 			sync_duty_cycle[i] 					<- mkNullCrossingWire(downclock,duty_cycle[i]); 
 			sync_period[i]						<- mkNullCrossingWire(downclock,period[i]);
 			sync_pwm_enable[i] 					<- mkNullCrossingWire(downclock,cr_pwm_enable[i]);
@@ -183,6 +182,7 @@ package pwm;
 		end 	
 		// Update values at Rising edge
 		for(Integer i=0; i<`Pwm_Channels; i=i+1) begin
+			(*conflict_free="reload_input_values_at_rising_edge, reload_input_values_at_falling_edge"*)
 			rule reload_input_values_at_rising_edge((sync_counter[i] == 0 || cr_pwm_start[i] == 1) && cr_pwm_update_enable[i] == 1);
 				deadbanddelay[i] <= deadbanddelay_in[i];
 				duty_cycle[i] <= duty_cycle_in[i];
@@ -190,27 +190,16 @@ package pwm;
 				cr_pwm_update_enable[i] <= 0;
 				cr_pwm_start[i] <= 0;
 			endrule
-		end
-
-		// Update values at Falling edge
-		for(Integer i=0; i<`Pwm_Channels; i=i+1) begin
 			rule reload_input_values_at_falling_edge(sync_counter[i] == duty_cycle[i]-2 && cr_pwm_update_enable[i] == 1);   
 		     	duty_cycle[i] <= duty_cycle_in[i];                                                  
 		        period[i] <= period_in[i];                                                          
 				cr_pwm_update_enable[i] <= 0;
 			endrule 
-		end
-
-		// Update interrupt values from down clock to bus clock
-		for(Integer i=0; i<`Pwm_Channels; i=i+1) begin
 			rule rl_update_interrupts;
 				cr_rise_interrupt[i] <= sync_rise_interrupt[i];
 				cr_fall_interrupt[i] <= sync_fall_interrupt[i];
 				cr_halfperiod_interrupt[i] <= sync_halfperiod_interrupt[i];
 			endrule
- 		end
-		// PWM operation
-		for(Integer i=0; i<`Pwm_Channels; i=i+1) begin
 			rule compare_and_generate_pwm(sync_pwm_enable[i]==1);                                      
 					Bit#(pwmwidth) temp_cntr;                                                                  
 		            if(counter[i] >= sync_period[i]-1)                                                 
