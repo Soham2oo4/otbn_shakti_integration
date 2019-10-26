@@ -38,7 +38,7 @@ module mkdummy#(Clock uart_clock, Reset uart_reset)(Ifc_uart_axi4#(32, 64, 0, 16
 	let core_clock<-exposeCurrentClock;
 	let core_reset<-exposeCurrentReset;
   let ifc();
-  mkuart_axi4#(core_clock, core_reset, 16) _temp(ifc);
+  mkuart_axi4#(core_clock, core_reset, 5,0,0) _temp(ifc);
   return ifc;
 endmodule
 

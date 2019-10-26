@@ -116,13 +116,15 @@ package uart;
         return tuple2(duplicate(wr_status),True);
       end
 			else if(addr[4:0]==`RxReg) begin
-				Bit#(32) data<-uart.tx.get; 
+				Bit#(32) data =0;
+				if(uart.receiver_not_empty)
+					data<-uart.tx.get; 
         `logLevel( uart, 1, $format("UART read data: %h %c", data, data))
         data= data >> (32-rg_charsize);
-				return tuple2(duplicate(data),True);
+				return tuple2(zeroExtend(data),True);
 			end
-			else if(addr[4:0]==`BaudReg && size==HWord ) begin
-				return tuple2(duplicate(baud_value),True);
+			else if(addr[4:0]==`BaudReg) begin
+				return tuple2(zeroExtend(baud_value),True);
 			end
       else if(addr[4:0]==`DelayReg && size==HWord) begin
 				return tuple2(duplicate(rg_delay_control),True);
