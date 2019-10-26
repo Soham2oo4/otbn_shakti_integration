@@ -47,7 +47,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package uart;
 	  `include "Logger.bsv"       // for logging display statements.
-	`include "uart.defines"
+`include "uart.defines"
 
 	import AXI4_Lite_Types::*;
 	import AXI4_Lite_Fabric::*;
@@ -60,6 +60,7 @@ package uart;
 	import Clocks::*;
 	import BUtils::*;
   import device_common::*;
+	import ConcatReg				 ::*;
 
   export RS232             (..);
   export Ifc_uart_axi4lite (..);
@@ -74,60 +75,102 @@ package uart;
 																									AccessSize size);
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-    	interface RS232 io;
+    interface RS232 io;
+		method Bit#(1) interrupt;
 	endinterface
 
-	module mkuart_user#(parameter Bit#(16) baudrate)
+	module mkuart_user#(parameter Bit#(16) baudrate, Bit#(2) stopbits, Bit#(2) parity)
       (UserInterface#(addr_width,data_width, depth))
-      provisos(
-          Add#(a__, 4, data_width),
-          Add#(b__, 8, data_width),
-          Add#(c__, 16, data_width),
-          Add#(2, d__, depth)
-        );
+      provisos(Mul#(32, a__, data_width),
+              Add#(d__, 8, data_width),    
+              Mul#(8, b__, data_width),
+              Mul#(4, f__, data_width),
+              Add#(c__, 32, data_width), 
+              Add#(g__, 16, data_width), 
+              Mul#(16, h__, data_width),
+							Add#(i__, 9, data_width),
+              Add#(2, e__, depth));
 
-		Reg#(Bit#(16)) baud_value <-mkReg(baudrate);
-		UART#(depth) uart <-mkUART(8,NONE,STOP_1,baud_value); // charasize,Parity,Stop Bits,BaudDIV
-    Wire#(Bit#(4)) wr_status <- mkWire();
+		Reg#(Bit#(16)) baud_value <- mkReg(baudrate);
+    Reg#(Bit#(16)) rg_delay_control <- mkReg(0);
+		Reg#(StopBits) rg_stopbits <- mkReg(unpack(stopbits));
+		Reg#(Parity)   rg_parity   <- mkReg(unpack(parity));
+		Reg#(Bit#(6))  rg_charsize <- mkReg(8);
+
+		//Reg#(Bit#(9)) rg_control= concatReg3(rg_charsize, rg_parity, rg_stopbits);
+
+		UART#(depth) uart <-mkUART(rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
+    Wire#(Bit#(8)) wr_status <- mkWire();
+		Reg#(Bit#(8)) rg_interrupt_en <-mkReg(0);
+
     rule capture_status;
-      let lv_status= {pack(uart.receiver_not_empty), pack(uart.receiver_not_full), 
-                                  pack(uart.transmittor_not_full), pack(uart.transmission_done)};
+      let lv_status= { uart.error_status, pack(uart.receiver_not_empty), pack(uart.receiver_not_full),
+											 pack(uart.transmittor_not_full), pack(uart.transmission_done) };
       wr_status<=lv_status;
+      `logLevel( uart, 3, $format("Status1: %b Interrupt_en: %b", lv_status, rg_interrupt_en))
     endrule
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
-      if( addr[3:0]==`StatusReg)begin
-        return tuple2(zeroExtend(wr_status),True);
+      if( addr[4:0]==`StatusReg && size==Byte)begin
+        return tuple2(duplicate(wr_status),True);
       end
-			else if( addr[3:0]==`RxReg)begin
-				Bit#(8) data =0;
+			else if(addr[4:0]==`RxReg) begin
+				Bit#(32) data =0;
 				if(uart.receiver_not_empty)
-				  data<-uart.tx.get; 
+					data<-uart.tx.get; 
+        `logLevel( uart, 1, $format("UART read data: %h %c", data, data))
+        data= data >> (32-rg_charsize);
 				return tuple2(zeroExtend(data),True);
 			end
-			else if(addr[3:0]==`BaudReg) begin
+			else if(addr[4:0]==`BaudReg) begin
 				return tuple2(zeroExtend(baud_value),True);
 			end
+      else if(addr[4:0]==`DelayReg && size==HWord) begin
+				return tuple2(duplicate(rg_delay_control),True);
+      end
+      else if(addr[4:0]==`InterruptEn && size==Byte) begin
+				return tuple2(duplicate(rg_interrupt_en), True);
+      end
 			else
 				return tuple2(?,False);
 		endmethod
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-			if(addr[3:0]==`TxReg)begin
+			if(addr[4:0]==`TxReg) begin
 				uart.rx.put(truncate(data));//putting write data in the UART
+        `logLevel( uart, 0, $format("Sending ASCII: %c", data[7:0]))
 				return True;
 			end
-			else if(addr[3:0]==`BaudReg) begin
+			else if(addr[4:0]==`BaudReg && size==HWord) begin
 				baud_value<=truncate(data);
+				return True;
+			end
+			else if(addr[4:0]==`DelayReg && size==HWord) begin
+				rg_delay_control<=truncate(data);
+				return True;
+			end
+			else if(addr[4:0]==`ControlReg && size==HWord) begin
+				rg_charsize<= data[10:5];
+				rg_parity<= unpack(data[4:3]);
+				rg_stopbits<= unpack(data[2:1]);
+				//rg_control<= truncate(data);
+				return True;
+			end
+      else if(addr[4:0]==`InterruptEn && size==Byte) begin
+				rg_interrupt_en<= truncate(data);
 				return True;
 			end
 			else
 				return False;
 		endmethod
 
-	  interface io=uart.rs232;	
+	  interface io=uart.rs232;
+		method Bit#(1) interrupt;
+			return |(wr_status & rg_interrupt_en);
+		endmethod
+
 	endmodule:mkuart_user
 
 	interface Ifc_uart_axi4lite#(numeric type addr_width, 
@@ -138,15 +181,19 @@ package uart;
 	   interface RS232 io;
   	endinterface
 
-	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate)
+	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate,
+                          parameter Bit#(2) stopbits, parameter Bit#(2) parity)
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
-      provisos(
-          Add#(a__, 4, data_width),
-          Add#(b__, 8, data_width),
-          Add#(c__, 16, data_width),
-          Add#(2, d__, depth)
-        );
+    provisos(Mul#(32, a__, data_width),
+              Add#(d__, 8, data_width),    
+              Mul#(8, b__, data_width),
+              Mul#(4, f__, data_width),
+              Add#(c__, 32, data_width), 
+              Add#(g__, 16, data_width), 
+              Mul#(16, h__, data_width),
+							Add#(i__, 9, data_width),
+              Add#(2, e__, depth));
 
 		
 		Clock core_clock<-exposeCurrentClock;
@@ -156,7 +203,8 @@ package uart;
 
 		if(!sync_required)begin // If uart is clocked by core-clock.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
-                                                                    reset_by uart_reset, baudrate);
+                                                                    reset_by uart_reset, baudrate,
+                                                                    stopbits, parity);
 			//capturing the read requests
 			rule capture_read_request;
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
@@ -179,7 +227,8 @@ package uart;
 		end
 		else begin // if core clock and uart_clock is different.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
-                                                                    reset_by uart_reset, baudrate);
+                                                                    reset_by uart_reset, baudrate,
+                                                                    stopbits, parity);
 			SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request <- 
 																							mkSyncFIFOFromCC(3,uart_clock);
 			SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request <- 
@@ -244,15 +293,19 @@ package uart;
 		(*prefix=""*) interface RS232 io;
  	endinterface
 
-	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate)
+	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate,
+                          parameter Bit#(2) stopbits, parameter Bit#(2) parity)
                                           (Ifc_uart_axi4#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
-      provisos(
-          Add#(a__, 4, data_width),
-          Add#(b__, 8, data_width),
-          Add#(c__, 16, data_width),
-          Add#(2, d__, depth)
-        );
+    provisos(Mul#(32, a__, data_width),
+              Add#(d__, 8, data_width),    
+              Mul#(8, b__, data_width),
+              Mul#(4, f__, data_width),
+              Add#(c__, 32, data_width), 
+              Add#(g__, 16, data_width), 
+              Mul#(16, h__, data_width),
+							Add#(i__, 9, data_width),
+              Add#(2, e__, depth));
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
@@ -262,7 +315,8 @@ package uart;
 
 		if(!sync_required)begin // If uart is clocked by core-clock.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
-                                                                    reset_by uart_reset, baudrate);
+                                                                    reset_by uart_reset, baudrate,
+                                                                    stopbits, parity);
 		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
   		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
 			//capturing the read requests
@@ -280,7 +334,7 @@ package uart;
 			rule burst_reads(rg_rdburst_count!=0);
 				let rd_req=rg_rdpacket;
 				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
-				if(rd_req.araddr[3:0]!=`RxReg || truncate(rd_req.arsize)!=pack(Byte) 
+				if(rd_req.araddr[4:0]!=`RxReg || truncate(rd_req.arsize)!=pack(Byte) 
 															|| rd_req.arburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
@@ -311,7 +365,7 @@ package uart;
 				let wr_data <- pop_o(s_xactor.o_wr_data);
 				let succ <- user_ifc.write_req(wr_req.awaddr,wr_data.wdata,
 																						unpack(truncate(wr_req.awsize)));
-				if(wr_req.awaddr[3:0]!=`TxReg || truncate(wr_req.awsize)!=pack(Byte) 
+				if(wr_req.awaddr[4:0]!=`TxReg || truncate(wr_req.awsize)!=pack(Byte) 
 															|| wr_req.awburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
@@ -328,7 +382,8 @@ package uart;
 		end
 		else begin // if core clock and uart_clock is different.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
-                                                                    reset_by uart_reset, baudrate);
+                                                                    reset_by uart_reset, baudrate,
+                                                                    stopbits, parity);
 			SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_request <- 
 														                      									mkSyncFIFOFromCC(3,uart_clock);
 			SyncFIFOIfc#(AXI4_Wr_Addr#(addr_width,user_width)) ff_wr_request <- 
@@ -360,7 +415,7 @@ package uart;
       rule perform_read_burst(rg_rdburst_count!=0);
 				let rd_req = ff_rd_request.first;
 				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
-				if(rd_req.araddr[3:0]!=`RxReg || truncate(rd_req.arsize)!=pack(HWord) 
+				if(rd_req.araddr[4:0]!=`RxReg || truncate(rd_req.arsize)!=pack(HWord) 
 															|| rd_req.arburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
@@ -412,7 +467,7 @@ package uart;
 				let wr_data =ff_wdata_request.first;
 				let succ <- user_ifc.write_req(wr_req.awaddr,wr_data.wdata,
 																						unpack(truncate(wr_req.awsize)));
-				if(wr_req.awaddr[3:0]!=`TxReg || truncate(wr_req.awsize)!=pack(HWord) 
+				if(wr_req.awaddr[4:0]!=`TxReg || truncate(wr_req.awsize)!=pack(HWord) 
 															|| wr_req.awburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
