@@ -46,6 +46,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 */
 package uart;
+	  `include "Logger.bsv"       // for logging display statements.
 	`include "uart.defines"
 
 	import AXI4_Lite_Types::*;
@@ -78,12 +79,12 @@ package uart;
 
 	module mkuart_user#(parameter Bit#(16) baudrate)
       (UserInterface#(addr_width,data_width, depth))
-      provisos(Mul#(16, a__, data_width),
-              Add#(d__, 8, data_width),    
-              Mul#(8, b__, data_width),
-              Mul#(4, f__, data_width),
-              Add#(c__, 16, data_width), 
-              Add#(2, e__, depth));
+      provisos(
+          Add#(a__, 4, data_width),
+          Add#(b__, 8, data_width),
+          Add#(c__, 16, data_width),
+          Add#(2, d__, depth)
+        );
 
 		Reg#(Bit#(16)) baud_value <-mkReg(baudrate);
 		UART#(depth) uart <-mkUART(8,NONE,STOP_1,baud_value); // charasize,Parity,Stop Bits,BaudDIV
@@ -96,15 +97,17 @@ package uart;
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
-      if( addr[3:0]==`StatusReg && size==Byte)begin
-        return tuple2(duplicate(wr_status),True);
+      if( addr[3:0]==`StatusReg)begin
+        return tuple2(zeroExtend(wr_status),True);
       end
-			else if( addr[3:0]==`RxReg && size==Byte)begin
-				Bit#(8) data<-uart.tx.get; 
-				return tuple2(duplicate(data),True);
+			else if( addr[3:0]==`RxReg)begin
+				Bit#(8) data =0;
+				if(uart.receiver_not_empty)
+				  data<-uart.tx.get; 
+				return tuple2(zeroExtend(data),True);
 			end
-			else if(addr[3:0]==`BaudReg && size==HWord ) begin
-				return tuple2(duplicate(baud_value),True);
+			else if(addr[3:0]==`BaudReg) begin
+				return tuple2(zeroExtend(baud_value),True);
 			end
 			else
 				return tuple2(?,False);
@@ -112,11 +115,11 @@ package uart;
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-			if(addr[3:0]==`TxReg && size==Byte)begin
+			if(addr[3:0]==`TxReg)begin
 				uart.rx.put(truncate(data));//putting write data in the UART
 				return True;
 			end
-			else if(addr[3:0]==`BaudReg && size==HWord) begin
+			else if(addr[3:0]==`BaudReg) begin
 				baud_value<=truncate(data);
 				return True;
 			end
@@ -138,12 +141,12 @@ package uart;
 	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate)
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
-    provisos(Mul#(16, a__, data_width),
-              Add#(d__, 8, data_width),    
-              Mul#(8, b__, data_width),
-              Mul#(4, f__, data_width),
-              Add#(c__, 16, data_width), 
-              Add#(2, e__, depth));
+      provisos(
+          Add#(a__, 4, data_width),
+          Add#(b__, 8, data_width),
+          Add#(c__, 16, data_width),
+          Add#(2, d__, depth)
+        );
 
 		
 		Clock core_clock<-exposeCurrentClock;
@@ -244,12 +247,12 @@ package uart;
 	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate)
                                           (Ifc_uart_axi4#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
-    provisos(Mul#(16, a__, data_width),
-              Add#(d__, 8, data_width),    
-              Mul#(8, b__, data_width),
-              Mul#(4, f__, data_width),
-              Add#(c__, 16, data_width), 
-              Add#(2, e__, depth));
+      provisos(
+          Add#(a__, 4, data_width),
+          Add#(b__, 8, data_width),
+          Add#(c__, 16, data_width),
+          Add#(2, d__, depth)
+        );
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
