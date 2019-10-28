@@ -121,10 +121,10 @@ package uart;
 					data<-uart.tx.get; 
         `logLevel( uart, 1, $format("UART read data: %h %c", data, data))
         data= data >> (32-rg_charsize);
-				return tuple2(zeroExtend(data),True);
+				return tuple2(duplicate(data),True);
 			end
 			else if(addr[4:0]==`BaudReg) begin
-				return tuple2(zeroExtend(baud_value),True);
+				return tuple2(duplicate(baud_value),True);
 			end
       else if(addr[4:0]==`DelayReg && size==HWord) begin
 				return tuple2(duplicate(rg_delay_control),True);
