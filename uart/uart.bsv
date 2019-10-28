@@ -80,11 +80,12 @@ package uart;
 	module mkuart_user#(parameter Bit#(16) baudrate)
       (UserInterface#(addr_width,data_width, depth))
       provisos(
-          Add#(a__, 4, data_width),
-          Add#(b__, 8, data_width),
-          Add#(c__, 16, data_width),
-          Add#(2, d__, depth)
-        );
+        Add#(a__, 8, data_width),
+        Add#(b__, 16, data_width),
+        Mul#(16, c__, data_width),
+        Mul#(8, d__, data_width),
+        Add#(2, e__, depth)
+      );
 
 		Reg#(Bit#(16)) baud_value <-mkReg(baudrate);
 		UART#(depth) uart <-mkUART(8,NONE,STOP_1,baud_value); // charasize,Parity,Stop Bits,BaudDIV
@@ -98,16 +99,16 @@ package uart;
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
       if( addr[3:0]==`StatusReg)begin
-        return tuple2(zeroExtend(wr_status),True);
+        return tuple2(duplicate({4'd0,wr_status}),True);
       end
 			else if( addr[3:0]==`RxReg)begin
 				Bit#(8) data =0;
 				if(uart.receiver_not_empty)
 				  data<-uart.tx.get; 
-				return tuple2(zeroExtend(data),True);
+				return tuple2(duplicate(data),True);
 			end
 			else if(addr[3:0]==`BaudReg) begin
-				return tuple2(zeroExtend(baud_value),True);
+				return tuple2(duplicate(baud_value),True);
 			end
 			else
 				return tuple2(?,False);
@@ -142,10 +143,11 @@ package uart;
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
       provisos(
-          Add#(a__, 4, data_width),
-          Add#(b__, 8, data_width),
-          Add#(c__, 16, data_width),
-          Add#(2, d__, depth)
+        Add#(a__, 8, data_width),
+        Add#(b__, 16, data_width),
+        Mul#(16, c__, data_width),
+        Mul#(8, d__, data_width),
+        Add#(2, e__, depth)
         );
 
 		
@@ -248,10 +250,11 @@ package uart;
                                           (Ifc_uart_axi4#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
       provisos(
-          Add#(a__, 4, data_width),
-          Add#(b__, 8, data_width),
-          Add#(c__, 16, data_width),
-          Add#(2, d__, depth)
+        Add#(a__, 8, data_width),
+        Add#(b__, 16, data_width),
+        Mul#(16, c__, data_width),
+        Mul#(8, d__, data_width),
+        Add#(2, e__, depth)
         );
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
