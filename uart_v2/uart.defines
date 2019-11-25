@@ -35,3 +35,6 @@
                             // Bit 2: Receiver Not Full Interrupt Enable
                             // Bit 1: Transmitter Not Full Interrupt Enable
                             // Bit 0: Transmission Done Interrupt Enable
+`ifdef IQC
+  `define IQ_cycles 'h1C    //8-bit register that indicates number of input qualification cycles
+`endif
