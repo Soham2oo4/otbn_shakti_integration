@@ -91,17 +91,17 @@ package uart;
 							Add#(i__, 9, data_width),
               Add#(2, e__, depth));
 
-		Reg#(Bit#(16)) baud_value <- mkReg(baudrate);
-    Reg#(Bit#(16)) rg_delay_control <- mkReg(0);
-		Reg#(StopBits) rg_stopbits <- mkReg(unpack(stopbits));
-		Reg#(Parity)   rg_parity   <- mkReg(unpack(parity));
-		Reg#(Bit#(6))  rg_charsize <- mkReg(8);
+		Reg#(Bit#(16)) baud_value <- mkRegA(baudrate);
+    Reg#(Bit#(16)) rg_delay_control <- mkRegA(0);
+		Reg#(StopBits) rg_stopbits <- mkRegA(unpack(stopbits));
+		Reg#(Parity)   rg_parity   <- mkRegA(unpack(parity));
+		Reg#(Bit#(6))  rg_charsize <- mkRegA(8);
 
 		//Reg#(Bit#(9)) rg_control= concatReg3(rg_charsize, rg_parity, rg_stopbits);
 
 		UART#(depth) uart <-mkUART(rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
     Wire#(Bit#(8)) wr_status <- mkWire();
-		Reg#(Bit#(8)) rg_interrupt_en <-mkReg(0);
+		Reg#(Bit#(8)) rg_interrupt_en <-mkRegA(0);
 
     rule capture_status;
       let lv_status= { uart.error_status, pack(uart.receiver_not_empty), pack(uart.receiver_not_full),
@@ -310,15 +310,15 @@ package uart;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
 		AXI4_Slave_Xactor_IFC #(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0, clocked_by uart_clock, reset_by uart_reset);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0, clocked_by uart_clock, reset_by uart_reset);
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
 
 		if(!sync_required)begin // If uart is clocked by core-clock.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate,
                                                                     stopbits, parity);
-		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
-  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 			//capturing the read requests
 			rule capture_read_request(rg_rdburst_count==0);
 				let rd_req <- pop_o (s_xactor.o_rd_addr);

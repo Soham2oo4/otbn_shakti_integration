@@ -54,10 +54,10 @@ package debug_halt_loop;
              Mul#(8, d__, dwidth));
     AXI4_Slave_Xactor_IFC#(awidth, dwidth, uwidth) s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(32)) instr_array [4];
-    instr_array[0] <- mkReg('h0000100f); // fence.i
-    instr_array[1] <- mkReg('h00000013); // nop
-    instr_array[2] <- mkReg('hffdff06f); // j pc -4
-    instr_array[3] <- mkReg('h0000006f); // self-loop
+    instr_array[0] <- mkRegA('h0000100f); // fence.i
+    instr_array[1] <- mkRegA('h00000013); // nop
+    instr_array[2] <- mkRegA('hffdff06f); // j pc -4
+    instr_array[3] <- mkRegA('h0000006f); // self-loop
 
     rule recieve_read;
       let req <- pop_o(s_xactor.o_rd_addr);
@@ -107,10 +107,10 @@ package debug_halt_loop;
              Mul#(8, d__, dwidth));
     AXI4_Lite_Slave_Xactor_IFC#(awidth, dwidth, uwidth) s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Reg#(Bit#(32)) instr_array [4];
-    instr_array[0] <- mkReg('h0000100f); // fence.i
-    instr_array[1] <- mkReg('h00000013); // nop
-    instr_array[2] <- mkReg('hffdff06f); // j pc -4
-    instr_array[3] <- mkReg('h0000006f); // self-loop
+    instr_array[0] <- mkRegA('h0000100f); // fence.i
+    instr_array[1] <- mkRegA('h00000013); // nop
+    instr_array[2] <- mkRegA('hffdff06f); // j pc -4
+    instr_array[3] <- mkRegA('h0000006f); // self-loop
 
     rule recieve_read;
       let req <- pop_o(s_xactor.o_rd_addr);

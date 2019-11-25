@@ -87,7 +87,7 @@ package uart;
         Add#(2, e__, depth)
       );
 
-		Reg#(Bit#(16)) baud_value <-mkReg(baudrate);
+		Reg#(Bit#(16)) baud_value <-mkRegA(baudrate);
 		UART#(depth) uart <-mkUART(8,NONE,STOP_1,baud_value); // charasize,Parity,Stop Bits,BaudDIV
     Wire#(Bit#(4)) wr_status <- mkWire();
     rule capture_status;
@@ -260,14 +260,14 @@ package uart;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
 		AXI4_Slave_Xactor_IFC #(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0, clocked_by uart_clock, reset_by uart_reset);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0, clocked_by uart_clock, reset_by uart_reset);
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
 
 		if(!sync_required)begin // If uart is clocked by core-clock.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate);
-		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
-  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 			//capturing the read requests
 			rule capture_read_request(rg_rdburst_count==0);
 				let rd_req <- pop_o (s_xactor.o_rd_addr);

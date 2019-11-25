@@ -241,7 +241,7 @@ module mkInputFilter#(a initval, a din)(InputFilter#(size, a))
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
    Counter#(csize)                           counter             <- mkCounter(0);
-   Reg#(a)                                   rOut                <- mkReg(initval);
+   Reg#(a)                                   rOut                <- mkRegA(initval);
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
@@ -285,7 +285,7 @@ module mkEdgeDetector#(a initval, a din)(EdgeDetector#(a))
    ////////////////////////////////////////////////////////////////////////////////
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
-   Reg#(a)                                   rDinD1              <- mkReg(initval);
+   Reg#(a)                                   rDinD1              <- mkRegA(initval);
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Rules
@@ -335,8 +335,8 @@ module mkSynchronizer#(a initval)(Synchronizer#(a))
    ////////////////////////////////////////////////////////////////////////////////
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
-   Reg#(a)                                   d1                  <- mkReg(initval);
-   Reg#(a)                                   d2                  <- mkReg(initval);
+   Reg#(a)                                   d1                  <- mkRegA(initval);
+   Reg#(a)                                   d2                  <- mkRegA(initval);
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Interface Connections / Methods
@@ -369,7 +369,7 @@ module mkInputMovingFilter#(a din)(InputMovingFilter#(width, threshold, a))
    /// Design Elements
    ////////////////////////////////////////////////////////////////////////////////
    Counter#(width)                           counter             <- mkCounter(0);
-   Reg#(a)                                   rOut                <- mkReg(unpack(0));
+   Reg#(a)                                   rOut                <- mkRegA(unpack(0));
    PulseWire                                 pwSample            <- mkPulseWire;
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -430,17 +430,17 @@ module mkUART( Bit#(6) charsize
    ////////////////////////////////////////////////////////////////////////////////
    FIFOLevelIfc#(Bit#(32), d)                 fifoRecv              <- mkGFIFOLevel(True, True, True);
 
-   Vector#(32, Reg#(Bit#(1)))                 vrRecvBuffer          <- replicateM(mkReg(0));
+   Vector#(32, Reg#(Bit#(1)))                 vrRecvBuffer          <- replicateM(mkRegA(0));
 
-	 Reg#(Bit#(4))                             error_status_register <- mkReg(0);
-   Reg#(Bit#(1))                             rRecvData             <- mkReg(1);
+	 Reg#(Bit#(4))                             error_status_register <- mkRegA(0);
+   Reg#(Bit#(1))                             rRecvData             <- mkRegA(1);
 
    Reg#(RecvState)                           rRecvState            <- mkRegA(Start);
    Reg#(Bit#(4))                             rRecvCellCount        <- mkRegA(0);
    Reg#(Bit#(6))                             rRecvBitCount         <- mkRegA(0);
    Reg#(Bit#(1))                             rRecvParity           <- mkRegA(0);
    Reg#(Bit#(16))                            rg_delay_count        <- mkRegA('d0);
-   Reg#(Bit#(1))                             out_enable            <- mkReg(0);
+   Reg#(Bit#(1))                             out_enable            <- mkRegA(0);
 
    PulseWire                                 pwRecvShiftBuffer     <- mkPulseWire;
    PulseWire                                 pwRecvCellCountReset  <- mkPulseWire;

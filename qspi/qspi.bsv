@@ -13,7 +13,7 @@ package qspi;
 	import Clocks::*;
 	import SpecialFIFOs::*;
 	import ClientServer::*;
-	import MIMO::*;
+	import MIMO_MODIFY::*;
 	import DefaultValue :: *;
 //	`include "defined_parameters.bsv"
 	`include "qspi.defines"
@@ -135,34 +135,34 @@ package qspi;
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 	
 	/*************** List of implementation defined Registers *****************/
-	Reg#(bit) rg_clk <-mkReg(1);
-	Reg#(Bit#(8)) rg_clk_counter<-mkReg(0);
+	Reg#(bit) rg_clk <-mkRegA(1);
+	Reg#(Bit#(8)) rg_clk_counter<-mkRegA(0);
 	MIMOConfiguration cfg=defaultValue;
 	cfg.unguarded=True;
 	MIMO#(4,4,16,Bit#(8)) fifo <-mkMIMO(cfg);
-	Reg#(Phase) rg_phase <-mkReg(Idle);
-	Reg#(Phase) rg_phase_delayed <-mkReg(Idle);
-	Reg#(Bit#(4)) rg_output <-mkReg(0);
-	Reg#(Bit#(4)) rg_output_en <-mkReg(0);
-	Reg#(Bool) rg_input_en <-mkReg(False);
+	Reg#(Phase) rg_phase <-mkRegA(Idle);
+	Reg#(Phase) rg_phase_delayed <-mkRegA(Idle);
+	Reg#(Bit#(4)) rg_output <-mkRegA(0);
+	Reg#(Bit#(4)) rg_output_en <-mkRegA(0);
+	Reg#(Bool) rg_input_en <-mkRegA(False);
 	Wire#(Bit#(4)) rg_input <-mkDWire(0);
-	Reg#(Bit#(32)) rg_count_bits <-mkReg(0); // count bits to be transfered 
-	Reg#(Bit#(32)) rg_count_bytes <-mkReg(0); // count bytes to be transfered 
+	Reg#(Bit#(32)) rg_count_bits <-mkRegA(0); // count bits to be transfered 
+	Reg#(Bit#(32)) rg_count_bytes <-mkRegA(0); // count bytes to be transfered 
 	Reg#(Bool) wr_sdr_clock <-mkDWire(False); // use this to trigger posedge of sclk
     Reg#(Bool) wr_sdr_delayed <- mkDWire(False);
-	Reg#(Bool) wr_instruction_written<-mkDReg(False); // this wire is se when the instruction is written by the AXI Master
-	Reg#(Bool) wr_address_written<-mkDReg(False); // this wire is set when the address is written by the AXI Master
-	Reg#(Bool) wr_read_request_from_AXI<-mkDReg(False); // this wire is set when the address is written by the AXI Master
-	Reg#(Bool) wr_data_written<-mkDReg(False); // this wire is set when the data is written by the AXI Master
-	Reg#(Bool) instruction_sent<-mkReg(False); // This register is set when the instruction has been sent once to the flash
-	Reg#(Bit#(1)) ncs <-mkReg(1); // this is the chip select
-	Reg#(Bit#(1)) delay_ncs <-mkReg(1); // this is the chip select
+	Reg#(Bool) wr_instruction_written<-mkDRegA(False); // this wire is se when the instruction is written by the AXI Master
+	Reg#(Bool) wr_address_written<-mkDRegA(False); // this wire is set when the address is written by the AXI Master
+	Reg#(Bool) wr_read_request_from_AXI<-mkDRegA(False); // this wire is set when the address is written by the AXI Master
+	Reg#(Bool) wr_data_written<-mkDRegA(False); // this wire is set when the data is written by the AXI Master
+	Reg#(Bool) instruction_sent<-mkRegA(False); // This register is set when the instruction has been sent once to the flash
+	Reg#(Bit#(1)) ncs <-mkRegA(1); // this is the chip select
+	Reg#(Bit#(1)) delay_ncs <-mkRegA(1); // this is the chip select
 	Wire#(Bool) wr_status_read<-mkDWire(False); // this wire is set when the status register is written
 	Wire#(Bool) wr_data_read<-mkDWire(False); // this wire is set when the data register is written
-	Reg#(Bool) half_cycle_delay<-mkReg(False);
-	Reg#(Bit#(16)) timecounter<-mkReg(0);
-    Reg#(Bool) read_true <- mkReg(False);
-    Reg#(Bool) first_read <- mkReg(False);
+	Reg#(Bool) half_cycle_delay<-mkRegA(False);
+	Reg#(Bit#(16)) timecounter<-mkRegA(0);
+    Reg#(Bool) read_true <- mkRegA(False);
+    Reg#(Bool) first_read <- mkRegA(False);
 	/*************** End of implementation defined Registers *****************/
 
 /**************** Reg and wire for user interface *********************/
@@ -173,118 +173,118 @@ package qspi;
 	FIFO#(Read_req#(addr_width))				  ff_rd_req			<- mkFIFO();
 	
 	/*************** List of QSPI defined Registers *****************/
-	Reg#(Bit#(1)) sr_busy <-mkConfigReg(0); // set when the operation is in progress.
-	Reg#(Bit#(5)) sr_flevel <-mkReg(0); // FIFO Level. Number of valid bytes held in the FIFO. 0: empty
-	Reg#(Bit#(1)) sr_tof <-mkReg(0); // set when the timeout occurs.
-	Reg#(Bit#(1)) sr_smf <-mkReg(0); // set when the unmasked receieved data matches psmar. 
-	Reg#(Bit#(1)) sr_ftf <-mkReg(0); // set when the FIFO threshold is reached.
-	Reg#(Bit#(1)) sr_tcf <-mkReg(0); // set when programmed number of data has been transfered or when aborted.
-	Reg#(Bit#(1)) delay_sr_tcf <-mkReg(0); // set when programmed number of data has been transfered or when aborted.
-	Reg#(Bit#(1)) sr_tef <-mkReg(0); // set when an error occurs on transfer.
+	Reg#(Bit#(1)) sr_busy <-mkConfigRegA(0); // set when the operation is in progress.
+	Reg#(Bit#(5)) sr_flevel <-mkRegA(0); // FIFO Level. Number of valid bytes held in the FIFO. 0: empty
+	Reg#(Bit#(1)) sr_tof <-mkRegA(0); // set when the timeout occurs.
+	Reg#(Bit#(1)) sr_smf <-mkRegA(0); // set when the unmasked receieved data matches psmar. 
+	Reg#(Bit#(1)) sr_ftf <-mkRegA(0); // set when the FIFO threshold is reached.
+	Reg#(Bit#(1)) sr_tcf <-mkRegA(0); // set when programmed number of data has been transfered or when aborted.
+	Reg#(Bit#(1)) delay_sr_tcf <-mkRegA(0); // set when programmed number of data has been transfered or when aborted.
+	Reg#(Bit#(1)) sr_tef <-mkRegA(0); // set when an error occurs on transfer.
 	Reg#(Bit#(32)) sr = concatReg9(readOnlyReg(19'd0),readOnlyReg(sr_flevel),readOnlyReg(2'd0),readOnlyReg(sr_busy),readOnlyReg(sr_tof),readOnlyReg(sr_smf),readOnlyReg(sr_ftf),readOnlyReg(sr_tcf),readOnlyReg(sr_tef));
 
 
-	Reg#(Bit#(8)) prescaler<-mkReg(0);	
+	Reg#(Bit#(8)) prescaler<-mkRegA(0);	
 	Reg#(Bit#(8)) cr_prescaler=conditionalWrite(prescaler,sr_busy==0); // prescaler register part of the control register.
-	Reg#(Bit#(1)) pmm <-mkReg(0);
+	Reg#(Bit#(1)) pmm <-mkRegA(0);
 	Reg#(Bit#(1)) cr_pmm =conditionalWrite(pmm,sr_busy==0); // polling match mode. 0: AND match and 1: OR match.
-	Reg#(Bit#(1)) apms <-mkReg(0);
+	Reg#(Bit#(1)) apms <-mkRegA(0);
 	Reg#(Bit#(1)) cr_apms =conditionalWrite(apms,sr_busy==0); // automatic poll mode stop. 1: stop when match. 0: stopped by disabling qspi.
-	Reg#(Bit#(1)) cr_toie <-mkReg(0); // enabled interrupt on time-out.
-	Reg#(Bit#(1)) cr_smie <-mkReg(0); // enables status match interrupt.
-	Reg#(Bit#(1)) cr_ftie <-mkReg(0); // enables interrupt on FIFO threshold.
-	Reg#(Bit#(1)) cr_tcie <-mkReg(0); // enables interrupt on completion of transfer.
-	Reg#(Bit#(1)) cr_teie <-mkReg(0); // enables interrupt on error of transfer.
-	Reg#(Bit#(4)) cr_fthres<-mkReg(0); // defines the number of bytes in the FIFO that will cause the FTF in sr to be raised.
-	Reg#(Bit#(1)) fsel<-mkReg(0);
+	Reg#(Bit#(1)) cr_toie <-mkRegA(0); // enabled interrupt on time-out.
+	Reg#(Bit#(1)) cr_smie <-mkRegA(0); // enables status match interrupt.
+	Reg#(Bit#(1)) cr_ftie <-mkRegA(0); // enables interrupt on FIFO threshold.
+	Reg#(Bit#(1)) cr_tcie <-mkRegA(0); // enables interrupt on completion of transfer.
+	Reg#(Bit#(1)) cr_teie <-mkRegA(0); // enables interrupt on error of transfer.
+	Reg#(Bit#(4)) cr_fthres<-mkRegA(0); // defines the number of bytes in the FIFO that will cause the FTF in sr to be raised.
+	Reg#(Bit#(1)) fsel<-mkRegA(0);
 	Reg#(Bit#(1)) cr_fsel=conditionalWrite(fsel,sr_busy==0); // used for flash memory selection TODO: Not required.
-	Reg#(Bit#(1)) dfm<-mkReg(0);
+	Reg#(Bit#(1)) dfm<-mkRegA(0);
 	Reg#(Bit#(1)) cr_dfm =conditionalWrite(dfm,sr_busy==0); // used for dual flash mode TODO: Not required.
-	Reg#(Bit#(1)) sshift<-mkReg(0);
+	Reg#(Bit#(1)) sshift<-mkRegA(0);
 	Reg#(Bit#(1)) cr_sshift =conditionalWrite(sshift,sr_busy==0); // sample shift to account for delays from the flash. TODO: Might not be required.
-	Reg#(Bit#(1)) tcen<-mkReg(0);
+	Reg#(Bit#(1)) tcen<-mkRegA(0);
 	Reg#(Bit#(1)) cr_tcen =conditionalWrite(tcen,sr_busy==0); // enables the timeout counter.
-	Reg#(Bit#(1)) cr_dmaen <- mkReg(0); // enables the dma transfer.
-	Reg#(Bit#(1)) cr_abort <- mkReg(0); // this bit aborts the ongoing transaction.
-	Reg#(Bit#(1)) cr_en <-mkReg(0); // this bit enables the qspi.
+	Reg#(Bit#(1)) cr_dmaen <- mkRegA(0); // enables the dma transfer.
+	Reg#(Bit#(1)) cr_abort <- mkRegA(0); // this bit aborts the ongoing transaction.
+	Reg#(Bit#(1)) cr_en <-mkRegA(0); // this bit enables the qspi.
 	Reg#(Bit#(32)) cr=concatReg19(cr_prescaler,cr_pmm,cr_apms,readOnlyReg(1'b0),cr_toie,cr_smie,cr_ftie,cr_tcie,cr_teie,readOnlyReg(4'd0),cr_fthres,cr_fsel,cr_dfm,readOnlyReg(1'b0),cr_sshift,cr_tcen,cr_dmaen,cr_abort,cr_en);	
 
-	Reg#(Bit#(5)) fsize<-mkReg(0);
+	Reg#(Bit#(5)) fsize<-mkRegA(0);
 	Reg#(Bit#(5)) dcr_fsize =conditionalWrite(fsize,sr_busy==0); // flash memory size.
-	Reg#(Bit#(3)) csht <-mkReg(0);
+	Reg#(Bit#(3)) csht <-mkRegA(0);
 	Reg#(Bit#(3)) dcr_csht = conditionalWrite(csht,sr_busy==0); // chip select high time.
-	Reg#(Bit#(1)) ckmode <-mkReg(0);
+	Reg#(Bit#(1)) ckmode <-mkRegA(0);
 	Reg#(Bit#(1)) dcr_ckmode =conditionalWrite(ckmode,sr_busy==0); // mode 0 or mode 3.
-    Reg#(Bit#(8))  dcr_mode_byte <- mkReg(0);
+    Reg#(Bit#(8))  dcr_mode_byte <- mkRegA(0);
 	Reg#(Bit#(32)) dcr = concatReg7(readOnlyReg(3'd0),dcr_mode_byte,dcr_fsize,readOnlyReg(5'd0),dcr_csht,readOnlyReg(7'd0),dcr_ckmode);
     Reg#(Bit#(32)) rg_mode_bytes = concatReg2(dcr_mode_byte,readOnlyReg(24'd0));
-    Reg#(Bit#(5))  rg_mode_byte_counter <- mkReg('d31);
+    Reg#(Bit#(5))  rg_mode_byte_counter <- mkRegA('d31);
 
-	Reg#(Bit#(1)) fcr_ctof <-mkReg(0); // writing 1 clears the sr_tof flag.
-	Reg#(Bit#(1)) fcr_csmf <-mkReg(0); // writing 1 clears the sr_smf flag.
-	Reg#(Bit#(1)) fcr_ctcf <-mkReg(0); // writing 1 clears the sr_tcf flag.
-	Reg#(Bit#(1)) fcr_ctef <-mkReg(0); // writing 1 clears the sr_tef flag.
+	Reg#(Bit#(1)) fcr_ctof <-mkRegA(0); // writing 1 clears the sr_tof flag.
+	Reg#(Bit#(1)) fcr_csmf <-mkRegA(0); // writing 1 clears the sr_smf flag.
+	Reg#(Bit#(1)) fcr_ctcf <-mkRegA(0); // writing 1 clears the sr_tcf flag.
+	Reg#(Bit#(1)) fcr_ctef <-mkRegA(0); // writing 1 clears the sr_tef flag.
 	Reg#(Bit#(32)) fcr=concatReg6(readOnlyReg(27'd0),clearSideEffect(fcr_ctof,sr_tof._write(0),noAction),clearSideEffect(fcr_csmf,sr_smf._write(0),noAction),readOnlyReg(1'b0),clearSideEffect(fcr_ctcf,sr_tcf._write(0),delay_sr_tcf._write(0)),clearSideEffect(fcr_ctef,sr_tef._write(0),noAction));
 
-	Reg#(Bit#(32)) data_length<-mkReg(0);
+	Reg#(Bit#(32)) data_length<-mkRegA(0);
 	Reg#(Bit#(32)) dlr=conditionalWrite(data_length,sr_busy==0); // data length register
 
-	Reg#(Bit#(1)) ddrm<-mkReg(0);
+	Reg#(Bit#(1)) ddrm<-mkRegA(0);
 	Reg#(Bit#(1)) ccr_ddrm =conditionalWrite(ddrm,sr_busy==0); // double data rate mode.
-	Reg#(Bit#(1)) dhhc <-mkReg(0);
+	Reg#(Bit#(1)) dhhc <-mkRegA(0);
 	Reg#(Bit#(1)) ccr_dhhc =conditionalWrite(dhhc,sr_busy==0); // delay output by 1/4 in DDR mode. TODO: Not required.
-	Reg#(Bit#(1)) sioo <-mkReg(0);
+	Reg#(Bit#(1)) sioo <-mkRegA(0);
 	Reg#(Bit#(1)) ccr_sioo =conditionalWrite(sioo,sr_busy==0); // send instruction based on mode selected.
-	Reg#(Bit#(2)) fmode <-mkReg(0);
+	Reg#(Bit#(2)) fmode <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_fmode =conditionalWrite(fmode,sr_busy==0); // 00: indirect Read, 01: indirect Write, 10: Auto polling, 11: MMapped.
-	Reg#(Bit#(2)) dmode <-mkReg(0);
+	Reg#(Bit#(2)) dmode <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_dmode =conditionalWrite(dmode,sr_busy==0); // data mode. 01: single line, 10: two line, 11: four lines.
-	Reg#(Bit#(5)) dcyc <-mkReg(0);
+	Reg#(Bit#(5)) dcyc <-mkRegA(0);
 	Reg#(Bit#(5)) ccr_dcyc 	=conditionalWrite(dcyc,sr_busy==0); // number of dummy cycles.
-	Reg#(Bit#(2)) absize <-mkReg(0);
+	Reg#(Bit#(2)) absize <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_absize=conditionalWrite(absize,sr_busy==0); // number of alternate byte sizes.
-	Reg#(Bit#(2)) abmode <-mkReg(0);
+	Reg#(Bit#(2)) abmode <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_abmode=conditionalWrite(abmode,sr_busy==0); // alternate byte mode.
-	Reg#(Bit#(2)) adsize <-mkReg(0);
+	Reg#(Bit#(2)) adsize <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_adsize=conditionalWrite(adsize,sr_busy==0); // address size.
-	Reg#(Bit#(2)) admode <-mkReg(0);
+	Reg#(Bit#(2)) admode <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_admode=conditionalWrite(admode,sr_busy==0); // address mode.
-	Reg#(Bit#(2)) imode <-mkReg(0);
+	Reg#(Bit#(2)) imode <-mkRegA(0);
 	Reg#(Bit#(2)) ccr_imode =conditionalWrite(imode,sr_busy==0); // instruction mode.
-	Reg#(Bit#(8)) instruction <-mkReg(0);
+	Reg#(Bit#(8)) instruction <-mkRegA(0);
 	Reg#(Bit#(8)) ccr_instruction =conditionalWrite(instruction,sr_busy==0); // instruction to be sent externally.
-    Reg#(Bit#(1)) ccr_dummy_confirmation <- mkReg(0); //Programming Dummy confirmation bit needed by Micron model to trigger XIP mode
-    Reg#(Bit#(1)) ccr_dummy_bit <- mkReg(0); //Dummy bit to be sent
+    Reg#(Bit#(1)) ccr_dummy_confirmation <- mkRegA(0); //Programming Dummy confirmation bit needed by Micron model to trigger XIP mode
+    Reg#(Bit#(1)) ccr_dummy_bit <- mkRegA(0); //Dummy bit to be sent
 	Reg#(Bit#(32)) ccr =writeCCREffect(concatReg14(ccr_ddrm,ccr_dhhc,ccr_dummy_bit,ccr_sioo,ccr_fmode,ccr_dmode,ccr_dummy_confirmation,ccr_dcyc,ccr_absize,ccr_abmode,ccr_adsize,ccr_admode,ccr_imode,ccr_instruction),wr_instruction_written._write(True),first_read._write(True));
 
-	Reg#(Bit#(32)) mm_data_length <-mkConfigReg(0);
-	Reg#(Bit#(28)) mm_address <-mkConfigReg(0);
-    Reg#(Bit#(28)) rg_prev_addr <- mkConfigReg(0);
-	Reg#(Bit#(32)) rg_address <-mkReg(0);
+	Reg#(Bit#(32)) mm_data_length <-mkConfigRegA(0);
+	Reg#(Bit#(28)) mm_address <-mkConfigRegA(0);
+    Reg#(Bit#(28)) rg_prev_addr <- mkConfigRegA(0);
+	Reg#(Bit#(32)) rg_address <-mkRegA(0);
 	Reg#(Bit#(32)) ar =conditionalWrite(writeSideEffect(rg_address,wr_address_written._write(True)),sr_busy==0 && ccr_fmode!='b11); // address register
 
-	Reg#(Bit#(32)) rg_alternatebyte_reg<-mkReg(0);
+	Reg#(Bit#(32)) rg_alternatebyte_reg<-mkRegA(0);
 	Reg#(Bit#(32)) abr=conditionalWrite(rg_alternatebyte_reg,sr_busy==0); // alternate byte register
 	
-	Reg#(Bit#(32)) rg_data <-mkReg(0);
+	Reg#(Bit#(32)) rg_data <-mkRegA(0);
 	Reg#(Bit#(32)) dr =writeSideEffect(rg_data,wr_data_written._write(True)); // data register
 	
-	Reg#(Bit#(32)) rg_psmkr <-mkReg(0); 
+	Reg#(Bit#(32)) rg_psmkr <-mkRegA(0); 
 	Reg#(Bit#(32)) psmkr =conditionalWrite(rg_psmkr,sr_busy==0); // polling status mask register
 	
-	Reg#(Bit#(32)) rg_psmar <-mkReg(0); 
+	Reg#(Bit#(32)) rg_psmar <-mkRegA(0); 
 	Reg#(Bit#(32)) psmar =conditionalWrite(rg_psmar,sr_busy==0); // polling statue match register
 	
-	Reg#(Bit#(16)) pir_interval <-mkReg(0); // polling interval
+	Reg#(Bit#(16)) pir_interval <-mkRegA(0); // polling interval
 	Reg#(Bit#(32)) pir =conditionalWrite(concatReg2(readOnlyReg(16'd0),pir_interval),sr_busy==0); // polling interval register
 	
-	Reg#(Bit#(16)) lptr_timeout <-mkReg(0); // timeout period
+	Reg#(Bit#(16)) lptr_timeout <-mkRegA(0); // timeout period
 	Reg#(Bit#(32)) lptr =conditionalWrite(concatReg2(readOnlyReg(16'd0),lptr_timeout),sr_busy==0); // low power timeout register.
-    Reg#(Bool) thres <- mkReg(False);
-    Reg#(Bool) rg_request_ready <- mkReg(True);
-	Reg#(Bit#(4)) rg_count <- mkReg(0);
-	Reg#(bit) ddr_en	<- mkReg(0);
-	Reg#(bit) init_mm_xip_delay <- mkReg(0);
+    Reg#(Bool) thres <- mkRegA(False);
+    Reg#(Bool) rg_request_ready <- mkRegA(True);
+	Reg#(Bit#(4)) rg_count <- mkRegA(0);
+	Reg#(bit) ddr_en	<- mkRegA(0);
+	Reg#(bit) init_mm_xip_delay <- mkRegA(0);
 
     Bool ddr_clock = ((wr_sdr_clock && !wr_sdr_delayed)||(!wr_sdr_clock && wr_sdr_delayed));
 //    Bool ddr_clock = (wr_sdr_clock || wr_sdr_delayed);
@@ -1486,7 +1486,7 @@ module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_
 														 user_width))
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 
-	Reg#(bit) rg_req_en <- mkReg(0);
+	Reg#(bit) rg_req_en <- mkRegA(0);
 	AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
 
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
@@ -1579,9 +1579,9 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 														 user_width))
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
 
-	Reg#(bit) rg_req_en <- mkReg(0);
-	Reg#(Bit#(4)) rg_rid <- mkReg(0);
-	Reg#(Bit#(4)) rg_wid <- mkReg(0);
+	Reg#(bit) rg_req_en <- mkRegA(0);
+	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
+	Reg#(Bit#(4)) rg_wid <- mkRegA(0);
 
 	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
