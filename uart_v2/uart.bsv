@@ -22,27 +22,14 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISI
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 
-Copyright (c) 2018, IIT Madras All rights reserved.
+Author : Arjun Menon
+Email id : c.arjunmenon@gmail.com
+Details: Uart with following features:
+          -> Programmable character size, stop bits, parity
+          -> Status registers and programmable inteerrupts for break error, frame error, overrun
+             and parity error.
+          -> Output enable signal with programmable delay
 
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions
-  and the following disclaimer.  
-* Redistributions in binary form must reproduce the above copyright notice, this list of 
-  conditions and the following disclaimer in the documentation and/or other materials provided 
- with the distribution.  
-* Neither the name of IIT Madras  nor the names of its contributors may be used to endorse or 
-  promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 */
 package uart;
@@ -61,6 +48,9 @@ package uart;
 	import BUtils::*;
   import device_common::*;
 	import ConcatReg				 ::*;
+`ifdef IQC
+  import iqc::*;
+`endif
 
   export RS232             (..);
   export Ifc_uart_axi4lite (..);
@@ -75,8 +65,10 @@ package uart;
 																									AccessSize size);
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
+		(*always_ready, always_enabled*)
     interface RS232 io;
-		method Bit#(1) interrupt;
+		(*always_ready, always_enabled*)
+	  method Bit#(1) interrupt;
 	endinterface
 
 	module mkuart_user#(parameter Bit#(16) baudrate, Bit#(2) stopbits, Bit#(2) parity)
@@ -96,24 +88,22 @@ package uart;
 		Reg#(StopBits) rg_stopbits <- mkRegA(unpack(stopbits));
 		Reg#(Parity)   rg_parity   <- mkRegA(unpack(parity));
 		Reg#(Bit#(6))  rg_charsize <- mkRegA(8);
+  `ifdef IQC
+    Reg#(Bit#(8)) rg_qual_cycles <- mkRegA(0);
+    Ifc_iqc#(1) iqc <- mkiqc(rg_qual_cycles);
+  `endif
 
 		//Reg#(Bit#(9)) rg_control= concatReg3(rg_charsize, rg_parity, rg_stopbits);
 
 		UART#(depth) uart <-mkUART(rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
-    Wire#(Bit#(8)) wr_status <- mkWire();
 		Reg#(Bit#(8)) rg_interrupt_en <-mkRegA(0);
-
-    rule capture_status;
-      let lv_status= { uart.error_status, pack(uart.receiver_not_empty), pack(uart.receiver_not_full),
-											 pack(uart.transmittor_not_full), pack(uart.transmission_done) };
-      wr_status<=lv_status;
-      `logLevel( uart, 3, $format("Status1: %b Interrupt_en: %b", lv_status, rg_interrupt_en))
-    endrule
+    let status= { uart.error_status, pack(uart.receiver_not_empty), pack(uart.receiver_not_full),
+								  pack(uart.transmittor_not_full), pack(uart.transmission_done) };
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
       if( addr[4:0]==`StatusReg && size==Byte)begin
-        return tuple2(duplicate(wr_status),True);
+        return tuple2(duplicate(status),True);
       end
 			else if(addr[4:0]==`RxReg) begin
 				Bit#(32) data =0;
@@ -132,6 +122,11 @@ package uart;
       else if(addr[4:0]==`InterruptEn && size==Byte) begin
 				return tuple2(duplicate(rg_interrupt_en), True);
       end
+    `ifdef IQC
+      else if(addr[4:0]==`IQ_cycles && size==Byte) begin
+				return tuple2(duplicate(rg_qual_cycles), True);
+      end
+    `endif
 			else
 				return tuple2(?,False);
 		endmethod
@@ -162,13 +157,31 @@ package uart;
 				rg_interrupt_en<= truncate(data);
 				return True;
 			end
+    `ifdef IQC
+      else if(addr[4:0]==`IQ_cycles && size==Byte) begin
+        rg_qual_cycles<= truncate(data);
+				return True;
+      end
+    `endif
 			else
 				return False;
 		endmethod
 
-	  interface io=uart.rs232;
+	  interface RS232 io;
+      method Action sin(Bit#(1) x);
+      `ifdef IQC
+        let lv_qualified_inputs<- iqc.qualify(x);
+      `else
+        let lv_qualified_inputs=x;
+      `endif
+        uart.rs232.sin(lv_qualified_inputs);
+      endmethod
+      method sout= uart.rs232.sout;
+      method sout_en= uart.rs232.sout_en;
+    endinterface
+
 		method Bit#(1) interrupt;
-			return |(wr_status & rg_interrupt_en);
+			return |(status & rg_interrupt_en);
 		endmethod
 
 	endmodule:mkuart_user
@@ -177,9 +190,12 @@ package uart;
                                numeric type data_width, 
                                numeric type user_width, 
                                numeric type depth);
-		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave; 
-	   interface RS232 io;
-  	endinterface
+		(*prefix=""*) interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave; 
+		(*always_ready, always_enabled*)
+	  (*prefix=""*) interface RS232 io;
+		(*always_ready, always_enabled*)
+		(*prefix=""*) method Bit#(1) interrupt;
+  endinterface
 
 	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate,
                           parameter Bit#(2) stopbits, parameter Bit#(2) parity)
@@ -224,6 +240,7 @@ package uart;
 			endrule
 			interface slave = s_xactor.axi_side;
 			interface io= user_ifc.io;
+			method interrupt= user_ifc.interrupt;
 		end
 		else begin // if core clock and uart_clock is different.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
@@ -280,6 +297,7 @@ package uart;
 			endrule
 			interface slave = s_xactor.axi_side;
 			interface io= user_ifc.io;
+			method interrupt= user_ifc.interrupt;
 		end
 	endmodule:mkuart_axi4lite
 
@@ -290,7 +308,10 @@ package uart;
                            numeric type user_width, 
                            numeric type depth);
 		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+		(*always_ready, always_enabled*)
 		(*prefix=""*) interface RS232 io;
+		(*always_ready, always_enabled*)
+		(*prefix=""*) method Bit#(1) interrupt;
  	endinterface
 
 	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate,
@@ -317,8 +338,8 @@ package uart;
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate,
                                                                     stopbits, parity);
-		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
-  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegU;
+  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegU;
 			//capturing the read requests
 			rule capture_read_request(rg_rdburst_count==0);
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
@@ -379,6 +400,7 @@ package uart;
 			endrule
 			interface slave = s_xactor.axi_side;
 			interface io= user_ifc.io;
+			method interrupt= user_ifc.interrupt;
 		end
 		else begin // if core clock and uart_clock is different.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
@@ -488,6 +510,7 @@ package uart;
 			endrule
 			interface slave = s_xactor.axi_side;
 			interface io= user_ifc.io;
+			method interrupt= user_ifc.interrupt;
 		end
 	endmodule:mkuart_axi4
 	

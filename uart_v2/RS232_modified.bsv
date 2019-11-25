@@ -41,7 +41,8 @@ import FIFOLevel         ::*;
 import Vector            ::*;
 import BUtils            ::*;
 import Counter           ::*;
-import ConcatReg				 ::*;
+import ConcatReg		 ::*;
+import ConfigReg         ::*;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Exports
@@ -149,10 +150,15 @@ interface UART#(numeric type depth);
    interface RS232           rs232;
    interface Get#(Bit#(32))   tx;
    interface Put#(Bit#(32))   rx;
+(* always_ready, always_enabled *)
    method Bool transmission_done;
+(* always_ready, always_enabled *)
    method Bool receiver_not_empty;
+(* always_ready, always_enabled *)
    method Bool receiver_not_full;
+(* always_ready, always_enabled *)
    method Bool transmittor_not_full;
+(* always_ready, always_enabled *)
 	 method Bit#(4) error_status;
 endinterface
 
@@ -432,8 +438,8 @@ module mkUART( Bit#(6) charsize
 
    Vector#(32, Reg#(Bit#(1)))                 vrRecvBuffer          <- replicateM(mkRegA(0));
 
-	 Reg#(Bit#(4))                             error_status_register <- mkRegA(0);
-   Reg#(Bit#(1))                             rRecvData             <- mkRegA(1);
+	 Reg#(Bit#(4))                             error_status_register <- mkConfigRegA(0);
+   Reg#(Bit#(1))                             rRecvData             <- mkConfigRegA(1);
 
    Reg#(RecvState)                           rRecvState            <- mkRegA(Start);
    Reg#(Bit#(4))                             rRecvCellCount        <- mkRegA(0);
