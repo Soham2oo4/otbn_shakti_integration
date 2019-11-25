@@ -65,19 +65,19 @@ endfunction: fn_decode
 module mk_rm_decoder (Ifc_rm_decoder);
 
 	(*doc = "reg: This register is the ready signal sent by the decoder before it can accept any cipher from the channel. It is set to one." *)
-	Reg#(bit) rg_dec_rdy <- mkReg(1);
+	Reg#(bit) rg_dec_rdy <- mkRegA(1);
 	
 	(*doc = "fifo: This FIFO stores the decoded value. " *)
 	FIFOF#(Bit#(256)) ff_decoded <- mkFIFOF();
 	
 	(*doc = "reg: This register stores the cipher received from the channel through the Action method ma_get_cipher. " *)
-	Reg#(Bit#(256)) rg_cipher <- mkReg(0);
+	Reg#(Bit#(256)) rg_cipher <- mkRegA(0);
 	
 	(*doc = "reg: This register stores the syndrome from the function fn_decode, if the function is made to return the syndrome. Otherwise, we will not be using it in the code. It is set to one for debugging purposes. " *)
-	Reg#(Bit#(9)) rg_syndrome <- mkReg(1);
+	Reg#(Bit#(9)) rg_syndrome <- mkRegA(1);
 	
 	(*doc = "reg: This register is used to store the codeword returned by the function fn_decode. It is initialised to zero. " *)
-	Reg#(Bit#(256)) rg_codeword<-mkReg(0);
+	Reg#(Bit#(256)) rg_codeword<-mkRegA(0);
 	
 	//(*doc = "note: To store the rows of partiy check matrix as a vector of 9 elements, each with a size of 256 bits. " *)
 	Vector#(9,Bit#(256)) v_h_matrix;
@@ -139,7 +139,7 @@ module mkTb (Empty);
 	Ifc_rm_decoder ifc_dec <- mk_rm_decoder;
 	
 	(*doc = "reg: To declare a register to execute the rule 'send_cipher' once. " *)
-	Reg#(bit) rg_flag <- mkReg(0);
+	Reg#(bit) rg_flag <- mkRegA(0);
 	//(*doc = "note: To declare a variable to store the cipher before passing into the appropriate method. " *)
 	let lv_cipher = 256'b0110100011100010100110100101110100001111011001111001011001111101001111011110000101001010111000100101110101100111111000010001100101101101001100011010011100011100101111111001001100100011000110101111111010101000011111100111001011100010011101001100001010111000;
 	(*doc = "rule:  To send cipher of 256 bits" *)

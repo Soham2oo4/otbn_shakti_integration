@@ -268,25 +268,44 @@ end
 //
 //
 //
-   always @ (posedge clk) begin
+   always @ (posedge clk or negedge reset_n) begin
 
-      page_ovflw_r   <= (req_ack) ? page_ovflw: 'h0;
+      if (~reset_n) begin
+          max_r2b_len_r  <=  'h0;
 
-      max_r2b_len_r  <= (req_ack) ? max_r2b_len: 'h0;
-      r2b_start      <= (req_ack) ? 1'b1 :
-		        (b2r_ack) ? 1'b0 : r2b_start;
+          r2b_start      <=  1'b0 ;
 
-      r2b_write      <= (req_ack) ? ~req_wr_n : r2b_write;
+          r2b_write      <= 1'b0;
+ 
+          r2b_req_id     <= 5'b0;
 
-      r2b_req_id     <= (req_ack) ? req_id : r2b_req_id;
+          lcl_wrap       <= 1'b0;
 
-      lcl_wrap       <= (req_ack) ? req_wrap : lcl_wrap;
-	     
-      lcl_req_len    <= (req_ack) ? req_len_int  :
-		        (req_ld) ? next_req_len : lcl_req_len;
+          lcl_req_len    <= 12'b0;
 
-      curr_sdr_addr  <= (req_ack) ? req_addr_int :
-		        (req_ld) ? next_sdr_addr : curr_sdr_addr;
+          curr_sdr_addr  <=  26'b0;
+
+	  page_ovflw_r <= 'h0;
+      end
+      else begin 
+         page_ovflw_r   <= (req_ack) ? page_ovflw: 'h0;
+
+         max_r2b_len_r  <= (req_ack) ? max_r2b_len: 'h0;
+         r2b_start      <= (req_ack) ? 1'b1 :
+         (b2r_ack) ? 1'b0 : r2b_start;
+
+         r2b_write      <= (req_ack) ? ~req_wr_n : r2b_write;
+ 
+         r2b_req_id     <= (req_ack) ? req_id : r2b_req_id;
+
+         lcl_wrap       <= (req_ack) ? req_wrap : lcl_wrap;
+
+         lcl_req_len    <= (req_ack) ? req_len_int  :
+         (req_ld) ? next_req_len : lcl_req_len;
+
+         curr_sdr_addr  <= (req_ack) ? req_addr_int :
+         (req_ld) ? next_sdr_addr : curr_sdr_addr;
+      end
 
    end // always @ (posedge clk)
    
@@ -330,7 +349,7 @@ end
 
    end // always @ (req_st or ....)
 
-   always @ (posedge clk)
+   always @ (posedge clk or negedge reset_n)
       if (~reset_n) begin
 	 req_st <= `REQ_IDLE;
       end // if (~reset_n)
@@ -346,8 +365,19 @@ wire [APP_AW-1:0] 	map_address ;
 assign      map_address  = (req_ack) ? req_addr_int :
 		           (req_ld)  ? next_sdr_addr : curr_sdr_addr;
 
-always @ (posedge clk) begin
+always @ (posedge clk or negedge reset_n) begin
 // Bank Bits are always - 2 Bits
+   if (~reset_n) begin
+      r2b_ba <= 2'b0;
+
+      r2b_caddr <= 2'b0;       
+             
+             
+      r2b_raddr <= 2'b0;
+
+   end 
+   else begin
+
     r2b_ba <= (cfg_colbits == 2'b00) ? {map_address[9:8]}   :
 	      (cfg_colbits == 2'b01) ? {map_address[10:9]}  :
 	      (cfg_colbits == 2'b10) ? {map_address[11:10]} : map_address[12:11];
@@ -366,6 +396,7 @@ always @ (posedge clk) begin
     r2b_raddr <= (cfg_colbits == 2'b00)  ? map_address[22:10] :
 	         (cfg_colbits == 2'b01)  ? map_address[23:11] :
 	         (cfg_colbits == 2'b10)  ? map_address[24:12] : map_address[25:13];
-end	   
+   end	   
+end
    
 endmodule // sdr_req_gen

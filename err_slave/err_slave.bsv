@@ -50,12 +50,12 @@ package err_slave;
 
   module mkerr_slave_axi4(Ifc_err_slave_axi4#(awidth, dwidth, uwidth));
 	  AXI4_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Mem_State) read_state <- mkReg(Idle);
-    Reg#(Mem_State) write_state <- mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter <- mkReg(0);
-	  Reg#(Bit#(8)) rg_read_length <- mkReg(0);
-    Reg#(Bit#(4)) rg_rd_id <- mkReg(0);
-	  Reg#(AXI4_Wr_Resp	#(uwidth)) rg_write_response <- mkReg(?);
+    Reg#(Mem_State) read_state <- mkRegA(Idle);
+    Reg#(Mem_State) write_state <- mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter <- mkRegA(0);
+	  Reg#(Bit#(8)) rg_read_length <- mkRegA(0);
+    Reg#(Bit#(4)) rg_rd_id <- mkRegA(0);
+	  Reg#(AXI4_Wr_Resp	#(uwidth)) rg_write_response <- mkRegA(?);
     rule receive_read_request(read_state == Idle);
       let ar <- pop_o(s_xactor.o_rd_addr);
       read_state <= Burst;

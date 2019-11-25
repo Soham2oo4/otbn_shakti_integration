@@ -77,30 +77,30 @@ package mcpu;
 		
 		AXI4_Slave_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
 	  Mcpu_master proc_master <-mkmcpumaster;
-		Reg#(Bit#(`Reg_width_mcpu_slave)) response_buff  <-mkReg(0);//To buffer multiple cycle transfers
+		Reg#(Bit#(`Reg_width_mcpu_slave)) response_buff  <-mkRegA(0);//To buffer multiple cycle transfers
     FIFOF#(Bit#(4)) ff_id <-mkSizedFIFOF(2);//To store request address of instruction
     FIFOF#(Bit#(`Reg_width_mcpu_slave)) ff_address <-mkSizedFIFOF(2);//To store request address of instruction
 		FIFOF#(Data_mode) ff_req<-mkSizedFIFOF(2);//To keep track of last pending request
 		FIFOF#(Bool) ff_last<-mkSizedFIFOF(2);//To keep track of last pending request
-    Reg#(Bit#(2)) rg_port_count <- mkReg(0);//To keep track of multi cycle requests
-		Reg#(Bit#(32)) rg_inst_rcvd <- mkReg(0);
-    Reg#(Bit#(3)) rg_endian  <- mkReg(0);//Dynamic endianness indicator
-    Reg#(Bool) dw_write <- mkReg(False);//Double word write
-    Reg#(Bool) dw_read  <-mkReg(False);//Double word read
-    Reg#(Bool) err_buff  <-mkReg(False);//Buffer the bus_error across double word writes
-    Reg#(Bit#(1)) response_berr  <-mkReg(0);//Bus error
-    Reg#(Bit#(`PADDR)) dw_addr <-mkReg(0);//Double word address
-    Reg#(Bit#(`PADDR)) rg_burst_addr <-mkReg(0);//Buffer addresses for bursts
-    Reg#(Bit#(`PADDR)) dw_read_addr <-mkReg(0);//Buffer addresses for double word transactions
-    Reg#(Bit#(2)) rg_burst <-mkReg(0);//Buffer arburst for burst transfer
-    Reg#(Bit#(8)) rg_arlen <-mkReg(0);//Buffer burst length
-    Reg#(Bit#(4)) rg_awid <-mkReg(0);//Buffer id
-    Reg#(Bit#(8)) rg_counter <-mkReg(0);//Counter to initiate read bursts
-    Reg#(Bit#(3)) rg_size <-mkReg(0);//Buffer burst size
-    Reg#(Bit#(32))dw_data<-mkReg(0);//Buffer double word data
-    Reg#(Bit#(32))data_buff<-mkReg(0);//Buffer response if takes multi cycle
-    Reg#(Bool)read_burst_mode <-mkReg(False);//read burst active
-    Reg#(Bool)write_burst_mode <-mkReg(False);//write burst active
+    Reg#(Bit#(2)) rg_port_count <- mkRegA(0);//To keep track of multi cycle requests
+		Reg#(Bit#(32)) rg_inst_rcvd <- mkRegA(0);
+    Reg#(Bit#(3)) rg_endian  <- mkRegA(0);//Dynamic endianness indicator
+    Reg#(Bool) dw_write <- mkRegA(False);//Double word write
+    Reg#(Bool) dw_read  <-mkRegA(False);//Double word read
+    Reg#(Bool) err_buff  <-mkRegA(False);//Buffer the bus_error across double word writes
+    Reg#(Bit#(1)) response_berr  <-mkRegA(0);//Bus error
+    Reg#(Bit#(`PADDR)) dw_addr <-mkRegA(0);//Double word address
+    Reg#(Bit#(`PADDR)) rg_burst_addr <-mkRegA(0);//Buffer addresses for bursts
+    Reg#(Bit#(`PADDR)) dw_read_addr <-mkRegA(0);//Buffer addresses for double word transactions
+    Reg#(Bit#(2)) rg_burst <-mkRegA(0);//Buffer arburst for burst transfer
+    Reg#(Bit#(8)) rg_arlen <-mkRegA(0);//Buffer burst length
+    Reg#(Bit#(4)) rg_awid <-mkRegA(0);//Buffer id
+    Reg#(Bit#(8)) rg_counter <-mkRegA(0);//Counter to initiate read bursts
+    Reg#(Bit#(3)) rg_size <-mkRegA(0);//Buffer burst size
+    Reg#(Bit#(32))dw_data<-mkRegA(0);//Buffer double word data
+    Reg#(Bit#(32))data_buff<-mkRegA(0);//Buffer response if takes multi cycle
+    Reg#(Bool)read_burst_mode <-mkRegA(False);//read burst active
+    Reg#(Bool)write_burst_mode <-mkRegA(False);//write burst active
 
 //.......................SEND_REQUEST_TO_MEMORY..................................................//
 //...............................................................................................//

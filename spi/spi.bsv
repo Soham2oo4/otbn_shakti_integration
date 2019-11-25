@@ -177,41 +177,41 @@ module mkspi(Ifc_spi#(addr_width, data_width))
           Mul#(32, c__, data_width));
 
 
-  Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkReg(unpack(0));
-  Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkReg(unpack(0));
-  Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkConfigReg(unpack(0));
-  Reg#(Bit#(32))		rg_spi_cfg_dr1     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr2     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr3     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr4     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr5     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_crcpr   <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_rxcrcr  <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_txcrcr  <- mkReg(0);
-  Reg#(Bit#(3)) 		rg_clk_counter	   <- mkReg(0);
-  Reg#(bit)			    tx_data_en		   <- mkReg(0);
+  Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkRegA(unpack(0));
+  Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkRegA(unpack(0));
+  Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkConfigRegA(unpack(0));
+  Reg#(Bit#(32))		rg_spi_cfg_dr1     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr2     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr3     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr4     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr5     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_crcpr   <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_rxcrcr  <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_txcrcr  <- mkRegA(0);
+  Reg#(Bit#(3)) 		rg_clk_counter	   <- mkRegA(0);
+  Reg#(bit)			    tx_data_en		   <- mkRegA(0);
   
   // MOSI and MISO signals of the spi
   Wire#(bit)			wr_spi_in_io1		<- mkWire();
   Wire#(bit)			wr_spi_in_io2		<- mkWire();
-  Reg#(bit)			    wr_spi_out_io1		<- mkReg(0);//TODO making wr_spi_out_io1 as Reg
+  Reg#(bit)			    wr_spi_out_io1		<- mkRegA(0);//TODO making wr_spi_out_io1 as Reg
   Wire#(bit)			wr_spi_out_io2		<- mkWire();
   Wire#(bit)			wr_spi_en_io1		<- mkWire();
   Wire#(bit)			wr_spi_en_io2		<- mkWire();
-  //Reg#(bit)			wr_clk				<- mkReg(0);
+  //Reg#(bit)			wr_clk				<- mkRegA(0);
   
-  Reg#(Transmit_state) rg_transmit_state <- mkReg(IDLE);
-  Reg#(Receive_state)	 rg_receive_state  <- mkReg(IDLE);
+  Reg#(Transmit_state) rg_transmit_state <- mkRegA(IDLE);
+  Reg#(Receive_state)	 rg_receive_state  <- mkRegA(IDLE);
   
-  Reg#(Bit#(8))		rg_data_tx		   <- mkReg(0);
-  Reg#(Bit#(8))		rg_data_rx		   <- mkReg(0);
-  Reg#(Bit#(8))		rg_data_counter	   	   <- mkReg(0);
-  Reg#(Bit#(8))		rg_bit_count	   	   <- mkReg(0);
-  Reg#(bit)			rg_transfer_done   <- mkReg(0);
-  Reg#(bit)			rg_tx_rx_start	   <- mkReg(0);
+  Reg#(Bit#(8))		rg_data_tx		   <- mkRegA(0);
+  Reg#(Bit#(8))		rg_data_rx		   <- mkRegA(0);
+  Reg#(Bit#(8))		rg_data_counter	   	   <- mkRegA(0);
+  Reg#(Bit#(8))		rg_bit_count	   	   <- mkRegA(0);
+  Reg#(bit)			rg_transfer_done   <- mkRegA(0);
+  Reg#(bit)			rg_tx_rx_start	   <- mkRegA(0);
   
-  Reg#(bit)			rg_nss			   <- mkReg(1);
-  Reg#(bit)			rg_clk			   <- mkReg(0);
+  Reg#(bit)			rg_nss			   <- mkRegA(1);
+  Reg#(bit)			rg_clk			   <- mkRegA(0);
   
   Reg#(Bit#(160))  rg_concat_reg = concatReg5(rg_spi_cfg_dr1, rg_spi_cfg_dr2, rg_spi_cfg_dr3, rg_spi_cfg_dr4, rg_spi_cfg_dr5); 
   Wire#(Bit#(addr_width))     wr_write_addr  <- mkWire();

@@ -84,10 +84,10 @@ package riscvDebug013_testbench;
     mkConnection (fabric.v_to_slaves[0],main_memory0.slave);
     mkConnection (hart,device.hart);
 
-    Reg#(Bit#(7))   dmi_address   <-  mkReg(0);
-    Reg#(Bit#(32))  dmi_resp_data <-  mkReg(0);
-    Reg#(Bit#(32))  i             <-  mkReg(0); // Iteration index
-    Reg#(Bit#(32))  imax          <-  mkReg(0); // Iteration index bound
+    Reg#(Bit#(7))   dmi_address   <-  mkRegA(0);
+    Reg#(Bit#(32))  dmi_resp_data <-  mkRegA(0);
+    Reg#(Bit#(32))  i             <-  mkRegA(0); // Iteration index
+    Reg#(Bit#(32))  imax          <-  mkRegA(0); // Iteration index bound
     /*      Test Sequences      */
 
     // resetDM with DM Active

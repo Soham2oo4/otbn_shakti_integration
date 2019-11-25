@@ -268,7 +268,7 @@ end
 //
 //
 //
-   always @ (posedge clk) begin
+   always @ (posedge clk or negedge reset_n) begin
 
       page_ovflw_r   <= (req_ack) ? page_ovflw: 'h0;
 
@@ -330,7 +330,7 @@ end
 
    end // always @ (req_st or ....)
 
-   always @ (posedge clk)
+   always @ (posedge clk or negedge reset_n)
       if (~reset_n) begin
 	 req_st <= `REQ_IDLE;
       end // if (~reset_n)
@@ -346,7 +346,7 @@ wire [APP_AW-1:0] 	map_address ;
 assign      map_address  = (req_ack) ? req_addr_int :
 		           (req_ld)  ? next_sdr_addr : curr_sdr_addr;
 
-always @ (posedge clk) begin
+always @ (posedge clk or negedge reset_n) begin
 // Bank Bits are always - 2 Bits
     r2b_ba <= (cfg_colbits == 2'b00) ? {map_address[9:8]}   :
 	      (cfg_colbits == 2'b01) ? {map_address[10:9]}  :

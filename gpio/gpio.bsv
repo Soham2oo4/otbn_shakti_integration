@@ -97,10 +97,10 @@ package gpio;
         Add#(c__, ionum, 64)
 			);
 			
-		Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigReg(False));
-		Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigReg(0));
+		Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigRegA(False));
+		Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigRegA(0));	
+		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigRegA(0));	
+		Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigRegA(0));
 
     let vionum = valueOf(ionum);
 
@@ -249,10 +249,10 @@ package gpio;
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
 		
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);	
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);	
 
 		rule write_request(rg_wrburst_count==0);
 			let addreq <- pop_o (s_xactor.o_wr_addr);
