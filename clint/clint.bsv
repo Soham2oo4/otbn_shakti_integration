@@ -82,7 +82,7 @@ package clint;
 		Reg#(Bit#(msip_size)) msip <-mkRegA(0);// Msip_size has been parameterised
 		Reg#(Bit#(1)) mtip <-mkRegA(0);
 		Reg#(Bit#(64)) rgmtime<-mkRegA(0);
-		Reg#(Bit#(64)) rgmtimecmp<-mkRegA(0);
+		Reg#(Bit#(64)) rgmtimecmp<-mkRegA('hFFFFFFFFFFFFFFFF);
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
 		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkRegA(0);
 
