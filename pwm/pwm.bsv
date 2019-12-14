@@ -185,8 +185,10 @@ package pwm;
 	          if(rg_counter >= temp)begin
 	              pwm_output <= 1;
 	          end
-	          else
+	          else begin
+							pwm_output <= 0;
 	            rg_counter <= cntr;
+			  end
 	        end
 	        else begin // Continous mode.
 	          if(rg_counter >= temp)begin
@@ -194,6 +196,7 @@ package pwm;
 	            rg_counter <= 0;
 	          end
 	         else begin
+							pwm_output <= 0;
 	            rg_counter <= cntr;
 	          end
 	        end
