@@ -527,7 +527,7 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
   //This rule will decide the start of the receive state machine 
   // TODO define trigger event to start receive state to be defined
   rule rl_receive_idle(rg_receive_state == IDLE && (rg_spi_cfg_cr2.rx_start == 1 || (
-rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state == IDLE); 
+rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state == IDLE && wr_transfer_en == True); 
   		rg_receive_state <= START_RECEIVE;
 		rg_data_counter <= 0;
 		rg_bit_count    <= 0;
@@ -544,14 +544,8 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   
   rule rl_receive_start_receive(rg_receive_state == START_RECEIVE && rg_nss == 0);
 	Bit#(8) data_rx = 0;
-  	if(rg_spi_cfg_cr1.cpha == 1 && wr_clk_en == 1 && wr_transfer_en == True) begin
-  //		wr_clk <= rg_clk;
-  		rg_receive_state <= DATA_RECEIVE;
-  	  `logLevel( spi, 0, $format(" SPI : START_RECEIVE case1 counter %x", rg_data_counter))
-  	  $display($stime," SPI : START_RECEIVE case1 counter %x", rg_data_counter);
-  	end
-  	else if(rg_spi_cfg_cr1.cpha == 0 && wr_clk_en == 1 && wr_transfer_en == True) begin
-  //		wr_clk <= rg_clk;
+	 if( wr_clk_en == 1 && wr_transfer_en == True) begin
+
   		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
   			data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
   			rg_data_rx <= data_rx >> 1;
