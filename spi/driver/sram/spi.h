@@ -147,7 +147,7 @@ void sram_cmd_addr_data(int command, int addr, int data,int burst){
 	set_spi(spi_dr1, cmd_addr);
 	set_spi(spi_dr2, data);
 	set_spi(spi_dr5, 0);
-	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(32+burst)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(32+burst*8)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	waitfor(20);
 	spi_notbusy();
 }
@@ -164,7 +164,7 @@ int sram_cmd_to_read(int command, int addr,int burst){
 	set_spi(spi_dr2, 0);
 	set_spi(spi_dr5, 0);
 	spi_tx_rx_start();
-	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(burst)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(burst*8)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	waitfor(20);
 	if(spi_rxne_enable()) {
 		dr[4] = *spi_dr5;
@@ -173,8 +173,8 @@ int sram_cmd_to_read(int command, int addr,int burst){
 		dr[1] = *spi_dr2;
 		dr[0] = *spi_dr1;
 	}
-	for(int j=1; j<(burst/32)+1;j++){
-		int m =4-burst/32+j;
+	for(int j=1; j<(burst/4)+1;j++){
+		int m =4-burst/4+j;
 		for(int k=25;k>0;k=k-8){
 			printf("Reading Value %x \n",bitExtracted(dr[m],8,k));
 			}
@@ -197,8 +197,19 @@ int sram_cmd_read(int command){
 	if(spi_rxne_enable()) {
 		dr5 = *spi_dr5;
 	}
-  	return dr5;
-}   
+  	if(dr5 & 0x80){ 
+		printf("Page Mode \n");
+				}
+	else if (dr5 & 0x40){
+		printf("Sequential Mode \n");
+				}
+	else {
+			printf("Byte Mode \n");
+				}
+	return dr5;
+}
+
+   
 int sram_read_mode(){
 	int mode = sram_cmd_read(0x05000000);
 	return mode;	
