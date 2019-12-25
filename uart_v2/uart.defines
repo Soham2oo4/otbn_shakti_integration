@@ -13,10 +13,10 @@
                             // Bit 6: Frame Error 
                             // Bit 5: Overrun
                             // Bit 4: Parity Error
-                            // Bit 3: Receiver Not Empty
-                            // Bit 2: Receiver Not Full
-                            // Bit 1: Transmitter Not Full
-                            // Bit 0: Transmission Done
+                            // Bit 3: Receiver Full
+                            // Bit 2: Receiver Not Empty
+                            // Bit 1: Transmitter Full
+                            // Bit 0: Transmitter Empty
 `define DelayReg    'h10  // 16-bit Register to control the delay in sending the data through tx
 `define ControlReg  'h14	// 16-bit Register to control various parameters of UART
                             // Bits [10:5] : Character size 

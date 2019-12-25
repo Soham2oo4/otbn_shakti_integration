@@ -151,15 +151,16 @@ interface UART#(numeric type depth);
    interface Get#(Bit#(32))   tx;
    interface Put#(Bit#(32))   rx;
 (* always_ready, always_enabled *)
-   method Bool transmission_done;
-(* always_ready, always_enabled *)
    method Bool receiver_not_empty;
 (* always_ready, always_enabled *)
-   method Bool receiver_not_full;
+   method Bool receiver_full;
 (* always_ready, always_enabled *)
-   method Bool transmittor_not_full;
+   method Bool transmittor_full;
+(* always_ready, always_enabled *)
+   method Bool transmittor_empty;
 (* always_ready, always_enabled *)
 	 method Bit#(4) error_status;
+   method Action clear_status(Bit#(4) clear_bits);
 endinterface
 
 
@@ -511,7 +512,7 @@ module mkUART( Bit#(6) charsize
    rule receive_wait_for_start_bit(rRecvState == Start && tick);
       pwRecvCellCountReset.send();
       if (rRecvData == 1'b0) begin
-         rRecvState <= Center;
+         rRecvState <= Center;           
       	 writeVReg(vrRecvBuffer, replicate(0));
       end
       else begin
@@ -521,7 +522,7 @@ module mkUART( Bit#(6) charsize
    endrule
 
    rule receive_find_center_of_bit_cell(rRecvState == Center && tick);
-      if (rRecvCellCount == 4'h4) begin
+      if (rRecvCellCount == 4'h4) begin                           
          pwRecvCellCountReset.send();
          if (rRecvData == 1'b0)
             rRecvState <= Wait;
@@ -561,20 +562,20 @@ module mkUART( Bit#(6) charsize
    rule receive_sample_pin(rRecvState == Sample && tick);
       pwRecvShiftBuffer.send;
       pwRecvEnableBitCount.send;
-      pwRecvCellCountReset.send;
+      //pwRecvCellCountReset.send;                   ///////////////////////////////
       rRecvState <= Wait;
    endrule
 
    rule receive_parity_bit(rRecvState == Parity && tick);
       rRecvParity <= rRecvData;
       pwRecvEnableBitCount.send;
-      pwRecvCellCountReset.send;
+      //pwRecvCellCountReset.send;                   ///////////////////////////
       rRecvState <= Wait;
    endrule
 
    rule receive_stop_first_bit(rRecvState == StopFirst && tick);
       pwRecvEnableBitCount.send;
-      pwRecvCellCountReset.send;
+      //pwRecvCellCountReset.send;                  /////////////////////////
       if (rRecvData == 1)
          rRecvState <= Wait;
       else
@@ -607,7 +608,7 @@ module mkUART( Bit#(6) charsize
 
       fifoRecv.enq(bitdata);
       rRecvState <= Start;
-      pwRecvCellCountReset.send;
+      //pwRecvCellCountReset.send;                ///////////////////////////
 
 			error_status_register<= {break_error, frame_error, overrun, parity_error}; 
    endrule
@@ -721,8 +722,8 @@ module mkUART( Bit#(6) charsize
 
    rule transmit_send_parity_bit(rXmitState == Parity && tick);
       case(paritysel) matches
-         ODD:        rXmitDataOut <= rXmitParity;
-         EVEN:       rXmitDataOut <= ~rXmitParity;
+         ODD:        rXmitDataOut <= ~rXmitParity;      //////////////////////
+         EVEN:       rXmitDataOut <= rXmitParity;       ///////////////////////
          default:    rXmitDataOut <= 1'b0;
       endcase
 
@@ -799,27 +800,31 @@ module mkUART( Bit#(6) charsize
       endmethod
    endinterface
 
-   method Bool transmission_done;
+   method Bool receiver_not_empty;
+      return fifoRecv.notEmpty();
+   endmethod
+
+   method Bool receiver_full;
+	    return !fifoRecv.notFull();
+   endmethod
+
+   method Bool transmittor_full;
+   	  return !fifoXmit.notFull();
+   endmethod
+
+   method Bool transmittor_empty;
 	   if(!fifoXmit.notEmpty && rXmitState==Idle)
 	      return True;
 	   else
 	      return False;
    endmethod
 
-   method Bool receiver_not_empty;
-      return fifoRecv.notEmpty();
-   endmethod
-
-   method Bool receiver_not_full;
-	  return fifoRecv.notFull();
-   endmethod
-
-   method Bool transmittor_not_full;
-   	  return fifoXmit.notFull();
-   endmethod
-
 	 method Bit#(4) error_status;
 		 return error_status_register;
+   endmethod
+
+   method Action clear_status(Bit#(4) clear_bits);
+     error_status_register<= (error_status_register & clear_bits);
    endmethod
 endmodule
 
