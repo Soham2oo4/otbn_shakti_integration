@@ -97,8 +97,8 @@ package uart;
 
 		UART#(depth) uart <-mkUART(rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
 		Reg#(Bit#(8)) rg_interrupt_en <-mkRegA(0);
-    let status= { uart.error_status, pack(uart.receiver_not_empty), pack(uart.receiver_not_full),
-								  pack(uart.transmittor_not_full), pack(uart.transmission_done) };
+    let status= { uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
+                  pack(uart.transmittor_full), pack(uart.transmittor_empty) };
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
@@ -112,6 +112,9 @@ package uart;
         `logLevel( uart, 1, $format("UART read data: %h %c", data, data))
         data= data >> (32-rg_charsize);
 				return tuple2(duplicate(data),True);
+			end
+			else if(addr[4:0]==`ControlReg && size==HWord) begin
+				return tuple2(duplicate({5'd0,rg_charsize, pack(rg_parity), pack(rg_stopbits), 1'b0}),True);
 			end
 			else if(addr[4:0]==`BaudReg) begin
 				return tuple2(duplicate(baud_value),True);
@@ -157,6 +160,11 @@ package uart;
 				rg_interrupt_en<= truncate(data);
 				return True;
 			end
+      else if(addr[4:0]==`StatusReg && size==Byte) begin
+        Bit#(4) clear_status_errors= data[7:4];
+        uart.clear_status(clear_status_errors);
+        return True;
+      end
     `ifdef IQC
       else if(addr[4:0]==`IQ_cycles && size==Byte) begin
         rg_qual_cycles<= truncate(data);
