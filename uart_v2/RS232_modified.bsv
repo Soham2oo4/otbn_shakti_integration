@@ -159,8 +159,10 @@ interface UART#(numeric type depth);
 (* always_ready, always_enabled *)
    method Bool transmittor_empty;
 (* always_ready, always_enabled *)
-	 method Bit#(4) error_status;
-   method Action clear_status(Bit#(4) clear_bits);
+	 method Bit#(5) error_status;
+   method Action clear_status(Bit#(5) clear_bits);
+(* always_ready, always_enabled *)
+   method Action rx_threshold (UInt#((TLog#(TAdd#(depth,1)))) val);
 endinterface
 
 
@@ -426,6 +428,8 @@ module mkUART( Bit#(6) charsize
    provisos(Add#(2, _1, d));
 
    Integer fifodepth = valueof(d);
+   //Integer fifoCount = fifodepth*4/5;
+   Wire#(UInt#(TLog#(TAdd#(d,1)))) wr_fifoRTSCount <- mkWire();
 
    ////////////////////////////////////////////////////////////////////////////////
    /// Design Elements
@@ -435,11 +439,12 @@ module mkUART( Bit#(6) charsize
    ////////////////////////////////////////////////////////////////////////////////
    /// Receive UART
    ////////////////////////////////////////////////////////////////////////////////
-   FIFOLevelIfc#(Bit#(32), d)                 fifoRecv              <- mkGFIFOLevel(True, True, True);
+   FIFOCountIfc#(Bit#(32), d)                 fifoRecv              <- mkGFIFOCount(True, True, True);
 
    Vector#(32, Reg#(Bit#(1)))                 vrRecvBuffer          <- replicateM(mkRegA(0));
 
 	 Reg#(Bit#(4))                             error_status_register <- mkConfigRegA(0);
+   Reg#(Bit#(1))                             fifo_almost_full      <- mkRegA(0);
    Reg#(Bit#(1))                             rRecvData             <- mkConfigRegA(1);
 
    Reg#(RecvState)                           rRecvState            <- mkRegA(Start);
@@ -611,6 +616,14 @@ module mkUART( Bit#(6) charsize
       //pwRecvCellCountReset.send;                ///////////////////////////
 
 			error_status_register<= {break_error, frame_error, overrun, parity_error}; 
+   endrule
+
+   (*fire_when_enabled*)
+   rule rl_update_fifo_almost_full;
+     let curr_fifo_elements= fifoRecv.count;
+     if(curr_fifo_elements>=wr_fifoRTSCount) begin
+       fifo_almost_full<= 1;
+     end
    endrule
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -819,12 +832,17 @@ module mkUART( Bit#(6) charsize
 	      return False;
    endmethod
 
-	 method Bit#(4) error_status;
-		 return error_status_register;
+	 method Bit#(5) error_status;
+		 return {fifo_almost_full,error_status_register};
    endmethod
 
-   method Action clear_status(Bit#(4) clear_bits);
-     error_status_register<= (error_status_register & clear_bits);
+   method Action clear_status(Bit#(5) clear_bits);
+     error_status_register<= (error_status_register & clear_bits[3:0]);
+     fifo_almost_full<= fifo_almost_full & clear_bits[4];
+   endmethod
+
+   method Action rx_threshold (UInt#(TLog#(TAdd#(d,1))) val);
+     wr_fifoRTSCount<= val;
    endmethod
 endmodule
 
