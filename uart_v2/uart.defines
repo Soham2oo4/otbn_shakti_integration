@@ -8,7 +8,9 @@
 `define BaudReg     'h0		// 16-bit Register to change the baud-value of the UART.
 `define TxReg       'h4		// The 8-bit register to be written to send data out.
 `define RxReg       'h8		// The 8-bit register to read the incoming value.
-`define StatusReg   'hc		// The 8-bit register capturing the status of the rx/tx user side FIFOs
+`define StatusReg   'hc		// The 16-bit register capturing the status of the rx/tx user side FIFOs
+                            // Bit 15:9 : All zeros
+                            // Bit 8: Indicates that the RX FIFO is ~80% full
                             // Bit 7: Break Error
                             // Bit 6: Frame Error 
                             // Bit 5: Overrun
@@ -26,7 +28,9 @@
                                              //01: 1.5 Stop bits
                                              //10: 2 Stop bits
                             // Bit 0       : Reserved
-`define InterruptEn 'h18	// 8-bit Interrupt Enable register
+`define InterruptEn 'h18	// 16-bit Interrupt Enable register
+                            // Bit 15:9 : All zeros
+                            // Bit 8: RX FIFO ~80% Full Interrupt Enable
                             // Bit 7: Break Error Interrupt Enable
                             // Bit 6: Frame Error Interrupt Enable
                             // Bit 5: Overrun Interrupt Enable
@@ -38,3 +42,4 @@
 `ifdef IQC
   `define IQ_cycles 'h1C    //8-bit register that indicates number of input qualification cycles
 `endif
+  `define RX_Threshold 'h20 //8-bit RX Threshold Register

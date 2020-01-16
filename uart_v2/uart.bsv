@@ -33,8 +33,8 @@ Details: Uart with following features:
 --------------------------------------------------------------------------------------------------
 */
 package uart;
-	  `include "Logger.bsv"       // for logging display statements.
-`include "uart.defines"
+	`include "Logger.bsv"       // for logging display statements.
+  `include "uart.defines"
 
 	import AXI4_Lite_Types::*;
 	import AXI4_Lite_Fabric::*;
@@ -81,7 +81,9 @@ package uart;
               Add#(g__, 16, data_width), 
               Mul#(16, h__, data_width),
 							Add#(i__, 9, data_width),
-              Add#(2, e__, depth));
+              Add#(2, e__, depth),
+              Add#(j__, TLog#(TAdd#(depth, 1)), 8),
+              Add#(k__, TLog#(TAdd#(depth, 1)), data_width));
 
 		Reg#(Bit#(16)) baud_value <- mkRegA(baudrate);
     Reg#(Bit#(16)) rg_delay_control <- mkRegA(0);
@@ -92,20 +94,25 @@ package uart;
     Reg#(Bit#(8)) rg_qual_cycles <- mkRegA(0);
     Ifc_iqc#(1) iqc <- mkiqc(rg_qual_cycles);
   `endif
+    Reg#(UInt#(TLog#(TAdd#(depth,1)))) rg_rx_threshold <- mkRegA(unpack('1)*4/5);
 
 		//Reg#(Bit#(9)) rg_control= concatReg3(rg_charsize, rg_parity, rg_stopbits);
 
 		UART#(depth) uart <-mkUART(rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
-		Reg#(Bit#(8)) rg_interrupt_en <-mkRegA(0);
-    let status= { uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
+		Reg#(Bit#(16)) rg_interrupt_en <-mkRegA(0);
+    let status= { 7'd0, uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
                   pack(uart.transmittor_full), pack(uart.transmittor_empty) };
+
+    rule rl_send_rx_threshold;
+      uart.rx_threshold(rg_rx_threshold);
+    endrule
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
-      if( addr[4:0]==`StatusReg && size==Byte)begin
+      if( addr[5:0]==`StatusReg && size==HWord)begin
         return tuple2(duplicate(status),True);
       end
-			else if(addr[4:0]==`RxReg) begin
+			else if(addr[5:0]==`RxReg) begin
 				Bit#(32) data =0;
 				if(uart.receiver_not_empty)
 					data<-uart.tx.get; 
@@ -113,64 +120,72 @@ package uart;
         data= data >> (32-rg_charsize);
 				return tuple2(duplicate(data),True);
 			end
-			else if(addr[4:0]==`ControlReg && size==HWord) begin
+			else if(addr[5:0]==`ControlReg && size==HWord) begin
 				return tuple2(duplicate({5'd0,rg_charsize, pack(rg_parity), pack(rg_stopbits), 1'b0}),True);
 			end
-			else if(addr[4:0]==`BaudReg) begin
+			else if(addr[5:0]==`BaudReg) begin
 				return tuple2(duplicate(baud_value),True);
 			end
-      else if(addr[4:0]==`DelayReg && size==HWord) begin
+      else if(addr[5:0]==`DelayReg && size==HWord) begin
 				return tuple2(duplicate(rg_delay_control),True);
       end
-      else if(addr[4:0]==`InterruptEn && size==Byte) begin
+      else if(addr[5:0]==`InterruptEn && size==HWord) begin
 				return tuple2(duplicate(rg_interrupt_en), True);
       end
     `ifdef IQC
-      else if(addr[4:0]==`IQ_cycles && size==Byte) begin
+      else if(addr[5:0]==`IQ_cycles && size==Byte) begin
 				return tuple2(duplicate(rg_qual_cycles), True);
       end
     `endif
+      else if(addr[5:0]==`RX_Threshold && size==Byte) begin
+        Bit#(8) lv1= zeroExtend(pack(rg_rx_threshold));
+				return tuple2(duplicate(lv1), True);
+      end
 			else
 				return tuple2(?,False);
 		endmethod
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-			if(addr[4:0]==`TxReg) begin
+			if(addr[5:0]==`TxReg) begin
 				uart.rx.put(truncate(data));//putting write data in the UART
         `logLevel( uart, 0, $format("Sending ASCII: %c", data[7:0]))
 				return True;
 			end
-			else if(addr[4:0]==`BaudReg && size==HWord) begin
+			else if(addr[5:0]==`BaudReg && size==HWord) begin
 				baud_value<=truncate(data);
 				return True;
 			end
-			else if(addr[4:0]==`DelayReg && size==HWord) begin
+			else if(addr[5:0]==`DelayReg && size==HWord) begin
 				rg_delay_control<=truncate(data);
 				return True;
 			end
-			else if(addr[4:0]==`ControlReg && size==HWord) begin
+			else if(addr[5:0]==`ControlReg && size==HWord) begin
 				rg_charsize<= data[10:5];
 				rg_parity<= unpack(data[4:3]);
 				rg_stopbits<= unpack(data[2:1]);
 				//rg_control<= truncate(data);
 				return True;
 			end
-      else if(addr[4:0]==`InterruptEn && size==Byte) begin
-				rg_interrupt_en<= truncate(data);
+      else if(addr[5:0]==`InterruptEn && size==HWord) begin
+				rg_interrupt_en<= {7'd0,data[8:0]};
 				return True;
 			end
-      else if(addr[4:0]==`StatusReg && size==Byte) begin
-        Bit#(4) clear_status_errors= data[7:4];
+      else if(addr[5:0]==`StatusReg && size==HWord) begin
+        Bit#(5) clear_status_errors= data[8:4];
         uart.clear_status(clear_status_errors);
         return True;
       end
     `ifdef IQC
-      else if(addr[4:0]==`IQ_cycles && size==Byte) begin
+      else if(addr[5:0]==`IQ_cycles && size==Byte) begin
         rg_qual_cycles<= truncate(data);
 				return True;
       end
     `endif
+      else if(addr[5:0]==`RX_Threshold && size==Byte) begin
+        rg_rx_threshold<= unpack(truncate(data));
+				return True;
+      end
 			else
 				return False;
 		endmethod
@@ -217,7 +232,9 @@ package uart;
               Add#(g__, 16, data_width), 
               Mul#(16, h__, data_width),
 							Add#(i__, 9, data_width),
-              Add#(2, e__, depth));
+              Add#(2, e__, depth),
+              Add#(j__, TLog#(TAdd#(depth, 1)), 8),
+              Add#(k__, TLog#(TAdd#(depth, 1)), data_width));
 
 		
 		Clock core_clock<-exposeCurrentClock;
@@ -334,7 +351,9 @@ package uart;
               Add#(g__, 16, data_width), 
               Mul#(16, h__, data_width),
 							Add#(i__, 9, data_width),
-              Add#(2, e__, depth));
+              Add#(2, e__, depth),
+              Add#(j__, TLog#(TAdd#(depth, 1)), 8),
+              Add#(k__, TLog#(TAdd#(depth, 1)), data_width));
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
@@ -363,7 +382,7 @@ package uart;
 			rule burst_reads(rg_rdburst_count!=0);
 				let rd_req=rg_rdpacket;
 				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
-				if(rd_req.araddr[4:0]!=`RxReg || truncate(rd_req.arsize)!=pack(Byte) 
+				if(rd_req.araddr[5:0]!=`RxReg || truncate(rd_req.arsize)!=pack(Byte) 
 															|| rd_req.arburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
@@ -394,7 +413,7 @@ package uart;
 				let wr_data <- pop_o(s_xactor.o_wr_data);
 				let succ <- user_ifc.write_req(wr_req.awaddr,wr_data.wdata,
 																						unpack(truncate(wr_req.awsize)));
-				if(wr_req.awaddr[4:0]!=`TxReg || truncate(wr_req.awsize)!=pack(Byte) 
+				if(wr_req.awaddr[5:0]!=`TxReg || truncate(wr_req.awsize)!=pack(Byte) 
 															|| wr_req.awburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
@@ -445,7 +464,7 @@ package uart;
       rule perform_read_burst(rg_rdburst_count!=0);
 				let rd_req = ff_rd_request.first;
 				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
-				if(rd_req.araddr[4:0]!=`RxReg || truncate(rd_req.arsize)!=pack(HWord) 
+				if(rd_req.araddr[5:0]!=`RxReg || truncate(rd_req.arsize)!=pack(HWord) 
 															|| rd_req.arburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
@@ -497,7 +516,7 @@ package uart;
 				let wr_data =ff_wdata_request.first;
 				let succ <- user_ifc.write_req(wr_req.awaddr,wr_data.wdata,
 																						unpack(truncate(wr_req.awsize)));
-				if(wr_req.awaddr[4:0]!=`TxReg || truncate(wr_req.awsize)!=pack(HWord) 
+				if(wr_req.awaddr[5:0]!=`TxReg || truncate(wr_req.awsize)!=pack(HWord) 
 															|| wr_req.awburst!=00 /*FIXED*/)begin
 					succ=False;
 				end
