@@ -44,6 +44,7 @@ package watchdog;
   import Semi_FIFOF::*;
   import BUtils::*;
   import ConfigReg::*;
+  import DReg::*;
   `include "Logger.bsv"           // for logging
 
   interface Ifc_watchdog#(numeric type addr_width, numeric type data_width);
@@ -65,43 +66,42 @@ package watchdog;
     Reg#(Bit#(16)) rg_reset_counter <- mkConfigRegA(fromInteger(reset_cycles));
     Reg#(Bool) rg_reset_start <- mkRegA(False);
 
-    Wire#(Bool) wr_active <- mkDWire(False);
+    Reg#(Bool) rg_active <- mkDReg(False);
 
     rule rl_decrement_watchdog_counter(!rg_reset_start && rg_control[2]==0);
-      if(wr_active)
+      `logLevel( wdt, 1, $format("WDT: Counter: %d", rg_watchdog_counter))
+      if(rg_active)
         rg_watchdog_counter<= rg_watchdog_cycles;
       else if(rg_watchdog_counter!=0)
         rg_watchdog_counter<= rg_watchdog_counter-1;
+      //else if watchdog enabled, (implicit) counter reaches 0 and in Reset mode
+      else if(rg_control[0]==1 && rg_control[1]==1) begin
+        rg_watchdog_counter<= rg_watchdog_cycles; //Once reset, then WDT should restart
+        rg_reset_start<= True;
+      end
     endrule
 
-    rule rl_gen_reset_pulse(!rg_reset_start);
-      //if watchdog enabled, counter reaches 0 and in Reset mode
-      if(rg_control[0]==1 && rg_watchdog_counter=='d0 && rg_control[1]==1) begin
-        rg_reset_start<= True;
-      end
-      //If Soft Reset mode
-      
-      else (*split*) if(rg_control[2]=='d1) begin
-        rg_control[2]<= 'b0; 
-        rg_watchdog_counter<= rg_watchdog_cycles; //Once soft reset, then WDT also restarts
-        rg_reset_start<= True;
-        rg_reset_counter<= rg_reset_cycles;
-        `logLevel( wdt, 0, $format("WDT: Beginning soft reset..."))
-      end
-      //(*nosplit*)
-      //else the reset is not set
+    //If Soft Reset mode
+    rule rl_gen_reset_pulse(!rg_reset_start && rg_control[2]==1);
+      rg_control[2]<= 'b0; 
+      rg_watchdog_counter<= rg_watchdog_cycles; //Once soft reset, then WDT should restarts
+      rg_reset_start<= True;
+      rg_reset_counter<= rg_reset_cycles;
+      `logLevel( wdt, 1, $format("WDT: Beginning soft reset..."))
     endrule
 
     rule rl_gen_reset_signal(rg_reset_start);
       rg_reset_counter<= rg_reset_counter-1;
       if(rg_reset_counter==1) begin
-        `logLevel( wdt, 0, $format("WDT: Done with soft reset..."))
+        `logLevel( wdt, 1, $format("WDT: Done with soft reset..."))
         rg_reset_start<= False;
       end
     endrule
 
     method ActionValue#(Bool) set_register(Bit#(addr_width) addr, Bit#(data_width) data) if(!rg_reset_start && rg_control[2]==0);
+      `logLevel( wdt, 1, $format("WDT: Writing into addr: %h with data: %h", addr, data))
       if(addr[7:0]=='h0) begin
+        rg_active<= True;
         rg_watchdog_cycles<= data;
         return True;
       end
@@ -114,7 +114,7 @@ package watchdog;
         return True;
       end
       else if(addr[7:0]=='h18) begin
-        wr_active<= True;
+        rg_active<= True;
         return True;
       end
       else
