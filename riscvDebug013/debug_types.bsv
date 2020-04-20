@@ -1,5 +1,5 @@
 package debug_types;
-
+  `define CORE_AXI4
   import GetPut :: *;
   import AXI4_Types::*;
   import AXI4_Lite_Types::*;
@@ -69,7 +69,7 @@ package debug_types;
   typedef 8'h10 DTVEC_PROG_BUF_OFFSET ;
   typedef 8'h50 DTVEC_ABST_MEM_OFFSET ;
   typedef 8'h80 DTVEC_PROG_BUF_EXCEPTION;
-  typedef 8'h88 DTVEC_PROG_BUF_EBREAK;
+  typedef 8'h90 DTVEC_PROG_BUF_EBREAK;
   //typedef 8'h80 END_OF_DEBUG_MEM_OFFSET; // For Now No Abstract Traps
 
   typedef enum {
@@ -104,6 +104,7 @@ package debug_types;
   `else 
     typedef 32  DXLEN;
   `endif
+  typedef 128 D_AXI_BUS_WIDTH;
   //typedef 64  DXLEN;
   typedef 32  DPADDR;
   typedef 1   HartCount;
@@ -157,9 +158,9 @@ package debug_types;
     interface Ifc_DM_DTM dtm;
     interface Debug_Hart_Ifc hart;
   `ifdef CORE_AXI4
-    interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+    interface AXI4_Master_IFC#(DPADDR,D_AXI_BUS_WIDTH , 0 ) debug_master;
   `elsif CORE_AXI4Lite
-    interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+    interface AXI4_Lite_Master_IFC#(DPADDR,D_AXI_BUS_WIDTH, 0 ) debug_master;
   `endif
     method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
     interface Reset dmactive_reset;
@@ -170,8 +171,8 @@ package debug_types;
       interface Ifc_DM_DTM dtm;
       interface Debug_Hart_Ifc hart;
     `ifdef CORE_AXI4
-      interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
-      interface AXI4_Slave_IFC#(DPADDR, DXLEN, 0 ) debug_slave;
+      interface AXI4_Master_IFC#(DPADDR, D_AXI_BUS_WIDTH, 2 ) debug_master;
+      interface AXI4_Slave_IFC#(DPADDR,D_AXI_BUS_WIDTH , 2 ) debug_slave;
     `elsif CORE_AXI4Lite
       interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
       interface AXI4_Lite_Slave_IFC#(DPADDR, DXLEN, 0 ) debug_slave;

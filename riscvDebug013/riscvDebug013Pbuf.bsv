@@ -29,7 +29,7 @@ Email id: command.paul@gmail.com
 // Preseltly implemented Limited to one Hart
 
 package riscvDebug013Pbuf;
-
+  `define CORE_AXI4
   `include "Logger.bsv"
   import Vector ::*;
   import GetPut :: *;
@@ -230,9 +230,13 @@ package riscvDebug013Pbuf;
 
     // progbuf0-15  DM 'h20-'h2f
     Vector#(16,Reg#(Bit#(32))) progbuf;                                   //- progbufX          -RW
-    progbuf <- replicateM(mkReg(0,reset_by derived_reset)); // Not Able to make this a vector of read only reg :|
+    progbuf <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(16,Wire#(Bit#(32))) progbuf_read;      
+    progbuf_read <- replicateM(mkWire(reset_by derived_reset));
 
-    
+    Reg#(Bit#(1)) rg_progBufReq <- mkReg(0);
+    Reg#(Bool) rg_hartEbreakReached <- mkReg(False);
+    Reg#(Bool) rg_hartExceptionReached <- mkReg(False);
     
     /*      MODULE RULES      */
     //-RULE: Assert derived_reset when dm is inactive
@@ -312,18 +316,18 @@ package riscvDebug013Pbuf;
 
     /*    System Bus ACCESS   */
   `ifdef CORE_AXI4
-    AXI4_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Master_Xactor;
-    AXI4_Slave_Xactor_IFC#(DPADDR, DXLEN, 0 ) slave_xactor <- mkAXI4_Slave_Xactor;
+    AXI4_Master_Xactor_IFC#(DPADDR,D_AXI_BUS_WIDTH , 2 ) master_xactor <- mkAXI4_Master_Xactor;
+    AXI4_Slave_Xactor_IFC#(DPADDR, D_AXI_BUS_WIDTH , 2 ) slave_xactor <- mkAXI4_Slave_Xactor;
   `elsif CORE_AXI4Lite
     AXI4_Lite_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Lite_Master_Xactor;
     AXI4_Lite_Slave_Xactor_IFC#(DPADDR,DXLEN,0) slave_xactor <- mkAXI4_Lite_Slave_Xactor;
   `endif
 
     rule access_system_bus((sbError == 0) && (sbBusyError == 0) && (sbBusy == 0) && (startSBAccess == 1) );
-      Bit#(64) write_data = 0;
+      Bit#(D_AXI_BUS_WIDTH) write_data = 0;
       Bit#(DPADDR) address = 0;
       Bit#(3)  size = 0;      // size in bytes
-      Bit#(8)  write_strobe = 0;
+      Bit#(TDiv#(D_AXI_BUS_WIDTH,8))  write_strobe = 0;
       Bool readAccess = (sb_read_write == 1); //((sbReadOnAddr ==1) || (sbReadOnData==1));
       Bit#(3) align = 0;
       Bit#(3) detect_error = pack(SbNoError);
@@ -335,28 +339,28 @@ package riscvDebug013Pbuf;
               detect_error = pack(SbSize);
             size = 0 ;
             write_data = duplicate(sbData0[7:0]);
-            write_strobe = 8'b0000_0001;
+            write_strobe = 16'b0000_0000_0000_0001;
           end
         1:begin
             if(sbAccess16 == 0)
               detect_error = pack(SbSize);
             size = 1 ;
             write_data = duplicate(sbData0[15:0]);
-            write_strobe = 8'b0000_0011;
+            write_strobe = 16'b0000_0000_0000_0011;
           end
         2:begin
             if(sbAccess32 == 0)
               detect_error = pack(SbSize);
             size = 2 ;
             write_data = duplicate(sbData0);
-            write_strobe = 8'b0000_1111;
+            write_strobe = 16'b0000_0000_0000_1111;
           end
         3:begin
             if(sbAccess64 == 0)
               detect_error = pack(SbSize);
             size = 3 ;
-            write_data = {sbData1,sbData0};
-            write_strobe = 8'b1111_1111;
+            write_data = duplicate({sbData1,sbData0});
+            write_strobe = 16'b0000_0000_1111_1111;
           end
       endcase
 
@@ -408,7 +412,7 @@ package riscvDebug013Pbuf;
         end
         else begin
         `ifdef CORE_AXI4
-          let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(DXLEN,1)):0],
+          let request_data  = AXI4_Wr_Data{wdata: write_data[valueOf(TSub#(D_AXI_BUS_WIDTH,1)):0],
             wstrb: truncate(write_strobe),wlast:True, wid:`FIVO(AxiID)};
           let request_address = AXI4_Wr_Addr{ awaddr: address, awuser:0,
             awlen: 0, awsize: size, awburst: 'b01,awid:`FIVO(AxiID), awprot:'d3};
@@ -446,7 +450,7 @@ package riscvDebug013Pbuf;
       if (response.rresp==AXI4_LITE_OKAY) begin
     `endif
 				Bit#(TAdd#(TLog#(TDiv#(DXLEN,8)),3)) lv_shift = {rg_lower_addr_bits, 3'd0};
-        Bit#(DXLEN) resp= response.rdata >> lv_shift;
+        Bit#(D_AXI_BUS_WIDTH) resp= response.rdata >> lv_shift;
         sbData0<=resp[31:0] ;
 				if(valueOf(DXLEN)==64)
         	sbData1<=resp[63:32] ;
@@ -480,40 +484,90 @@ package riscvDebug013Pbuf;
       let aw <- pop_o (slave_xactor.o_wr_addr);
       let w  <- pop_o (slave_xactor.o_wr_data);
       //dut.write_request(tuple3(aw.awaddr, w.wdata, w.wstrb));
-      let b = AXI4_Wr_Resp {bresp: AXI4_OKAY, buser: aw.awuser, bid:aw.awid};
-      slave_xactor.i_wr_resp.enq (b);
+      Bit#(D_AXI_BUS_WIDTH) lv_wdata = w.wdata;
+      Bool lv_wr_error = False;
+      if(aw.awaddr != 0 )
+        $display(fshow(aw));
+      for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
+        let lv_offset = aw.awaddr + (fromInteger(i)*32) - `DebugBase ;
+        Bit#(32) lv_wr_data = lv_wdata[((fromInteger(i)+1)*32)-1:fromInteger(i)*32];
+        case (lv_offset)
+          ('h0)                      :  lv_wr_error = True;
+          ('h4)                      :  lv_wr_error = True;
+          ('h8)                      :  lv_wr_error = True;
+          ('hC)                      :  lv_wr_error = True;
+          // Program Buffer                
+          // Abstract Data Section
+          (`FIVO(DTVEC_PROG_BUF_EXCEPTION))    : begin
+              if(lv_wr_data == 0)  // Write byte to signal
+                rg_hartExceptionReached <= True;
+            end
+          (`FIVO(DTVEC_PROG_BUF_EBREAK))       :  begin
+              if(lv_wr_data == 0)  // Write byte to signal
+                rg_hartEbreakReached <= True;
+            end
+          default : begin
+            if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
+              progbuf[(lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET))/4] <= lv_wr_data;
+            end
+            else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
+              abst_data[(lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET))/4] <= lv_wr_data;
+            end
+            else 
+              lv_wr_error = True;
+            end
+        endcase
+      end
+      if(!lv_wr_error) begin
+        let b = AXI4_Wr_Resp {bresp: AXI4_OKAY, buser: aw.awuser, bid:aw.awid};
+        slave_xactor.i_wr_resp.enq (b);
+      end
+      else begin
+        let b = AXI4_Wr_Resp {bresp: AXI4_SLVERR, buser: aw.awuser, bid:aw.awid};
+        slave_xactor.i_wr_resp.enq (b);
+      end
     endrule
 
     rule read_request_first;
       let ar<- pop_o(slave_xactor.o_rd_addr);
-      Bit#(DXLEN) lv_response_data = 0;
+      Bit#(D_AXI_BUS_WIDTH) lv_response = 0;
+      Bit#(32) lv_response_data = 0;
       if(ar.araddr != 0 )
         $display(fshow(ar));
-
-      case (ar.araddr)
-        (`DebugBase+'h0)                      :  lv_response_data = 'h0000100f; // fence.i
-        (`DebugBase+'h4)                      :  lv_response_data = 'h00000013; // nop
-        (`DebugBase+'h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
-        (`DebugBase+'hC)                      :  lv_response_data = 'h0000006f; // self-loop
-        // Program Buffer                
-        // Abstract Data Section
-        (`DebugBase+`FIVO(DTVEC_PROG_BUF_EXCEPTION))    :  lv_response_data = 'h00100073; // Side Effect
-        (`DebugBase+`FIVO(DTVEC_PROG_BUF_EBREAK))       :  lv_response_data = 'h00100073; // Side Effect
-        default : begin
-          let lv_offset = ar.araddr - `DebugBase;
-          if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
-            lv_response_data = duplicate(progbuf[lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET)]);
-          end
-          else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
-            lv_response_data = duplicate(abst_data[lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET)]);
-          end
-          else 
-            lv_response_data = 'h0000006f; // alternatively raise error
-          end
-      endcase
+      for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
+        let lv_offset = ar.araddr + (fromInteger(i)*4) - `DebugBase ;
+        case (lv_offset)
+          ('h0)                      :  lv_response_data = 'h00000013; // 100f fence.i
+          ('h4)                      :  lv_response_data = 'h00000013; // nop
+          ('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
+          ('hC)                      :  lv_response_data = 'h0000006f; // self-loop
+          // Program Buffer                
+          // Abstract Data Section
+          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h0) :   lv_response_data = 'h08002023;
+          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h4) :   lv_response_data = 'h00000067;
+          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h8) :   lv_response_data = 'h00000013;
+          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'hC) :   lv_response_data = 'h00000013;
+          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h0) :   lv_response_data = 'h08002823;
+          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h4) :   lv_response_data = 'h00000067;
+          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h8) :   lv_response_data = 'h00000013;
+          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'hc) :   lv_response_data = 'h00000013;
+          default : begin
+            if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
+              lv_response_data = progbuf_read[(lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET))/4];
+            end
+            else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
+              lv_response_data = abst_data[(lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET))/4];
+            end
+            else 
+              lv_response_data = 'h0000006f; // alternatively raise error
+            end
+        endcase
+        lv_response = lv_response | (zeroExtend(lv_response_data) << (32*i));
+        $display(" reading debug Memory %x,%x,%d",lv_response_data,lv_response,i);
+      end
       
-      AXI4_Rd_Data#(DXLEN, 0) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
-        rdata: truncate(lv_response_data), 
+      AXI4_Rd_Data#(D_AXI_BUS_WIDTH, 2 ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
+        rdata: lv_response, 
         rlast:True ,
         ruser: 0,
         rid:ar.arid };
@@ -565,49 +619,71 @@ Reg#(Bit#(1)) rg_fail_program_buffer <- mkReg(0);
 Reg#(QA_PBuf_State) rg_qa_pbuf_state <- mkReg(QA_PBuf_Disable);//mkReg(QA_PBuf_Disable);
 Reg#(Bit#(1)) rg_sel_qa_pbuf <- mkReg(0); // 0 => program Buffer Selected , 1 => quick access path.
 
+
+rule rl_set_progbuf_read;
+  for(Integer i = 0; i < 16 ; i = i+1) begin
+    progbuf_read[i] <= progbuf[i];
+  end
+endrule
+
 rule rl_QA_PBuf_Disable( rg_qa_pbuf_state == QA_PBuf_Disable && (abst_ar_postExec == 1) );
   
 //  rg_qa_pbuf_state <= QA_Halt;  
-
+  rg_progBufReq <= 1'b1;
+  rg_hartEbreakReached <= False;
+  rg_hartExceptionReached <= False;
   rg_qa_pbuf_state <= PBuf_Trap;
 
 endrule 
 
 rule rl_QA_Halt( rg_qa_pbuf_state == QA_Halt ) ;
-rg_qa_pbuf_state <= QA_wait_halted;
+  rg_qa_pbuf_state <= QA_wait_halted;
 endrule 
 
 rule rl_QA_wait_halted( rg_qa_pbuf_state == QA_wait_halted ) ;
-rg_qa_pbuf_state <= PBuf_Trap;
+  rg_qa_pbuf_state <= PBuf_Trap;
 endrule     
 
 rule rl_PBuf_Trap( rg_qa_pbuf_state == PBuf_Trap ) ;
-rg_qa_pbuf_state <= PBuf_wait_Trap;
+  rg_qa_pbuf_state <= PBuf_wait_Trap;
 endrule 
 
 rule rl_PBuf_wait_Trap( rg_qa_pbuf_state == PBuf_wait_Trap ) ;
-rg_qa_pbuf_state <= PBuf_wait_Exit;
+  rg_progBufReq <= 1'b1;
+  rg_qa_pbuf_state <= PBuf_wait_Exit;
 endrule     
 
-rule rl_PBuf_wait_Exit( rg_qa_pbuf_state == PBuf_wait_Exit ) ;
-rg_qa_pbuf_state <= PBUf_handle_Exit;
+rule rl_PBuf_wait_Exit( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartEbreakReached) ;
+  rg_qa_pbuf_state <= PBUf_handle_Exit;
+  rg_hartEbreakReached <= False;
+  rg_hartExceptionReached <= False;
 endrule 
 
+rule rl_PBuf_wait_Exception( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartExceptionReached);
+  rg_qa_pbuf_state <= PBUf_handle_Exit;
+  rg_hartEbreakReached <= False;
+  rg_hartExceptionReached <= False;
+endrule
+
+
 rule rl_PBUf_handle_Exit( rg_qa_pbuf_state == PBUf_handle_Exit ) ;
-rg_qa_pbuf_state <= QA_Resume;
+  rg_qa_pbuf_state <= QA_Resume;
 endrule     
 
 rule rl_QA_Resume( rg_qa_pbuf_state == QA_Resume ) ;
-rg_qa_pbuf_state <= QA_wait_Resume;
+  rg_qa_pbuf_state <= QA_wait_Resume;
 endrule 
 
 rule rl_QA_wait_Resume( rg_qa_pbuf_state == QA_wait_Resume ) ;
-rg_qa_pbuf_state <= QA_PBuf_Disable;
+  rg_qa_pbuf_state <= QA_PBuf_Disable;
+  abst_ar_postExec <= 0;
+  abst_command_good <= 2'd0;
+  abst_busy <= 0;
 endrule     
 
     rule filter_abstract_commands((abst_busy == 1) && (abst_command_good == 2'd1)); 
       Bit#(5) lv_hart_id = hartSelLo[4:0];
-      Bit#(3) lv_abst_cmderr;
+      Bit#(3) lv_abst_cmderr = 0;
       if((abst_ar_cmdType == 0) && (abst_ar_transfer == 1) )begin
         if(vrg_unavailable[lv_hart_id] == 0)
           lv_abst_cmderr = fn_abstract_reg_op_permitted(truncate(abst_ar_regno),vrg_halted[lv_hart_id],
@@ -680,7 +756,7 @@ endrule
         
         method Bit#(1) halt_to_program_buffer();
           if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0) && (vrg_resume_ack[i] == 0))
-            return 0; // Make this one later
+            return rg_progBufReq;
           else 
             return 0;
         endmethod
