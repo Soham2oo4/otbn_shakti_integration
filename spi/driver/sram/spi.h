@@ -14,20 +14,20 @@
 
 // defining SPI_CR1 register
 
-#define SPI_CPHA				(1 << 0)
-#define SPI_CPOL				(1 << 1)
-#define SPI_MSTR				(1 << 2)
-#define SPI_BR(x)				(x << 3)
-#define SPI_SPE  				(1 << 6)
-#define SPI_LSBFIRST			(1 << 7)
-#define SPI_SSI 				(1 << 8)
-#define SPI_SSM					(1 << 9)
-#define SPI_RXONLY				(1 << 10)
-#define SPI_CRCL				(1 << 11)
-#define SPI_CCRCNEXT			(1 << 12)
-#define SPI_CRCEN				(1 << 13)
-#define SPI_BIDIOE				(1 << 14)
-#define SPI_BIDIMODE			(1 << 15)
+#define SPI_CPHA		(1 << 0)
+#define SPI_CPOL		(1 << 1)
+#define SPI_MSTR		(1 << 2)
+#define SPI_BR(x)		(x << 3)
+#define SPI_SPE  		(1 << 6)
+#define SPI_LSBFIRST		(1 << 7)
+#define SPI_SSI 		(1 << 8)
+#define SPI_SSM			(1 << 9)
+#define SPI_RXONLY		(1 << 10)
+#define SPI_CRCL		(1 << 11)
+#define SPI_CCRCNEXT		(1 << 12)
+#define SPI_CRCEN		(1 << 13)
+#define SPI_BIDIOE		(1 << 14)
+#define SPI_BIDIMODE		(1 << 15)
 #define SPI_TOTAL_BITS_TX(x)  	(x << 16)
 #define SPI_TOTAL_BITS_RX(x)  	(x << 24)
 
@@ -50,13 +50,13 @@
 
 //defining SR register
 
-#define SPI_FTLVL(x)	(x << 11)
-#define SPI_FRLVL(x)	(x << 9)
+#define SPI_FTLVL(x)		(x << 11)
+#define SPI_FRLVL(x)		(x << 9)
 #define SPI_FRE			(1 << 8)
 #define SPI_OVR			(1 << 6)
 #define SPI_MODF		(1 << 5)
 #define SPI_CRCERR		(1 << 4)
-#define TXE				(1 << 1)
+#define TXE			(1 << 1)
 #define RXNE			(1 << 0)
 
 //pointers to register
