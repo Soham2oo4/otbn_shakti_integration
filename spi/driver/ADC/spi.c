@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "spin.h"
+#include "spi.h"
 
 int bitExtracted(int number, int k, int p) 
 { 
