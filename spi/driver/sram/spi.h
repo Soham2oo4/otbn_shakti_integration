@@ -2,15 +2,12 @@
 
 #define SPI_CR1 	 0x00020000
 #define SPI_CR2 	 0x00020004
-#define SPI_SR       0x00020008
+#define SPI_SR      	 0x00020008
 #define SPI_DR1  	 0x0002000C
 #define SPI_DR2  	 0x00020010
 #define SPI_DR3  	 0x00020014
 #define SPI_DR4		 0x00020018
 #define SPI_DR5		 0x0002001C
-#define SPI_CRCPR    0x00020020
-#define SPI_RXCRCR   0x00020024
-#define SPI_TXCRCR   0x00020028
 
 // defining SPI_CR1 register
 
