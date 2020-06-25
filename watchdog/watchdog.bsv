@@ -122,11 +122,11 @@ package watchdog;
     endmethod
 
     method Tuple2#(Bit#(data_width), Bool) read_register(Bit#(addr_width) addr);
-      if(addr=='h0)
+      if(addr[7:0]=='h0)
         return tuple2(zeroExtend(rg_watchdog_cycles), True);
-      else if(addr=='h8)
+      else if(addr[7:0]=='h8)
         return tuple2(zeroExtend(rg_control), True);
-      else if(addr=='h10)
+      else if(addr[7:0]=='h10)
         return tuple2(zeroExtend(rg_reset_cycles), True);
       else
         return tuple2(?, False);
