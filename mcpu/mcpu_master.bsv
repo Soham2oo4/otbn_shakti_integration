@@ -89,6 +89,7 @@ Data_mode :01 byte
   interface Data_bus_inf;
 
   method Bit#(8) wr_byte_31_24();
+  
   (*always_enabled,always_ready*)
     method Bit#(1) wr_siz1();
   (*always_enabled,always_ready*)
@@ -98,13 +99,11 @@ Data_mode :01 byte
     method Bit#(32) wr_addr();
     method Bool wr_addr_en();
     method Bit#(4)  wr_en();
-
     method Bit#(3) wr_fun_code();
     method Bool wr_fun_code_en();
     method Bit#(8) wr_byte_23_16();
     method Bit#(8) wr_byte_15_8();
     method Bit#(8) wr_byte_7_0();
-
     method Action rd_byte_31_24(Bit #(8) d3);
     method Action rd_byte_23_16(Bit #(8) d2);
     method Action rd_byte_15_8 (Bit #(8) d1);
@@ -126,9 +125,7 @@ Data_mode :01 byte
   (*synthesize*)
 
     module mkmcpumaster(Mcpu_master);
-
-
-
+    
     String mcpu_master = " ";
     //Fifos to get request and send response
     FIFOF #(Req_mcpu) ff_cpu_req <- mkFIFOF;
@@ -181,7 +178,6 @@ Data_mode :01 byte
     rule rcv_req_new(rg_master_state == RCV_REQ && rg_cntl_wd == 2'b00 && (halt_l == 1'b1) &&
     (berr_l==1'b1)) ;//To recieve new request
       let req =mcpu_req;
-
       `logLevel( mcpu_master, 1, $format("MCPU_MASTER:Request received to address %h req_type\
       %h",req.addr,req.rd_req))
       `logLevel( mcpu_master, 1, $format("MCPU_MASTER:funcode: %h mode of operation:\
@@ -539,7 +535,7 @@ Data_mode :01 byte
           rg_mode_en<=False;
           rg_fun_code_en<=False;
         end
-        $display("Ready to receive a new request",$time);
+        `logLevel( mcpu_master, 1, $format("MASTER_STATE 7:Ready to receive new request"))
       end
       else
       rg_master_state<=HALT;
