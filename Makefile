@@ -89,17 +89,17 @@ generate_verilog:
 	@bsc -u -remove-dollar -verilog -elab -vdir $(VERILOGDIR) -bdir $(BSVBUILDDIR) -info-dir $(BSVBUILDDIR)\
   -keep-fires -check-assert  $(define_macros) -D VERBOSITY=0 -D verilog=True $(BSVCOMPILEOPTS)\
   -p $(BSVINCDIR) -g $(TOP_MODULE) $(TOP_DIR)/$(TOP_FILE)  || (echo "BSC COMPILE ERROR"; exit 1) 
-	@cp ${BSC_VDIR}/Verilog/ResetEither.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/FIFO2.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/FIFO20.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/MakeReset0.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog.Vivado/BRAM2BELoad.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/ClockInverter.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/SyncReset0.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/MakeClock.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/FIFO1.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/FIFO10.v ./verilog/
-	@cp ${BSC_VDIR}/Verilog/SyncFIFO1.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/ResetEither.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/FIFO2.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/FIFO20.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/MakeReset0.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog.Vivado/BRAM2BELoad.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/ClockInverter.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/SyncReset0.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/MakeClock.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/FIFO1.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/FIFO10.v ${VERILOGDIR}
+	@cp ${BSC_VDIR}/Verilog/SyncFIFO1.v ${VERILOGDIR}
 .PHONY: clean
 clean:
 	rm -rf build bin *.jou *.log
