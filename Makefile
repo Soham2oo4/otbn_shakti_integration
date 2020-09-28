@@ -20,7 +20,10 @@ VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-i
 ## BFM_V_DIR:=
 VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 -LDFLAGS -static --x-assign fast --x-initial fast \
 					--no-assert --exe sim_main.cpp -Wno-STMTDLY -Wno-UNOPTFLAT \
-					-Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY 
+					-Wno-WIDTH -Wno-lint -Wno-COMBDLY -Wno-INITIALDLY
+# open bsc changes 
+BSC_DIR := $(shell which bsc)
+BSC_VDIR:=$(subst /bin/bsc,/,${BSC_DIR})bin/../lib/
 
 ## VERILATOR__RBB_VPI_FLAGS
 
@@ -85,19 +88,18 @@ generate_verilog:
 	@mkdir -p $(VERILOGDIR); 
 	@bsc -u -remove-dollar -verilog -elab -vdir $(VERILOGDIR) -bdir $(BSVBUILDDIR) -info-dir $(BSVBUILDDIR)\
   -keep-fires -check-assert  $(define_macros) -D VERBOSITY=0 -D verilog=True $(BSVCOMPILEOPTS)\
-  -verilog-filter ${BLUESPECDIR}/bin/basicinout\
   -p $(BSVINCDIR) -g $(TOP_MODULE) $(TOP_DIR)/$(TOP_FILE)  || (echo "BSC COMPILE ERROR"; exit 1) 
-	@cp ${BLUESPECDIR}/Verilog/ResetEither.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/FIFO2.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/FIFO20.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/MakeReset0.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog.Vivado/BRAM2BELoad.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/ClockInverter.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/SyncReset0.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/MakeClock.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/FIFO1.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/FIFO10.v ./verilog/
-	@cp ${BLUESPECDIR}/Verilog/SyncFIFO1.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/ResetEither.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/FIFO2.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/FIFO20.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/MakeReset0.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog.Vivado/BRAM2BELoad.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/ClockInverter.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/SyncReset0.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/MakeClock.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/FIFO1.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/FIFO10.v ./verilog/
+	@cp ${BSC_VDIR}/Verilog/SyncFIFO1.v ./verilog/
 .PHONY: clean
 clean:
 	rm -rf build bin *.jou *.log
