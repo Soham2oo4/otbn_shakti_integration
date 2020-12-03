@@ -260,7 +260,7 @@ package riscvDebug013Pbuf;
       end
     endrule
 
-    rule display;
+    rule rl_display;
       `logLevel( debug, 0, $format("DEBUG: Halt:%b",haltReq))
       `logLevel( debug, 0, $format("DEBUG: ResumeReq:%b",resumeReq))
     endrule
@@ -532,12 +532,16 @@ package riscvDebug013Pbuf;
       let ar<- pop_o(slave_xactor.o_rd_addr);
       Bit#(D_AXI_BUS_WIDTH) lv_response = 0;
       Bit#(32) lv_response_data = 0;
+
+      // i-class: 128-bit aligned address (io)
+      ar.araddr = {truncateLSB(ar.araddr), 4'b0};
+
       if(ar.araddr != 0 )
         $display(fshow(ar));
       for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
         let lv_offset = ar.araddr + (fromInteger(i)*4) - `DebugBase ;
         case (lv_offset)
-          ('h0)                      :  lv_response_data = 'h00000013; // 100f fence.i
+          ('h0)                      :  lv_response_data = 'h0000100f; // 100f fence.i
           ('h4)                      :  lv_response_data = 'h00000013; // nop
           ('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
           ('hC)                      :  lv_response_data = 'h0000006f; // self-loop
