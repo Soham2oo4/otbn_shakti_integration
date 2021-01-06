@@ -65,11 +65,11 @@ package clint;
 
 	module mkclint(User_ifc#(addr_width,data_width,msip_size, tick_count))
 		provisos(
-    Add#(b__, data_width, 64),
-    Add#(d__, TDiv#(data_width, 8), 8),
-    Mul#(msip_size, a__, 64),
+    Add#(b__, data_width, 128),
+    Add#(d__, TDiv#(data_width, 8), 16),
+    Mul#(msip_size, a__, 128),
     Add#(e__, msip_size, data_width),
-    Mul#(data_width, c__, 64),
+    Mul#(data_width, c__, 128),
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
@@ -104,13 +104,13 @@ package clint;
 
 			Bit#(data_width) data=0;
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
-      Bit#(64) temp=0;
+      Bit#(128) temp=0;
 			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
       else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
-        temp=csr_mtimecmp;
+        temp=zeroExtend(csr_mtimecmp);
       else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
-        temp=rgmtime;
+        temp=zeroExtend(rgmtime);
 		  else
 				success=False;	
 
@@ -131,8 +131,8 @@ package clint;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize
         size);
         Bool success=True;
-        Bit#(64) temp =0;
-        Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+        Bit#(128) temp =0;
+        Bit#(128) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
         data=case (size)
           Byte: duplicate(data[7:0]);
           HWord: duplicate(data[15:0]);
@@ -141,12 +141,12 @@ package clint;
         endcase;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
-        Bit#(64) datamask=duplicate(data)&mask;
+        Bit#(128) datamask=duplicate(data)&mask;
         let notmask=~mask;
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
-          csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+          csr_mtimecmp<=truncate((zeroExtend(csr_mtimecmp)&notmask)|datamask);
         end
 		    else
 		  		success=False;	
@@ -180,14 +180,14 @@ package clint;
 	 module mkclint_axi4lite(Ifc_clint_axi4lite#(addr_width,data_width,user_width,msip_size,
      tick_count))
 	 	provisos(
-        Add#(b__, data_width, 64),
-        Add#(d__, TDiv#(data_width, 8), 8),
-        Mul#(msip_size, a__, 64),
+        Add#(b__, data_width, 128),
+        Add#(d__, TDiv#(data_width, 8), 16),
+        Mul#(msip_size, a__, 128),
         Add#(e__, msip_size, data_width),
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    Mul#(data_width, c__, 64)
+    Mul#(data_width, c__, 128)
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
 	 	AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- 
@@ -224,14 +224,14 @@ package clint;
 
 	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,data_width,user_width,msip_size,tick_count))
 		provisos(
-        Add#(b__, data_width, 64),
-        Add#(d__, TDiv#(data_width, 8), 8),
-        Mul#(msip_size, a__, 64),
+        Add#(b__, data_width, 128),
+        Add#(d__, TDiv#(data_width, 8), 16),
+        Mul#(msip_size, a__, 128),
         Add#(e__, msip_size, data_width),
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    Mul#(data_width, c__, 64)
+    Mul#(data_width, c__, 128)
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
 	 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
