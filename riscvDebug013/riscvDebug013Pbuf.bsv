@@ -49,7 +49,7 @@ package riscvDebug013Pbuf;
 
   `define FIVO(x) fromInteger(valueOf(x))
   `define DebugBase   'h0000_0000
-
+  // TODO: Add abst_cmderr setting when encountering exceptions in debug mode.
   (* doc = " Module: This Module implements the RISC-V Debug Spec 0.13 \
     The Module Exposes a Ifc_riscvDebug013 Type Interface which intern houses \
     a Axi4 / Axi4-Lite Master , an AXI4/ Axi4-Lite interface onto the system bus \
@@ -130,9 +130,9 @@ package riscvDebug013Pbuf;
     Reg#(Bit#(8)) hartinfoPad0  = readOnlyReg(0);                         //- hartinfo b31-24
     Reg#(Bit#(4)) nScratch      = readOnlyReg(0);                         //- hartinfo b23-20   - R
     Reg#(Bit#(3)) hartinfoPad1  = readOnlyReg(0);                         //- hartinfo b19-17
-    Reg#(Bit#(1)) dataAccess    = readOnlyReg(0);                         //- hartinfo b16      - R
+    Reg#(Bit#(1)) dataAccess    = readOnlyReg(1);                         //- hartinfo b16      - R
     Reg#(Bit#(4)) dataSize      = readOnlyReg(4'd12);                     //- hartinfo b15-12   - R
-    Reg#(Bit#(12))dataAddr      = readOnlyReg(12'h7c0);                   //- hartinfo b11-0    - R ** V
+    Reg#(Bit#(12))dataAddr      = readOnlyReg(12'h80);                   //- hartinfo b11-0    - R ** V
     Reg#(Bit#(32)) hartinfo = concatReg6(   hartinfoPad0,nScratch,hartinfoPad1,dataAccess,
                                             dataSize,dataAddr);
     // hawindowsel DM 'h14
@@ -221,7 +221,6 @@ package riscvDebug013Pbuf;
     Reg#(Bit#(32)) sbData3 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
 
 		Reg#(Bit#(TLog#(TDiv#(DXLEN,8)))) rg_lower_addr_bits <- mkReg(0);	//Store lower address bits
-    
     //      System Bus Slave Registers
     
     // data0 - 11   DM 'h04-'h0f
@@ -243,7 +242,13 @@ package riscvDebug013Pbuf;
     rule generate_derived_reset(dmActive==0);
       dm_reset.assertReset;
     endrule
-
+    //
+    rule rl_display_abstractcts;
+      if(`VERBOSITY > 1) begin
+        $display($time, " PT: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer);
+      end
+    endrule
+    //
     rule rl_authentication_bypass;
       authenticated <= 1'b1;
     endrule
@@ -261,8 +266,9 @@ package riscvDebug013Pbuf;
     endrule
 
     rule rl_display;
-      `logLevel( debug, 0, $format("DEBUG: Halt:%b",haltReq))
-      `logLevel( debug, 0, $format("DEBUG: ResumeReq:%b",resumeReq))
+      $display($time,"DEBUG: Halt:%b",haltReq);
+      $display($time,"DEBUG: ResumeReq:%b",resumeReq);
+      $display($time,"DEBUG: DMSTATUS: %b,",dmstatus);
     endrule
 
     rule rl_set_dm_status_bits;   // One Cycle delay in update of values , Convert to wires 
@@ -312,6 +318,10 @@ package riscvDebug013Pbuf;
       anyUnAvail      <= reduceOr ( lv_sel_UnAvail );
       anyRunning      <= reduceOr ( lv_sel_Running );
       anyHalted       <= reduceOr ( lv_sel_Halted );
+    endrule
+    rule rl_reset_resumeReq;
+      if((anyResumeAck==1 || allResumeAck==1) && resumeReq==1)
+        resumeReq <= 0;
     endrule
 
     /*    System Bus ACCESS   */
@@ -398,7 +408,10 @@ package riscvDebug013Pbuf;
       end
       // Bus Access
       if(detect_error == pack(SbNoError))begin
-          `logLevel( debug, 1, $format("DEBUG:Memory Access-Addr:%h ,Op:%b ",address,readAccess))
+          // `logLevel( debug, 1, $format("DEBUG:Memory Access-Addr:%h ,Op:%b ",address,readAccess))
+          if(`VERBOSITY > 1) begin
+            $display("DEBUG:Memory Access-Addr:%h : read? %b ",address,readAccess);
+          end
         if(readAccess)begin
         `ifdef CORE_AXI4
           let read_request = AXI4_Rd_Addr {araddr: truncate(address),aruser: 0, arlen: 0,
@@ -408,7 +421,7 @@ package riscvDebug013Pbuf;
             arsize: truncate(size), arprot:'d3};
         `endif
           master_xactor.i_rd_addr.enq(read_request);
-					rg_lower_addr_bits<= truncate(address);
+          rg_lower_addr_bits<= truncate(address);
         end
         else begin
         `ifdef CORE_AXI4
@@ -453,7 +466,10 @@ package riscvDebug013Pbuf;
         Bit#(D_AXI_BUS_WIDTH) resp= response.rdata >> lv_shift;
         sbData0<=resp[31:0] ;
 				if(valueOf(DXLEN)==64)
-        	sbData1<=resp[63:32] ;
+          sbData1<=resp[63:32] ;
+        if(`VERBOSITY > 1) begin
+          $display("DEBUG:Memory Access response- Response :%h Shift: %d Shifted_resp: %h",response.rdata,lv_shift,resp);
+        end
       end
       else begin
         sbError <= pack(SbOther);// lookup bresp values !
@@ -627,16 +643,19 @@ Reg#(Bit#(1)) rg_sel_qa_pbuf <- mkReg(0); // 0 => program Buffer Selected , 1 =>
 rule rl_set_progbuf_read;
   for(Integer i = 0; i < 16 ; i = i+1) begin
     progbuf_read[i] <= progbuf[i];
+    if(`VERBOSITY > 1 && i<5) begin
+      $display($time," PT: DEBUG Progbuf_mem[%d] = %h",i,progbuf[i]);
+    end
   end
 endrule
 
-rule rl_QA_PBuf_Disable( rg_qa_pbuf_state == QA_PBuf_Disable && (abst_ar_postExec == 1) );
+rule rl_QA_PBuf_Disable( rg_qa_pbuf_state == QA_PBuf_Disable && (abst_ar_postExec == 1) && (abst_ar_transfer!=1));
   
-//  rg_qa_pbuf_state <= QA_Halt;  
-  rg_progBufReq <= 1'b1;
+  rg_qa_pbuf_state <= QA_Halt;  
+  // rg_progBufReq <= 1'b1;
   rg_hartEbreakReached <= False;
   rg_hartExceptionReached <= False;
-  rg_qa_pbuf_state <= PBuf_Trap;
+  // rg_qa_pbuf_state <= PBuf_Trap;
 
 endrule 
 
@@ -649,11 +668,12 @@ rule rl_QA_wait_halted( rg_qa_pbuf_state == QA_wait_halted ) ;
 endrule     
 
 rule rl_PBuf_Trap( rg_qa_pbuf_state == PBuf_Trap ) ;
+  // rg_progBufReq <= 1'b0;
   rg_qa_pbuf_state <= PBuf_wait_Trap;
 endrule 
 
 rule rl_PBuf_wait_Trap( rg_qa_pbuf_state == PBuf_wait_Trap ) ;
-  rg_progBufReq <= 1'b1;
+  // rg_progBufReq <= 1'b1;
   rg_qa_pbuf_state <= PBuf_wait_Exit;
 endrule     
 
@@ -685,23 +705,23 @@ rule rl_QA_wait_Resume( rg_qa_pbuf_state == QA_wait_Resume ) ;
   abst_busy <= 0;
 endrule     
 
-    rule filter_abstract_commands((abst_busy == 1) && (abst_command_good == 2'd1)); 
+    rule filter_abstract_commands(abst_ar_transfer==1 && abst_command_good==1); 
       Bit#(5) lv_hart_id = hartSelLo[4:0];
       Bit#(3) lv_abst_cmderr = 0;
       if((abst_ar_cmdType == 0) && (abst_ar_transfer == 1) )begin
-        if(vrg_unavailable[lv_hart_id] == 0)
+        if(vrg_unavailable[lv_hart_id] == 0) begin
           lv_abst_cmderr = fn_abstract_reg_op_permitted(truncate(abst_ar_regno),vrg_halted[lv_hart_id],
-                                                      abst_ar_write,abst_ar_aarSize);
-        else 
-          lv_abst_cmderr = pack(Abst_WrongState);
+                                                      abst_ar_write,abst_ar_aarSize); end
+        else begin
+          lv_abst_cmderr = pack(Abst_WrongState); end
       end
-      else 
-        lv_abst_cmderr = pack(Abst_NotSupported);
-    
+      else begin
+        lv_abst_cmderr = pack(Abst_NotSupported); 
+      end
+      if(`VERBOSITY > 1) begin $display ("DEBUG: Abstract_command: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+        lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr); end
       if(lv_abst_cmderr == 0)begin
         abst_command_good <=2'd3;   
-        `logLevel( debug, 1, $format("DEBUG:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
-          lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr))
       end
       else begin
         abst_busy <= 0;
@@ -741,7 +761,9 @@ endrule
           if ((valueOf(DXLEN) == 64 )&& (abst_ar_aarSize == 3'd3 ))
             abst_data[1] <= responseData[63:32];
           abst_command_good <= 2'd0;
-          abst_busy <= 0;
+          abst_ar_transfer <= '0;
+          if(abst_ar_postExec!=1)
+            abst_busy <= 0;
         endmethod
 
         method Bit#(1) haltRequest();
@@ -752,15 +774,15 @@ endrule
         endmethod
         
         method Bit#(1) resumeRequest();
-          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0) && (vrg_resume_ack[i] == 0))
+          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0))
             return resumeReq;
           else 
             return 0;
         endmethod
         
         method Bit#(1) halt_to_program_buffer();
-          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0) && (vrg_resume_ack[i] == 0))
-            return rg_progBufReq;
+          if(((vrg_hawsel[i] == 1)||(fromInteger(i) == hartSelLo)) && (vrg_unavailable[i] == 0))
+            return pack(rg_qa_pbuf_state == PBuf_Trap);//rg_progBufReq;
           else 
             return 0;
         endmethod
@@ -773,7 +795,7 @@ endrule
         endmethod
         
         method Action  set_halted(Bit#(1) halted);
-          vrg_halted[i]   <= halted; // Only One Hart
+          vrg_halted[i]   <= halted; // Only One Hart (i=0)
         endmethod
         
         method Action  set_unavailable(Bit#(1) unavailable);
@@ -810,7 +832,6 @@ endrule
           // Catch Busy Access Violations
           Bit#(32) dmi_response_data = 0;
           Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
-         `logLevel( debug, 1, $format("DEBUG:DMI Addr:@%h, op:%h, Data:%h",dmi_addr,dmi_op,dmi_data))
           // Read Operation
           if( dmi_op == 2'b01 ) begin
             case(dmi_addr)
@@ -879,13 +900,16 @@ endrule
                 else dmi_response_status = 2; // dmi operation failed
               end
             endcase
+            if(`VERBOSITY > 1) begin
+              $display("DEBUG: DMI Addr:%h, op:%h, write_data:%h, read_data: %h",dmi_addr,dmi_op,dmi_data,dmi_response_data);
+            end
           end
           // Write Operation
           else if ( dmi_op == 2'b10 )begin
             case(dmi_addr)
               `FIVO(DMCONTROL):begin
                                 dmcontrol <= dmi_data;
-                                if(dmi_data[30] == 1) rg_clear_resume_ack <= 1;
+                                if(dmi_data[30] == 1) rg_clear_resume_ack <= 1; //resume req
                               end
               `FIVO(DMSTATUS):           dmstatus <= dmi_data;
               `FIVO(HARTINFO):           hartinfo <= dmi_data;
@@ -894,8 +918,13 @@ endrule
               `FIVO(ABSTRACTCTS):        abstractcs <= dmi_data;
               `FIVO(COMMAND):begin
                               abst_command <= dmi_data;
-                              abst_busy <= 1 ;
-                              abst_command_good <= 2'd1;
+                              if(dmi_data[18]==1 || dmi_data[17]==1) begin
+                                abst_busy <= 1 ;
+                                abst_command_good <= 2'd1;
+                              end
+                              if(`VERBOSITY > 1) begin
+                                $display($time," DEBUG: Writing into Abstract Command: data %h",dmi_data);
+                              end
                             end
               `FIVO(ABSTRACTAUTO):       abstractauto <= dmi_data;
               `FIVO(AUTHDATA):           auth_data <= dmi_data;
@@ -967,6 +996,9 @@ endrule
                 end
                 else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
                   progbuf[dmi_addr - `FIVO(PBSTART)] <= dmi_data;
+                  if(`VERBOSITY > 1) begin
+                    $display("DEBUG: DMI-Progbuf Write Addr:%h, op:%h, write_data:%h",dmi_addr,dmi_op,dmi_data);
+                  end
                 end
                 else dmi_response_status = 2; // dmi operation failed
               end
@@ -978,6 +1010,9 @@ endrule
       interface getResponse = interface Get
         method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
           dmi_response <= tagged Invalid;
+          if(`VERBOSITY > 1) begin
+            $display("DEBUG: DMI valid response status: %d : data:%h",validValue(dmi_response)[1:0],validValue(dmi_response)[33:2]);
+          end
           return validValue(dmi_response);
         endmethod
       endinterface;

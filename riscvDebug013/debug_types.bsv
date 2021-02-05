@@ -208,8 +208,8 @@ package debug_types;
   instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
     module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
       // Unconditional connections
-      mkConnection( debug_module.halt_to_program_buffer,
-                    hart.halt_to_program_buffer);
+      // mkConnection( debug_module.halt_to_program_buffer,
+      //               hart.halt_to_program_buffer);
       mkConnection( debug_module.abstractOperation,
                     hart.abstractOperation);
       mkConnection( hart.abstractReadResponse,
@@ -283,15 +283,12 @@ package debug_types;
 
     // Fliter
     if((address >= `FIVO(Abst_reg_address_CSR0)) && (address < `FIVO(Abst_reg_address_GPR0)))begin
-      if(address != 14'h07b0)                                     // discriminate basis csr existing
-        lv_bad_register = 1;
-      else
         lv_bad_register = 1;
     end
     else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < `FIVO(Abst_reg_address_FPR0)))
       lv_bad_register = 0;
-    else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
-      lv_bad_register = 0;                                                       //No Floating Point
+    else if((address >= `FIVO(Abst_reg_address_FPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
+      lv_bad_register = 1;                                                       //No Floating Point
     else 
       lv_bad_register = 0;//just for testing              //No Implementation Reserved states Mapped 
     
@@ -301,7 +298,7 @@ package debug_types;
         lv_bad_state = 0;
       else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < `FIVO(Abst_reg_address_FPR0)))
         lv_bad_state = 0;
-      else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
+      else if((address >= `FIVO(Abst_reg_address_FPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
         lv_bad_state = 0;
       else
         lv_bad_state = 0;
