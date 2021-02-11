@@ -128,7 +128,7 @@ package riscvDebug013Pbuf;
         clrResetHaltReq,nDMReset,dmActive);
     // hartinfo DM 'h12
     Reg#(Bit#(8)) hartinfoPad0  = readOnlyReg(0);                         //- hartinfo b31-24
-    Reg#(Bit#(4)) nScratch      = readOnlyReg(0);                         //- hartinfo b23-20   - R
+    Reg#(Bit#(4)) nScratch      = readOnlyReg(1);                         //- hartinfo b23-20   - R
     Reg#(Bit#(3)) hartinfoPad1  = readOnlyReg(0);                         //- hartinfo b19-17
     Reg#(Bit#(1)) dataAccess    = readOnlyReg(1);                         //- hartinfo b16      - R
     Reg#(Bit#(4)) dataSize      = readOnlyReg(4'd12);                     //- hartinfo b15-12   - R
@@ -266,9 +266,9 @@ package riscvDebug013Pbuf;
     endrule
 
     rule rl_display;
-      $display($time,"DEBUG: Halt:%b",haltReq);
-      $display($time,"DEBUG: ResumeReq:%b",resumeReq);
-      $display($time,"DEBUG: DMSTATUS: %b,",dmstatus);
+      $display($time," DEBUG: Halt:%b",haltReq);
+      $display($time," DEBUG: ResumeReq:%b",resumeReq);
+      $display($time," DEBUG: DMSTATUS: %b,",dmstatus);
     endrule
 
     rule rl_set_dm_status_bits;   // One Cycle delay in update of values , Convert to wires 
@@ -410,7 +410,7 @@ package riscvDebug013Pbuf;
       if(detect_error == pack(SbNoError))begin
           // `logLevel( debug, 1, $format("DEBUG:Memory Access-Addr:%h ,Op:%b ",address,readAccess))
           if(`VERBOSITY > 1) begin
-            $display("DEBUG:Memory Access-Addr:%h : read? %b ",address,readAccess);
+            $display($time, " DEBUG:Memory Access-Addr:%h : read? %b ",address,readAccess);
           end
         if(readAccess)begin
         `ifdef CORE_AXI4
@@ -468,7 +468,7 @@ package riscvDebug013Pbuf;
 				if(valueOf(DXLEN)==64)
           sbData1<=resp[63:32] ;
         if(`VERBOSITY > 1) begin
-          $display("DEBUG:Memory Access response- Response :%h Shift: %d Shifted_resp: %h",response.rdata,lv_shift,resp);
+          $display($time, " DEBUG:Memory Access response- Response :%h Shift: %d Shifted_resp: %h",response.rdata,lv_shift,resp);
         end
       end
       else begin
@@ -583,7 +583,7 @@ package riscvDebug013Pbuf;
             end
         endcase
         lv_response = lv_response | (zeroExtend(lv_response_data) << (32*i));
-        $display(" reading debug Memory %x,%x,%d",lv_response_data,lv_response,i);
+        $display($time, " DEBUG: reading debug Memory %x,%x,%d",lv_response_data,lv_response,i);
       end
       
       AXI4_Rd_Data#(D_AXI_BUS_WIDTH, 2 ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
@@ -718,7 +718,7 @@ endrule
       else begin
         lv_abst_cmderr = pack(Abst_NotSupported); 
       end
-      if(`VERBOSITY > 1) begin $display ("DEBUG: Abstract_command: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+      if(`VERBOSITY > 1) begin $display ($time, " DEBUG: Abstract_command: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
         lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr); end
       if(lv_abst_cmderr == 0)begin
         abst_command_good <=2'd3;   
@@ -825,6 +825,9 @@ endrule
     interface dtm = interface Ifc_DM_DTM
       interface putCommand = interface Put
         method Action put(Bit#(41) request_data) if (!isValid(dmi_response) && (abst_command_good[0] == 0));
+          if (`VERBOSITY > 1) begin
+            $display($time, " DEBUG: DTM: In putCommand %h", request_data);
+          end
           // The DMI Requests are Recieved here
           Bit#(2)  dmi_op   = request_data[1:0];
           Bit#(32) dmi_data = request_data[33:2];
@@ -901,7 +904,7 @@ endrule
               end
             endcase
             if(`VERBOSITY > 1) begin
-              $display("DEBUG: DMI Addr:%h, op:%h, write_data:%h, read_data: %h",dmi_addr,dmi_op,dmi_data,dmi_response_data);
+              $display($time, " DEBUG: DMI Addr:%h, op:%h, write_data:%h, read_data: %h",dmi_addr,dmi_op,dmi_data,dmi_response_data);
             end
           end
           // Write Operation
@@ -997,7 +1000,7 @@ endrule
                 else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
                   progbuf[dmi_addr - `FIVO(PBSTART)] <= dmi_data;
                   if(`VERBOSITY > 1) begin
-                    $display("DEBUG: DMI-Progbuf Write Addr:%h, op:%h, write_data:%h",dmi_addr,dmi_op,dmi_data);
+                    $display($time, " DEBUG: DMI-Progbuf Write Addr:%h, op:%h, write_data:%h",dmi_addr,dmi_op,dmi_data);
                   end
                 end
                 else dmi_response_status = 2; // dmi operation failed
@@ -1009,9 +1012,12 @@ endrule
       endinterface;
       interface getResponse = interface Get
         method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
+          if (`VERBOSITY > 1) begin
+            $display($time, " DEBUG: DTM: In getResponse %h", validValue(dmi_response));
+          end
           dmi_response <= tagged Invalid;
           if(`VERBOSITY > 1) begin
-            $display("DEBUG: DMI valid response status: %d : data:%h",validValue(dmi_response)[1:0],validValue(dmi_response)[33:2]);
+            $display($time, " DEBUG: DMI valid response status: %d : data:%h",validValue(dmi_response)[1:0],validValue(dmi_response)[33:2]);
           end
           return validValue(dmi_response);
         endmethod
