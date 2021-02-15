@@ -245,7 +245,7 @@ package riscvDebug013Pbuf;
     //
     rule rl_display_abstractcts;
       if(`VERBOSITY > 1) begin
-        $display($time, " PT: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer);
+        $display($time, " PT: DEBUG: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d busy %d",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer, abst_busy);
       end
     endrule
     //
@@ -502,38 +502,47 @@ package riscvDebug013Pbuf;
       //dut.write_request(tuple3(aw.awaddr, w.wdata, w.wstrb));
       Bit#(D_AXI_BUS_WIDTH) lv_wdata = w.wdata;
       Bool lv_wr_error = False;
-      if(aw.awaddr != 0 )
-        $display(fshow(aw));
-      for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
-        let lv_offset = aw.awaddr + (fromInteger(i)*32) - `DebugBase ;
-        Bit#(32) lv_wr_data = lv_wdata[((fromInteger(i)+1)*32)-1:fromInteger(i)*32];
-        case (lv_offset)
-          ('h0)                      :  lv_wr_error = True;
-          ('h4)                      :  lv_wr_error = True;
-          ('h8)                      :  lv_wr_error = True;
-          ('hC)                      :  lv_wr_error = True;
-          // Program Buffer                
-          // Abstract Data Section
-          (`FIVO(DTVEC_PROG_BUF_EXCEPTION))    : begin
-              if(lv_wr_data == 0)  // Write byte to signal
-                rg_hartExceptionReached <= True;
-            end
-          (`FIVO(DTVEC_PROG_BUF_EBREAK))       :  begin
-              if(lv_wr_data == 0)  // Write byte to signal
-                rg_hartEbreakReached <= True;
-            end
-          default : begin
-            if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
-              progbuf[(lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET))/4] <= lv_wr_data;
-            end
-            else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
-              abst_data[(lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET))/4] <= lv_wr_data;
-            end
-            else 
-              lv_wr_error = True;
-            end
-        endcase
+      Bool lv_done = False;
+      if (`VERBOSITY > 1) begin
+        $display($time, " DEBUG: Write request to address %x data %x", aw.awaddr, w.wdata);
       end
+      for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
+        if (!lv_done) begin
+          let lv_offset = aw.awaddr + (fromInteger(i)*32) - `DebugBase ;
+          Bit#(32) lv_wr_data = lv_wdata[((fromInteger(i)+1)*32)-1:fromInteger(i)*32];
+          if (`VERBOSITY > 1) begin
+            $display($time, " DEBUG: Write request: offset %x data %x", lv_offset, lv_wr_data);
+          end
+          case (lv_offset)
+            ('h0)                      :  lv_wr_error = True;
+            ('h4)                      :  lv_wr_error = True;
+            ('h8)                      :  lv_wr_error = True;
+            ('hC)                      :  lv_wr_error = True;
+            // Program Buffer
+            // Abstract Data Section
+            (`FIVO(DTVEC_PROG_BUF_EXCEPTION))    : begin
+                if(lv_wr_data == 0)  // Write byte to signal
+                  rg_hartExceptionReached <= True;
+                lv_done = True;
+              end
+            (`FIVO(DTVEC_PROG_BUF_EBREAK))       :  begin
+                if(lv_wr_data == 0)  // Write byte to signal
+                  rg_hartEbreakReached <= True;
+                lv_done = True;
+              end
+            default : begin
+              if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
+                progbuf[(lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET))/4] <= lv_wr_data;
+              end
+              else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
+                abst_data[(lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET))/4] <= lv_wr_data;
+              end
+              else
+                lv_wr_error = True;
+              end
+          endcase
+        end // if
+      end // for
       if(!lv_wr_error) begin
         let b = AXI4_Wr_Resp {bresp: AXI4_OKAY, buser: aw.awuser, bid:aw.awid};
         slave_xactor.i_wr_resp.enq (b);
@@ -924,6 +933,9 @@ endrule
                               if(dmi_data[18]==1 || dmi_data[17]==1) begin
                                 abst_busy <= 1 ;
                                 abst_command_good <= 2'd1;
+                                if(`VERBOSITY > 1) begin
+                                  $display($time," DEBUG: Setting abstract busy.");
+                                end
                               end
                               if(`VERBOSITY > 1) begin
                                 $display($time," DEBUG: Writing into Abstract Command: data %h",dmi_data);
@@ -1011,7 +1023,7 @@ endrule
         endmethod
       endinterface;
       interface getResponse = interface Get
-        method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
+        method ActionValue#(Bit#(34)) get() if (isValid(dmi_response) && (abst_busy==0));
           if (`VERBOSITY > 1) begin
             $display($time, " DEBUG: DTM: In getResponse %h", validValue(dmi_response));
           end
