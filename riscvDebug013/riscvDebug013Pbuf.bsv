@@ -647,7 +647,7 @@ package riscvDebug013Pbuf;
 Reg#(Bit#(1)) rg_fail_program_buffer <- mkReg(0);  
 Reg#(QA_PBuf_State) rg_qa_pbuf_state <- mkReg(QA_PBuf_Disable);//mkReg(QA_PBuf_Disable);
 Reg#(Bit#(1)) rg_sel_qa_pbuf <- mkReg(0); // 0 => program Buffer Selected , 1 => quick access path.
-
+Wire#(Bit#(1)) wr_pbuf_ack <- mkDWire(0);
 
 rule rl_set_progbuf_read;
   for(Integer i = 0; i < 16 ; i = i+1) begin
@@ -676,13 +676,11 @@ rule rl_QA_wait_halted( rg_qa_pbuf_state == QA_wait_halted ) ;
   rg_qa_pbuf_state <= PBuf_Trap;
 endrule     
 
-rule rl_PBuf_Trap( rg_qa_pbuf_state == PBuf_Trap ) ;
-  // rg_progBufReq <= 1'b0;
+rule rl_PBuf_Trap( rg_qa_pbuf_state == PBuf_Trap && wr_pbuf_ack == 1'b1) ;
   rg_qa_pbuf_state <= PBuf_wait_Trap;
 endrule 
 
-rule rl_PBuf_wait_Trap( rg_qa_pbuf_state == PBuf_wait_Trap ) ;
-  // rg_progBufReq <= 1'b1;
+rule rl_PBuf_wait_Trap( rg_qa_pbuf_state == PBuf_wait_Trap) ;
   rg_qa_pbuf_state <= PBuf_wait_Exit;
 endrule     
 
@@ -806,6 +804,10 @@ endrule
         method Action  set_halted(Bit#(1) halted);
           vrg_halted[i]   <= halted; // Only One Hart (i=0)
         endmethod
+
+        method Action receive_pbuf_ack(Bit#(1) ack);
+          wr_pbuf_ack <= ack;
+        endmethod
         
         method Action  set_unavailable(Bit#(1) unavailable);
           //The Hart has to also assert unavailable while being reset,sets available only when ready.
@@ -834,13 +836,14 @@ endrule
     interface dtm = interface Ifc_DM_DTM
       interface putCommand = interface Put
         method Action put(Bit#(41) request_data) if (!isValid(dmi_response) && (abst_command_good[0] == 0));
-          if (`VERBOSITY > 1) begin
-            $display($time, " DEBUG: DTM: In putCommand %h", request_data);
-          end
+        
           // The DMI Requests are Recieved here
           Bit#(2)  dmi_op   = request_data[1:0];
           Bit#(32) dmi_data = request_data[33:2];
           Bit#(7) dmi_addr = request_data[40:34];
+          if (`VERBOSITY > 1) begin
+            $display($time, " DEBUG: DTM: In putCommand %h op %d data %h addr %h", request_data,dmi_op,dmi_data,dmi_addr);
+          end
           // Catch Busy Access Violations
           Bit#(32) dmi_response_data = 0;
           Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
@@ -912,9 +915,6 @@ endrule
                 else dmi_response_status = 2; // dmi operation failed
               end
             endcase
-            if(`VERBOSITY > 1) begin
-              $display($time, " DEBUG: DMI Addr:%h, op:%h, write_data:%h, read_data: %h",dmi_addr,dmi_op,dmi_data,dmi_response_data);
-            end
           end
           // Write Operation
           else if ( dmi_op == 2'b10 )begin

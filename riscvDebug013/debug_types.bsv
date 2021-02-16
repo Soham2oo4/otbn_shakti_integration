@@ -147,6 +147,8 @@ package debug_types;
     (*always_enabled,always_ready*)
     method Action  set_halted(Bit#(1) halted);
     (*always_enabled,always_ready*)
+    method Action  receive_pbuf_ack(Bit#(1) ack);
+    (*always_enabled,always_ready*)
     method Action  set_unavailable(Bit#(1) unavailable);  
     (*always_enabled,always_ready*)
     method Bit#(1) dm_active;
@@ -199,6 +201,8 @@ package debug_types;
     (*always_enabled,always_ready*)
     method Bit#(1)  is_halted;
     (*always_enabled,always_ready*)
+    method Bit#(1)  get_pbuf_ack;
+    (*always_enabled,always_ready*)
     method Bit#(1)  is_unavailable;
   endinterface
 
@@ -246,6 +250,10 @@ package debug_types;
 
       rule connect_halted;
         debug_module.set_halted(hart.is_halted());
+      endrule
+
+      rule connect_progbuf_ack;
+        debug_module.receive_pbuf_ack(hart.get_pbuf_ack());
       endrule
 
       rule connect_available;
