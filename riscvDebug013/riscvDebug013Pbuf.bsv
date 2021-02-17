@@ -132,7 +132,7 @@ package riscvDebug013Pbuf;
     Reg#(Bit#(3)) hartinfoPad1  = readOnlyReg(0);                         //- hartinfo b19-17
     Reg#(Bit#(1)) dataAccess    = readOnlyReg(1);                         //- hartinfo b16      - R
     Reg#(Bit#(4)) dataSize      = readOnlyReg(4'd12);                     //- hartinfo b15-12   - R
-    Reg#(Bit#(12))dataAddr      = readOnlyReg(12'h80);                   //- hartinfo b11-0    - R ** V
+    Reg#(Bit#(12))dataAddr      = readOnlyReg(12'h50);                   //- hartinfo b11-0    - R ** V
     Reg#(Bit#(32)) hartinfo = concatReg6(   hartinfoPad0,nScratch,hartinfoPad1,dataAccess,
                                             dataSize,dataAddr);
     // hawindowsel DM 'h14
@@ -245,7 +245,7 @@ package riscvDebug013Pbuf;
     //
     rule rl_display_abstractcts;
       if(`VERBOSITY > 1) begin
-        $display($time, " PT: DEBUG: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d busy %d",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer, abst_busy);
+        $display($time, " PT: DEBUG: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d busy %d data1 %h data0 %h",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer, abst_busy, abst_data[1], abst_data[0]);
       end
     endrule
     //
@@ -558,11 +558,9 @@ package riscvDebug013Pbuf;
       Bit#(D_AXI_BUS_WIDTH) lv_response = 0;
       Bit#(32) lv_response_data = 0;
 
-      // i-class: 128-bit aligned address (io)
-      ar.araddr = {truncateLSB(ar.araddr), 4'b0};
+      //if(ar.araddr != 0 )
+      //  $display(fshow(ar));
 
-      if(ar.araddr != 0 )
-        $display(fshow(ar));
       for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
         let lv_offset = ar.araddr + (fromInteger(i)*4) - `DebugBase ;
         case (lv_offset)
@@ -592,7 +590,7 @@ package riscvDebug013Pbuf;
             end
         endcase
         lv_response = lv_response | (zeroExtend(lv_response_data) << (32*i));
-        $display($time, " DEBUG: reading debug Memory %x,%x,%d",lv_response_data,lv_response,i);
+        $display($time, " DEBUG: reading debug Memory offset %x: %x, %x, %d", lv_offset, lv_response_data, lv_response, i);
       end
       
       AXI4_Rd_Data#(D_AXI_BUS_WIDTH, 2 ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
@@ -764,9 +762,12 @@ endrule
                                                     if((abst_command_good == 2'd2) && (abst_busy == 1));
           if(abst_ar_aarPostIncrement == 1)  
             abst_ar_regno <= abst_ar_regno + 1;
-          abst_data[0] <= responseData[31:0]; 
-          if ((valueOf(DXLEN) == 64 )&& (abst_ar_aarSize == 3'd3 ))
-            abst_data[1] <= responseData[63:32];
+          if (abst_ar_write == 0) begin
+            abst_data[0] <= responseData[31:0]; 
+            if ((valueOf(DXLEN) == 64 )&& (abst_ar_aarSize == 3'd3 )) begin
+              abst_data[1] <= responseData[63:32];
+            end
+          end
           abst_command_good <= 2'd0;
           abst_ar_transfer <= '0;
           if(abst_ar_postExec!=1)
