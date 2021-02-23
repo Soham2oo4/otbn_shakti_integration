@@ -564,10 +564,14 @@ package riscvDebug013Pbuf;
       for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
         let lv_offset = ar.araddr + (fromInteger(i)*4) - `DebugBase ;
         case (lv_offset)
-          ('h0)                      :  lv_response_data = 'h0000100f; // 100f fence.i
-          ('h4)                      :  lv_response_data = 'h00000013; // nop
-          ('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
+          ('h0)                      :  lv_response_data = 'h00000013; // nop
+          ('h4)                      :  lv_response_data = 'hffdff06f; // j pc -4
+          ('h8)                      :  lv_response_data = 'h0000006f; // self-loop
           ('hC)                      :  lv_response_data = 'h0000006f; // self-loop
+          //('h0)                      :  lv_response_data = 'h0000100f; // 100f fence.i
+          //('h4)                      :  lv_response_data = 'h00000013; // nop
+          //('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
+          //('hC)                      :  lv_response_data = 'h0000006f; // self-loop
           // Program Buffer                
           // Abstract Data Section
           (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h0) :   lv_response_data = 'h08002023;
