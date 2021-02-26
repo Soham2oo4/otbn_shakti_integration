@@ -266,9 +266,11 @@ package riscvDebug013Pbuf;
     endrule
 
     rule rl_display;
-      $display($time," DEBUG: Halt:%b",haltReq);
-      $display($time," DEBUG: ResumeReq:%b",resumeReq);
-      $display($time," DEBUG: DMSTATUS: %b,",dmstatus);
+      if (`VERBOSITY > 0) begin
+        $display($time," DEBUG: Halt:%b",haltReq);
+        $display($time," DEBUG: ResumeReq:%b",resumeReq);
+        $display($time," DEBUG: DMSTATUS: %b,",dmstatus);
+      end
     endrule
 
     rule rl_set_dm_status_bits;   // One Cycle delay in update of values , Convert to wires 
@@ -594,7 +596,9 @@ package riscvDebug013Pbuf;
             end
         endcase
         lv_response = lv_response | (zeroExtend(lv_response_data) << (32*i));
-        $display($time, " DEBUG: reading debug Memory offset %x: %x, %x, %d", lv_offset, lv_response_data, lv_response, i);
+        if (`VERBOSITY > 0) begin
+          $display($time, " DEBUG: reading debug Memory offset %x: %x, %x, %d", lv_offset, lv_response_data, lv_response, i);
+        end
       end
       
       AXI4_Rd_Data#(D_AXI_BUS_WIDTH, 2 ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
@@ -727,8 +731,10 @@ endrule
       else begin
         lv_abst_cmderr = pack(Abst_NotSupported); 
       end
-      if(`VERBOSITY > 1) begin $display ($time, " DEBUG: Abstract_command: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
-        lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr); end
+      if (`VERBOSITY > 1) begin
+        $display ($time, " DEBUG: Abstract_command: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
+        lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr);
+      end
       if(lv_abst_cmderr == 0)begin
         abst_command_good <=2'd3;   
       end
