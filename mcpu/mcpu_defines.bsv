@@ -25,7 +25,7 @@ Email id: deepans.88@gmail.com
 
     function End endian(Bit#(32) addr,Bool sram_big);
     begin
-         End type_end=Big;  
+         End type_end=Little;  
         
         `ifndef simulate
               if(addr>=32'h00000000 && addr<=32'h201FFFFF && !sram_big)
