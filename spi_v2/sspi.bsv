@@ -66,6 +66,14 @@ typedef enum{
 			 RECEIVE_DONE
 		} Receive_state deriving(Bits, Eq, FShow);
 
+typedef enum{
+			IDLE,
+			WAIT,
+			SETUP_PHASE,
+			ACTIVE,
+			HOLD_PHASE
+	   } Spi_state deriving(Bits, Eq, FShow);
+
 (*always_ready, always_enabled*)
 interface Ifc_sspi_io;
 		//mosi input output
@@ -176,6 +184,8 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 
 	Reg#(Transmit_state) rg_transmit_state <- mkRegA(IDLE);
 	Reg#(Receive_state) rg_receive_state <- mkRegA(IDLE);
+	Reg#(Spi_state) rg_active <- mkRegA(IDLE);
+	Reg#(Bool) rg_slv_wr_en <- mkRegA(False); // To provide write enable in slave clock mode and clock phase 0 (temp fix as we won't be able to detect the wr_en edge with clk_phase 0)
 
 	MIMOConfiguration cfg = defaultValue;
 	cfg.unguarded=True;
@@ -276,7 +286,7 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 		   end
 		end
 		else begin
-			if(rg_clk_counter == rg_prescaller-1) begin
+			if(rg_clk_counter == rg_prescaller) begin
 				rg_ncs <= 1;
 				rg_busy <= 0;
 			end
@@ -291,14 +301,28 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 			rg_sclk <= temp_clk_pol;
 		else begin
 			Bit#(8) temp_half_count = zeroExtend(temp_prescaller[7:1]);
+			Bit#(1) lv_sclk_val = rg_sclk;
 			if(rg_clk_counter == temp_prescaller) begin
-				rg_sclk <= temp_clk_phase == 0 ? temp_clk_pol : ~temp_clk_pol;
-				wr_write_en <= 1;
+				if(rg_active == HOLD_PHASE) begin
+					rg_active <= IDLE;
+					lv_sclk_val = rg_clk_polarity;
+				end
+				else
+					lv_sclk_val = temp_clk_phase == 0 ? temp_clk_pol : ~temp_clk_pol;
+				if(rg_spi_en == 1)
+					wr_write_en <= 1;
 			end
 			else if(rg_clk_counter == temp_half_count) begin
-				rg_sclk <= ~rg_sclk;
-				wr_read_en <= 1;
+				lv_sclk_val = ~rg_sclk;
+				if(rg_spi_en == 1)
+					wr_read_en <= 1;
+				if(rg_active == WAIT)
+					rg_active <= ACTIVE;
 			end
+			if(rg_active == ACTIVE || rg_active == HOLD_PHASE)
+				rg_sclk <= lv_sclk_val;
+			else
+				rg_sclk <= rg_clk_polarity;
 			if(rg_clk_counter == temp_prescaller)
 				rg_clk_counter <= 0;
 			else
@@ -318,6 +342,7 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 		else begin
 			rg_ncs <= 1;
 			rg_busy <= 0;
+			rg_slv_wr_en <= False;
 		end
 	endrule
 
@@ -338,6 +363,10 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 				else					//Rising edge
 					wr_read_en <= 1;
 			end
+		end
+		else if(rg_ncs == 0 && rg_clk_phase == 0 && rg_slv_wr_en == False && (rg_transmit_state == DATA_TRANSMIT && rg_comm_mode != 1)) begin
+			wr_write_en <= 1;
+			rg_slv_wr_en <= True;
 		end
 	endrule
 
@@ -464,8 +493,9 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 	//	`logLevel(sspi, 0, $format("SSPI : sclk = %b; clk_count = %d; tx_fifo_deq = %b; tx_state = %b; tx_bits = %d; rx_fifo_count : %d; spi_en = %b; ncs = %b tx_data_reg = %x rx_data_reg = %x \n",rg_sclk,rg_clk_counter,tx_fifo.deqReadyN(4),rg_transmit_state,rg_total_bit_tx,rx_fifo.count,rg_spi_en,rg_ncs,rg_tx_data,rg_rx_data)) 
 	//endrule
 
-	rule rl_set_up_time(((rg_transmit_state == IDLE && rg_total_bit_tx != 0) || (rg_receive_state == IDLE && rg_total_bit_rx != 0)) && rg_ncs == 0 && rg_spi_en == 1 && wr_write_en == 1 && rg_set_up_count < rg_cs_t_delay);
+	rule rl_set_up_time(((rg_transmit_state == IDLE && rg_total_bit_tx != 0 && rg_comm_mode != 2 ) || (rg_receive_state == IDLE && rg_total_bit_rx != 0 && rg_comm_mode == 2)) && rg_ncs == 0 && rg_spi_en == 1 && wr_write_en == 1 && rg_set_up_count < rg_cs_t_delay);
 		rg_set_up_count <= rg_set_up_count + 1;
+		rg_active <= SETUP_PHASE;
 	endrule
 
 	rule rl_transmit_idle_to_data_transfer(tx_fifo.deqReadyN(1) && rg_transmit_state == IDLE && rg_total_bit_tx != 0 && rg_ncs == 0 && rg_spi_en == 1 && rg_set_up_count == rg_cs_t_delay);
@@ -476,6 +506,10 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 		rg_count_tx_data <= 0;
 		rg_txe <= 1;
 		rg_set_up_count <= 0;
+		if(rg_cs_t_delay == 0)
+			rg_active <= ACTIVE;
+		else
+			rg_active <= WAIT;
 		`logLevel(sspi, 0, $format("SSPI : tx_idle to transmit : %b tx bits : %d \n",tx_fifo.deqReadyN(4),rg_total_bit_tx)) 
 	endrule
 	
@@ -488,6 +522,8 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 		if(rg_count_tx_data_bits == rg_total_bit_tx - 1) begin
 			rg_transmit_state <= TRANSMIT_DONE;
 			rg_txe <= 0;
+			if(rg_comm_mode == 0)
+				rg_active <= HOLD_PHASE;
 		end
 		else begin
 			if(rg_count_tx_data == 7) begin
@@ -499,6 +535,8 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 				else begin
 					rg_transmit_state <= TRANSMIT_DONE;
 					rg_txe <= 0;
+					if(rg_comm_mode == 0)
+						rg_active <= HOLD_PHASE;
 				end
 			end
 			else begin
@@ -519,6 +557,7 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 		rg_count_rx_data <= 0;
 		rg_rxne <= 0;
 		rg_set_up_count  <= 0;
+		rg_active <= ACTIVE;
 		`logLevel(sspi, 0, $format("SSPI : rx_idle to receive : %b rx bits : %d \n",tx_fifo.enqReadyN(4),rg_total_bit_rx)) 
 	endrule	
 
@@ -545,6 +584,7 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 					wr_rx_over_run_intr <= 1;
 				end
 				rg_receive_state <= RECEIVE_DONE;
+				rg_active <= HOLD_PHASE;
 				rg_rxne <= 1;
 				rg_rxfifo_to_rxdata <= 1;
 		end
@@ -562,6 +602,7 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 				end
 				else begin
 					rg_receive_state <= RECEIVE_DONE;
+					rg_active <= HOLD_PHASE;
 					rg_rxne <= 1;
 					rg_over_run <= 1;
 					wr_rx_over_run_intr <= 1;
