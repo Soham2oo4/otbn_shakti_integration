@@ -952,7 +952,7 @@ endrule
                                 $display($time," DEBUG: Writing into Abstract Command: data %h",dmi_data);
                               end
                             end
-              `FIVO(ABSTRACTAUTO):       abstractauto <= dmi_data;
+              `FIVO(ABSTRACTAUTO):       abstractauto <= '0; // dmi_data; TODO: Enable after support is added
               `FIVO(AUTHDATA):           auth_data <= dmi_data;
               `FIVO(SBADDRESS3):begin
                                 if(sbBusy == 1)
