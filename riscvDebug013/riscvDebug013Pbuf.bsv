@@ -80,7 +80,7 @@ package riscvDebug013Pbuf;
     Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
     Reg#(Bit#(1)) startSBAccess <- mkReg(0,reset_by derived_reset);
     Reg#(Bit#(1)) sb_read_write <- mkReg(0,reset_by derived_reset);
-    Reg#(Bit#(2)) abst_command_good <- mkReg(0,reset_by derived_reset); // guards Abstract interface
+    Reg#(Bit#(3)) abst_command_good <- mkReg(0,reset_by derived_reset); // guards Abstract interface
     // dmstatus DM h'11
     Reg#(Bit#(9)) dmstatusPad0  = readOnlyReg(0);
     Reg#(Bit#(1)) impEbreak     = readOnlyReg(0);
@@ -170,7 +170,6 @@ package riscvDebug013Pbuf;
     // abstractauto DM 'h18
     Reg#(Bit#(16))autoExecProgBuf <- mkReg(0,reset_by derived_reset);     //-abstractauto b31-16-RW
     Reg#(Bit#(4)) abstractautoPad0 = readOnlyReg(0);                      //-abstractauto b15-12
-    /* No ProgBuf Access Supported */
     Reg#(Bit#(12)) autoExecData  <- mkReg(0,reset_by derived_reset);      //-abstractauto b11-0 -RW
     Reg#(Bit#(32)) abstractauto = concatReg3(autoExecProgBuf,abstractautoPad0,autoExecData);
     // configstrptr0 DM 'h19-1c
@@ -245,7 +244,7 @@ package riscvDebug013Pbuf;
     //
     rule rl_display_abstractcts;
       if(`VERBOSITY > 1) begin
-        $display($time, " PT: DEBUG: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d busy %d data1 %h data0 %h",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer, abst_busy, abst_data[1], abst_data[0]);
+        $display($time, " PT: DEBUG: cmd_type %d : increment %d: ExecProgBuf %d: RegNo %d Transfer %d abst_state %d busy %d data1 %h data0 %h",abst_ar_cmdType,abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_regno, abst_ar_transfer, abst_command_good, abst_busy, abst_data[1], abst_data[0]);
       end
     endrule
     //
@@ -266,7 +265,7 @@ package riscvDebug013Pbuf;
     endrule
 
     rule rl_display;
-      if (`VERBOSITY > 0) begin
+      if (`VERBOSITY > 1) begin
         $display($time," DEBUG: Halt:%b",haltReq);
         $display($time," DEBUG: ResumeReq:%b",resumeReq);
         $display($time," DEBUG: DMSTATUS: %b,",dmstatus);
@@ -664,61 +663,66 @@ rule rl_set_progbuf_read;
   end
 endrule
 
-rule rl_QA_PBuf_Disable( rg_qa_pbuf_state == QA_PBuf_Disable && (abst_ar_postExec == 1) && (abst_ar_transfer!=1));
+rule rl_QA_PBuf_Disable( rg_qa_pbuf_state == QA_PBuf_Disable && (abst_ar_postExec == 1) && abst_command_good=='d4);
   
-  rg_qa_pbuf_state <= QA_Halt;  
+  // rg_qa_pbuf_state <= QA_Halt;  
   // rg_progBufReq <= 1'b1;
   rg_hartEbreakReached <= False;
   rg_hartExceptionReached <= False;
-  // rg_qa_pbuf_state <= PBuf_Trap;
-
-endrule 
-
-rule rl_QA_Halt( rg_qa_pbuf_state == QA_Halt ) ;
-  rg_qa_pbuf_state <= QA_wait_halted;
-endrule 
-
-rule rl_QA_wait_halted( rg_qa_pbuf_state == QA_wait_halted ) ;
   rg_qa_pbuf_state <= PBuf_Trap;
-endrule     
+
+endrule 
+
+// rule rl_QA_Halt( rg_qa_pbuf_state == QA_Halt ) ;
+//   rg_qa_pbuf_state <= QA_wait_halted;
+// endrule 
+
+// rule rl_QA_wait_halted( rg_qa_pbuf_state == QA_wait_halted ) ;
+//   rg_qa_pbuf_state <= PBuf_Trap;
+// endrule     
 
 rule rl_PBuf_Trap( rg_qa_pbuf_state == PBuf_Trap && wr_pbuf_ack == 1'b1) ;
-  rg_qa_pbuf_state <= PBuf_wait_Trap;
+  rg_qa_pbuf_state <= PBuf_wait_Exit;
 endrule 
 
-rule rl_PBuf_wait_Trap( rg_qa_pbuf_state == PBuf_wait_Trap) ;
-  rg_qa_pbuf_state <= PBuf_wait_Exit;
-endrule     
+// rule rl_PBuf_wait_Trap( rg_qa_pbuf_state == PBuf_wait_Trap) ;
+//   rg_qa_pbuf_state <= PBuf_wait_Exit;
+// endrule     
 
 rule rl_PBuf_wait_Exit( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartEbreakReached) ;
-  rg_qa_pbuf_state <= PBUf_handle_Exit;
   rg_hartEbreakReached <= False;
   rg_hartExceptionReached <= False;
+  rg_qa_pbuf_state <= QA_PBuf_Disable;
+  abst_command_good <= 3'd0; 
+  abst_busy <= 0;
 endrule 
 
 rule rl_PBuf_wait_Exception( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartExceptionReached);
-  rg_qa_pbuf_state <= PBUf_handle_Exit;
   rg_hartEbreakReached <= False;
   rg_hartExceptionReached <= False;
+  rg_qa_pbuf_state <= QA_PBuf_Disable;
+  abst_command_good <= 3'd0; 
+  abst_busy <= 0;
 endrule
 
 
-rule rl_PBUf_handle_Exit( rg_qa_pbuf_state == PBUf_handle_Exit ) ;
-  rg_qa_pbuf_state <= QA_Resume;
-endrule     
+// rule rl_PBUf_handle_Exit( rg_qa_pbuf_state == PBUf_handle_Exit ) ;
+//   rg_qa_pbuf_state <= QA_Resume;
+// endrule     
 
-rule rl_QA_Resume( rg_qa_pbuf_state == QA_Resume ) ;
-  rg_qa_pbuf_state <= QA_wait_Resume;
-endrule 
+// rule rl_QA_Resume( rg_qa_pbuf_state == QA_Resume ) ;
+//   rg_qa_pbuf_state <= QA_wait_Resume;
+// endrule 
 
-rule rl_QA_wait_Resume( rg_qa_pbuf_state == QA_wait_Resume ) ;
-  rg_qa_pbuf_state <= QA_PBuf_Disable;
-  abst_ar_postExec <= 0;
-  abst_command_good <= 2'd0;
-  abst_busy <= 0;
-endrule     
+// rule rl_QA_wait_Resume( rg_qa_pbuf_state == PBUf_handle_Exit ) ;
+//   rg_qa_pbuf_state <= QA_PBuf_Disable;
+//   // abst_ar_postExec <= 0; // Abstractauto change
+  
+//   abst_command_good <= 3'd0; 
+//   abst_busy <= 0;
+// endrule     
 
-    rule filter_abstract_commands(abst_ar_transfer==1 && abst_command_good==1); 
+    rule filter_abstract_commands(abst_command_good==1); // Abstractauto change
       Bit#(5) lv_hart_id = hartSelLo[4:0];
       Bit#(3) lv_abst_cmderr = 0;
       if((abst_ar_cmdType == 0) && (abst_ar_transfer == 1) )begin
@@ -728,7 +732,7 @@ endrule
         else begin
           lv_abst_cmderr = pack(Abst_WrongState); end
       end
-      else begin
+      else if(abst_ar_postExec!=1) begin // allow register access when postExec is set
         lv_abst_cmderr = pack(Abst_NotSupported); 
       end
       if (`VERBOSITY > 1) begin
@@ -736,17 +740,18 @@ endrule
         lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr);
       end
       if(lv_abst_cmderr == 0)begin
-        abst_command_good <=2'd3;   
+        abst_command_good <=3'd2;   
       end
       else begin
         abst_busy <= 0;
-        abst_command_good <=2'd0;
-          `logLevel( debug, 1, $format("ACB\tDebug:Abstract: hart %h,regNo %h,halted %h,write %h,Size%h,err %h",
-          lv_hart_id,abst_ar_regno,vrg_halted[lv_hart_id],abst_ar_write,abst_ar_aarSize,lv_abst_cmderr))
+        abst_command_good <=3'd0;
       end
 
       abst_cmderr <= lv_abst_cmderr;
-    endrule 
+    endrule
+    //
+
+    
 
     // HART Interface , Vector of hart interfaces 
     // Hard Setup for only one hart right now
@@ -757,9 +762,9 @@ endrule
         // Issue a Command iff command good is asserted
         // Get this out of the vector !
         method ActionValue#(AbstractRegOp) abstractOperation 
-                                                    if((abst_command_good == 2'd3) && (abst_busy == 1));
+                                                    if((abst_command_good == 3'd2) && (abst_busy == 1));
           Bit#(DXLEN) data_frame = truncate({abst_data[1],abst_data[0]});
-          abst_command_good <= 2'd2;
+          abst_command_good <= 3'd3;
           return AbstractRegOp{read_write   : unpack(abst_ar_write),
                                address      : truncate(abst_ar_regno),
                                writedata    : truncate(data_frame)
@@ -769,7 +774,7 @@ endrule
         endmethod
 
         method Action  abstractReadResponse(Bit#(DXLEN) responseData) 
-                                                    if((abst_command_good == 2'd2) && (abst_busy == 1));
+                                                    if((abst_command_good == 3'd3) && (abst_busy == 1));
           if(abst_ar_aarPostIncrement == 1)  
             abst_ar_regno <= abst_ar_regno + 1;
           if (abst_ar_write == 0) begin
@@ -778,10 +783,14 @@ endrule
               abst_data[1] <= responseData[63:32];
             end
           end
-          abst_command_good <= 2'd0;
-          abst_ar_transfer <= '0;
-          if(abst_ar_postExec!=1)
+          // abst_ar_transfer <= '0; //- AbstractAuto change
+          if(abst_ar_postExec!=1) begin
             abst_busy <= 0;
+            abst_command_good <= 3'd0;
+          end
+          else begin
+            abst_command_good <= 3'd4;
+          end
         endmethod
 
         method Bit#(1) haltRequest();
@@ -846,7 +855,7 @@ endrule
     // DMI - DTM Interface
     interface dtm = interface Ifc_DM_DTM
       interface putCommand = interface Put
-        method Action put(Bit#(41) request_data) if (!isValid(dmi_response) && (abst_command_good[0] == 0));
+        method Action put(Bit#(41) request_data) if (!isValid(dmi_response));
         
           // The DMI Requests are Recieved here
           Bit#(2)  dmi_op   = request_data[1:0];
@@ -914,14 +923,18 @@ endrule
                     abst_cmderr <= pack(Abst_Busy);
                   else begin
                     dmi_response_data = abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)];
-                    if(autoExecData[dmi_addr - `FIVO(ABSTRACTDATASTART)] == 1)begin  // Trigger operation
+                    if(autoExecData[dmi_addr - `FIVO(ABSTRACTDATASTART)] == 1)begin  // Abstract autoExec check
                       abst_busy <= 1;
-                      abst_command_good <= 2'd1;
+                      abst_command_good <= 3'd1;
                     end
                   end
                 end
                 else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
-                  dmi_response_data = progbuf[dmi_addr - `FIVO(PBSTART)]; // Not implemented so should read back zero
+                  dmi_response_data = progbuf[dmi_addr - `FIVO(PBSTART)]; 
+                  if(autoExecProgBuf[dmi_addr - `FIVO(PBSTART)] == 1)begin  // Abstract autoExec check
+                    abst_busy <= 1;
+                    abst_command_good <= 3'd1;
+                  end
                 end
                 else dmi_response_status = 2; // dmi operation failed
               end
@@ -943,16 +956,14 @@ endrule
                               abst_command <= dmi_data;
                               if(dmi_data[18]==1 || dmi_data[17]==1) begin
                                 abst_busy <= 1 ;
-                                abst_command_good <= 2'd1;
+                                abst_command_good <= 3'd1;
                                 if(`VERBOSITY > 1) begin
                                   $display($time," DEBUG: Setting abstract busy.");
+                                  $display($time," DEBUG: Writing into Abstract Command: data %h",dmi_data);
                                 end
                               end
-                              if(`VERBOSITY > 1) begin
-                                $display($time," DEBUG: Writing into Abstract Command: data %h",dmi_data);
-                              end
                             end
-              `FIVO(ABSTRACTAUTO):       abstractauto <= '0; // dmi_data; TODO: Enable after support is added
+              `FIVO(ABSTRACTAUTO):       abstractauto <= dmi_data;
               `FIVO(AUTHDATA):           auth_data <= dmi_data;
               `FIVO(SBADDRESS3):begin
                                 if(sbBusy == 1)
@@ -1014,16 +1025,20 @@ endrule
                     abst_cmderr <= pack(Abst_Busy);
                   else begin
                     abst_data[dmi_addr - `FIVO(ABSTRACTDATASTART)] <= dmi_data;
-                    if(autoExecData[dmi_addr - `FIVO(ABSTRACTDATASTART)] == 1)begin  // Trigger operation
+                    if(autoExecData[dmi_addr - `FIVO(ABSTRACTDATASTART)] == 1)begin  // Abstract autoExec check
                       abst_busy <= 1;
-                      abst_command_good <= 2'd1;
+                      abst_command_good <= 3'd1;
                     end
                   end
                 end
                 else if((dmi_addr >= `FIVO(PBSTART)) && (dmi_addr<= `FIVO(PBEND)))begin
                   progbuf[dmi_addr - `FIVO(PBSTART)] <= dmi_data;
+                  if(autoExecProgBuf[dmi_addr - `FIVO(PBSTART)] == 1)begin  // Abstract autoExec check
+                    abst_busy <= 1;
+                    abst_command_good <= 3'd1;
+                  end
                   if(`VERBOSITY > 1) begin
-                    $display($time, " DEBUG: DMI-Progbuf Write Addr:%h, op:%h, write_data:%h",dmi_addr,dmi_op,dmi_data);
+                    $display($time, " DEBUG: DMI-Progbuf Write Addr:%h, op:%h, write_data:%h autoExec %h",dmi_addr,dmi_op,dmi_data,autoExecProgBuf);
                   end
                 end
                 else dmi_response_status = 2; // dmi operation failed
@@ -1034,13 +1049,10 @@ endrule
         endmethod
       endinterface;
       interface getResponse = interface Get
-        method ActionValue#(Bit#(34)) get() if (isValid(dmi_response) && (abst_busy==0));
-          if (`VERBOSITY > 1) begin
-            $display($time, " DEBUG: DTM: In getResponse %h", validValue(dmi_response));
-          end
+        method ActionValue#(Bit#(34)) get() if (isValid(dmi_response)); // removed abst_busy check
           dmi_response <= tagged Invalid;
           if(`VERBOSITY > 1) begin
-            $display($time, " DEBUG: DMI valid response status: %d : data:%h",validValue(dmi_response)[1:0],validValue(dmi_response)[33:2]);
+            $display($time, " DEBUG: DMI valid getResponse status: %d : data:%h",validValue(dmi_response)[1:0],validValue(dmi_response)[33:2]);
           end
           return validValue(dmi_response);
         endmethod
