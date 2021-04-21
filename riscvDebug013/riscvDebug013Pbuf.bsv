@@ -235,6 +235,8 @@ package riscvDebug013Pbuf;
     Reg#(Bit#(1)) rg_progBufReq <- mkReg(0);
     Reg#(Bool) rg_hartEbreakReached <- mkReg(False);
     Reg#(Bool) rg_hartExceptionReached <- mkReg(False);
+    Wire#(Bool) wr_pbuf_ebreak <- mkDWire(False);
+    Wire#(Bool) wr_pbuf_exception <- mkDWire(False);
     
     /*      MODULE RULES      */
     //-RULE: Assert derived_reset when dm is inactive
@@ -524,6 +526,7 @@ package riscvDebug013Pbuf;
             (`FIVO(DTVEC_PROG_BUF_EXCEPTION))    : begin
                 if(lv_wr_data == 0)  // Write byte to signal
                   rg_hartExceptionReached <= True;
+                  abst_cmderr <= 'd3; // An exception occurred while executing the command 
                 lv_done = True;
               end
             (`FIVO(DTVEC_PROG_BUF_EBREAK))       :  begin
@@ -553,51 +556,59 @@ package riscvDebug013Pbuf;
         slave_xactor.i_wr_resp.enq (b);
       end
     endrule
-
+    //
     rule read_request_first;
       let ar<- pop_o(slave_xactor.o_rd_addr);
       Bit#(D_AXI_BUS_WIDTH) lv_response = 0;
       Bit#(32) lv_response_data = 0;
+      Bool lv_done = False;
 
       //if(ar.araddr != 0 )
       //  $display(fshow(ar));
 
       for( Integer i = 0 ; i < (valueOf(D_AXI_BUS_WIDTH)/32);i=i+1 )begin
         let lv_offset = ar.araddr + (fromInteger(i)*4) - `DebugBase ;
-        case (lv_offset)
-          ('h0)                      :  lv_response_data = 'h00000013; // nop
-          ('h4)                      :  lv_response_data = 'hffdff06f; // j pc -4
-          ('h8)                      :  lv_response_data = 'h0000006f; // self-loop
-          ('hC)                      :  lv_response_data = 'h0000006f; // self-loop
-          //('h0)                      :  lv_response_data = 'h0000100f; // 100f fence.i
-          //('h4)                      :  lv_response_data = 'h00000013; // nop
-          //('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
-          //('hC)                      :  lv_response_data = 'h0000006f; // self-loop
-          // Program Buffer                
-          // Abstract Data Section
-          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h0) :   lv_response_data = 'h08002023;
-          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h4) :   lv_response_data = 'h00000067;
-          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h8) :   lv_response_data = 'h00000013;
-          (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'hC) :   lv_response_data = 'h00000013;
-          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h0) :   lv_response_data = 'h08002823;
-          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h4) :   lv_response_data = 'h00000067;
-          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h8) :   lv_response_data = 'h00000013;
-          (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'hc) :   lv_response_data = 'h00000013;
-          default : begin
-            if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
-              lv_response_data = progbuf_read[(lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET))/4];
-            end
-            else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
-              lv_response_data = abst_data[(lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET))/4];
-            end
-            else 
-              lv_response_data = 'h0000006f; // alternatively raise error
-            end
-        endcase
-        lv_response = lv_response | (zeroExtend(lv_response_data) << (32*i));
-        if (`VERBOSITY > 0) begin
-          $display($time, " DEBUG: reading debug Memory offset %x: %x, %x, %d", lv_offset, lv_response_data, lv_response, i);
-        end
+          case (lv_offset)
+            ('h0)                      :  lv_response_data = 'h00000013; // nop
+            ('h4)                      :  lv_response_data = 'hffdff06f; // j pc -4
+            ('h8)                      :  lv_response_data = 'h0000006f; // self-loop
+            ('hC)                      :  lv_response_data = 'h0000006f; // self-loop
+            //('h0)                      :  lv_response_data = 'h0000100f; // 100f fence.i
+            //('h4)                      :  lv_response_data = 'h00000013; // nop
+            //('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
+            //('hC)                      :  lv_response_data = 'h0000006f; // self-loop
+            // Program Buffer                
+            // Abstract Data Section
+            (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h0) :   lv_response_data = 'h00000067; //lv_response_data = 'h08002023;
+            (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h4) :   lv_response_data = 'h00000067;
+            (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'h8) :   lv_response_data = 'h00000013;
+            (`FIVO(DTVEC_PROG_BUF_EXCEPTION ) +'hC) :   lv_response_data = 'h00000013;
+            (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h0) :   lv_response_data = 'h00000067; //lv_response_data = 'h08002823;
+
+            (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h4) :   lv_response_data = 'h00000067;
+            (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'h8) :   lv_response_data = 'h00000013;
+            (`FIVO(DTVEC_PROG_BUF_EBREAK    ) +'hc) :   lv_response_data = 'h00000013;
+            default : begin
+              if( lv_offset < `FIVO(DTVEC_ABST_MEM_OFFSET))begin
+                lv_response_data = progbuf_read[(lv_offset - `FIVO(DTVEC_PROG_BUF_OFFSET))/4];
+              end
+              else if ( lv_offset < `FIVO(DTVEC_PROG_BUF_EXCEPTION))begin
+                lv_response_data = abst_data[(lv_offset - `FIVO(DTVEC_ABST_MEM_OFFSET))/4];
+              end
+              else 
+                lv_response_data = 'h0000006f; // alternatively raise error
+              end
+          endcase
+          if(lv_offset == `FIVO(DTVEC_PROG_BUF_EBREAK    )) begin
+            wr_pbuf_ebreak <= True;
+          end
+          else if(lv_offset == `FIVO(DTVEC_PROG_BUF_EXCEPTION )) begin
+            wr_pbuf_exception <= True;
+          end
+          lv_response = lv_response | (zeroExtend(lv_response_data) << (32*i));
+          if (`VERBOSITY > 0) begin
+            $display($time, " DEBUG: reading debug Memory offset %x: %x, %x, %d", lv_offset, lv_response_data, lv_response, i);
+          end
       end
       
       AXI4_Rd_Data#(D_AXI_BUS_WIDTH, 2 ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
@@ -689,7 +700,7 @@ endrule
 //   rg_qa_pbuf_state <= PBuf_wait_Exit;
 // endrule     
 
-rule rl_PBuf_wait_Exit( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartEbreakReached) ;
+rule rl_PBuf_wait_Exit( (rg_qa_pbuf_state == PBuf_wait_Exit) && (rg_hartEbreakReached || wr_pbuf_ebreak)) ;
   rg_hartEbreakReached <= False;
   rg_hartExceptionReached <= False;
   rg_qa_pbuf_state <= QA_PBuf_Disable;
@@ -697,7 +708,7 @@ rule rl_PBuf_wait_Exit( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartEbreakRea
   abst_busy <= 0;
 endrule 
 
-rule rl_PBuf_wait_Exception( (rg_qa_pbuf_state == PBuf_wait_Exit) && rg_hartExceptionReached);
+rule rl_PBuf_wait_Exception( (rg_qa_pbuf_state == PBuf_wait_Exit) && (rg_hartExceptionReached || wr_pbuf_exception)); // updated abst_cmderr
   rg_hartEbreakReached <= False;
   rg_hartExceptionReached <= False;
   rg_qa_pbuf_state <= QA_PBuf_Disable;
