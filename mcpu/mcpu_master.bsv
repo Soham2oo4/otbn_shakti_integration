@@ -161,7 +161,6 @@ Data_mode :01 byte
     Wire #(Req_mcpu) mcpu_req    <- mkWire();
     Wire #(Resp_mcpu) mcpu_resp  <- mkWire();
 
-    Reg #(Bool)     rg_sram_big <- mkReg(False);
     Reg #(Bit#(1))  rg_wr_l     <- mkReg(1'd1);//read : 1,write:0
     Reg #(Bit#(4))  rg_data_control <-mkReg(0);//Enable bits to data and control registers
     Reg #(Bit#(2))  rg_cntl_wd<-mkReg(0); //To synchronize if more than one cycle is required to r/w data
@@ -193,7 +192,6 @@ Data_mode :01 byte
       rg_fun_code <= req.fun_code;
       rg_wr_l <= req.rd_req;
       rg_master_state <= PRC_REQ_1;
-      rg_sram_big <= req.endian_big;
 
 //............Multiplexing logic to route data to data bus...................................//
 
@@ -201,47 +199,23 @@ Data_mode :01 byte
        case({req.addr[1],req.addr[0]})
         2'b00:
         begin
-        if (endian(req.addr,req.endian_big)==Little)
         rg_data_out_1<= req.wr_data[7:0];
-        else
-        rg_data_out_4 <= req.wr_data[7:0];
         end
         2'b01:
-        if (endian(req.addr,req.endian_big)==Little)
         begin
         rg_data_out_1<= req.wr_data[7:0];
         rg_data_out_2<= req.wr_data[7:0];
         end
-        else
-        begin
-        rg_data_out_4 <= req.wr_data[7:0];
-        rg_data_out_3 <= req.wr_data[7:0];
-        end	
         2'b10:
-        if (endian(req.addr,req.endian_big)==Little)
         begin
         rg_data_out_1<= req.wr_data[7:0];
         rg_data_out_3<= req.wr_data[7:0];
         end
-        else
-        begin
-        rg_data_out_4 <= req.wr_data[7:0];
-        rg_data_out_2 <= req.wr_data[7:0];
-        end	
         2'b11:
-        if (endian(req.addr,req.endian_big)==Little)
         begin
-        
         rg_data_out_1 <= req.wr_data[7:0];
         rg_data_out_2 <= req.wr_data[7:0];
         rg_data_out_4 <= req.wr_data[7:0];
-
-        end
-        else
-        begin 
-        rg_data_out_4 <= req.wr_data[7:0];
-        rg_data_out_3 <= req.wr_data[7:0];
-        rg_data_out_1 <= req.wr_data[7:0];
         end
        endcase
 
@@ -249,42 +223,24 @@ Data_mode :01 byte
      else  if (req.mode==2'b10)//For 16 data operations
       case({req.addr[1],req.addr[0]})
         2'b00:
-          if (endian(req.addr,req.endian_big)==Little)begin
+        begin
             rg_data_out_1 <= req.wr_data[7:0];
             rg_data_out_2 <= req.wr_data[15:8];
-          end
-          else begin
-            rg_data_out_4 <= req.wr_data[15:8];
-            rg_data_out_3 <= req.wr_data[7:0];
-          end
+        end
         2'b10: 
-          if(endian(req.addr,req.endian_big)==Little)begin
+        begin
               rg_data_out_4 <= req.wr_data[15:8];
               rg_data_out_3 <= req.wr_data[7:0];
               rg_data_out_2 <= req.wr_data[15:8];
               rg_data_out_1 <= req.wr_data[7:0];
           end
-          else begin
-              rg_data_out_4 <= req.wr_data[15:8];
-              rg_data_out_3 <= req.wr_data[7:0];
-              rg_data_out_2 <= req.wr_data[15:8];
-              rg_data_out_1 <= req.wr_data[7:0];
-            end
       endcase
 
       else  if (req.mode==2'b00)//for 32 bit operation
         case({req.addr[1],req.addr[0]})
           2'b00:
           begin
-            if(endian(req.addr,req.endian_big)==Little)
               begin
-              rg_data_out_4 <= req.wr_data[31:24];
-              rg_data_out_3 <= req.wr_data[23:16];
-              rg_data_out_2 <= req.wr_data[15:8];
-              rg_data_out_1 <= req.wr_data[7:0];
-              end
-            else
-              begin		
               rg_data_out_4 <= req.wr_data[31:24];
               rg_data_out_3 <= req.wr_data[23:16];
               rg_data_out_2 <= req.wr_data[15:8];
@@ -297,17 +253,6 @@ Data_mode :01 byte
 
     rule prc_req(rg_master_state==RCV_REQ && rg_cntl_wd!=2'b00);//If a request takes multiple cycles
       if(rg_cntl_wd==2'b01)//32 bit operation from 8 bit or 16 bit slave
-      
-      if(endian(rg_addr,rg_sram_big)==Big)
-      begin	
-        rg_data_out_4 <= rg_data_out_3;
-        rg_data_out_3 <= rg_data_out_2;
-        rg_data_out_2 <= rg_data_out_1;
-        rg_data_out_1 <= 8'b0;
-        rg_addr     <= rg_addr+1;
-        rg_mode     <= rg_mode-1;
-      end
-      else
       begin	
         rg_data_out_1 <= rg_data_out_2;
         rg_data_out_2 <= rg_data_out_3;
@@ -317,16 +262,6 @@ Data_mode :01 byte
         rg_mode     <= rg_mode-1;
       end
 
-      else
-      if(endian(rg_addr,rg_sram_big)==Big)
-      begin//32 bit operation on a 16 bit slave
-      rg_data_out_4 <= rg_data_out_2;
-      rg_data_out_3 <= rg_data_out_1;
-      rg_data_out_2 <= 8'b0;
-      rg_data_out_1 <= 8'b0;
-      rg_addr     <= rg_addr+2;
-      rg_mode     <= 2'b10;
-      end
       else
       begin	
         rg_data_out_2 <= rg_data_out_4;
@@ -406,7 +341,7 @@ Data_mode :01 byte
           rg_stop<=1;
       end
       else if(berr_l==1'b0) begin			
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,8'b0},
+          let resp_data = Resp_mcpu{data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,8'b0},
           berr:1};
           mcpu_resp<=resp_data;
       end
@@ -418,103 +353,54 @@ Data_mode :01 byte
        2'b00 :
        case({rg_addr[1],rg_addr[0]})//Position where byte read from depends on A1,A0          
            2'b00 :
-           if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
-             else 
-            begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
-              rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-              mcpu_resp<=resp_data; 
-            end
            2'b01 :
-           if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
-          else
-            begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-              rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-              mcpu_resp<=resp_data;
-            end
           2'b10 :
-           if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
-            else
-            begin
-             let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-             rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-             mcpu_resp<=resp_data;
-            end
           2'b11 :
-           if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
-           else
-            begin
-             let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-             rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-             mcpu_resp<=resp_data;
-            end
       endcase
 
       //If slave is an 8 bit port		
         2'b01  :
 
-      if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
-        else
-        begin
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4
-          },berr:0,port_type:{dsack_0_l,dsack_1_l}};
-          mcpu_resp<=resp_data;
-        end
         //if slave is a 16 bit port
         2'b10 :
         if (rg_addr[0]==1'b0)begin
-          if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
-             end
-            else
-              begin
-               let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,rg_data_in_4
-               },berr:0,port_type:{dsack_0_l,dsack_1_l}};      
-               mcpu_resp<=resp_data;
              end
             end
         else
         begin
-          if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
-            end
-          else
-            begin
-              let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,rg_data_in_3
-              },berr:0,port_type:{dsack_0_l,dsack_1_l}};      
-              mcpu_resp<=resp_data;
             end
         end
         endcase
@@ -529,21 +415,15 @@ Data_mode :01 byte
                   
                   2'b00 :
                   begin
-                   let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_2,
+                    let resp_data = Resp_mcpu{data:{16'b0,rg_data_in_2,
                    rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                   if(endian(rg_addr,rg_sram_big)==Big)
-                   resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,
-                   rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
                    mcpu_resp<=resp_data;
                   end
 
                   2'b10 :
                   begin
-                   let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,
+                   let resp_data = Resp_mcpu{data:{16'b0,rg_data_in_4,
                    rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                   if (endian(rg_addr,rg_sram_big)==Big)
-                   resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_2,
-                   rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
                    mcpu_resp<=resp_data;
                   end
 
@@ -551,32 +431,21 @@ Data_mode :01 byte
 
         //If slave is an 8 bit port		
           2'b01  :
-
-             if(endian(rg_addr,rg_sram_big)==Little)
               begin
-                let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+                let resp_data = Resp_mcpu{data:{24'b0,
                 rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
                 mcpu_resp<=resp_data; 
               end
-            else
-              begin
-               let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4},berr:0,port_type:
-               {dsack_0_l,dsack_1_l}};
-               mcpu_resp<=resp_data;
-             end
 
           //if slave is a 16 bit port
 
           2'b10 :
 
-          begin
-            let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_2,rg_data_in_1},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};      
-            if (endian(rg_addr,rg_sram_big)==Big)
-            resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_4,rg_data_in_3},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            mcpu_resp<=resp_data;
-          end
+             begin
+              let resp_data =Resp_mcpu{data:{16'b0,rg_data_in_2,rg_data_in_1},
+              berr:0,port_type:{dsack_0_l,dsack_1_l}};      
+              mcpu_resp<=resp_data;
+            end
 
           endcase
 
@@ -587,20 +456,14 @@ Data_mode :01 byte
           2'b00 :
           begin
             let resp_data =
-            Resp_mcpu{endian_big:rg_sram_big,data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},
+            Resp_mcpu{data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},
             berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            if (endian(rg_addr,rg_sram_big)==Big)
-            resp_data = Resp_mcpu{endian_big:rg_sram_big,
-            data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
             mcpu_resp<=resp_data; 
           end
         //.......................................16 bit port....................................//	
         2'b10 :
         begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_2,rg_data_in_1},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            if(endian(rg_addr,rg_sram_big)==Big)
-            resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,rg_data_in_3},
+            let resp_data = Resp_mcpu{data:{16'b0,rg_data_in_2,rg_data_in_1},
             berr:0,port_type:{dsack_0_l,dsack_1_l}};
             mcpu_resp<=resp_data;
         end
@@ -608,32 +471,18 @@ Data_mode :01 byte
         //........................If slave is an 8 bit port......................................//		
         2'b01  :
 
-        if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
-             end
-          else
-            begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4},
-              berr:0,port_type:{dsack_0_l,dsack_1_l}};
-              mcpu_resp<=resp_data;
              end
         endcase
         else
-         if(endian(rg_addr,rg_sram_big)==Little)
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{24'b0,
+              let resp_data = Resp_mcpu{data:{24'b0,
               rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
-         else
-            begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,
-              data:{24'b0,rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-              mcpu_resp<=resp_data;
-            end
         rg_master_state<=END_REQ;
     endrule
   /*
