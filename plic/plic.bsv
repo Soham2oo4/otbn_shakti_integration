@@ -176,7 +176,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_
 			`ifdef verbose $display("Interrupt valid");`endif
 			rg_interrupt_id <= interrupt_id;
 			rg_interrupt_valid <= True;
-			$display($time,"\t The highest priority interrupt is  %d and the priority is ", interrupt_id, rg_winner_priority);
+			//$display($time,"\t The highest priority interrupt is  %d and the priority is ", interrupt_id, rg_winner_priority);
 		end
 		rg_plic_state <= 0;
 			
