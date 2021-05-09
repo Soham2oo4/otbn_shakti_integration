@@ -11,7 +11,8 @@ import Vector       :: * ;
 import SpecialFIFOs :: * ;
 import FIFOF        :: * ;
 import DefaultValue :: * ;
-import Reserved     :: *;
+import Reserved     :: * ;
+import Vector       :: * ;
 
 import AXI4_Types         :: * ;
 import AXI4_Lite_Types    :: * ;

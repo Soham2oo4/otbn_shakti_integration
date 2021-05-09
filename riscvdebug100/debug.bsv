@@ -18,6 +18,8 @@ import DefaultValue :: * ;
 import Clocks       :: * ;
 import GetPut       :: * ;
 import BUtils       :: * ;
+import RegFile      :: * ;
+import Memory       :: * ;
 
 
 import AXI4_Types         :: * ;
@@ -38,6 +40,10 @@ import debug_types        :: * ;
 (*conflict_free="rl_sba_request,dtm_access_putCommand_put"*)
 (*conflict_free="rl_sba_read_response,dtm_access_putCommand_put"*)
 (*conflict_free="rl_sba_write_response,dtm_access_putCommand_put"*)
+
+// the following both rules/methods update the abstract data and program buffer but should never
+// happen simultaneously
+(*conflict_free="rl_bus_write,dtm_access_putCommand_put"*)
 module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress, 
                                                     nprogbuf,
                                                     nabstractdata,
@@ -89,6 +95,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
   // ----------------------------------------------------------------------------------------------
   
   Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
+  RegFile#(Bit#(5), Bit#(32)) rom <- mkRegFileLoad("debubrom.mem",0,28);
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
   for (Integer i = 0; i<nAbstractInstr; i = i + 1) begin
@@ -653,19 +660,79 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
     else if (offset == `WHERETO) begin // read jump to abstract
       data = `JWHERETO;
     end
-    else if (offset >= `ABSTRACT && offset < `PROGBUF) begin // read abstract command registers
+    else if (offset >= `ABSTRACT && offset < `PROGBUF && req.arsize==2) begin // read abstract command registers
       data = zeroExtend(v_abstract_reg[offset>> 2]);
     end
-    else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) 
+    else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) && req.arsize==0 
           && offset < 'h800) begin// TODO extend this for multicore
       Bit#(TLog#(ncomponents)) index = truncate(offset);
       data = zeroExtend(pack(v_flags[index]));
+    end
+    else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
+      Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
+      data = zeroExtend(v_data_reg[index]);
+      if (req.arsize==3)
+        data[63:32] = v_data_reg[index+1];
+    end
+    else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
+      Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
+      data = zeroExtend(v_progbuf_reg[index]);
+      if (req.arsize==3)
+        data[63:32] = v_progbuf_reg[index+1];
+    end
+    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) && req.arsize == 2) begin
+      Bit#(5) index = truncate((offset - `ROMBASE)>>2);
+      data = zeroExtend(rom.sub(index));
     end
     else 
       succ = False;
 	 	let r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
           rdata: data, ruser: 0};
 	 	slave_xactor.i_rd_data.enq(r);
+  endrule
+  
+  /*doc:rule: */
+  rule rl_bus_write;
+    let req <- pop_o(slave_xactor.o_wr_addr);
+    let wreq <- pop_o(slave_xactor.o_wr_data);
+    `logLevel( debug, 0, $format("DEBUG: WrReq: ",fshow(req)))
+    `logLevel( debug, 0, $format("DEBUG: WrReqData: ",fshow(wreq)))
+    Bit#(12) offset = truncate(req.awaddr);
+    Bit#(`debug_bus_sz) data = 0;
+    Bit#(ncomponents) val = 0;
+    val[wreq.wdata] = 1;
+    Bool succ = True;
+    if (offset == `HALTED) begin // hart is halted
+      wr_harthalting_wren <= True;
+      wr_harthalting_id <= val;
+    end
+    else if (offset == `GOING) begin // hart is going
+      wr_hartgoing_wren <= True;
+      wr_hartgoing_ind <= val;
+    end
+    else if (offset == `RESUMING) begin // hart is resuming
+      wr_hartresuming_wren <= True;
+      wr_hartresuming_ind <= val;
+    end
+    else if (offset == `EXCEPTION) begin // hart has reached exception
+      wr_exception_wren<= True;
+    end
+    else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
+      Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
+      v_data_reg[index] <= updateDataWithMask(v_data_reg[index],truncate(wreq.wdata),truncate(wreq.wstrb));
+      if (req.awsize==3)
+        v_data_reg[index+1] <= updateDataWithMask(v_data_reg[index+1],truncateLSB(wreq.wdata),truncateLSB(wreq.wstrb));
+    end
+    else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
+      Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
+      v_progbuf_reg[index] <= updateDataWithMask(v_progbuf_reg[index],truncate(wreq.wdata),truncate(wreq.wstrb));
+      if (req.awsize==3)
+        v_progbuf_reg[index+1] <= updateDataWithMask(v_progbuf_reg[index+1],truncateLSB(wreq.wdata),truncateLSB(wreq.wstrb));
+    end
+    else 
+      succ = False;
+	 	let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR,bid:req.awid, buser: req.awuser};
+	 	slave_xactor.i_wr_resp.enq(r);
   endrule
 
   interface debug_slave = slave_xactor.axi_side;
@@ -747,7 +814,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
             default: begin // either data, progbuf or unknown
               if (dmi_addr >= `Data0 && dmi_addr <= (`Data0 + fromInteger(v_nabstractdata)) 
                                     && v_nabstractdata>0) begin
-                v_data_reg[dmi_addr-`Data0] <= dmi_data;
+                if(busy == 0)
+                  v_data_reg[dmi_addr-`Data0] <= dmi_data;
                 wr_errbusy <= (cmderr == 0 && busy == 1);
                 // the following logic is meant to trigger command again when autoexec bits are set.
                 if (autoexecdata[dmi_addr-`Data0]==1)begin
