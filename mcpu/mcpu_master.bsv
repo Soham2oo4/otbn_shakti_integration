@@ -511,7 +511,7 @@ Data_mode :01 byte
           rg_mode_en<=False;
           rg_fun_code_en<=False;
         end
-        $display("Ready to receive a new request",$time);
+        //$display("Ready to receive a new request",$time);
       end
       else
       rg_master_state<=HALT;
