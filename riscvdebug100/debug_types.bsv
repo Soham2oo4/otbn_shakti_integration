@@ -60,6 +60,7 @@ interface Ifc_debug#(numeric type baseAddress,
   interface Ifc_hart_side#(ncomponents) hartside;
 endinterface:Ifc_debug
 
+
 function Bit#(m) resize (Bit#(n) din) provisos( Add#(m,n,mn) );
   Bit#(mn) x = zeroExtend(din);
   return truncate(x);

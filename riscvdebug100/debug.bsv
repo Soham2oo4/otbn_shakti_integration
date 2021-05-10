@@ -18,7 +18,6 @@ import DefaultValue :: * ;
 import Clocks       :: * ;
 import GetPut       :: * ;
 import BUtils       :: * ;
-import RegFile      :: * ;
 import Memory       :: * ;
 
 
@@ -95,11 +94,40 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
   // ----------------------------------------------------------------------------------------------
   
   Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
-  RegFile#(Bit#(5), Bit#(32)) rom <- mkRegFileLoad("debubrom.mem",0,28);
+  Vector#(29,Bit#(32)) vrom;
+  vrom[0] = 'h00c0006f;
+  vrom[1] = 'h0600006f;
+  vrom[2] = 'h0380006f;
+  vrom[3] = 'h0ff0000f;
+  vrom[4] = 'h7b241073;
+  vrom[5] = 'hf1402473;
+  vrom[6] = 'h10802023;
+  vrom[7] = 'h40044403;
+  vrom[8] = 'h00147413;
+  vrom[9] = 'h02041463;
+  vrom[10] = 'hf1402473;
+  vrom[11] = 'h40044403;
+  vrom[12] = 'h00247413;
+  vrom[13] = 'h02041863;
+  vrom[14] = 'h10500073;
+  vrom[15] = 'hfd9ff06f;
+  vrom[16] = 'h7b202473;
+  vrom[17] = 'h10002623;
+  vrom[18] = 'h00100073;
+  vrom[19] = 'hf1402473;
+  vrom[20] = 'h10802223;
+  vrom[21] = 'h7b202473;
+  vrom[22] = 'h0ff0000f;
+  vrom[23] = 'h0000100f;
+  vrom[24] = 'h30000067;
+  vrom[25] = 'hf1402473;
+  vrom[26] = 'h10802423;
+  vrom[27] = 'h7b202473;
+  vrom[28] = 'h7b200073;
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
   for (Integer i = 0; i<nAbstractInstr; i = i + 1) begin
-    v_abstract_reg[i] <- mkReg('h00000013, reset_by dm_reset);
+    v_abstract_reg[i] <- mkReg(`NOP, reset_by dm_reset);
   end
   
   AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor(reset_by dm_reset);
@@ -682,7 +710,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
     end
     else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) && req.arsize == 2) begin
       Bit#(5) index = truncate((offset - `ROMBASE)>>2);
-      data = zeroExtend(rom.sub(index));
+      data = zeroExtend(vrom[index]);
     end
     else 
       succ = False;
