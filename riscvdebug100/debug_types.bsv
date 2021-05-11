@@ -42,21 +42,15 @@ interface Ifc_hart_side#(numeric type ncomponents);
   method Bit#(10) mv_hartsel;
 endinterface: Ifc_hart_side
 
-interface Ifc_debug#(numeric type baseAddress,
-                     numeric type nprogbuf,
-                     numeric type nabstractdata,
-                     numeric type maxsbsize,
-                     numeric type supportquickaccess,
-                     numeric type supporthartarray,
-                     numeric type nhaltgroups,
-                     numeric type implicitebreak,
-                     numeric type authentication,
-                     numeric type ncomponents
+interface Ifc_debug#( numeric type nprogbuf,
+                      numeric type nabstractdata,
+                      numeric type ncomponents
                    );
   interface AXI4_Slave_IFC#(`paddr, `debug_bus_sz, 0) debug_slave;
   interface AXI4_Master_IFC#(`paddr, `debug_bus_sz, 0) debug_master;
   interface Ifc_debug_dtm dtm_access;
   interface Reset ifc_dm_reset;
+  method Bit#(1) mv_ndm_reset;
   interface Ifc_hart_side#(ncomponents) hartside;
 endinterface:Ifc_debug
 
@@ -124,11 +118,10 @@ typedef struct{
   Integer maxsbsize;
   Bool    supportquickaccess;
   Bool    supporthartarray;
-  Integer    nhaltgroups;
+  Integer nhaltgroups;
   Bool    hartresets;
   Integer implicitebreak;
   Bool    authentication;
-  Integer ncomponents;
 } DMConfig deriving(Eq);
 
 instance DefaultValue#(DMConfig);
@@ -139,8 +132,7 @@ instance DefaultValue#(DMConfig);
                           nhaltgroups : 1,
                           hartresets : True,
                           implicitebreak : 1,
-                          authentication : False,
-                          ncomponents : 1};
+                          authentication : False};
 endinstance
 
 function Reg#(t) w1notifyConditionalReg(Reg#(t) r, Wire#(Bool) w, Bool condition)

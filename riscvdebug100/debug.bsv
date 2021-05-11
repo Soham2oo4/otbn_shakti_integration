@@ -43,15 +43,8 @@ import debug_types        :: * ;
 // the following both rules/methods update the abstract data and program buffer but should never
 // happen simultaneously
 (*conflict_free="rl_bus_write,dtm_access_putCommand_put"*)
-module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress, 
-                                                    nprogbuf,
+module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                                                     nabstractdata,
-                                                    maxsbsize,
-                                                    supportquickaccess,
-                                                    supporthartarray,
-                                                    nhaltgroups,
-                                                    implicitebreak,
-                                                    authentication,
                                                     ncomponents))
   provisos(
     Add#(TLog#(ncomponents), a__, 10), // This indicates that hartsello can't cross 10-bits. which is fair assumption as this point
@@ -60,15 +53,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
     ,Add#(d__, TLog#(ncomponents), 12) // there can be only 0x800-0x400 flags. Hence only so many harts supported
   );
 
-  let v_baseAddress        =valueOf(baseAddress);
   let v_nprogbuf           =valueOf(nprogbuf);
   let v_nabstractdata      =valueOf(nabstractdata);
-  let v_maxsbsize          =valueOf(maxsbsize);
-  let v_supportquickaccess =valueOf(supportquickaccess);
-  let v_supporthartarray   =valueOf(supporthartarray);
-  let v_nhaltgroups        =valueOf(nhaltgroups);
-  let v_implicitebreak     =valueOf(implicitebreak);
-  let v_authentication     =valueOf(authentication);
   let v_ncomponents        =valueOf(ncomponents);
   let numhaltedstatus = ((v_ncomponents-1)/32) + 1;
 
@@ -296,7 +282,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
   Reg#(Bit#(5)) progbufsize = readOnlyReg(fromInteger(v_nprogbuf));
   Reg#(Bit#(1)) busy        <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) relaxedpriv <- mkReg(0, reset_by dm_reset);
-  Reg#(Bit#(3)) cmderr      <- mkReg(0, reset_by dm_reset); // TODO need to set other error types
+  Reg#(Bit#(3)) cmderr      <- mkReg(0, reset_by dm_reset); 
   Reg#(Bit#(4)) datacount   = readOnlyReg(fromInteger(v_nabstractdata));
 
   Wire#(Bool) wr_cmderr_wren <- mkDWire(False, reset_by dm_reset);
@@ -347,7 +333,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
   Reg#(Bit#(1)) sbautoincrement <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) sbreadondata <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(3)) sberr <- mkReg(0, reset_by dm_reset);
-  Reg#(Bit#(7)) sbasize = readOnlyReg(`paddr); // TODO argument is size of bus
+  Reg#(Bit#(7)) sbasize = readOnlyReg(`paddr);
   Reg#(Bit#(1)) sbaccess128 = readOnlyReg(pack(`debug_bus_sz >= 128));
   Reg#(Bit#(1)) sbaccess64 = readOnlyReg(pack(`debug_bus_sz >= 64));
   Reg#(Bit#(1)) sbaccess32 = readOnlyReg(pack(`debug_bus_sz >= 32));
@@ -494,8 +480,6 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
     else if (busy == 1 && v_flags[hartsello].go==0 && wr_harthalting_id[hartsello]==1 && wr_harthalting_wren) begin
       busy <= 0;
       AccessReg access_cntrl = unpack(control);
-      // TODO: right now the following is useless because we are not using control in rule
-      // rl_set_abstract_instructions. We are instead directly using wr_control_wrval which is 
       if (cmdtype == 0 && access_cntrl.aarpostincrement==1) begin
         access_cntrl.regno = access_cntrl.regno + 1;
         control <= pack(access_cntrl);
@@ -768,7 +752,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
   interface ifc_dm_reset = dm_reset;
   interface dtm_access = interface Ifc_debug_dtm
     interface putCommand = interface Put
-      method Action put (Bit#(`DMI_REQ_SZ) req)if (!isValid(dmi_response)); // TODO any conditions required on this ?
+      method Action put (Bit#(`DMI_REQ_SZ) req)if (!isValid(dmi_response)); 
         Bit#(2)  dmi_op   = req[1:0];
         Bit#(32) dmi_data = req[33:2];
         Bit#(7) dmi_addr = req[40:34];
@@ -962,13 +946,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#(baseAddress,
       hahavereset[1] <= resetack;
     endmethod
   endinterface;
+  method mv_ndm_reset = ndmreset;
 
 //  typedef PROGBUFBase - nAbstractInstr*4 ABSTRACT;
 
 endmodule: mkdebug
 
 (*synthesize*)
-module mkdummy(Ifc_debug#(4,16, 12, 64, 1, 1, 1, 1, 0, 1));
+module mkdummy(Ifc_debug#(16, 12, 1));
   let ifc();
   mkdebug#(defaultValue) _temp(ifc);
   return (ifc);
