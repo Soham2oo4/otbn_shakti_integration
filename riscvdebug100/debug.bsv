@@ -160,7 +160,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(1)) hartreset         <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) ackhavereset      <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) ackunavail        <- mkReg(0, reset_by dm_reset); // We may not support this. TODO
-  Reg#(Bit#(1)) hasel             <- mkReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(1)) hasel       <- mkConfigReg(0, reset_by dm_reset);
   ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) hartsello        <- mkConfigReg(0, reset_by dm_reset);
   Reg#(Bit#(10)) hartselhi        = readOnlyReg(0); // 2^20 is just obnoxious. simple opt here.
   Reg#(Bit#(1)) setkeepalive      = readOnlyReg(0); // we do not support this feature
@@ -407,10 +407,12 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   /*doc:rule: */
   rule rl_set_clr_haltreq(wr_haltreq_wren);
+    Bit#(ncomponents) lv_hahaltreq=hahaltreq;
     for (Integer i = 0; i<v_ncomponents; i = i + 1) begin
       if ( (hartsello == fromInteger(i)) || (hasel==1 && hamask[i]==1))
-        hahaltreq[i] <= wr_hatreq_wrval;
+        lv_hahaltreq[i] = wr_hatreq_wrval;
     end
+    hahaltreq<=lv_hahaltreq;
   endrule: rl_set_clr_haltreq
 
   /*doc:rule: */
@@ -441,20 +443,24 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   /*doc:rule: */
   rule rl_set_hartreset;
+    Bit#(ncomponents) lv_haresetreq = haresetreq;
     for (Integer i = 0; i<v_ncomponents; i = i + 1) begin
       if ( (hartsello == fromInteger(i)) || (hasel==1 && hamask[i]==1) )  begin
-        haresetreq[i] <= hartreset;
+        lv_haresetreq[i] = hartreset;
       end
     end
+    haresetreq<= lv_haresetreq;
   endrule:rl_set_hartreset
 
   /*doc:rule: */
   rule rl_clr_havereset(wr_ackhavereset_wren);
+    Bit#(ncomponents) lv_hahaveresets=hahavereset[1];
     for (Integer i = 0; i<v_ncomponents; i = i + 1) begin
       if ( (hartsello == fromInteger(i)) || (hasel==1 && hamask[i]==1) )  begin
-        hahavereset[i][0] <= 0;
+        lv_hahaveresets[i] = 0;
       end
     end
+    hahavereset[1] <= lv_hahaveresets;
   endrule:rl_clr_havereset
 
   /*doc:rule: */
@@ -527,8 +533,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   /*doc:rule: */
   rule rl_drive_dmstatus;
     // only hartser can be nonexistent
-    Bit#(1) lv_anynonexistent = pack(hartsello >= fromInteger(v_ncomponents));
-    Bit#(1) lv_allnonexistent = pack(hartsello >= fromInteger(v_ncomponents)) & |(~lv_finalhamask);
+    Bit#(1) lv_anynonexistent = pack(hartsello >= fromInteger(v_ncomponents-1));
+    Bit#(1) lv_allnonexistent = pack(hartsello >= fromInteger(v_ncomponents-1)) & |(~lv_finalhamask);
     if (lv_allnonexistent == 0) begin // if atleast some are existent
       anyunavail <= |lv_finalhamask;
       anyhalted <= |(hahalted & lv_finalhamask);
@@ -939,11 +945,12 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   endinterface;
   interface hartside = interface Ifc_hart_side
     method mv_hartmask = lv_finalhamask;
+    method mv_harthaltreq = hahaltreq;
     method mv_hartreset = haresetreq;
     method mv_hasel = hasel;
     method mv_hartsel = zeroExtend(hartsello);
     method Action ma_havereset(Bit#(ncomponents) resetack);
-      hahavereset[1] <= resetack;
+      hahavereset[0] <= resetack;
     endmethod
   endinterface;
   method mv_ndm_reset = ndmreset;
@@ -951,12 +958,5 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 //  typedef PROGBUFBase - nAbstractInstr*4 ABSTRACT;
 
 endmodule: mkdebug
-
-(*synthesize*)
-module mkdummy(Ifc_debug#(16, 12, 1));
-  let ifc();
-  mkdebug#(defaultValue) _temp(ifc);
-  return (ifc);
-endmodule
 endpackage: debug
 

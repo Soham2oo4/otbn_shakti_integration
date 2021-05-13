@@ -37,6 +37,7 @@ endinterface: Ifc_debug_dtm
 interface Ifc_hart_side#(numeric type ncomponents);
   method Bit#(ncomponents) mv_hartmask;
   method Bit#(ncomponents) mv_hartreset;
+  method Bit#(ncomponents) mv_harthaltreq;
   method Action ma_havereset (Bit#(ncomponents) resetack);
   method Bit#(1) mv_hasel;
   method Bit#(10) mv_hartsel;
