@@ -48,9 +48,12 @@ package clint;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize
         size);
 		method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr, AccessSize size);
-    interface Get#(Bit#(msip_size)) sb_clint_msip;
-    interface Get#(Bit#(1)) sb_clint_mtip;
-    interface Get#(Bit#(64)) sb_clint_mtime;
+    (*always_ready*)
+    method Bit#(msip_size) sb_clint_msip;
+    (*always_ready*)
+    method Bit#(1) sb_clint_mtip;
+    (*always_ready*)
+    method Bit#(64) sb_clint_mtime;
 	endinterface
 
 	function Reg#(t) writeSideEffect(Reg#(t) r,Action a);
@@ -152,29 +155,20 @@ package clint;
 		  		success=False;	
         return success;
     endmethod
-    interface sb_clint_msip= interface Get
-      method ActionValue#(Bit#(msip_size)) get();
-        return msip;
-      endmethod
-    endinterface;
-    interface sb_clint_mtip = interface Get
-      method ActionValue#(Bit#(1)) get();
-        return mtip;
-      endmethod
-    endinterface;
-    interface  sb_clint_mtime= interface Get
-      method ActionValue#(Bit#(64)) get();
-        return rgmtime;
-      endmethod
-    endinterface;
+    method sb_clint_msip  = msip;
+    method sb_clint_mtip  = mtip;
+    method sb_clint_mtime = rgmtime;
 	endmodule:mkclint
 
 	 interface Ifc_clint_axi4lite#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
-    interface Get#(Bit#(msip_size)) sb_clint_msip;
-    interface Get#(Bit#(1)) sb_clint_mtip;
-    interface Get#(Bit#(64)) sb_clint_mtime;
+    (*always_ready*)
+    method Bit#(msip_size) sb_clint_msip;
+    (*always_ready*)
+    method Bit#(1) sb_clint_mtip;
+    (*always_ready*)
+    method Bit#(64) sb_clint_mtime;
 	 endinterface
 
 	 module mkclint_axi4lite(Ifc_clint_axi4lite#(addr_width,data_width,user_width,msip_size,
@@ -208,17 +202,20 @@ package clint;
 	 		s_xactor.i_wr_resp.enq (r);
 	 	endrule
 	 	interface slave = s_xactor.axi_side;
-    interface sb_clint_msip=clint.sb_clint_msip;
-    interface sb_clint_mtip=clint.sb_clint_mtip;
-    interface sb_clint_mtime=clint.sb_clint_mtime;
+    method sb_clint_msip=clint.sb_clint_msip;
+    method sb_clint_mtip=clint.sb_clint_mtip;
+    method sb_clint_mtime=clint.sb_clint_mtime;
 	 endmodule:mkclint_axi4lite
 
 	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
-    interface Get#(Bit#(msip_size)) sb_clint_msip;
-    interface Get#(Bit#(1)) sb_clint_mtip;
-    interface Get#(Bit#(64)) sb_clint_mtime;
+    (*always_ready*)
+    method Bit#(msip_size) sb_clint_msip;
+    (*always_ready*)
+    method Bit#(1) sb_clint_mtip;
+    (*always_ready*)
+    method Bit#(64) sb_clint_mtime;
 	 endinterface
 
 
@@ -288,9 +285,9 @@ package clint;
 	      	end
 	 	endrule
 	 	interface slave = s_xactor.axi_side;
-    interface sb_clint_msip=clint.sb_clint_msip;
-    interface sb_clint_mtip=clint.sb_clint_mtip;
-    interface sb_clint_mtime=clint.sb_clint_mtime;
+    method sb_clint_msip=clint.sb_clint_msip;
+    method sb_clint_mtip=clint.sb_clint_mtip;
+    method sb_clint_mtime=clint.sb_clint_mtime;
 	 endmodule:mkclint_axi4
 endpackage:clint
 
