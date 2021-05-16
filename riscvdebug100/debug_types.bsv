@@ -39,6 +39,7 @@ interface Ifc_hart_side#(numeric type ncomponents);
   method Bit#(ncomponents) mv_hartreset;
   method Bit#(ncomponents) mv_harthaltreq;
   method Action ma_havereset (Bit#(ncomponents) resetack);
+  method Action ma_debugenable (Bit#(ncomponents) _debugenable);
   method Bit#(1) mv_hasel;
   method Bit#(10) mv_hartsel;
 endinterface: Ifc_hart_side
@@ -74,6 +75,10 @@ typedef struct{
   Bit#(4) datasize;
   Bit#(12) dataaddr;
 } HartInfo deriving(Bits, FShow, Eq);
+
+function Bit#(20) fn_j_imm(Bit#(21) offset);
+  return {offset[20],offset[10:1],offset[11],offset[19:12]};
+endfunction
 
 // Debug module system bus access type
 typedef enum {Access8Bit, 
@@ -169,6 +174,16 @@ function Reg#(t) warznotifyReg(Reg#(t) r, Wire#(Bool) w, Wire#(t) wval)
     endmethod
   endinterface);
 endfunction:warznotifyReg
+
+function Reg#(Bit#(n)) hartselloReg(Reg#(Bit#(n)) r, Integer ncomponents);
+  return (interface Reg;
+    method Bit#(n) _read = ncomponents>1?r._read: 0;
+    method Action _write(Bit#(n) w);
+      if(ncomponents> 1)
+        r._write(w);
+    endmethod
+  endinterface);
+endfunction: hartselloReg
 
 function Reg#(Bit#(1)) haselReg(Reg#(Bit#(1)) r, Integer ncomponents);
   return (interface Reg;
