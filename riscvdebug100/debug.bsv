@@ -70,7 +70,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   `define IMPEBREAK fromInteger(`DATA - 4)
   `define ABSTRACT  `PROGBUF - fromInteger(nAbstractInstr*4)
 
-  `define JWHERETO  {fromInteger(`ABSTRACT-`WHERETO),12'h6f}
+//  `define JWHERETO  {fromInteger(`ABSTRACT-`WHERETO),12'h6f}
   Integer nslices = ((v_ncomponents-1)/`WINDOWSZ)+1;
   // --------------------------------------- Reset generation ------------------------------------
   Clock curr_clk <- exposeCurrentClock;                                  // current default clock
@@ -95,7 +95,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[11] = 'h40044403;
   vrom[12] = 'h00247413;
   vrom[13] = 'h02041863;
-  vrom[14] = 'h10500073;
+  vrom[14] = 'h00000013;
   vrom[15] = 'hfd9ff06f;
   vrom[16] = 'h7b202473;
   vrom[17] = 'h10002623;
@@ -161,7 +161,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(1)) ackhavereset      <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) ackunavail        <- mkReg(0, reset_by dm_reset); // We may not support this. TODO
   ConfigReg#(Bit#(1)) hasel       <- mkConfigReg(0, reset_by dm_reset);
-  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) hartsello        <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) _hartsello        <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) hartsello   = hartselloReg(_hartsello, v_ncomponents);
   Reg#(Bit#(10)) hartselhi        = readOnlyReg(0); // 2^20 is just obnoxious. simple opt here.
   Reg#(Bit#(1)) setkeepalive      = readOnlyReg(0); // we do not support this feature
   Reg#(Bit#(1)) clrkeepalive      = readOnlyReg(0); // we do not support this feature
@@ -261,6 +262,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(ncomponents)) haresetreq  <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(ncomponents)) haresumereq <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(ncomponents)) hahavereset[2] <- mkCReg(2,0, reset_by dm_reset);
+
+  Wire#(Bit#(ncomponents)) wr_debug_enable <- mkWire();
 
   Reg#(Bit#(ncomponents)) hahalted <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(ncomponents)) haresumeack <- mkReg(0, reset_by dm_reset);
@@ -392,6 +395,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   lv_finalhamask[lv_selected_hart] = 1;
 
   // ------------------- Rules ----------------------------------
+`ifdef simulate
+  Reg#(Bool) rg_init <- mkReg(False);
+  /*doc:rule: */
+  rule rl_loggers(!rg_init);
+    rg_init <= True;
+    `logLevel( debug, 0, $format("DEBUG: ABSTRACT:%h PROGBUF:%h WHERETO:%h DATA:%h", `ABSTRACT, `PROGBUF,`WHERETO,`DATA))
+  endrule
+`endif
 
   /*doc:rule: */
   rule rl_set_haltedstatus;
@@ -437,7 +448,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     if (wr_resumereq_wren)
       haresumeack <= ~lv_resumereq & ~lv_finalhamask;
     else
-      haresumeack <= ~lv_resumeack;
+      haresumeack <= ~lv_resumereq;
     haresumereq <= lv_resumereq;
   endrule:rl_set_resumereq_resumeack
 
@@ -485,6 +496,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       busy <= 1;
     else if (busy == 1 && v_flags[hartsello].go==0 && wr_harthalting_id[hartsello]==1 && wr_harthalting_wren) begin
       busy <= 0;
+      `logLevel( debug, 0, $format("DEBUG: Abstract cmd over."))
       AccessReg access_cntrl = unpack(control);
       if (cmdtype == 0 && access_cntrl.aarpostincrement==1) begin
         access_cntrl.regno = access_cntrl.regno + 1;
@@ -493,8 +505,11 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     end
     // below we check for an exception. We don't need to check ids here because only the selected
     // hart for command can be writing to this. Anyone else writing to _exception can never happen.
-    else if (busy ==1 && wr_exception_wren)
+    else if (busy ==1 && wr_exception_wren) begin
       busy <= 0;
+      wr_errexception <= True;
+      `logLevel( debug, 0, $format("DEBUG: Abstract cmd faced exception"))
+    end
   endrule: rl_set_busy
 
   /*doc:rule: */
@@ -533,18 +548,18 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   /*doc:rule: */
   rule rl_drive_dmstatus;
     // only hartser can be nonexistent
-    Bit#(1) lv_anynonexistent = pack(hartsello >= fromInteger(v_ncomponents-1));
-    Bit#(1) lv_allnonexistent = pack(hartsello >= fromInteger(v_ncomponents-1)) & |(~lv_finalhamask);
+    Bit#(1) lv_anynonexistent = pack(hartsello >= fromInteger(v_ncomponents));
+    Bit#(1) lv_allnonexistent = pack(hartsello >= fromInteger(v_ncomponents)) & ~(|lv_finalhamask);
     if (lv_allnonexistent == 0) begin // if atleast some are existent
-      anyunavail <= |lv_finalhamask;
-      anyhalted <= |(hahalted & lv_finalhamask);
-      anyrunning <= |(~hahalted & lv_finalhamask);
+      anyunavail <= |(~wr_debug_enable & lv_finalhamask);
+      anyhalted <= |(wr_debug_enable & hahalted & lv_finalhamask);
+      anyrunning <= |(wr_debug_enable & ~hahalted & lv_finalhamask);
       anyhavereset <= |(hahavereset[1] & lv_finalhamask); 
       anyresumeack <= |(haresumeack & lv_finalhamask);
       if(lv_anynonexistent == 0) begin // if all existent then try setting all* regs
-        allunavail <= &(~lv_finalhamask);
-        allhalted <= &(hahalted | ~lv_finalhamask);
-        allrunning <= &(~hahalted | ~lv_finalhamask);
+        allunavail <= &(~wr_debug_enable | ~lv_finalhamask);
+        allhalted <= &( (wr_debug_enable & hahalted) | ~lv_finalhamask);
+        allrunning <= &( (wr_debug_enable & ~hahalted) | ~lv_finalhamask);
         allhavereset <= &(hahavereset[1] | ~lv_finalhamask);
         allresumeack <= &(haresumeack | ~lv_finalhamask);
       end
@@ -584,26 +599,28 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     endcase
 
     if (lv_err == SbSuccess) begin
-      let read_request = AXI4_Rd_Addr{araddr: truncate(address),aruser: 0, 
+      AXI4_Rd_Addr#(`paddr, 0) read_request = AXI4_Rd_Addr{araddr: truncate(address),aruser: 0, 
                                       arlen : 0, arsize: sbaccess, arburst: 0,
                                       arid  : 0, arprot:'d3};
-      let wr_addr_request = AXI4_Wr_Addr{awaddr: truncate(address),awuser: 0, 
+      AXI4_Wr_Addr#(`paddr, 0) wr_addr_request = AXI4_Wr_Addr{awaddr: truncate(address),awuser: 0, 
                                       awlen : 0, awsize: sbaccess, awburst: 0,
                                       awid  : 0, awprot:'d3};
-      let wr_data_request = AXI4_Wr_Data{ wdata: writedata, wstrb: writestrb, wlast: True};
+      AXI4_Wr_Data#(`debug_bus_sz) wr_data_request = AXI4_Wr_Data{ wdata: writedata, wstrb: writestrb, wlast: True};
       if (rg_sbread_en ) begin
         master_xactor.i_rd_addr.enq(read_request);
         rg_sbread_en <= False;
+        `logLevel( debug, 0, $format("DEBUG: SBA Read:",fshow(read_request)))
       end
       else if (rg_sbwrite_en) begin
         rg_sbwrite_en <= False;
         master_xactor.i_wr_addr.enq(wr_addr_request);
         master_xactor.i_wr_data.enq(wr_data_request);
+        `logLevel( debug, 0, $format("DEBUG: SBA WriteR:",fshow(wr_addr_request)))
+        `logLevel( debug, 0, $format("DEBUG: SBA WriteD:",fshow(wr_data_request)))
       end
-      sbbusy <= 0;
     end
     else begin
-      `logLevel( debug, 0, $format("DEBUG: SB request detected error: ",fshow(lv_err)))
+      `logLevel( debug, 0, $format("DEBUG: SBA request detected error: ",fshow(lv_err)))
       sbbusy <= 0;
       sberr <= pack(lv_err);
     end
@@ -615,6 +632,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Bit#(`paddr) address = resize({sbaddress3,sbaddress2,sbaddress1,sbaddress0});
     let response <- pop_o(master_xactor.o_rd_data);
     sbbusy <= 0;
+    `logLevel( debug, 0, $format("DEBUG: SBA Response: ",fshow(response)))
     if (response.rresp == AXI4_DECERR) begin
       sberr <= pack(SbBadAddr);
     end
@@ -668,53 +686,60 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   /*doc:rule: */
   rule rl_bus_read;
     let req <- pop_o(slave_xactor.o_rd_addr);
-    `logLevel( debug, 0, $format("DEBUG: ReadReq: ",fshow(req)))
     Bit#(12) offset = truncate(req.araddr);
     Bit#(`debug_bus_sz) data = 0;
     Bool succ = True;
     if (offset == `IMPEBREAK) begin // reading implicit ebreak
-      data = cfg.implicitebreak==1? `EBREAK : `NOP ;
+      data = cfg.implicitebreak==1? duplicate(`EBREAK) : duplicate(`NOP) ;
     end
     else if (offset == `WHERETO) begin // read jump to abstract
-      data = `JWHERETO;
+      Bit#(21) _off = fromInteger(`ABSTRACT-`WHERETO);
+      data = duplicate({fn_j_imm(_off),12'h6f});
+      `logLevel( debug, 0, $format("DEBUG: Reading WHERETO:DASM(0x%h)",data[31:0]))
     end
     else if (offset >= `ABSTRACT && offset < `PROGBUF && req.arsize==2) begin // read abstract command registers
-      data = zeroExtend(v_abstract_reg[offset>> 2]);
+      Bit#(1) index = truncate((offset - `ABSTRACT)>>2);
+      `logLevel( debug, 0, $format("DEBUG: Abstract offset:%h Abstract:%h index:%d",offset,
+      `ABSTRACT, index))
+      data = duplicate(v_abstract_reg[index]);
+      `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)",v_abstract_reg[index]))
     end
     else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) && req.arsize==0 
           && offset < 'h800) begin// TODO extend this for multicore
       Bit#(TLog#(ncomponents)) index = truncate(offset);
-      data = zeroExtend(pack(v_flags[index]));
+      data = duplicate(pack(v_flags[index]));
     end
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
-      data = zeroExtend(v_data_reg[index]);
+      data = duplicate(v_data_reg[index]);
       if (req.arsize==3)
         data[63:32] = v_data_reg[index+1];
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
-      data = zeroExtend(v_progbuf_reg[index]);
+      data = duplicate(v_progbuf_reg[index]);
       if (req.arsize==3)
         data[63:32] = v_progbuf_reg[index+1];
+      `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)",v_progbuf_reg[index]))
     end
     else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) && req.arsize == 2) begin
       Bit#(5) index = truncate((offset - `ROMBASE)>>2);
-      data = zeroExtend(vrom[index]);
+      data = duplicate(vrom[index]);
+      `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)",vrom[index]))
     end
-    else 
-      succ = False;
-	 	let r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
+	 	AXI4_Rd_Data#(`debug_bus_sz,0) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
           rdata: data, ruser: 0};
 	 	slave_xactor.i_rd_data.enq(r);
+    `logLevel( debug, 1, $format("DEBUG: ReadReq: ",fshow(req)))
+    `logLevel( debug, 1, $format("DEBUG: ReadResp: ",fshow(r)))
   endrule
   
   /*doc:rule: */
   rule rl_bus_write;
     let req <- pop_o(slave_xactor.o_wr_addr);
     let wreq <- pop_o(slave_xactor.o_wr_data);
-    `logLevel( debug, 0, $format("DEBUG: WrReq: ",fshow(req)))
-    `logLevel( debug, 0, $format("DEBUG: WrReqData: ",fshow(wreq)))
+    `logLevel( debug, 1, $format("DEBUG: WrReq: ",fshow(req)))
+    `logLevel( debug, 1, $format("DEBUG: WrReqData: ",fshow(wreq)))
     Bit#(12) offset = truncate(req.awaddr);
     Bit#(`debug_bus_sz) data = 0;
     Bit#(ncomponents) val = 0;
@@ -723,17 +748,21 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     if (offset == `HALTED) begin // hart is halted
       wr_harthalting_wren <= True;
       wr_harthalting_id <= val;
+      `logLevel( debug, 0, $format("DEBUG: Hart-%d is halting now",wreq.wdata))
     end
     else if (offset == `GOING) begin // hart is going
       wr_hartgoing_wren <= True;
       wr_hartgoing_ind <= val;
+      `logLevel( debug, 0, $format("DEBUG: Hart-%d is going to perform Abstract op",wreq.wdata))
     end
     else if (offset == `RESUMING) begin // hart is resuming
       wr_hartresuming_wren <= True;
       wr_hartresuming_ind <= val;
+      `logLevel( debug, 0, $format("DEBUG: Hart-%d is resuming",wreq.wdata))
     end
     else if (offset == `EXCEPTION) begin // hart has reached exception
       wr_exception_wren<= True;
+      `logLevel( debug, 0, $format("DEBUG: Halt generated exception"))
     end
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
@@ -766,8 +795,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         Bit#(32) dmi_response_data = 0;
         Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
         if (dmi_op == 2)begin // write operation
+          `logLevel( debug, 0, $format("DEBUG: DMI Write@%h %h:",dmi_addr, dmi_data))
           case(dmi_addr)
-            `Dmcontrol    : dmcontrol <= dmi_data;
+            `Dmcontrol    : begin `logLevel( debug, 0, $format("DEBUG: Writing DMCONTROL")) dmcontrol <= dmi_data; end
             `Dmstatus     : dmstatus <= dmi_data;
             `Hartinfo     : v_hartinfo_reg[hartsello] <= unpack(dmi_data);
             `Hawindowsel  : hawindowsel <=  truncate(dmi_data);
@@ -789,7 +819,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                   wr_errnotsupported <= True;
                 else if (lv_control.regno < 'h1000 || lv_control.regno > 'h101f)
                   wr_errnotsupported <= True;
-                else if (hahalted[hartsello]!=0) // access only happens when hart is halted
+                else if (hahalted[hartsello]!=1) // access only happens when hart is halted
                   wr_errhaltresume <= True;
                 else  begin
                   command <= dmi_data;
@@ -862,8 +892,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         end
         else if (dmi_op == 1) begin // read operation
           case(dmi_addr)
-            `Dmcontrol    : dmi_response_data = dmi_data;
-            `Dmstatus     : dmi_response_data = dmi_data;
+            `Dmcontrol    : dmi_response_data = dmcontrol;
+            `Dmstatus     : dmi_response_data = dmstatus;
             `Hartinfo     : dmi_response_data = pack(v_hartinfo_reg[hartsello]);
             `Hawindowsel  : dmi_response_data = zeroExtend(hawindowsel);
             `Hawindow     : begin 
@@ -932,6 +962,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                 dmi_response_status = 2;
             end
           endcase
+          `logLevel( debug, 0, $format("DEBUG: DMI Read@%h %h:",dmi_addr, dmi_response_data))
         end
         dmi_response <= tagged Valid ({dmi_response_data,dmi_response_status});
       endmethod
@@ -951,6 +982,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     method mv_hartsel = zeroExtend(hartsello);
     method Action ma_havereset(Bit#(ncomponents) resetack);
       hahavereset[0] <= resetack;
+    endmethod
+    method Action ma_debugenable (Bit#(ncomponents) _debugenable);
+      wr_debug_enable <= _debugenable;
     endmethod
   endinterface;
   method mv_ndm_reset = ndmreset;
