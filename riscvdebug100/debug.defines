@@ -11,9 +11,9 @@
 `define ROMBASE 'h800
 
 // instruction sequences
-`define EBREAK    'h00100073
-`define NOP       'h00000013
-`define ADDIW     'h0000001B
+`define EBREAK    32'h00100073
+`define NOP       32'h00000013
+`define ADDIW     32'h0000001B
 `define Load_op   7'b0000011
 `define Store_op  7'b0100011
 `define CSRRW_op  7'b1110011
