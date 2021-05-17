@@ -668,6 +668,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   /*doc:rule: */
   rule rl_sba_write_response(sbbusy == 1 && !rg_sbwrite_en && !rg_sbread_en);
+    Bit#(`paddr) address = resize({sbaddress3,sbaddress2,sbaddress1,sbaddress0});
     let response <- pop_o(master_xactor.o_wr_resp);
     sbbusy <= 0;
     if (response.bresp == AXI4_DECERR) begin
@@ -678,6 +679,18 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     end
     else begin
       sberr <= pack(SbSuccess);
+      if (sbautoincrement == 1) begin
+        Bit#(4) increment = 'b1 << sbaccess;
+        address = address + zeroExtend(increment);
+        `logLevel( debug, 0, $format("DEBUG: New autoinrement address: %h",address))
+        sbaddress0 <= resize(address);
+        if (`paddr > 32)
+          sbaddress1 <= resize(address >> 32);
+        if (`paddr > 64)
+          sbaddress2 <= resize(address >> 64);
+        if (`paddr > 96)
+          sbaddress3 <= resize(address >> 96);
+      end
     end
   endrule:rl_sba_write_response
   // ----------------------------------------------------------------------------------------------
