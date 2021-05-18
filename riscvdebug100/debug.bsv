@@ -179,10 +179,10 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Wire#(Bool) wr_setresethaltreq_wren <- mkDWire(False, reset_by dm_reset);
   Wire#(Bool) wr_clrkeepalive_wren <- mkDWire(False, reset_by dm_reset);
   Wire#(Bool) wr_setkeepalive_wren <- mkDWire(False, reset_by dm_reset);
-  Wire#(Bit#(1)) wr_hatreq_wrval <- mkDWire(?, reset_by dm_reset);
+  Wire#(Bit#(1)) wr_hatreq_wrval <- mkDWire(0, reset_by dm_reset);
 
   Reg#(Bit#(32)) dmcontrol = concatReg15(warznotifyReg(haltreq, wr_haltreq_wren, wr_hatreq_wrval), 
-                                         w1notifyConditionalReg(resumereq, wr_resumereq_wren, haltreq==0), 
+                                         w1notifyConditionalReg(resumereq, wr_resumereq_wren, True), 
                                          hartreset, 
                                          w1notifyReg(ackhavereset, wr_ackhavereset_wren),
                                          w1notifyReg(ackunavail, wr_ackunavail_wren),
