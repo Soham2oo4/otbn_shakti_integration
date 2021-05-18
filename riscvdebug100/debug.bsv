@@ -450,6 +450,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else
       haresumeack <= ~lv_resumereq;
     haresumereq <= lv_resumereq;
+    `logLevel( debug, 0, $format("DEBUG: ResumeREQ:%h haresumeack:%h",haresumereq,haresumeack))
   endrule:rl_set_resumereq_resumeack
 
   /*doc:rule: */
@@ -469,6 +470,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     for (Integer i = 0; i<v_ncomponents; i = i + 1) begin
       if ( (hartsello == fromInteger(i)) || (hasel==1 && hamask[i]==1) )  begin
         lv_hahaveresets[i] = 0;
+        `logLevel( debug, 0, $format("DEBUG: Acknowledging Havereset for hart:%d",i))
       end
     end
     hahavereset[1] <= lv_hahaveresets;
@@ -994,7 +996,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     method mv_hasel = hasel;
     method mv_hartsel = zeroExtend(hartsello);
     method Action ma_havereset(Bit#(ncomponents) resetack);
-      hahavereset[0] <= resetack;
+      hahavereset[0] <= hahavereset[0] | resetack;
+      if (resetack != 0)
+        `logLevel( debug, 0, $format("DEBUG: Resetack:%h",resetack))
     endmethod
     method Action ma_debugenable (Bit#(ncomponents) _debugenable);
       wr_debug_enable <= _debugenable;
