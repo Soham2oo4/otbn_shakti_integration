@@ -27,17 +27,17 @@ package sspi_template;
 	`include "sspi.defines"
 	import sspi::*;
 
-	//(*synthesize*)
-	//module mkdummy(Ifc_sspi_axi4lite#(32,32,0));
-	//		let ifc();
-	//		mksspi_axi4lite _temp(ifc);
-	//		return ifc;
-	//endmodule
+//(*synthesize*)
+//module mkdummy(Ifc_sspi_axi4#(32,32,0));
+//		let ifc();
+//		mksspi_axi4 _temp(ifc);
+//		return ifc;
+//endmodule
 
-		(*synthesize*)
-		module mkdummy(Ifc_sspi_axi4lite#(32,32,0));
-				let ifc();
-				mksspi_axi4lite _temp(ifc);
-				return ifc;
-		endmodule
+	(*synthesize*)
+	module mkdummy(Ifc_sspi_axi4lite#(32,32,0));
+			let ifc();
+			mksspi_axi4lite _temp(ifc);
+			return ifc;
+	endmodule
 endpackage
