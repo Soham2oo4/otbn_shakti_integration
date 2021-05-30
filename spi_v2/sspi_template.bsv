@@ -21,29 +21,23 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
-
-Author: Neel Gala
-Email id: neelgala@gmail.com
-Details:
-
---------------------------------------------------------------------------------------------------
 */
-package gptimer_template;
-	import gptimer::*;
-	`include "gptimer.defines"
 
-	 (*synthesize*)
-		module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4lite#(64,32,0,32));
-				let ifc();
-				mkgptimer_axi4lite#(ext_clock,ext_reset) _temp(ifc);
-				return ifc;
-		endmodule
+package sspi_template;
+	`include "sspi.defines"
+	import sspi::*;
 
-  //(*synthesize*)
-	//module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4#(64,32,0,32));
+	//(*synthesize*)
+	//module mkdummy(Ifc_sspi_axi4lite#(32,32,0));
 	//		let ifc();
-	//		mkgptimer_axi4#(ext_clock,ext_reset) _temp(ifc);
+	//		mksspi_axi4lite _temp(ifc);
 	//		return ifc;
 	//endmodule
 
+		(*synthesize*)
+		module mkdummy(Ifc_sspi_axi4lite#(32,32,0));
+				let ifc();
+				mksspi_axi4lite _temp(ifc);
+				return ifc;
+		endmodule
 endpackage

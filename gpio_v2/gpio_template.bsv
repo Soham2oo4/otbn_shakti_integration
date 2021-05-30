@@ -26,10 +26,18 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package gpio_template;
 	`include "gpio.defines"
 	import gpio::*;
-	(*synthesize*)
-	module mkdummy(Empty);
-		 Ifc_gpio_axi4lite#(32,32,0,60) gpio1 <- mkgpio_axi4lite;
-		 Ifc_gpio_axi4#(32,32,0,30) gpio2 <- mkgpio_axi4;
-     //User_ifc#(32,32,64) gpio <- mkgpio;
-	endmodule
+
+		(*synthesize*)
+		module mkdummy(Ifc_gpio_axi4lite#(32,32,0,64));
+				let ifc();
+				mkgpio_axi4lite _temp(ifc);
+				return ifc;
+		endmodule
+
+//(*synthesize*)
+//module mkdummy(Ifc_gpio_axi4#(32,32,0,64));
+//		let ifc();
+//		mkgpio_axi4 _temp(ifc);
+//		return ifc;
+//endmodule
 endpackage

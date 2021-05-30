@@ -26,9 +26,18 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package pwm_template;
 	`include "pwm.defines"
 	import pwm::*;
-	(*synthesize*)
-	module mkdummy#(Clock ext_clock, Reset ext_reset)(Empty);
-		Ifc_pwm_axi4lite#(32,32,0,32,2) pmw <- mkpwm_axi4lite(ext_clock,ext_reset);
-		Ifc_pwm_axi4#(32,32,0,16,2) pwm1 <- mkpwm_axi4(ext_clock,ext_reset);
-	endmodule
+
+		(*synthesize*)
+		module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4lite#(32,32,0,32,4));
+				let ifc();
+				mkpwm_axi4lite#(ext_clock,ext_reset) _temp(ifc);
+				return ifc;
+		endmodule
+
+//(*synthesize*)
+//module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4#(32,32,0,32,4));
+//		let ifc();
+//		mkpwm_axi4#(ext_clock,ext_reset) _temp(ifc);
+//		return ifc;
+//endmodule
 endpackage
