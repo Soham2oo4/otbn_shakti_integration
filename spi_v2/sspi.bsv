@@ -1,26 +1,75 @@
-/* 
-Copyright (c) 2018, IIT Madras All rights reserved.
+//see LICENSE.iitm for license details
+/*
 
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
+Author : Sadhana S
+Email id : sadhashan118@gmail.com
 
-* Redistributions of source code must retain the above copyright notice, this list of conditions
-  and the following disclaimer.  
-* Redistributions in binary form must reproduce the above copyright notice, this list of 
-  conditions and the following disclaimer in the documentation and/or other materials provided 
- with the distribution.  
-* Neither the name of IIT Madras  nor the names of its contributors may be used to endorse or 
-  promote products derived from this software without specific prior written permission.
+Details:
+	SPI is a synchronous serial I/O port that allows a serial bit stream of programmed length to be shifted 
+into and out of the device at programmable bit transfer rate. The length of the bit stream to be transferred 
+or received can be programmed through the rg_total_bit_tx and rg_total_bit_rx bits in rg_comm_ctrl register 
+and the required bit transfer rate is achieved by giving appropriate value to rg_prescaller bits in rg_clk_ctrl 
+register. 
+	32-level receive and transmit FIFO is provided to reduce servicing overhead. The module also provides 
+simultaneous receive and transmit operation. Delayed transmit control is achieved by providing required delay 
+through rg_cs_t_delay bits in rg_clk_ctrl register and also the hold time for the slave can be through rg_t_cs_delay 
+bits in rg_clk_ctrl register.
+	Each SPI module has four external IO pins - Master in/Slave out(MISO) pin, Master out/Slave in(MOSI) pin, 
+Synchronous clock(SCLK) and  Chip Select(CS) pin. All the pins of the Standard SPI module have input qualification control 
+and the input qualification cycle is configured through rg_qual_cycles register. To enable input qualification 
+control, enable the define IQC in simulation
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
---------------------------------------------------------------------------------------------------
+Sequence of execution:
+For transmission, 
+	1. write into tx data register (if the data to be transmitted is more than 32 bits, write multiple times into the 
+	tx data register, every write will push its contents to the TX FIFO)
+	2. Write into clock control register, interrupt enable register and input qualification register
+	3. Now enable the SPI transaction through communication control register
+
+For reception,
+	1. Write into clock register, interrupt enable register and input qualification register
+	2. And now enable the SPI transaction through communication control register
+	3. The received data will be available in RX data register(If data to be received is more than 32 bits, perform multiple 
+	read RX data register, this will pop the contents from RX FIFO)
+
+
+
+Spi state changes:
+Master mode:
+As soon as spi_en is given to rg_commctrl register, following happens sequentially
+	1. After one cycle, ncs goes low
+	2. In the next cycle, sclk counter starts and upcounts till prescale value. The sclk value inverts or remains the same
+	depending on the clk_phase and clk_polarity set in the clock control register. This sclk generation happens throughout the
+	SPI transaction.
+	3. If any setup delay set in clock control register, sclk is not sent as output, til the setup delay is met. If there is
+	no setup delay, sclk will be sent as output immediately (in the next cycle) after ncs goes low
+	4. Once the setup delay is met, transmit from the controller happens when sclk counter is zero and that value is held till 
+	the counter reaches the prescale value. The controller reads an input value when sclk counter is equal to half the prescale 
+	value.
+	5. Only transmit, only receive, receive immediately after transmit or simultaneously transmit and receive happens based on the
+	communication mode set in the communication control register.
+	6. The transmit and recive continues till the number of bits to be transmitted or the number of bits to be received is done according
+	to the configuration in communication control register.
+	7. Once the transmit - receive is done, the sclk stops but ncs will go high only after hold delay is met according to the configuration
+	in clock control register. This completes the SPI transaction and spi en also will be reset to zero. To start the next transaction
+	configure the memory map registers accordingly
+
+Slave mode:
+	Slave mode is similar to the master mode except, ncs and sclk will be received from the SPI device connected to the controller.
+The spi en is expected to be set before the ncs goes low and once the ncs goes low, the SPI state changes happens as above.
+In slave mode, sclk counter will not be used instead the rising or falling edge is detected and transmit and receive edge is computed.
+Once the ncs goes high, spi en is reset by the controller.
+
+Rule firing order:
+Only Transmit:
+
+Only Receive:
+
+Transmit and Immediate Receive:
+
+Transmit and Receive:
+
+
 */
 package sspi;
 
@@ -46,12 +95,15 @@ import DefaultValue::*;
 `include "sspi.defines"
 `include "Logger.bsv"
 
+export Ifc_sspi 			(..);
+export Ifc_sspi_io 			(..);
 export Ifc_sspi_axi4 		(..);
 export Ifc_sspi_axi4lite 	(..);
 export mksspi_axi4;
 export mksspi_axi4lite;
-export Ifc_sspi_io 			(..);
+export mksspi;
 
+// Enum to define the transmit state transfers
 typedef enum{
 			 IDLE,
 			 START_TRANSMIT,
@@ -59,6 +111,7 @@ typedef enum{
 			 TRANSMIT_DONE
 		} Transmit_state deriving(Bits, Eq, FShow);
 			 		
+// Enum to define the receive state transfers
 typedef enum{
 			 IDLE,
 			 START_RECEIVE,
@@ -66,6 +119,7 @@ typedef enum{
 			 RECEIVE_DONE
 		} Receive_state deriving(Bits, Eq, FShow);
 
+// Enum to define the SPI Transaction transfers
 typedef enum{
 			IDLE,
 			WAIT,
@@ -74,6 +128,7 @@ typedef enum{
 			HOLD_PHASE
 	   } Spi_state deriving(Bits, Eq, FShow);
 
+// sspi_io io interface with all the four inputs, outputs and output enables
 (*always_ready, always_enabled*)
 interface Ifc_sspi_io;
 		//mosi input output
@@ -94,10 +149,16 @@ interface Ifc_sspi_io;
 		method Action ncs_in(bit val);
 endinterface
 
+// sspi axi interface which has write and read methods to receive write and read requests. It also the above sspi_io interface
+// and interrupt connection to PLIC
 interface Ifc_sspi#(numeric type addr_width, numeric type data_width);
+	/*doc : method : method to receive write requests from AXI */
 	method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, Bit#(2) size);
+	/*doc : method : method to receive read requests from AXI */
 	method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_req(Bit#(addr_width) addr, Bit#(2) size);
+	/*doc : interface : SPI IO interface which has output, input and output enables of sspi IOs*/
 	interface Ifc_sspi_io io;
+	/*doc : method : SSPI interrupt connection to PLIC */
 	method Bit#(1) sb_sspi_interrupt;
 endinterface
 
@@ -110,93 +171,167 @@ module mksspi(Ifc_sspi#(addr_width, data_width))
 					 Mul#( 4, f__, data_width),
 					 Add#(16, g__, data_width)
 					);
+
+	/* doc : reg : holds the MOSI pin's output enable. If set, output is transmitted through this pin else input is read from this pin */
 	Reg#(bit) rg_mosi_output_enable <- mkRegA(1);
+	/* doc : reg : holds the MISO pin's output enable. If set, output is transmitted through this pin else input is read from this pin */
 	Reg#(bit) rg_miso_output_enable <- mkRegA(0);
+	/* doc : reg : holds the NCS pin's output enable. If set, the controller generates the ncs else ncs is expected from the spi device */
 	Reg#(bit) rg_ncs_output_enable  <- mkRegA(1);
+	/* doc : reg : holds the SCLK pin's output enable. If set, the controller generates the sclk else sclk is expected from the spi device */
 	Reg#(bit) rg_sclk_output_enable <- mkRegA(1);
+	/* doc : reg : holds the total number of bits to be transmitted in a spi transaction */
 	Reg#(Bit#(8)) rg_total_bit_rx	<- mkRegA(0);
+	/* doc : reg : holds the total number of bits to be received in a spi transaction */
 	Reg#(Bit#(8)) rg_total_bit_tx	<- mkRegA(0);
+	/* doc : reg : holds the communication mode of the spi transaction. 00 - only transmit; 01 - only receive; 10 - transmit and immediate receive; 11 - transmit and receive */
 	Reg#(Bit#(2)) rg_comm_mode		<- mkRegA(0);
+	/* doc : reg : holds whether the spi transaction is LSB first. If set LSB first else MSB first */
 	Reg#(bit) rg_lsbfirst			<- mkRegA(0);
+	/* doc : reg : holds the spi enable control. Once set, spi transaction will start and it will be reset at the end of spi transaction */
 	Reg#(bit) rg_spi_en				<- mkRegA(0);
+	//unused register
 	Reg#(bit) rg_master_mode		<- mkRegA(1);
+	/*doc : reg : concatenates all the communication control fields described before for AXI read and write to the memory map register*/
 	Reg#(Bit#(32)) rg_comm_ctrl = concatReg12(readOnlyReg(6'd0),rg_mosi_output_enable,rg_miso_output_enable,rg_ncs_output_enable,rg_sclk_output_enable,
 												rg_total_bit_rx,rg_total_bit_tx,rg_comm_mode,readOnlyReg(1'd0),rg_lsbfirst,rg_spi_en,rg_master_mode);
 
+	/* doc : reg : holds the hold delay */
 	Reg#(Bit#(8)) rg_t_cs_delay <- mkRegA(0);
+	/* doc : reg : holds the setup delay */
 	Reg#(Bit#(8)) rg_cs_t_delay <- mkRegA(0);
+	/* doc : reg : holds the prescaller value of the sclk */
 	Reg#(Bit#(8)) rg_prescaller <- mkRegA(0);
+	/* doc : reg : holds the clock phase */
 	Reg#(bit) rg_clk_phase		<- mkRegA(0);
+	/* doc : reg : holds the clock polarity */
 	Reg#(bit) rg_clk_polarity 	<- mkRegA(0);
+	/*doc : reg : concatenates all the clock fields described before for AXI read and write to the memory map register*/
 	Reg#(Bit#(32)) rg_clk_ctrl = concatReg6(readOnlyReg(6'd0),rg_t_cs_delay,rg_cs_t_delay,rg_prescaller,rg_clk_phase,rg_clk_polarity);
 
+	/* doc : reg : holds the tx data. This register is written by the AXI write request and once written the data is transferred to TX FIFO */
 	Reg#(Bit#(32)) rg_tx_data <- mkRegA(0);
+	/* doc : reg : holds the tx data. This register is read by the AXI read request. The data is written from the RX FIFO */
 	Reg#(Bit#(32)) rg_rx_data <- mkRegA(0);
 
+	/* doc : reg : overrun interrupt enable bit. Overrun occurs when the received data couldn't be enqueued because RX FIFO is full. This when set, overrun interrupt is sent to PLIC */
 	Reg#(bit) rg_rx_over_run_err_intr_en <- mkRegA(0);
+	/* doc : reg : RX FIFO full interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO is full - 32 entries */
 	Reg#(bit) rg_rx_fifo_full_intr_en <- mkRegA(0);
+	/* doc : reg : RX FIFO half interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO has 16 entries*/
 	Reg#(bit) rg_rx_fifo_half_intr_en <- mkRegA(0);
+	/* doc : reg : RX FIFO quad interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO has 8 entries */
 	Reg#(bit) rg_rx_fifo_quad_intr_en <- mkRegA(0);
+	/* doc : reg : RX FIFO empty interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO is empty */
 	Reg#(bit) rg_rx_fifo_empty_intr_en <- mkRegA(0);
+	/* doc : reg : TX FIFO full interrupt enable bit. This when set, interrupt is sent to PLCI when TX FIFO is full - 32 entries*/
 	Reg#(bit) rg_tx_fifo_full_intr_en <- mkRegA(0);
+	/* doc : reg : TX FIFO half interrupt enable bit. This when set, interrupt is sent to PLIC when TX FIFO has 16 entries*/
 	Reg#(bit) rg_tx_fifo_half_intr_en <- mkRegA(0);
+	/* doc : reg : TX FIFO quad interrupt enable bit. This when set, interrupt is sent to PLIC when TX FIFO has 8 entries */
 	Reg#(bit) rg_tx_fifo_quad_intr_en <- mkRegA(0);
+	/* doc : reg : TX FIFO empty interrupt enable bit. This when set, interrupt is sent to PLIC when TX FIFO is empty */
 	Reg#(bit) rg_tx_fifo_empty_intr_en <- mkRegA(0);
+	/*doc : reg : concatenates all the interrupt enable bits described before for AXI read and write to the memory map register*/
 	Reg#(Bit#(16)) rg_intr_en = concatReg10(readOnlyReg(7'd0),rg_rx_over_run_err_intr_en,rg_rx_fifo_full_intr_en,rg_rx_fifo_half_intr_en,rg_rx_fifo_quad_intr_en,rg_rx_fifo_empty_intr_en,
 											rg_tx_fifo_full_intr_en,rg_tx_fifo_half_intr_en,rg_tx_fifo_quad_intr_en,rg_tx_fifo_empty_intr_en);
 		
+
+	/*doc : reg : Overrun bit. This will be set when there is an overrun during receive operation */
 	Reg#(bit) rg_over_run <- mkRegA(0);
+	/*doc : reg : RX FIFO Threshold bits to know the number of entries in the RX FIFO. 00 -  */
 	Reg#(Bit#(2)) rg_rx_fifo_th <- mkRegA(0);
+	/*doc : reg : TX FIFO Threshold bits to know the number of entries in the TX FIFO. 00 - */
 	Reg#(Bit#(2)) rg_tx_fifo_th <- mkRegA(0);
+	/*doc : reg : Receive not enable bit. This bit will be reset when the receive operation starts and will be set once the receive operation is complete */
 	Reg#(bit) rg_rxne <- mkRegA(1);
+	/*doc : reg : Transmit enable bit. This bit will be set when the transmit operation starts and will be reset once the transmit operation is complete */
 	Reg#(bit) rg_txe <- mkRegA(0);
+	/*doc : reg : SPI Busy bit. This will be set when NCS goes low and will be reset when NCS goes high*/
 	Reg#(bit) rg_busy <- mkRegA(0);
+	/*doc : reg : concatenates all the communication status bits described before for AXI read and write to the memory map register*/
 	Reg#(Bit#(8)) rg_comm_status = concatReg6(rg_over_run,rg_rx_fifo_th,rg_tx_fifo_th,rg_rxne,rg_txe,rg_busy);
 
+	/*doc : reg : RX FIFO full status bit. This bit will be set when RX FIFO is full - has 32 entries */
 	Reg#(bit) rg_rx_fifo_full <- mkRegA(0);
+	/*doc : reg : RX FIFO half status bit. This bit will be set when RX FIFO has 16 entries */
 	Reg#(bit) rg_rx_fifo_half <- mkRegA(0);
+	/*doc : reg : RX FIFO quad status bit. This bit will be set when RX FIFO has 8 entries */
 	Reg#(bit) rg_rx_fifo_quad <- mkRegA(0);
+	/*doc : reg : RX FIFO empty status bit. This bit will be set when RX FIFO is empty */
 	Reg#(bit) rg_rx_fifo_empty <- mkRegA(0);
+	/*doc : reg : TX FIFO full status bit. This bit will be set when TX FIFO is full - has 32 entries */
 	Reg#(bit) rg_tx_fifo_full <- mkRegA(0);
+	/*doc : reg : TX FIFO half status bit. This bit will be set when TX FIFO has 16 entries */
 	Reg#(bit) rg_tx_fifo_half <- mkRegA(0);
+	/*doc : reg : TX FIFO quad status bit. This bit will be set when TX FIFO has 8 entries */
 	Reg#(bit) rg_tx_fifo_quad <- mkRegA(0);
+	/*doc : reg : TX FIFO empty status bit. This bit will be set when TX FIFO is empty */
 	Reg#(bit) rg_tx_fifo_empty <- mkRegA(0);	
+	/*doc : reg : concatenates all the FIFO status bits described before for AXI read and write to the memory map register*/
 	Reg#(Bit#(8)) rg_fifo_status = concatReg8(rg_rx_fifo_full,rg_rx_fifo_half,rg_rx_fifo_quad,rg_rx_fifo_empty,
 												rg_tx_fifo_full,rg_tx_fifo_half,rg_tx_fifo_quad,rg_tx_fifo_empty);
 
+	/*doc : reg : NCS register. This register will be set by the controller in master mode whereas will be set from ncs io input in slave mode. */												
 	Reg#(Bit#(1)) rg_ncs <- mkRegA(1);
+	/*doc : reg : SCLK register. This register will be set by the controller in master mode whereas will be set from sclk io input in slave mode. */
 	Reg#(Bit#(1)) rg_sclk <- mkRegA(0);
+	/*doc : reg : Previous SCLK register. This register holds the previous value of rg_sclk to detect the edges in slave mode. */
 	Reg#(Bit#(1)) rg_prev_sclk <- mkRegA(0);
+	/*doc : reg : This is a clock counter used in master mode to generate SCLK which continuously upcounts till clock prescale value and resets. This counting operation will be active throughout the spi transaction */
 	Reg#(Bit#(8)) rg_clk_counter <- mkRegA(0);
+	/*doc : wire : This is a write enable wire which will be written at the transmit edge to fire transmit rules. This will be set in master/slave SCLK generation rules */
 	Wire#(Bit#(1)) wr_write_en <- mkDWire(0);
+	/*doc : wire : This is a read enable wire which will be written at the receive edge to fire receive rules. This will be set in master/slave SCLK generation rules */
 	Wire#(Bit#(1)) wr_read_en <- mkDWire(0);
+	/*doc : reg : This register is used to enable the transfer of TX data from rg_tx_data register to TX FIFO. This when set, the contents from TX Data is read and equeued to TX FIFO. The arsize/awsize from AXI read and write request is used to decide the enqueue length */
 	Reg#(bit) rg_txdata_to_txfifo <- mkRegA(0);
+	/*doc : reg : This register is used to enable the transfer of data from RX FIFO to rg_rx_data register. This when set, the contents from RX FIFO is transferred to rg_rx_data register. The arsize/awsize from AXI read and write request is used to decide the dequeue length */
 	Reg#(bit) rg_rxfifo_to_rxdata <- mkRegA(0);
+	/*doc : reg : This register is used to hold the awsize from rg_tx_data AXI write request. This decides the number of elements that will be enqueued to TX FIFO. */
 	Reg#(Bit#(3)) rg_txfifo_enq_size <- mkRegA(0);
+	/*doc : reg : This register holds the current TX byte that is being transmitted */
 	Reg#(Bit#(8)) rg_curr_tx_byte <- mkRegA(0);
+	/*doc : reg : This register holds the current RX byte that is being received */
 	Reg#(Bit#(8)) rg_curr_rx_byte <- mkRegA(0);
+	/*doc : reg : This register holds the count of number of TX bits transmitted in a SPI transaction */
 	Reg#(Bit#(8)) rg_count_tx_data_bits <- mkRegA(0);
+	/*doc : reg : This register holds the count of number of RX bits received in a SPI transaction */
 	Reg#(Bit#(8)) rg_count_rx_data_bits <- mkRegA(0);
+	/*doc : reg : This register holds the count of number of bits transmitted in the current TX byte */
 	Reg#(Bit#(3)) rg_count_tx_data <- mkRegA(0);
+	/*doc : reg : This register holds the count of number of bits received in the current RX byte */
 	Reg#(Bit#(3)) rg_count_rx_data <- mkRegA(0);
 
+	/*doc : reg : This register holds the current bit that is being transmitted */
 	Reg#(Bit#(1)) rg_transmit_data <- mkRegA(0);	
 
+	/*doc : reg : This register holds the transmit state of the transmitter */
 	Reg#(Transmit_state) rg_transmit_state <- mkRegA(IDLE);
+	/*doc : reg : This register holds the receive state of the receiver */
 	Reg#(Receive_state) rg_receive_state <- mkRegA(IDLE);
+	/*doc : reg : This register holds the SPI state  */
 	Reg#(Spi_state) rg_active <- mkRegA(IDLE);
+	/*doc : reg : This register is used to detect the write_en edge in slave sclk mode and with clock phase as 0. This is used explicitly as there won't be any change in sclk value at the first write edge. */
 	Reg#(Bool) rg_slv_wr_en <- mkRegA(False); // To provide write enable in slave clock mode and clock phase 0 (temp fix as we won't be able to detect the wr_en edge with clk_phase 0)
 
 	MIMOConfiguration cfg = defaultValue;
 	cfg.unguarded=True;
+	/*doc : MIMO : This is TX MIMO which holds the data to be transmitted */
 	MIMO#(4,4,32,Bit#(8)) tx_fifo <- mkMIMO(cfg);
+	/*doc : MIMO : This is RX MIMO which holds the received data */
 	MIMO#(4,4,32,Bit#(8)) rx_fifo <- mkMIMO(cfg);
 
+	/*doc : Wire : Wire which holds the input from MISO IO pin */
 	Wire#(bit) wr_spi_master_in <- mkWire();
+	/*doc : Wire : Wire which holds the input from MOSI IO pin */
 	Wire#(bit) wr_spi_slave_in <- mkWire();
+	/*doc : Wire : Wire which holds the input from SCLK IO pin */
 	Wire#(bit) wr_sclk_slave_in <- mkWire();
+	/*doc : Wire : Wire which holds the input from NCS IO pin */
 	Wire#(bit) wr_ncs_slave_in  <- mkWire();
 
+	/* doc : wire : */
 	Wire#(bit) wr_rx_over_run_intr <- mkDWire(0);
 	Wire#(bit) wr_rx_fifo_full_intr <- mkDWire(0);
 	Wire#(bit) wr_rx_fifo_half_intr <- mkDWire(0);
