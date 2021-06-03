@@ -131,13 +131,13 @@ Library Imports
 Interface
 --------------------------
 
-* `subifc_io <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L188>`_
+* `subifc_io <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L188>`_
     
    - **Data Type**: ``Ifc_sspi_io``
    - **Description**: SSPI_IO interface which holds all the four input, output and output enables
 
 
-* `mav_write_req <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L190>`_
+* `mav_write_req <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L190>`_
     
    - **Method Type**: ``ActionValue``
    - **Module Arguments**: ``Bit#(addr_width) addr, Bit#(data_width) data, Bit#(2) size``
@@ -145,7 +145,7 @@ Interface
    - **Description**:  method to receive write requests from AXI
 
 
-* `mav_read_req <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L192>`_
+* `mav_read_req <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L192>`_
     
    - **Method Type**: ``ActionValue``
    - **Module Arguments**: ``Bit#(addr_width) addr, Bit#(2) size``
@@ -158,7 +158,7 @@ endinterface
 
 
 /*doc:module: Standard SPI module */
-module mk_sspi <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L194>`_
+module mk_sspi <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L194>`_
     
    - **Method Type**: ``Bit#(1)``
    - **Module Arguments**: ``Ifc_sspi#(addr_width, data_width))
@@ -176,343 +176,343 @@ module mk_sspi <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding
 
 Register Instances
 --------------------
-* `rg_mosi_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L210>`_
+* `rg_mosi_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L210>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``1``
    - **Description**:  holds the MOSI pin's output enable. If set, output is transmitted through this pin else input is read from this pin
 
-* `rg_miso_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L212>`_
+* `rg_miso_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L212>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  holds the MISO pin's output enable. If set, output is transmitted through this pin else input is read from this pin
 
-* `rg_ncs_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L214>`_
+* `rg_ncs_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L214>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``1``
    - **Description**:  holds the NCS pin's output enable. If set, the controller generates the ncs else ncs is expected from the spi device
 
-* `rg_sclk_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L216>`_
+* `rg_sclk_output_enable <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L216>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``1``
    - **Description**:  holds the SCLK pin's output enable. If set, the controller generates the sclk else sclk is expected from the spi device
 
-* `rg_total_bit_rx <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L15>`_
+* `rg_total_bit_rx <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L15>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  holds the total number of bits to be transmitted in a spi transaction
 
-* `rg_total_bit_tx <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L15>`_
+* `rg_total_bit_tx <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L15>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  holds the total number of bits to be received in a spi transaction
 
-* `rg_comm_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L222>`_
+* `rg_comm_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L222>`_
 
    - **Data Type**: ``Bit#(2)``
    - **Reset Value**: ``0``
    - **Description**:  holds the communication mode of the spi transaction. 00 - only transmit; 01 - only receive; 10 - transmit and immediate receive; 11 - transmit and receive
 
-* `rg_lsbfirst <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L224>`_
+* `rg_lsbfirst <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L224>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  holds whether the spi transaction is LSB first. If set LSB first else MSB first
 
-* `rg_spi_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L226>`_
+* `rg_spi_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L226>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  holds the spi enable control. Once set, spi transaction will start and it will be reset at the end of spi transaction
 
-* `rg_t_cs_delay <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L17>`_
+* `rg_t_cs_delay <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L17>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  holds the hold delay
 
-* `rg_cs_t_delay <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L17>`_
+* `rg_cs_t_delay <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L17>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  holds the setup delay
 
-* `rg_prescaller <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L19>`_
+* `rg_prescaller <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L19>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  holds the prescaller value of the sclk
 
-* `rg_clk_phase <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L240>`_
+* `rg_clk_phase <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L240>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  holds the clock phase
 
-* `rg_clk_polarity <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L242>`_
+* `rg_clk_polarity <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L242>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  holds the clock polarity
 
-* `rg_tx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L80>`_
+* `rg_tx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L80>`_
 
    - **Data Type**: ``Bit#(32)``
    - **Reset Value**: ``0``
    - **Description**:  holds the tx data. This register is written by the AXI write request and once written the data is transferred to TX FIFO
 
-* `rg_rx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L249>`_
+* `rg_rx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L249>`_
 
    - **Data Type**: ``Bit#(32)``
    - **Reset Value**: ``0``
    - **Description**:  holds the tx data. This register is read by the AXI read request. The data is written from the RX FIFO
 
-* `rg_rx_over_run_err_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L252>`_
+* `rg_rx_over_run_err_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L252>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  overrun interrupt enable bit. Overrun occurs when the received data couldn't be enqueued because RX FIFO is full. This when set, overrun interrupt is sent to PLIC
 
-* `rg_rx_fifo_full_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L254>`_
+* `rg_rx_fifo_full_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L254>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO full interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO is full - 32 entries
 
-* `rg_rx_fifo_half_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L256>`_
+* `rg_rx_fifo_half_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L256>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO half interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO has 16 entries
 
-* `rg_rx_fifo_quad_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L258>`_
+* `rg_rx_fifo_quad_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L258>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO quad interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO has 8 entries
 
-* `rg_rx_fifo_empty_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L260>`_
+* `rg_rx_fifo_empty_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L260>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO empty interrupt enable bit. This when set, interrupt is sent to PLIC when RX FIFO is empty
 
-* `rg_tx_fifo_full_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L262>`_
+* `rg_tx_fifo_full_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L262>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO full interrupt enable bit. This when set, interrupt is sent to PLCI when TX FIFO is full - 32 entries
 
-* `rg_tx_fifo_half_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L264>`_
+* `rg_tx_fifo_half_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L264>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO half interrupt enable bit. This when set, interrupt is sent to PLIC when TX FIFO has 16 entries
 
-* `rg_tx_fifo_quad_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L266>`_
+* `rg_tx_fifo_quad_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L266>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO quad interrupt enable bit. This when set, interrupt is sent to PLIC when TX FIFO has 8 entries
 
-* `rg_tx_fifo_empty_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L268>`_
+* `rg_tx_fifo_empty_intr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L268>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO empty interrupt enable bit. This when set, interrupt is sent to PLIC when TX FIFO is empty
 
-* `rg_over_run <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L275>`_
+* `rg_over_run <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L275>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  Overrun bit. This will be set when there is an overrun during receive operation
 
-* `rg_rx_fifo_th <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L277>`_
+* `rg_rx_fifo_th <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L277>`_
 
    - **Data Type**: ``Bit#(2)``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO Threshold bits to know the number of entries in the RX FIFO. 00 -
 
-* `rg_tx_fifo_th <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L279>`_
+* `rg_tx_fifo_th <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L279>`_
 
    - **Data Type**: ``Bit#(2)``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO Threshold bits to know the number of entries in the TX FIFO. 00 -
 
-* `rg_rxne <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L281>`_
+* `rg_rxne <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L281>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``1``
    - **Description**:  Receive not enable bit. This bit will be reset when the receive operation starts and will be set once the receive operation is complete
 
-* `rg_txe <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L283>`_
+* `rg_txe <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L283>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  Transmit enable bit. This bit will be set when the transmit operation starts and will be reset once the transmit operation is complete
 
-* `rg_busy <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L285>`_
+* `rg_busy <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L285>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  SPI Busy bit. This will be set when NCS goes low and will be reset when NCS goes high
 
-* `rg_rx_fifo_full <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L254>`_
+* `rg_rx_fifo_full <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L254>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO full status bit. This bit will be set when RX FIFO is full - has 32 entries
 
-* `rg_rx_fifo_half <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L256>`_
+* `rg_rx_fifo_half <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L256>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO half status bit. This bit will be set when RX FIFO has 16 entries
 
-* `rg_rx_fifo_quad <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L258>`_
+* `rg_rx_fifo_quad <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L258>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO quad status bit. This bit will be set when RX FIFO has 8 entries
 
-* `rg_rx_fifo_empty <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L260>`_
+* `rg_rx_fifo_empty <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L260>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  RX FIFO empty status bit. This bit will be set when RX FIFO is empty
 
-* `rg_tx_fifo_full <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L262>`_
+* `rg_tx_fifo_full <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L262>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO full status bit. This bit will be set when TX FIFO is full - has 32 entries
 
-* `rg_tx_fifo_half <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L264>`_
+* `rg_tx_fifo_half <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L264>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO half status bit. This bit will be set when TX FIFO has 16 entries
 
-* `rg_tx_fifo_quad <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L266>`_
+* `rg_tx_fifo_quad <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L266>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO quad status bit. This bit will be set when TX FIFO has 8 entries
 
-* `rg_tx_fifo_empty <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L268>`_
+* `rg_tx_fifo_empty <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L268>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  TX FIFO empty status bit. This bit will be set when TX FIFO is empty
 
-* `rg_ncs <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L74>`_
+* `rg_ncs <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L74>`_
 
    - **Data Type**: ``Bit#(1)``
    - **Reset Value**: ``1``
    - **Description**:  NCS register. This register will be set by the controller in master mode whereas will be set from ncs io input in slave mode.
 
-* `rg_sclk <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L216>`_
+* `rg_sclk <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L216>`_
 
    - **Data Type**: ``Bit#(1)``
    - **Reset Value**: ``0``
    - **Description**:  SCLK register. This register will be set by the controller in master mode whereas will be set from sclk io input in slave mode.
 
-* `rg_prev_sclk <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L314>`_
+* `rg_prev_sclk <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L314>`_
 
    - **Data Type**: ``Bit#(1)``
    - **Reset Value**: ``0``
    - **Description**:  Previous SCLK register. This register holds the previous value of rg_sclk to detect the edges in slave mode.
 
-* `rg_clk_counter <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L316>`_
+* `rg_clk_counter <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L316>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  This is a clock counter used in master mode to generate SCLK which continuously upcounts till clock prescale value and resets. This counting operation will be active throughout the spi transaction
 
-* `rg_txdata_to_txfifo <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L322>`_
+* `rg_txdata_to_txfifo <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L322>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  This register is used to enable the transfer of TX data from rg_tx_data register to TX FIFO. This when set, the contents from TX Data is read and equeued to TX FIFO. The arsize/awsize from AXI read and write request is used to decide the enqueue length
 
-* `rg_rxfifo_to_rxdata <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L324>`_
+* `rg_rxfifo_to_rxdata <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L324>`_
 
    - **Data Type**: ``bit``
    - **Reset Value**: ``0``
    - **Description**:  This register is used to enable the transfer of data from RX FIFO to rg_rx_data register. This when set, the contents from RX FIFO is transferred to rg_rx_data register. The arsize/awsize from AXI read and write request is used to decide the dequeue length
 
-* `rg_txfifo_enq_size <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L326>`_
+* `rg_txfifo_enq_size <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L326>`_
 
    - **Data Type**: ``Bit#(3)``
    - **Reset Value**: ``0``
    - **Description**:  This register is used to hold the awsize from rg_tx_data AXI write request. This decides the number of elements that will be enqueued to TX FIFO.
 
-* `rg_curr_tx_byte <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L328>`_
+* `rg_curr_tx_byte <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L328>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the current TX byte that is being transmitted
 
-* `rg_curr_rx_byte <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L330>`_
+* `rg_curr_rx_byte <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L330>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the current RX byte that is being received
 
-* `rg_count_tx_data_bits <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L332>`_
+* `rg_count_tx_data_bits <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L332>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the count of number of TX bits transmitted in a SPI transaction
 
-* `rg_count_rx_data_bits <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L334>`_
+* `rg_count_rx_data_bits <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L334>`_
 
    - **Data Type**: ``Bit#(8)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the count of number of RX bits received in a SPI transaction
 
-* `rg_count_tx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L332>`_
+* `rg_count_tx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L332>`_
 
    - **Data Type**: ``Bit#(3)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the count of number of bits transmitted in the current TX byte
 
-* `rg_count_rx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L334>`_
+* `rg_count_rx_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L334>`_
 
    - **Data Type**: ``Bit#(3)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the count of number of bits received in the current RX byte
 
-* `rg_transmit_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L341>`_
+* `rg_transmit_data <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L341>`_
 
    - **Data Type**: ``Bit#(1)``
    - **Reset Value**: ``0``
    - **Description**:  This register holds the current bit that is being transmitted
 
-* `rg_transmit_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L344>`_
+* `rg_transmit_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L344>`_
 
    - **Data Type**: ``Transmit_state``
    - **Reset Value**: ``IDLE``
    - **Description**:  This register holds the transmit state of the transmitter
 
-* `rg_receive_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L346>`_
+* `rg_receive_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L346>`_
 
    - **Data Type**: ``Receive_state``
    - **Reset Value**: ``IDLE``
    - **Description**:  This register holds the receive state of the receiver
 
-* `rg_active <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L348>`_
+* `rg_active <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L348>`_
 
    - **Data Type**: ``Spi_state``
    - **Reset Value**: ``IDLE``
    - **Description**:  This register holds the SPI state
 
-* `rg_slv_wr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L350>`_
+* `rg_slv_wr_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L350>`_
 
    - **Data Type**: ``Bool``
    - **Reset Value**: ``False``
@@ -520,13 +520,13 @@ Register Instances
 
 Wire Instances
 --------------------
-* `wr_write_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L318>`_
+* `wr_write_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L318>`_
 
    - **Data Type**: ``Bit#(1)``
    - **Default Value**: ``0``
    - **Description**:  This is a write enable wire which will be written at the transmit edge to fire transmit rules. This will be set in master/slave SCLK generation rules
 
-* `wr_read_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L320>`_
+* `wr_read_en <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L320>`_
 
    - **Data Type**: ``Bit#(1)``
    - **Default Value**: ``0``
@@ -534,7 +534,7 @@ Wire Instances
 
 Rule Instances
 --------------------
-* `rl_mi_qualification <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L445>`_
+* `rl_mi_qualification <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L445>`_
 
    - **Description**: This rule fires during the recieve state and when miso is configure as input. wr_spi_master_in value is read and sent to input qualification control module, if IQC is enabled else wr_spi_master_in value is directly assigned to wr_spi_in_qual  
    - **Blocking Rules/Methods**: (none)
@@ -548,7 +548,7 @@ Rule Instances
       
 
 
-* `rl_si_qualification <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L455>`_
+* `rl_si_qualification <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L455>`_
 
    - **Description**: This rule fires during the recieve state and when mosi is configure as input. wr_spi_slave_in value is read and sent to input qualification control module, if IQC is enabled else wr_spi_slave_in value is directly assigned to wr_spi_in_qual  
    - **Blocking Rules/Methods**: (none)
@@ -562,7 +562,7 @@ Rule Instances
       
 
 
-* `rl_chip_select_control_master_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L465>`_
+* `rl_chip_select_control_master_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L465>`_
 
    - **Description**: This rule fires when NCS is output. This rule does the ncs output generation. When rg_spi_en is set, rg_ncs is reset, rg_busy is set and assigns the rg_counter to prescale - 1 to start the rg_counter from zero during the sclk generation. When rg_spi_en is zero and if the rg_counter is prescale - 1, it sets the rg_ncs register and resets the rg_busy register. This is wait for the last sclk to complete and reset the parameters for next SPI transaction. 
    - **Blocking Rules/Methods**: (none)
@@ -575,7 +575,7 @@ Rule Instances
       
 
 
-* `rl_spi_clock_generator_master_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L483>`_
+* `rl_spi_clock_generator_master_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L483>`_
 
    - **Description**: This rule fires when SCLK is output. This rule does the sclk output generation. when rg_ncs is set, rg_sclk is held with clk_polarity value. when rg_ncs is reset, rg_counter continuosly counts from 0 to prescale - 1 and generates the transmit (write edge) and receive (read edge) edges at zero and half prescale values. During the setup and hold phase, sclk value is equal to clock polarity  
    - **Blocking Rules/Methods**: (none)
@@ -588,7 +588,7 @@ Rule Instances
       
 
 
-* `rl_chip_select_control_slave_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L521>`_
+* `rl_chip_select_control_slave_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L521>`_
 
    - **Description**: This rule fires when ncs is input. When rg_spi_en is set, wr_ncs_qual value is assigned to rg_ncs register 
    - **Blocking Rules/Methods**: (none)
@@ -601,7 +601,7 @@ Rule Instances
       
 
 
-* `rl_spi_clock_generator_slave_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L538>`_
+* `rl_spi_clock_generator_slave_mode <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L538>`_
 
    - **Description**: This rule fires when sclk is input. When rg_spi_en is set, wr_sclk_qual value is assigned to rg_sclk and rg_prev_sclk is also updated. wr_write_en and wr_read_en are updated based on the rising or falling edge of SCLK input 
    - **Blocking Rules/Methods**: (none)
@@ -614,7 +614,7 @@ Rule Instances
       
 
 
-* `rl_tx_fifo_threshold_updates <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L563>`_
+* `rl_tx_fifo_threshold_updates <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L563>`_
 
    - **Description**: This rule updates the TX FIFO status, interrupt and FIFO threshold wires and registers 
    - **Blocking Rules/Methods**: (none)
@@ -627,7 +627,7 @@ Rule Instances
       
 
 
-* `rl_rx_fifo_threshold_updates <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L598>`_
+* `rl_rx_fifo_threshold_updates <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L598>`_
 
    - **Description**: This rule updates the RX FIFO status, interrupt and FIFO threshold wires and registers 
    - **Blocking Rules/Methods**: (none)
@@ -640,7 +640,7 @@ Rule Instances
       
 
 
-* `rl_transfer_data_from_txreg_to_txfifo <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L633>`_
+* `rl_transfer_data_from_txreg_to_txfifo <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L633>`_
 
    - **Description**: This rule fires when rg_txdata_to_txfifo register is set and transfers the data from rg_tx_data to TX FIFO. The enqueue size is read from rg_txfifo_enq_size 
    - **Blocking Rules/Methods**: (none)
@@ -653,7 +653,7 @@ Rule Instances
       
 
 
-* `rl_transfer_data_from_rxfifo_to_rxreg <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L671>`_
+* `rl_transfer_data_from_rxfifo_to_rxreg <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L671>`_
 
    - **Description**: This rule fires when rg_rxfifo_to_rxdata is set and transfers 32-bit data (four entries) from RX FIFO to rg_rx_data. The value is just read and not dequeued. 
    - **Blocking Rules/Methods**: mav_read_req
@@ -666,7 +666,7 @@ Rule Instances
       
 
 
-* `rl_set_up_time <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L689>`_
+* `rl_set_up_time <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L689>`_
 
    - **Description**: This rule fires when setup delay set in clock register is not zero and also till rg_set_up_count is rg_cs_t_delay -1. This rule fires only during the write edges (wr_write_en == 1) set in sclk generation rule 
    - **Blocking Rules/Methods**: (none)
@@ -686,7 +686,7 @@ Rule Instances
       
 
 
-* `rl_transmit_idle_to_data_transfer <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L695>`_
+* `rl_transmit_idle_to_data_transfer <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L695>`_
 
    - **Description**: This rule fires when setup delay is met, transmit state is IDLE, TX FIFO has atleast one entry and total bits to be transmitted is not zero. This rule changes the transmit state from IDLE to DATA TRANSMIT, dequeues the first byte from TX FIFO, sets rg_txe register and resets the bit counters used in transmit rule. 
    - **Blocking Rules/Methods**: (none)
@@ -704,7 +704,7 @@ Rule Instances
       
 
 
-* `rl_transmit_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L712>`_
+* `rl_transmit_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L712>`_
 
    - **Description**: This rule fires when rg_transmit_state is DATA TRANSMIT and wr_write_en is set. Data is read by byte from TX FIFO and left or right shifted based on LSB/MSB first configuration. When the bit count reaches total bits to be transmitted, transmit state is changed to DONE, rg_txe is reset and if it is only transmit (communication mode is zero), rg_active is also changed from ACTIVE to HOLD PHASE.
    - **Blocking Rules/Methods**: (none)
@@ -718,7 +718,7 @@ Rule Instances
       
 
 
-* `rl_receive_idle_to_data_receive <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L750>`_
+* `rl_receive_idle_to_data_receive <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L750>`_
 
    - **Description**: This rule fires when receive state is IDLE, RX FIFO can enqueue atleast one byte, wr_write_en is set. If communication mode is not only receive, transmit state should be TRANSMIT DONE. If the communication mode is only receive, then setup delay should be met. This rule changes the receive state to DATA RECEIVE, rg_rxne is reset and resets the bit counters used in receive rule.
    - **Blocking Rules/Methods**: rl_set_up_time
@@ -738,7 +738,7 @@ Rule Instances
       
 
 
-* `rl_receive_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L762>`_
+* `rl_receive_state <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L762>`_
 
    - **Description**: This rule fires when receive state is DATA RECEIVE and it is read edge (wr_read_en is set). The input bit is appended to rg_curr_rx_byte and shifted left or right based on LSB/MSB byte. The received data is enqueued by byte to RX FIFO and overrun is set when a byte couldn't be enqueued into the RX FIFO. When all the required bits are received, the receive state is changed to RECEIVE DONE, rg_curr_rx_byte is enqueued to RX FIFO, rg_rxne is set, rg_active is changed to HOLD PHASE and rg_rxfifo_to_rxdata is set. 
    - **Blocking Rules/Methods**: (none)
@@ -754,7 +754,7 @@ Rule Instances
       
 
 
-* `rl_abort_condition <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2#L821>`_
+* `rl_abort_condition <https://gitlab.com/shaktiproject/uncore/devices/-/tree/94-adding_v2_peripherals_for_sos/spi_v2/sspi.bsv#L821>`_
 
    - **Description**: This rule fires when Transmit and recive states are done based on the communication modes. This rule also does the hold delay count at write edges and once the hold delay is met, resets rg_spi_en, resets rg_hold_count and changes transmit and receive states to IDLE 
    - **Blocking Rules/Methods**: (none)
