@@ -824,7 +824,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			rg_receive_state <= IDLE;
 			rg_spi_en <= 0;
 			rg_hold_count <= 0;
-         rg_setup_count <= 0;  
+         rg_set_up_count <= 0;  
 		end
 		else if(wr_write_en == 1)
 			rg_hold_count <= rg_hold_count + 1;
