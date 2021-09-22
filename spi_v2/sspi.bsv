@@ -521,7 +521,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	rule rl_chip_select_control_slave_mode(rg_ncs_output_enable == 0);
 		if(rg_spi_en == 1) begin
 			rg_ncs <= wr_ncs_qual;
-			if(rg_ncs == 0) begin
+			if(rg_ncs == 1) begin
 			  rg_busy <= 1;
 			  //if(rg_clk_phase == 0)
 				//  wr_write_en <= 1;
@@ -699,7 +699,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 		rg_count_tx_data_bits <= 0;
 		rg_count_tx_data <= 0;
 		rg_txe <= 1;
-		rg_set_up_count <= 0;
+		//rg_set_up_count <= 0;
 		if(rg_cs_t_delay == 0)
 			rg_active <= ACTIVE;
 		else
@@ -752,7 +752,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 		rg_count_rx_data_bits <= 0;
 		rg_count_rx_data <= 0;
 		rg_rxne <= 0;
-		rg_set_up_count  <= 0;
+		//rg_set_up_count  <= 0;
 		rg_active <= ACTIVE;
 		`logLevel(sspi, 0, $format("SSPI : rx_idle to receive : %b rx bits : %d \n",tx_fifo.enqReadyN(4),rg_total_bit_rx)) 
 	endrule	
@@ -824,6 +824,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			rg_receive_state <= IDLE;
 			rg_spi_en <= 0;
 			rg_hold_count <= 0;
+         rg_setup_count <= 0;  
 		end
 		else if(wr_write_en == 1)
 			rg_hold_count <= rg_hold_count + 1;
@@ -1054,7 +1055,7 @@ endmodule : mk_sspi
 	        if(addreq.awlen!=0)
 	        	rg_wrburst_count<=1;
 	        
-	        let resp = AXI4_Wr_Resp {bresp: succ?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:addreq.awid};
+	        let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
 	        if(datareq.wlast)
 	        	s_xactor.i_wr_resp.enq(resp);
 		endrule
@@ -1063,7 +1064,7 @@ endmodule : mk_sspi
 			let addreq=rg_wrpacket;
 	        let datareq <- pop_o(s_xactor.o_wr_data);
 	 		Bool succ=False;
-			let resp = AXI4_Wr_Resp {bresp: succ?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:addreq.awid};
+			let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
 			if(datareq.wlast)begin
 	      		s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
 	      		rg_wrburst_count<=0;
