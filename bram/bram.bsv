@@ -104,7 +104,7 @@ package bram;
     // This model assumes that the master sends the data strb aligned for the data_width bytes. 
     // Eg. : is size is HWord at address 0x2 then the wstrb for 64-bit data_width is: 'b00001100
     // And the data on the write channel is assumed to be duplicated.
-    method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width), Bit#(TDiv#(data_width, 8))) req) if(rg_initialized == 1);
+    method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width), Bit#(TDiv#(data_width, 8))) req) `ifdef fesvr_sim if(rg_initialized == 1) `endif ;
 		let {addr, data, strb}=req;
 	    Bit#(TSub#(index_size, offset)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset];
 		//dmemLSB.b.put(truncate(strb),index_address,truncate(data));
