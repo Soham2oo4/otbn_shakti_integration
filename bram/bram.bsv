@@ -56,12 +56,17 @@ package bram;
  
   // to make is synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
-  module mkbram#(parameter Integer slave_base, parameter String code_file, parameter String modulename )
+  `ifdef fesvr_sim
+    module mkbram#(parameter Integer slave_base, parameter String modulename )
+  `else
+    module mkbram#(parameter Integer slave_base, parameter String code_file, parameter String modulename )
+  `endif
       (UserInterface#(addr_width, data_width, index_size))
     provisos(Add#(data_width, a, 128), // provisos ensures we support < 128-bit data width. 
              Add#(4, a__, TDiv#(data_width, 8)),  // wstrb is between 4 and 8
 			 Mul#(TDiv#(data_width, 16), 16, data_width), //added for 128-bit data width
              Bits#(Maybe#(Bit#(TSub#(index_size, 2))), b__),
+		     Add#(c__, 32, data_width),
 		     Div#(data_width, 8, bytes),
 			 Log#(bytes, offset),
 			 Mul#(TDiv#(data_width, bytes), bytes, data_width));
@@ -73,15 +78,33 @@ package bram;
 		//BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size,2)),Bit#(32),4) dmemLSB <- 
         //           mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size,2))),False,lsb_file,False);
 
-	BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size,offset)),Bit#(data_width), bytes) mainmem <- mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size,offset))),False,code_file,False);
+    `ifdef fesvr_sim
+      BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size,offset)),Bit#(data_width), bytes) mainmem <- mkBRAMCore2BE(valueOf(TExp#(TSub#(index_size,offset))),False);
+      Reg#(Bit#(1)) rg_initialized <- mkReg(0);
+    `else
+      BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size,offset)),Bit#(data_width), bytes) mainmem <- mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size,offset))),False,code_file,False);
+    `endif
   
     Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
+
+
+  `ifdef fesvr_sim
+    rule rl_initialize(rg_initialized == 0);
+      Bit#(TDiv#(data_width, 8)) lv_strb = '1;
+      Bit#(TSub#(index_size, offset)) lv_index = '0;
+      Bit#(data_width) lv_data = zeroExtend(32'h0000006f); // self-loop (jal)
+
+      // initialize bram
+      mainmem.b.put(lv_strb, lv_index, lv_data);
+      rg_initialized <= 1;
+    endrule
+  `endif
 
     // A write request to memory. Single cycle operation.
     // This model assumes that the master sends the data strb aligned for the data_width bytes. 
     // Eg. : is size is HWord at address 0x2 then the wstrb for 64-bit data_width is: 'b00001100
     // And the data on the write channel is assumed to be duplicated.
-    method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width), Bit#(TDiv#(data_width, 8))) req);
+    method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width), Bit#(TDiv#(data_width, 8))) req) if(rg_initialized == 1);
 		let {addr, data, strb}=req;
 	    Bit#(TSub#(index_size, offset)) index_address=(addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset];
 		//dmemLSB.b.put(truncate(strb),index_address,truncate(data));
@@ -120,7 +143,11 @@ package bram;
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  module mkbram_axi4#( parameter Integer slave_base, parameter String code_file, parameter String modulename )
+  `ifdef fesvr_sim
+    module mkbram_axi4#( parameter Integer slave_base, parameter String modulename )
+  `else
+    module mkbram_axi4#( parameter Integer slave_base, parameter String code_file, parameter String modulename )
+  `endif
         (Ifc_bram_axi4#(addr_width, data_width, user_width, index_size))
     provisos(Add#(data_width, a, 128), 
              Mul#(8, a__, data_width), 
@@ -129,10 +156,15 @@ package bram;
 			 Mul#(64, g__, data_width),// added for 128-bit data width
              Add#(4, d__, TDiv#(data_width, 8)),
              Add#(1, e__, index_size),
+	     Add#(f__, 32, data_width),
 			 Div#(data_width, 16, b__),
 			 Mul#(TDiv#(data_width, TDiv#(data_width, 8)), TDiv#(data_width, 8), data_width));
 
-    UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, code_file, modulename);
+    `ifdef fesvr_sim
+      UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, modulename);
+    `else
+      UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, code_file, modulename);
+    `endif
 	AXI4_Slave_Xactor_IFC#(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
