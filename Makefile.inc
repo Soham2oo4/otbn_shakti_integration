@@ -1,5 +1,5 @@
 ############ DO NOT CHANGE THESE #################
-INCDIR:=./uart:./pwm:./bootrom:./clint:./common_bsv:./fabrics/axi4:./fabrics/axi4lite:./bram:./gpio:./sdram/32-bit:./jtagdtm:./onfi:./plic:./i2c:./qspi:./riscvdebug100:./spi:./watchdog
+INCDIR:=./uart:./pwm:./bootrom:./clint:./common_bsv:./fabrics/axi4:./fabrics/axi4lite:./bram:./gpio:./sdram/32-bit:./jtagdtm:./onfi:./plic:./i2c:./qspi:./riscvdebug100:./riscvDebug013:./spi:./watchdog:./spi_v2:./gptimer
 TOP_MODULE?=mkdummy
 
 ############# User changes to be done below #################

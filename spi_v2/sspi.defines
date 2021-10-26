@@ -1,0 +1,12 @@
+`define TXFIFO_DEPTH 20
+
+`define Communication_control	'h00
+`define Clock_control			'h04
+`define TX_data_rg				'h08
+`define RX_data_rg				'h0C
+`define Interrupt_enable		'h10
+`define FIFO_status				'h14
+`define	Communication_status	'h18
+`ifdef IQC
+    `define Input_qualification		'h1C
+`endif
