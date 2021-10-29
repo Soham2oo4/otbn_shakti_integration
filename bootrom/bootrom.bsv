@@ -78,7 +78,21 @@ package bootrom;
     BRAM_PORT#(Bit#(index_size), Bit#(data_width)) boot <- mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "bootfile", False);
 	Reg#(Bool) read_request_sent <-mkDReg(False);
     Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkReg(tuple2(0,Byte));
-    
+    `ifdef fesvr_sim
+      Reg#(Bit#(1)) rg_initialized <- mkReg(0);
+    `endif
+
+    `ifdef fesvr_sim
+      rule rl_initialize(rg_initialized == 0);
+        Bit#(index_size) index_address = 'h1;
+        Bit#(data_width) data = 'h0000000080000000000000000000006f;
+
+        // patch for fesvr_sim: replace jump to 0x80000000 to self-loop at the end of boot code
+        boot.put(True, index_address, data);
+        rg_initialized <= 1;
+      endrule
+    `endif
+
     // A write request to bootrom has no significance.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
     	`logLevel( bootrom, 0, $format("BootROM: Illegal Write operation on BootROM"))
@@ -90,7 +104,7 @@ package bootrom;
     endmethod
   
     // capture a read_request and latch the address on a BRAM.
-    method Action read_request (Bit#(addr_width) addr, AccessSize size);
+    method Action read_request (Bit#(addr_width) addr, AccessSize size) `ifdef fesvr_sim if(rg_initialized == 1) `endif ;
 		Bit#(index_size) index_address=(addr-(base_address))[byte_offset+ valueOf(index_size) -1 :
                                                                                   byte_offset];
         rg_req<= tuple2(addr[byte_offset:0],size);
