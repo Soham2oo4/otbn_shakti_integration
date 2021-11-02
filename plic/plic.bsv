@@ -176,7 +176,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_
 			`ifdef verbose $display("Interrupt valid");`endif
 			rg_interrupt_id <= interrupt_id;
 			rg_interrupt_valid <= True;
-			$display($time,"\t The highest priority interrupt is  %d and the priority is ", interrupt_id, rg_winner_priority);
+			//$display($time,"\t The highest priority interrupt is  %d and the priority is ", interrupt_id, rg_winner_priority);
 		end
 		rg_plic_state <= 0;
 			
@@ -223,7 +223,8 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 					Bit#(64) store_data;
 					store_data=zeroExtend(mem_req.write_data);
 										source_id = address[v_msb_ir_bits:0];
-										$display($time,"\tPLIC : source %d Priority set to %h", source_id, store_data);
+										`ifdef verbose $display($time,"\tPLIC : source %d Priority set to %h",
+										  source_id, store_data);`endif
 										rg_priority[source_id] <= truncate(store_data);
 									end
 								end

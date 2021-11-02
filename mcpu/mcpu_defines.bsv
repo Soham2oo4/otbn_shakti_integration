@@ -44,7 +44,6 @@ Email id: deepans.88@gmail.com
 
     typedef struct
     {
-    Bool endian_big;
     Bit #(32) addr;
     Bit #(32) wr_data;
     Bit #(2)  mode;
@@ -54,7 +53,6 @@ Email id: deepans.88@gmail.com
 
     typedef struct
     {
-    Bool endian_big;
     Bit#(2) port_type;
     Bit#(32) data;
     Bit#(1)berr ; //r0 for bus_error 1 for no error 
