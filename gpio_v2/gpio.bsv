@@ -28,7 +28,18 @@ Details:
 
 --------------------------------------------------------------------------------------------------
 */
+/*doc:overview:
+GPIO is a general purpose input output i.e. the GPIO can be configured as either input or output and read or written with different values. 
 
+The number of ports can be configurable based on the passed number ionum which is passed as argument.
+
+Sequence of execution
+^^^^^^^^^^^^^^^^^^^^^
+The 
+
+
+
+*/
 package gpio;
 
 `include "gpio.defines"
@@ -58,50 +69,67 @@ package gpio;
   export mkgpio_axi4;
   export mkgpio_axi4lite;
 
-  interface GPIO#(numeric type ionum);
+ 	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
+	 interface GPIO#(numeric type ionum);
 		(*always_ready,always_enabled*)
 		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 		method Vector#(ionum,Bit#(1))   gpio_out;
 		method Vector#(ionum,Bit#(1))   gpio_out_en;
   endinterface
-	interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
+ 	/*doc: interface: interface for GPIO axi user interface module. */
+	 interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
 //    (*always_ready,always_enabled*)
-		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
-    interface GPIO#(ionum) io;
+	/*doc : subifc : subinterface which uses get method to pass interrupt to plic */
+	interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+ 	/*doc : subifc : subinterface which uses GPIO interface for configuring the GPIO and updates the values */
+	 interface GPIO#(ionum) io;
+		/*doc : method : method to receive write requests from AXI */
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
+		/*doc : method : method to receive read requests from AXI */
 		method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width)addr,AccessSize size);
 	endinterface
 
-	module mkgpio(User_ifc#(addr_width,data_width,ionum))
+/*doc:module: GPIO module */
+module mkgpio(User_ifc#(addr_width,data_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
         		Add#(c__, ionum, 64)
 			);
 			
-		Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigRegA(False));
-		Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigRegA(0));	
+	/* doc : vector : holds the GPIO ports direction configuration. If set, the corresponding port is configured as output else input. Vector length is equal to the number of IO ports required.*/
+	Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigRegA(False));
+	/* doc : vector : holds the GPIO ports data value. If set, the corresponding port value is 1 else 0. Vector length is equal to the number of IO ports required. */
+	Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigRegA(0));	
+
+	/* doc : vector : holds the GPIO ports data value when configured as input. If set, the corresponding port value is 1 else 0. Vector length is equal to the number of IO ports required. */
 		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigRegA(0));
 //		By default, GPIO sends only active high interrupts to PLIC, if
 //		active_low interrupts are needed set the appropriate bit in
 //		rg_interrupt_config register
-		Vector#(ionum ,ConfigReg#(Bit#(1))) rg_interrupt_config <-replicateM(mkConfigRegA(0));
-		Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigRegA(0));
+	/* doc : vector : holds the GPIO ports interrupt polarity. If set, the corresponding interrupt port is configured as active low. else if the port is set to 0, the interrupt is configured as active high. By default the interrupts are active high. Vector length is equal to the number of IO ports required. */
+	Vector#(ionum ,ConfigReg#(Bit#(1))) rg_interrupt_config <-replicateM(mkConfigRegA(0));
+	/* doc : vector : holds the GPIO ports data value that is taken to the PLIC as interrupt. If set, the corresponding port's interrupt is taken to PLIC. Vector length is equal to the number of IO ports required. */
+	Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigRegA(0));
 	
 	`ifdef IQC
+		/* doc : reg : holds the number of input qualification cycles needed to filter the unwanted noise glitches. Vector length is equal to the number of IO ports required. The max. number of cycles is 15. */
 		Reg#(Bit#(4)) rg_qual_cycles <- mkRegA(0);
 		Ifc_iqc#(ionum) gpio_input_qual <- mkiqc(rg_qual_cycles);
 	`endif
 
  		let vionum = valueOf(ionum);
 
-		rule capture_interrupt;
+	/*doc:rule: This rule fires always. The plic is given interrupt request whenever GPIO direction register is configured as input and interrupt configuration register is configured for active low(1)/high(0) and the data in register is low/high. */
+	rule capture_interrupt;
 			for(Integer i=0;i<vionum ;i=i+1)
 				toplic[i]<=(!direction_reg[i])?(rg_interrupt_config[i]^datain_register[i]):0;
 		endrule
 
-		interface io = interface GPIO#(ionum)
-			method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
+ 	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
+	 interface io = interface GPIO#(ionum)
+		/*doc : method : method to update the data in register with GPIO port input value after the programmed qualification cycles. */
+		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 			`ifdef IQC
 				let temp <- gpio_input_qual.qualify(pack(inp));
 			`else
@@ -110,13 +138,15 @@ package gpio;
 				for(Integer i=0;i<vionum ;i=i+1)
 			  		datain_register[i]<=temp[i];
 			endmethod
-			method Vector#(ionum,Bit#(1))   gpio_out;
+		/*doc : method : method to output the values on the GPIO output port based on the value written into set, clear, data & toggle registers. */
+		method Vector#(ionum,Bit#(1))   gpio_out;
 			  	Vector#(ionum,Bit#(1)) temp;
 			  	for(Integer i=0;i<vionum ;i=i+1)
 			  		temp[i]=dataout_register[i];
 			  	return temp;
 			endmethod
-			method Vector#(ionum,Bit#(1))   gpio_out_en;
+		/*doc : method : method to enable/control the written values into GPIO output port based on the value of the direction register value. */
+		method Vector#(ionum,Bit#(1))   gpio_out_en;
 			  	Vector#(ionum,Bit#(1)) temp;
 			  	for(Integer i=0;i<vionum ;i=i+1)
 			  		temp[i]=pack(direction_reg[i]);
@@ -124,6 +154,7 @@ package gpio;
 		  	endmethod
 		endinterface;
 
+		/*doc : method : method to receive write requests from AXI. Decodes the address value and writes the value into the corresponding register. */
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
 
 			Bool success=True;
@@ -168,6 +199,7 @@ package gpio;
 			return success;	
 		endmethod
 
+		/*doc : method : method to process receive/read requests from AXI. Decodes the address value and reads the value and return it to AXI interface. */
 		method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_req (Bit#(addr_width) addr, AccessSize size);
 
 			let dvalue=valueOf(data_width);
@@ -209,7 +241,8 @@ package gpio;
 			return tuple2(success,data);
 		endmethod
 
-    interface sb_gpio_to_plic = interface Get
+		/*doc : interface : interface to interrupt the PLIC gateway with GPIO port interrupt. has method which returns action value of returning the interrupt value of vecton of length ionum. */
+		interface sb_gpio_to_plic = interface Get
       method ActionValue#(Vector#(ionum ,Bit#(1))) get;
         Vector#(ionum,Bit#(1)) temp=readVReg(toplic);
 
@@ -219,14 +252,19 @@ package gpio;
 
 	endmodule:mkgpio
 
+		/*doc : interface : GPIO axi4lite interface using AXI4lite . */
 	interface Ifc_gpio_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width,numeric type ionum);
+		/*doc : subifc : subinterface for AXI4lite slave interface. */
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width,user_width) slave;
 //    (*always_ready,always_enabled*)
+		/*doc : subifc : subinterface for getting interrupt to PLIC. */
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
-    interface GPIO#(ionum) io;
+		/*doc : subifc : subinterface configure and control GPIO.. */
+    	interface GPIO#(ionum) io;
 	endinterface
 
-	module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
+/*doc:module: gpio AXI4lite module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4lite interface of core. */
+module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
@@ -236,7 +274,8 @@ package gpio;
 		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio;
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
-		rule write_request;
+	/*doc:rule: This rule fires whenever write request from core of the AXI4lite is raised.  Configures the internal registers of GPIO through AXI4.*/
+	rule write_request;
 			let addreq <- pop_o (s_xactor.o_wr_addr);
 			let datareq  <- pop_o (s_xactor.o_wr_data);
 			let succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
@@ -244,7 +283,8 @@ package gpio;
 		  s_xactor.i_wr_resp.enq (ls);			
 		endrule
 
-		rule read_request;
+	/*doc:rule: This rule fires whenever read request from core of the AXI4lite is raised.  Reads the internal registers of GPIO through AXI4 and the returns the value to AXI4lite interface along with response status.*/
+	rule read_request;
 			let req <- pop_o(s_xactor.o_rd_addr);
 			let {succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
 			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
@@ -257,13 +297,18 @@ package gpio;
 	endmodule:mkgpio_axi4lite
 
 
-	interface Ifc_gpio_axi4#(numeric type addr_width, numeric type data_width,numeric type user_width, numeric type ionum);
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+		/*doc : interface : GPIO axi4 interface using AXI4. */
+		interface Ifc_gpio_axi4#(numeric type addr_width, numeric type data_width,numeric type user_width, numeric type ionum);
+			/*doc : subifc : subinterface for AXI4 slave interface. */
+			interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+		/*doc : subifc : subinterface for getting interrupt to PLIC. */
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
-    interface GPIO#(ionum) io;
+		/*doc : subifc : subinterface configure and control GPIO.. */
+		interface GPIO#(ionum) io;
 	endinterface
 
-	module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
+/*doc:module: gpio AXI4 module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4 interface of core. */
+module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
@@ -278,7 +323,8 @@ package gpio;
 		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);	
 
-		rule write_request(rg_wrburst_count==0);
+	/*doc:rule: This rule fires whenever write request from core of the AXI4lite is raised.  Configures the internal registers of GPIO through AXI4. Fires when burst count is equal to zero.*/
+	rule write_request(rg_wrburst_count==0);
 			let addreq <- pop_o (s_xactor.o_wr_addr);
 			let datareq  <- pop_o (s_xactor.o_wr_data);
 
@@ -291,7 +337,8 @@ package gpio;
 		   	s_xactor.i_wr_resp.enq (ls);			
 		endrule
 
-		rule write_burst_request(rg_wrburst_count!=0);
+	/*doc:rule: This rule fires whenever write request from core of the AXI4 is raised.  Configures the internal registers of GPIO through AXI4. Fires when burst count is not equal to zero.*/
+	rule write_burst_request(rg_wrburst_count!=0);
 			let addreq=rg_wrpacket;
 			let datareq <-pop_o(s_xactor.o_wr_data);
 	 		Bool succ=False;
@@ -302,7 +349,8 @@ package gpio;
 	      	end
 		endrule
 
-		rule read_request(rg_rdburst_count==0);
+	/*doc:rule: This rule fires whenever read request from core of the AXI4 is raised.  Reads the internal registers of GPIO through AXI4 and the returns the value to AXI4 interface along with response status. Fires on burst count is equal to zero.*/
+	rule read_request(rg_rdburst_count==0);
 			let req <- pop_o(s_xactor.o_rd_addr);
 
 			rg_rdpacket<=req;
@@ -316,7 +364,8 @@ package gpio;
 	  		s_xactor.i_rd_data.enq(resp);
 		endrule
 
-		rule read_burst_request(rg_rdburst_count!=0);
+	/*doc:rule: This rule fires whenever read request from core of the AXI4lite is raised.  Reads the internal registers of GPIO through AXI4 and the returns the value to AXI4 interface along with response status. Fires when burst count is not equal to zero.*/
+	rule read_burst_request(rg_rdburst_count!=0);
 			let rd_req=rg_rdpacket;
 			let {succ,data}<-gpio.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
 			succ=False;
