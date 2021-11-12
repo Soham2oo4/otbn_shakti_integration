@@ -33,12 +33,28 @@ GPIO is a general purpose input output i.e. the GPIO can be configured as either
 
 The number of ports can be configurable based on the passed number ionum which is passed as argument.
 
+Registers provided:
+1. GPIO_DIRECTION Register -- Configure the GPIO port as input or output.
+2. GPIO DATA register -- Write / read the GPIO port.
+3. GPIO SET register -- Sets the GPIO port when configured as output.
+4. GPIO CLEAR register  -- Clears the GPIO port when configured as output.
+5. GPIO TOGGLE register -- Toggles the GPIO port when configured as output.
+6. GPIO Quality register -- Holds the number of input qualification cycles needed to filter the unwanted noise glitches.
+7. GPIO Interrupt configuration register - set the polarity of the interrupt which are raised
+using GPIOs. By default, the interrupts are active high, if active low interrupts are required that
+particular GPIO bit in GPIOINTCONFIG register should be set.
+
+
 Sequence of execution
 ^^^^^^^^^^^^^^^^^^^^^
-The 
+Configure as input/output and use it.
+1. Configure corresponding GPIO port as input/output.
+2. If configured as input, read the corresponding port from GPIO data register.
+3. if configured as output, set, clear or toggle using SET, CLEAR, TOGGLE & DATA register.
 
-
-
+Configure GPIO as interrupt.
+1. Configure corresponding GPIO port as input.
+2. Configure the interrupt level (active high / active low) in interrupt configuration register.
 */
 package gpio;
 
