@@ -731,15 +731,27 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         data[63:32] = v_data_reg[index+1];
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
-      Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
-      data = duplicate(v_progbuf_reg[index]);
-      if (req.arsize==3)
-        data[63:32] = v_progbuf_reg[index+1];
+      Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
+      `ifndef iclass
+        data = duplicate(v_progbuf_reg[index]);
+        if (req.arsize==3)
+          data[63:32] = v_progbuf_reg[index+1];
+      `else
+        // Note: only supports 128-bit bus width
+        // TODO: non-power-of-2
+        data = {v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]};
+      `endif
       `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)",v_progbuf_reg[index]))
     end
-    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) && req.arsize == 2) begin
+    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) `ifndef iclass && req.arsize == 2 `endif ) begin
       Bit#(5) index = truncate((offset - `ROMBASE)>>2);
-      data = duplicate(vrom[index]);
+      `ifndef iclass
+        data = duplicate(vrom[index]);
+      `else
+        // Note: only supports 128-bit bus width
+        // TODO: non-power-of-2
+        data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
+      `endif
       `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)",vrom[index]))
     end
 	 	AXI4_Rd_Data#(`debug_bus_sz,0) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
