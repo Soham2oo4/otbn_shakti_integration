@@ -110,7 +110,7 @@ package bram;
 		//dmemLSB.b.put(truncate(strb),index_address,truncate(data));
 		//dmemMSB.b.put(truncateLSB(strb),index_address,truncateLSB(data));
         mainmem.b.put(strb,index_address,data);
-        `logLevel( bram, 0, $format("",modulename,": Recieved Write Request for Address: %h Index: %h Data: %h wrstrb: %h", addr, index_address, data, strb))
+        `logTimeLevel( bram, 0, $format("",modulename,": Recieved Write Request for Address: %h Index: %h Data: %h wrstrb: %h", addr, index_address, data, strb))
   	endmethod
   
     // The write response will always be an error.
@@ -125,7 +125,7 @@ package bram;
         //dmemMSB.a.put(0, index_address, ?);
 		mainmem.a.put(0, index_address, ?);
         read_request_sent[1]<= True;
-        `logLevel( bram, 0, $format("",modulename,": Recieved Read Request for Address: %h Index: %h",  
+        `logTimeLevel( bram, 0, $format("",modulename,": Recieved Read Request for Address: %h Index: %h",  
                                                                             addr, index_address))
   	endmethod
   
@@ -232,7 +232,7 @@ package bram;
       let {err, data0}<-dut.read_response;
       AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
-      `logLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
+      `logTimeLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
