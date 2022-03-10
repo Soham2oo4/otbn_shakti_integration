@@ -492,6 +492,12 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       cmderr <= cmderr & ~(wr_cmderr_wrval);
   endrule: rl_set_cmderr
 
+  rule rl_display_command;
+    if (`VERBOSITY > 1) begin
+      $display($time," DEBUG: rl_display_command: cmdtype %h wr_cmdtype_wren %h wr_cmdtype_wrval %h control %h wr_control_wren %h wr_control_wrval %h", cmdtype, wr_cmdtype_wren, wr_cmdtype_wrval, control, wr_control_wren, wr_control_wrval);
+    end
+  endrule
+
   /*doc:rule: */
   rule rl_set_busy;
     if (wr_cmdtype_wren)
@@ -512,6 +518,10 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       wr_errexception <= True;
       `logLevel( debug, 0, $format("DEBUG: Abstract cmd faced exception"))
     end
+
+    if (`VERBOSITY > 1) begin
+      $display($time," DEBUG: rl_set_busy: busy %b hartsello %h wr_cmdtype_wren %b wr_harthalting_wren %b wr_harthalting_id %b v_flags.go %b", busy, hartsello, wr_cmdtype_wren, wr_harthalting_wren, wr_harthalting_id[hartsello], v_flags[hartsello].go);
+    end
   endrule: rl_set_busy
 
   /*doc:rule: */
@@ -526,6 +536,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         v_flags[i] <= Flags{go: lv_go, resume: haresumereq[i]};
       else
         v_flags[i].resume <= haresumereq[i];
+    end
+    if (`VERBOSITY > 1) begin
+      $display($time," DEBUG: rl_upd_flags: lv_go %b haresumereq %b, v_flags.go %b, v_flags.resume %b", lv_go, haresumereq[0], v_flags[0].go, v_flags[0].resume);
     end
   endrule:rl_upd_flags
 
@@ -704,6 +717,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Bit#(12) offset = truncate(req.araddr);
     Bit#(`debug_bus_sz) data = 0;
     Bool succ = True;
+    `logLevel( debug, 0, $format("DEBUG: Addresses: ebreak %h whereto %h abstract %h progbuf %h flags %h data %h rombase %h", `IMPEBREAK , `WHERETO , `ABSTRACT , `PROGBUF ,  `FLAGS , `DATA , `ROMBASE ))
     if (offset == `IMPEBREAK) begin // reading implicit ebreak
       data = cfg.implicitebreak==1? duplicate(`EBREAK) : duplicate(`NOP) ;
     end
@@ -716,8 +730,13 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       Bit#(1) index = truncate((offset - `ABSTRACT)>>2);
       `logLevel( debug, 0, $format("DEBUG: Abstract offset:%h Abstract:%h index:%d",offset,
       `ABSTRACT, index))
+    `ifndef iclass
       data = duplicate(v_abstract_reg[index]);
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)",v_abstract_reg[index]))
+    `else
+      data = {v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1], v_abstract_reg[0]};
+      `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h) DASM(0x%h)",v_abstract_reg[1], v_abstract_reg[0]))
+    `endif
     end
     else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) && req.arsize==0 
           && offset < 'h800) begin// TODO extend this for multicore
@@ -821,6 +840,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         // Catch Busy/Access Violations
         Bit#(32) dmi_response_data = 0;
         Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
+        if (`VERBOSITY > 1) begin
+          $display($time, " DEBUG: DTM: In putCommand %h op %d data %h addr %h", req, dmi_op, dmi_data, dmi_addr);
+        end
         if (dmi_op == 2)begin // write operation
           `logLevel( debug, 0, $format("DEBUG: DMI Write@%h %h:",dmi_addr, dmi_data))
           case(dmi_addr)
@@ -851,6 +873,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                 else  begin
                   command <= dmi_data;
                 end
+              end
+              if (`VERBOSITY > 1) begin
+                $display($time," DEBUG: Writing into Abstract Command: data %h cmderr %b busy %b", dmi_data, cmderr, busy);
               end
             end
             `Abstractauto : begin
@@ -997,6 +1022,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     interface getResponse = interface Get
       method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
         dmi_response <= tagged Invalid;
+        if (`VERBOSITY > 1) begin
+          $display($time, " DEBUG: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
+        end
         return validValue(dmi_response);
       endmethod
     endinterface;

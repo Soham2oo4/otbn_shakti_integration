@@ -873,7 +873,7 @@ endrule
           Bit#(32) dmi_data = request_data[33:2];
           Bit#(7) dmi_addr = request_data[40:34];
           if (`VERBOSITY > 1) begin
-            $display($time, " DEBUG: DTM: In putCommand %h op %d data %h addr %h", request_data,dmi_op,dmi_data,dmi_addr);
+            $display($time, " DEBUG: DTM: In putCommand %h op %d data %h addr %h", request_data, dmi_op, dmi_data, dmi_addr);
           end
           // Catch Busy Access Violations
           Bit#(32) dmi_response_data = 0;
@@ -1063,7 +1063,7 @@ endrule
         method ActionValue#(Bit#(34)) get() if (isValid(dmi_response)); // removed abst_busy check
           dmi_response <= tagged Invalid;
           if(`VERBOSITY > 1) begin
-            $display($time, " DEBUG: DMI valid getResponse status: %d : data:%h",validValue(dmi_response)[1:0],validValue(dmi_response)[33:2]);
+            $display($time, " DEBUG: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
           end
           return validValue(dmi_response);
         endmethod
