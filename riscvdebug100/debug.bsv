@@ -492,9 +492,10 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       cmderr <= cmderr & ~(wr_cmderr_wrval);
   endrule: rl_set_cmderr
 
-  rule rl_display_command;
+  rule rl_display_command_status;
     if (`VERBOSITY > 1) begin
       $display($time," DEBUG: rl_display_command: cmdtype %h wr_cmdtype_wren %h wr_cmdtype_wrval %h control %h wr_control_wren %h wr_control_wrval %h", cmdtype, wr_cmdtype_wren, wr_cmdtype_wrval, control, wr_control_wren, wr_control_wrval);
+      $display($time," DEBUG: hahavereset %b", hahavereset[1]);
     end
   endrule
 
@@ -578,6 +579,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         allhavereset <= &(hahavereset[1] | ~lv_finalhamask);
         allresumeack <= &(haresumeack | ~lv_finalhamask);
       end
+    end
+    if (`VERBOSITY > 1) begin
+      $display($time," DEBUG: rl_drive_dmstatus: dmstatus_prev %h # lv_anynonexistent %b lv_allnonexistent %b wr_debug_enable %b # hahalted %b haresumeack %b hahavereset %b lv_finalhamask %b", dmstatus, lv_anynonexistent, lv_allnonexistent, wr_debug_enable, hahalted, haresumeack, hahavereset[1], lv_finalhamask);
     end
   endrule:rl_drive_dmstatus
   // ------------------------------------------------------------
@@ -1033,12 +1037,13 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     method mv_hartmask = lv_finalhamask;
     method mv_harthaltreq = hahaltreq;
     method mv_hartreset = haresetreq;
+    method mv_resetack = wr_ackhavereset_wren ? 'b1 : 'b0;
     method mv_hasel = hasel;
     method mv_hartsel = zeroExtend(hartsello);
     method Action ma_havereset(Bit#(ncomponents) resetack);
       hahavereset[0] <= hahavereset[0] | resetack;
-      if (resetack != 0)
-        `logLevel( debug, 0, $format("DEBUG: Resetack:%h",resetack))
+      //if (resetack != 0)
+      `logLevel( debug, 0, $format("DEBUG: Resetack:%h",resetack))
     endmethod
     method Action ma_debugenable (Bit#(ncomponents) _debugenable);
       wr_debug_enable <= _debugenable;
