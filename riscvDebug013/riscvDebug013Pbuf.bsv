@@ -329,8 +329,8 @@ package riscvDebug013Pbuf;
 
     /*    System Bus ACCESS   */
   `ifdef CORE_AXI4
-    AXI4_Master_Xactor_IFC#(DPADDR,D_AXI_BUS_WIDTH , 2 ) master_xactor <- mkAXI4_Master_Xactor;
-    AXI4_Slave_Xactor_IFC#(DPADDR, D_AXI_BUS_WIDTH , 2 ) slave_xactor <- mkAXI4_Slave_Xactor;
+    AXI4_Master_Xactor_IFC#(DPADDR,D_AXI_BUS_WIDTH , `USERSPACE ) master_xactor <- mkAXI4_Master_Xactor;
+    AXI4_Slave_Xactor_IFC#(DPADDR, D_AXI_BUS_WIDTH , `USERSPACE ) slave_xactor <- mkAXI4_Slave_Xactor;
   `elsif CORE_AXI4Lite
     AXI4_Lite_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Lite_Master_Xactor;
     AXI4_Lite_Slave_Xactor_IFC#(DPADDR,DXLEN,0) slave_xactor <- mkAXI4_Lite_Slave_Xactor;
