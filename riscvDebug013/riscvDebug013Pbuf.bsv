@@ -26,7 +26,7 @@ Email id: command.paul@gmail.com
 --------------------------------------------------------------------------------------------------
 */
 // Conforms to Riscv-Debug spec 0.13 commit cb64db0407b5e6f755ab3c1549e0e1acf4ea5f6d
-// Preseltly implemented Limited to one Hart
+// Present implementation limited to one Hart
 
 package riscvDebug013Pbuf;
   `define CORE_AXI4
@@ -611,7 +611,7 @@ package riscvDebug013Pbuf;
           end
       end
       
-      AXI4_Rd_Data#(D_AXI_BUS_WIDTH, 2 ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
+      AXI4_Rd_Data#(D_AXI_BUS_WIDTH, `USERSPACE ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
         rdata: lv_response, 
         rlast:True ,
         ruser: 0,

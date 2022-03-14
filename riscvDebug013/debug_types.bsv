@@ -173,8 +173,8 @@ package debug_types;
       interface Ifc_DM_DTM dtm;
       interface Debug_Hart_Ifc hart;
     `ifdef CORE_AXI4
-      interface AXI4_Master_IFC#(DPADDR, D_AXI_BUS_WIDTH, 2 ) debug_master;
-      interface AXI4_Slave_IFC#(DPADDR,D_AXI_BUS_WIDTH , 2 ) debug_slave;
+      interface AXI4_Master_IFC#(DPADDR, D_AXI_BUS_WIDTH, `USERSPACE ) debug_master;
+      interface AXI4_Slave_IFC#(DPADDR,D_AXI_BUS_WIDTH , `USERSPACE ) debug_slave;
     `elsif CORE_AXI4Lite
       interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
       interface AXI4_Lite_Slave_IFC#(DPADDR, DXLEN, 0 ) debug_slave;
