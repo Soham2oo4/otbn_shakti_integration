@@ -81,11 +81,11 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   
   Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
   Vector#(29,Bit#(32)) vrom;
+`ifndef iclass
   vrom[0] = 'h00c0006f;
   vrom[1] = 'h0600006f;
   vrom[2] = 'h0380006f;
-//  vrom[3] = 'h0ff0000f;
-  vrom[3] = 'h00000013;
+  vrom[3] = 'h0ff0000f;
   vrom[4] = 'h7b241073;
   vrom[5] = 'hf1402473;
   vrom[6] = 'h10802023;
@@ -104,15 +104,45 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[19] = 'hf1402473;
   vrom[20] = 'h10802223;
   vrom[21] = 'h7b202473;
-//  vrom[22] = 'h0ff0000f;
-//  vrom[23] = 'h0000100f;
-  vrom[22] = 'h00000013;
-  vrom[23] = 'h00000013;
+  vrom[22] = 'h0ff0000f;
+  vrom[23] = 'h0000100f;
   vrom[24] = 'h30000067;
   vrom[25] = 'hf1402473;
   vrom[26] = 'h10802423;
   vrom[27] = 'h7b202473;
   vrom[28] = 'h7b200073;
+
+`else
+  vrom[0] = 'h00c0006f;   // 0x800 (j _entry @ 0x80c) : entry
+  vrom[1] = 'h0500006f;   // 0x804 (j _resume @ 0x854) : resume
+  vrom[2] = 'h0300006f;   // 0x808 (j _exception @ 0x838) : exception
+  vrom[3] = 'h7b241073;   // 0x80c : _entry
+  vrom[4] = 'hf1402473;   // 0x810 : entry_loop
+  vrom[5] = 'h10802023;   // 0x814
+  vrom[6] = 'h40044403;   // 0x818
+  vrom[7] = 'h00147413;   // 0x81c
+  vrom[8] = 'h02041263;   // 0x820 (bnez s0, going @ 0x844)
+  vrom[9] = 'hf1402473;   // 0x824
+  vrom[10] = 'h40044403;  // 0x828
+  vrom[11] = 'h00247413;  // 0x82c
+  vrom[12] = 'h02041263;  // 0x830 (bnez s0, _resume @ 0x854)
+  vrom[13] = 'hfddff06f;  // 0x834 (j entry_loop @ 0x810) : _exception
+  vrom[14] = 'h7b202473;  // 0x838
+  vrom[15] = 'h10002623;  // 0x83c
+  vrom[16] = 'h00100073;  // 0x840 (ebreak)
+  vrom[17] = 'hf1402473;  // 0x844 : going
+  vrom[18] = 'h10802223;  // 0x848
+  vrom[19] = 'h7b202473;  // 0x84c
+  vrom[20] = 'h30000067;  // 0x850 (jr whereto @ 0x300)
+  vrom[21] = 'hf1402473;  // 0x854 : _resume
+  vrom[22] = 'h10802423;  // 0x858
+  vrom[23] = 'h7b202473;  // 0x85c
+  vrom[24] = 'h7b200073;  // 0x860 (dret)
+  vrom[25] = 'h00000013;  // 0x864
+  vrom[26] = 'h00000013;  // 0x868
+  vrom[27] = 'h00000013;  // 0x86c
+  vrom[28] = 'h00000013;  // 0x870
+`endif
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
   for (Integer i = 0; i<nAbstractInstr; i = i + 1) begin
