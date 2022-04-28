@@ -1063,7 +1063,7 @@ endrule
         method ActionValue#(Bit#(34)) get() if (isValid(dmi_response)); // removed abst_busy check
           dmi_response <= tagged Invalid;
           if(`VERBOSITY > 1) begin
-            $display($time, " DEBUG: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
+            $display($time, " DEBUG: DTM: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
           end
           return validValue(dmi_response);
         endmethod

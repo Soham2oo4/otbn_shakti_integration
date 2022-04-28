@@ -84,7 +84,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[0] = 'h00c0006f;
   vrom[1] = 'h0600006f;
   vrom[2] = 'h0380006f;
-  vrom[3] = 'h0ff0000f;
+//  vrom[3] = 'h0ff0000f;
+  vrom[3] = 'h00000013;
   vrom[4] = 'h7b241073;
   vrom[5] = 'hf1402473;
   vrom[6] = 'h10802023;
@@ -103,8 +104,10 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[19] = 'hf1402473;
   vrom[20] = 'h10802223;
   vrom[21] = 'h7b202473;
-  vrom[22] = 'h0ff0000f;
-  vrom[23] = 'h0000100f;
+//  vrom[22] = 'h0ff0000f;
+//  vrom[23] = 'h0000100f;
+  vrom[22] = 'h00000013;
+  vrom[23] = 'h00000013;
   vrom[24] = 'h30000067;
   vrom[25] = 'hf1402473;
   vrom[26] = 'h10802423;
@@ -884,6 +887,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
             end
             `Abstractauto : begin
               wr_errbusy <= (cmderr == 0 && busy == 1);
+              if (cmderr == 0 && busy == 0) begin
+                abstractauto <= dmi_data;
+              end
             end
             `Confstrptr0, `Confstrptr1, `Confstrptr2, 
             `Confstrptr3, `Nextdm, `Haltsum2, `Haltsum3 : begin end
@@ -918,29 +924,32 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
             default: begin // either data, progbuf or unknown
               if (dmi_addr >= `Data0 && dmi_addr <= (`Data0 + fromInteger(v_nabstractdata)) 
                                     && v_nabstractdata>0) begin
-                if(busy == 0)
-                  v_data_reg[dmi_addr-`Data0] <= dmi_data;
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecdata[dmi_addr-`Data0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
-              end
+                if(busy == 0) begin
+                  v_data_reg[dmi_addr-`Data0] <= dmi_data;
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecdata[dmi_addr-`Data0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
+              end // abstract data
               else if (dmi_addr >= `Progbuf0 && dmi_addr <= (`Progbuf0 + fromInteger(v_nprogbuf)) 
                                             && v_nprogbuf > 0) begin
-                v_progbuf_reg[dmi_addr-`Progbuf0] <= dmi_data;
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
-              end
+                if(busy == 0) begin
+                  v_progbuf_reg[dmi_addr-`Progbuf0] <= dmi_data;
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
+              end // progbuf
               else 
                 dmi_response_status = 2;
             end
@@ -994,25 +1003,29 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                                     && v_nabstractdata>0) begin
                 dmi_response_data = v_data_reg[dmi_addr-`Data0];
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecdata[dmi_addr-`Data0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
-              end
+                if(busy == 0) begin
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecdata[dmi_addr-`Data0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
+              end // abstract data
               else if (dmi_addr >= `Progbuf0 && dmi_addr <= (`Progbuf0 + fromInteger(v_nprogbuf)) 
                                             && v_nprogbuf > 0) begin
                 dmi_response_data = v_progbuf_reg[dmi_addr-`Progbuf0];
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
+                if(busy == 0) begin
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
               end
               else 
                 dmi_response_status = 2;
@@ -1027,7 +1040,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
         dmi_response <= tagged Invalid;
         if (`VERBOSITY > 1) begin
-          $display($time, " DEBUG: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
+          $display($time, " DEBUG: DTM: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
         end
         return validValue(dmi_response);
       endmethod
