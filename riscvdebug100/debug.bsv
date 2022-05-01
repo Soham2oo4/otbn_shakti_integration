@@ -850,14 +850,20 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
       v_data_reg[index] <= updateDataWithMask(v_data_reg[index],truncate(wreq.wdata),truncate(wreq.wstrb));
-      if (req.awsize==3)
-        v_data_reg[index+1] <= updateDataWithMask(v_data_reg[index+1],truncateLSB(wreq.wdata),truncateLSB(wreq.wstrb));
+      if (req.awsize==3) begin  // for 8-byte write (double), extract the next word
+        wreq.wdata = wreq.wdata >> 32;
+        wreq.wstrb = wreq.wstrb >> 4;
+        v_data_reg[index+1] <= updateDataWithMask(v_data_reg[index+1],truncate(wreq.wdata),truncate(wreq.wstrb));
+      end
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
       v_progbuf_reg[index] <= updateDataWithMask(v_progbuf_reg[index],truncate(wreq.wdata),truncate(wreq.wstrb));
-      if (req.awsize==3)
-        v_progbuf_reg[index+1] <= updateDataWithMask(v_progbuf_reg[index+1],truncateLSB(wreq.wdata),truncateLSB(wreq.wstrb));
+      if (req.awsize==3) begin // 8-byte write
+        wreq.wdata = wreq.wdata >> 32;
+        wreq.wstrb = wreq.wstrb >> 4;
+        v_progbuf_reg[index+1] <= updateDataWithMask(v_progbuf_reg[index+1],truncate(wreq.wdata),truncate(wreq.wstrb));
+      end
     end
     else 
       succ = False;
