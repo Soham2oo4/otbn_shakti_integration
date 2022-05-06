@@ -559,6 +559,13 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   endrule: rl_set_busy
 
   /*doc:rule: */
+  rule rl_display_abstract;
+    if (`VERBOSITY > 1) begin
+      $display($time," DEBUG: abstract[1] %h abstract[0] %h # data[1] %h data[0] %h", v_abstract_reg[1], v_abstract_reg[0], v_data_reg[1], v_data_reg[0]);
+    end
+  endrule: rl_display_abstract
+
+  /*doc:rule: */
   rule rl_upd_flags;
     Bit#(1) lv_go = v_flags[hartsello].go;
     if (wr_cmdtype_wren && wr_cmdtype_wrval == 0) // go abstract command
