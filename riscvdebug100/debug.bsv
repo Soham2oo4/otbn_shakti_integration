@@ -116,7 +116,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     v_abstract_reg[i] <- mkReg(`NOP, reset_by dm_reset);
   end
   
-  AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor(reset_by dm_reset);
+  AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor;
   AXI4_Master_Xactor_IFC#(`paddr, `debug_bus_sz, 0) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
 
   function Bit#(32) genLoads(AccessReg cntrl);
