@@ -116,7 +116,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     v_abstract_reg[i] <- mkReg(`NOP, reset_by dm_reset);
   end
   
-  AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor(reset_by dm_reset);
+  AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
   AXI4_Master_Xactor_IFC#(`paddr, `debug_bus_sz, 0) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
 
   function Bit#(32) genLoads(AccessReg cntrl);
@@ -742,6 +742,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       data = duplicate(vrom[index]);
       `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)",vrom[index]))
     end
+    else 
+      succ = False;
 	 	AXI4_Rd_Data#(`debug_bus_sz,0) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
           rdata: data, ruser: 0};
 	 	slave_xactor.i_rd_data.enq(r);
