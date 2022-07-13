@@ -48,13 +48,9 @@ package clint;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize
         size);
 		method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr, AccessSize size);
-    (*always_ready*)
-    method Bit#(msip_size) sb_clint_msip;
-    (*always_ready*)
-    method Bit#(1) sb_clint_mtip;
-    (*always_ready*)
-    method Bit#(64) sb_clint_mtime;
-    method Action ma_stop_count (Bit#(1) _stop);
+    interface Get#(Bit#(msip_size)) sb_clint_msip;
+    interface Get#(Bit#(1)) sb_clint_mtip;
+    interface Get#(Bit#(64)) sb_clint_mtime;
 	endinterface
 
 	function Reg#(t) writeSideEffect(Reg#(t) r,Action a);
@@ -83,8 +79,6 @@ package clint;
     staticAssert(valueOf(TExp#(i__))==valueOf(tick_count),"tick count has to be power of 2");
     let dvalue=valueOf(data_width);
 		Wire#(Bool) wr_mtimecmp_written<-mkDWire(False);
-		/*doc:wire: */
-		Wire#(Bit#(1)) wr_stop_count <- mkDWire(0);
 		Reg#(Bit#(msip_size)) msip <-mkRegA(0);// Msip_size has been parameterised
 		Reg#(Bit#(1)) mtip <-mkRegA(0);
 		Reg#(Bit#(64)) rgmtime<-mkRegA(0);
@@ -98,7 +92,7 @@ package clint;
 		rule clear_interrupt(wr_mtimecmp_written);
 			mtip<=0;
 		endrule
-		rule increment_timer(wr_stop_count==0);
+		rule increment_timer;
 			if(rg_tick==0)begin
 				rgmtime<=rgmtime+1;
 			end
@@ -158,24 +152,29 @@ package clint;
 		  		success=False;	
         return success;
     endmethod
-    method sb_clint_msip  = msip;
-    method sb_clint_mtip  = mtip;
-    method sb_clint_mtime = rgmtime;
-    method Action ma_stop_count (Bit#(1) _stop);
-      wr_stop_count <= _stop;
-    endmethod:ma_stop_count
+    interface sb_clint_msip= interface Get
+      method ActionValue#(Bit#(msip_size)) get();
+        return msip;
+      endmethod
+    endinterface;
+    interface sb_clint_mtip = interface Get
+      method ActionValue#(Bit#(1)) get();
+        return mtip;
+      endmethod
+    endinterface;
+    interface  sb_clint_mtime= interface Get
+      method ActionValue#(Bit#(64)) get();
+        return rgmtime;
+      endmethod
+    endinterface;
 	endmodule:mkclint
 
 	 interface Ifc_clint_axi4lite#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
-    (*always_ready*)
-    method Bit#(msip_size) sb_clint_msip;
-    (*always_ready*)
-    method Bit#(1) sb_clint_mtip;
-    (*always_ready*)
-    method Bit#(64) sb_clint_mtime;
-    method Action ma_stop_count (Bit#(1) _stop);
+    interface Get#(Bit#(msip_size)) sb_clint_msip;
+    interface Get#(Bit#(1)) sb_clint_mtip;
+    interface Get#(Bit#(64)) sb_clint_mtime;
 	 endinterface
 
 	 module mkclint_axi4lite(Ifc_clint_axi4lite#(addr_width,data_width,user_width,msip_size,
@@ -209,22 +208,17 @@ package clint;
 	 		s_xactor.i_wr_resp.enq (r);
 	 	endrule
 	 	interface slave = s_xactor.axi_side;
-    method sb_clint_msip=clint.sb_clint_msip;
-    method sb_clint_mtip=clint.sb_clint_mtip;
-    method sb_clint_mtime=clint.sb_clint_mtime;
-    method ma_stop_count=clint.ma_stop_count;
+    interface sb_clint_msip=clint.sb_clint_msip;
+    interface sb_clint_mtip=clint.sb_clint_mtip;
+    interface sb_clint_mtime=clint.sb_clint_mtime;
 	 endmodule:mkclint_axi4lite
 
 	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
-    (*always_ready*)
-    method Bit#(msip_size) sb_clint_msip;
-    (*always_ready*)
-    method Bit#(1) sb_clint_mtip;
-    (*always_ready*)
-    method Bit#(64) sb_clint_mtime;
-    method Action ma_stop_count (Bit#(1) _stop);
+    interface Get#(Bit#(msip_size)) sb_clint_msip;
+    interface Get#(Bit#(1)) sb_clint_mtip;
+    interface Get#(Bit#(64)) sb_clint_mtime;
 	 endinterface
 
 
@@ -294,10 +288,9 @@ package clint;
 	      	end
 	 	endrule
 	 	interface slave = s_xactor.axi_side;
-    method sb_clint_msip=clint.sb_clint_msip;
-    method sb_clint_mtip=clint.sb_clint_mtip;
-    method sb_clint_mtime=clint.sb_clint_mtime;
-    method ma_stop_count=clint.ma_stop_count;
+    interface sb_clint_msip=clint.sb_clint_msip;
+    interface sb_clint_mtip=clint.sb_clint_mtip;
+    interface sb_clint_mtime=clint.sb_clint_mtime;
 	 endmodule:mkclint_axi4
 endpackage:clint
 
