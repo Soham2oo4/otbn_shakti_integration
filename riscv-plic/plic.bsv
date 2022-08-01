@@ -162,6 +162,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Max#(TLog#(targets), 1,lg_targets),  // log of targets
     Add#(_b, lg_nsources, 10),
 
+    Add#(h__, 10, dw),
     Add#(a__, 26, aw),
     Add#(8, b__, dw),         // data atleast 8 bits
     Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
@@ -185,7 +186,6 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
   Vector#( targets, Reg#(Bit#(lg_priority))) v_target_threshold <- replicateM(mkReg('1));
 
   Vector#( nsources, ConfigReg#(Bool) )             v_reg_source_busy  <- replicateM(mkConfigReg(False));
-  Vector#( targets, ConfigReg#(Bit#(lg_nsources))) v_target_servicing <- replicateM(mkConfigReg(0));
    
   function Tuple2 #(Bit #(lg_priority), Bit #(lg_nsources))
                     fn_target_max_prio_and_max_id (Bit #(Max_target_wd)  target_id);
@@ -240,8 +240,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
 	       for (Integer source_id = 0; source_id < v_nsources; source_id = source_id + 1)
 	          $write (" %0d", v_target_ie [target_id][source_id]);
 	       match { .max_prio, .max_id } = fn_target_max_prio_and_max_id (fromInteger (target_id));
-	       $display (" MaxPri %0d, Thresh %0d, MaxId %0d, Svcing %0d",
-	           max_prio, v_target_threshold [target_id], max_id, v_target_servicing [target_id]);
+	       $display (" MaxPri %0d, Thresh %0d, MaxId %0d",
+	           max_prio, v_target_threshold [target_id], max_id);
 	    end
 	  `endif
      endaction
@@ -321,14 +321,13 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
 	        match { .max_prio, .max_id } = fn_target_max_prio_and_max_id (target_id);
 	        Bool eip = (max_prio > v_target_threshold [target_id]);
           if( target_id <= fromInteger(v_targets - 1)) begin
-            if (v_target_servicing[target_id] == 0) begin
               success = True;
               if (max_id != 0 ) begin
                 vrg_source_pending [max_id] <= False;
                 v_reg_source_busy [max_id] <= True;
-                v_target_servicing [target_id] <= truncate(max_id);
                 rdata = reSize(max_id);
-              end
+              `logLevel( plic, 0, $format("PLIC: Claiming interrupt-src:%d for target-id:%d",
+                                                                                max_id, target_id))
             end
             // error
           end
@@ -383,13 +382,17 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
           end
         end
         else if(offset[11:0] == 4) begin // claim/complete register per context
-	        Bit #(Max_source_wd)  source_id = zeroExtend (v_target_servicing [target_id]);
+	        Bit #(Max_source_wd)  source_id = truncate(data);
 	        if(target_id <= fromInteger(v_targets -1) ) begin
-	          if(v_reg_source_busy[source_id])begin
-              v_reg_source_busy[source_id] <= False;
-              v_target_servicing[target_id] <= 0;
               success = True;
+	          if(source_id <= fromInteger(v_nsources - 1) && v_target_ie[target_id][source_id])begin
+              v_reg_source_busy[source_id] <= False;
+	            `logLevel( plic, 0, $format("PLIC: Completion for target-id:%d source-id:%d",
+                                                                        target_id, source_id))
 	          end
+	          else
+	            `logLevel( plic, 0, $format("PLIC: Ignoring Completion for target-id:%d source-id:%d",
+                                                                        target_id, source_id))
 	        end
         end
       end
@@ -398,8 +401,10 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     // sources
     method Action sb_frm_sources(Bit#(sources) irq);
       for (Integer i = 0; i<valueOf(sources); i = i + 1) begin
-		    if (! v_reg_source_busy [i+1]) begin
+		    if (! v_reg_source_busy [i+1] && !vrg_source_pending[i+1]) begin
   		    vrg_source_pending[i+1] <= unpack(irq[i]);
+  		    if (irq[i]==1)
+    		    `logLevel( plic, 0, $format("PLIC: interrupt registered for source-id:%d",i+1))
 		    end
       end
     endmethod
@@ -429,6 +434,7 @@ endmodule:mkplic
         Max#(TLog#(targets), 1,lg_targets),  // log of targets
         Add#(_b, lg_nsources, 10),
     
+    Add#(h__, 10, dw),
         Add#(a__, 26, aw),
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
@@ -493,6 +499,7 @@ endmodule:mkplic
         Max#(TLog#(targets), 1,lg_targets),  // log of targets
         Add#(_b, lg_nsources, 10),
     
+    Add#(h__, 10, dw),
         Add#(a__, 26, aw),
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
