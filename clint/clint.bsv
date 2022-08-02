@@ -37,6 +37,7 @@ package clint;
   import device_common::*;
   import GetPut::*;
   import Assert::*;
+  `include "Logger.bsv"
 
   export Ifc_clint_axi4lite   (..);
   export Ifc_clint_axi4       (..);
@@ -91,6 +92,10 @@ package clint;
 		Reg#(Bit#(64)) rgmtimecmp<-mkRegA('hFFFFFFFFFFFFFFFF);
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
 		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkRegA(0);
+
+                rule rl_display_status;
+                  `logTimeLevel( clint, 1, $format("CLINT: msip %h mtip %h rgmtime %h rgmtimecmp %h csr_mtimecmp %h rg_tick %h # wr_mtimecmp_written %h wr_stop_count %h", msip, mtip, rgmtime, rgmtimecmp, csr_mtimecmp, rg_tick, wr_mtimecmp_written, wr_stop_count))
+                endrule
 
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			mtip<=pack(rgmtime>=rgmtimecmp);
