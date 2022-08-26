@@ -44,6 +44,7 @@ package pwm;
 
   typedef enum {Byte=0, HWord=1, Word=2, DWord=3} AccessSize deriving(Bits,Eq,FShow);
 
+  (*always_ready, always_enabled*)
 	interface PWMIO;
 		method Bit#(1) pwm_o;
 	endinterface
@@ -51,6 +52,7 @@ package pwm;
 		method  ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
 		method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_req(Bit#(addr_width) addr, AccessSize size);
 		interface PWMIO io;
+    method Bit#(1) sb_interrupt;
 	endinterface
 	//generic module
 	module mkpwm#(Clock ext_clock, Reset ext_reset)(User_ifc#(addr_width,data_width,pwmwidth))
@@ -63,17 +65,17 @@ package pwm;
 			let bus_clock <- exposeCurrentClock;
 		    let bus_reset <- exposeCurrentReset;
 
-		    Reg#(Bit#(pwmwidth)) period <- mkReg(0);
-		    Reg#(Bit#(pwmwidth)) duty_cycle <- mkReg(0);
-		    Reg#(Bit#(pwmwidth)) clock_divisor <- mkReg(0);
+		    Reg#(Bit#(pwmwidth)) period <- mkRegA(0);
+		    Reg#(Bit#(pwmwidth)) duty_cycle <- mkRegA(0);
+		    Reg#(Bit#(pwmwidth)) clock_divisor <- mkRegA(0);
 		    // =========== Control registers ================== //
-		    Reg#(Bit#(1)) clock_selector <- mkReg(0);     // bit-0
-		    Reg#(Bit#(1)) pwm_enable <- mkReg(0);         // bit-1
-		    Reg#(Bit#(1)) pwm_start  <- mkReg(0);         // bit-2
-		    Reg#(Bit#(1)) continous_once <- mkReg(0);     // bit-3
-		    Reg#(Bit#(1)) pwm_output_enable <- mkReg(0);  // bit-4
-		    Reg#(Bit#(1)) interrupt <- mkReg(0);          // bit-5
-		    Reg#(Bit#(1)) reset_counter <- mkReg(0);      // bit-7
+		    Reg#(Bit#(1)) clock_selector <- mkRegA(0);     // bit-0
+		    Reg#(Bit#(1)) pwm_enable <- mkRegA(0);         // bit-1
+		    Reg#(Bit#(1)) pwm_start  <- mkRegA(0);         // bit-2
+		    Reg#(Bit#(1)) continous_once <- mkRegA(0);     // bit-3
+		    Reg#(Bit#(1)) pwm_output_enable <- mkRegA(0);  // bit-4
+		    Reg#(Bit#(1)) interrupt <- mkRegA(0);          // bit-5
+		    Reg#(Bit#(1)) reset_counter <- mkRegA(0);      // bit-7
 		    Reg#(Bit#(8)) control = concatReg8(reset_counter, readOnlyReg(0), readOnlyReg(interrupt), 
 		                                       pwm_output_enable, continous_once, pwm_start, pwm_enable, 
 		                                       clock_selector);
@@ -119,8 +121,8 @@ package pwm;
 	    endrule
 
 	    // ======= Actual Counter and PWM signal generation ======== //
-	    Reg#(Bit#(1)) pwm_output <- mkReg(0,clocked_by downclock,reset_by downreset);
-	    Reg#(Bit#(pwmwidth)) rg_counter <-mkReg(0,clocked_by downclock,reset_by downreset); 
+	    Reg#(Bit#(1)) pwm_output <- mkRegA(0,clocked_by downclock,reset_by downreset);
+	    Reg#(Bit#(pwmwidth)) rg_counter <-mkRegA(0,clocked_by downclock,reset_by downreset); 
 	    
 	    // create synchronizers for clock domain crossing.
 	    Reg#(Bit#(1)) sync_pwm_output <- mkSyncRegToCC(0,downclock,downreset);
@@ -183,8 +185,10 @@ package pwm;
 	          if(rg_counter >= temp)begin
 	              pwm_output <= 1;
 	          end
-	          else
+	          else begin
+							pwm_output <= 0;
 	            rg_counter <= cntr;
+			  end
 	        end
 	        else begin // Continous mode.
 	          if(rg_counter >= temp)begin
@@ -192,6 +196,7 @@ package pwm;
 	            rg_counter <= 0;
 	          end
 	         else begin
+							pwm_output <= 0;
 	            rg_counter <= cntr;
 	          end
 	        end
@@ -202,13 +207,13 @@ package pwm;
 				Bool success =True;
 				let pw=valueOf(pwmwidth);
 				AccessSize allowed_access=(pw==8)?Byte:(pw==16)?HWord:Word;
-				if(addr==`ControlReg && size==Byte)
+				if(addr [3:0] ==`ControlReg && size==Byte)
 					control<=truncate(data);
-				else if( addr==`PeriodReg && allowed_access==size)
+				else if( addr [3:0] ==`PeriodReg && allowed_access==size)
 					period<=truncate(data);
-				else if( addr==`DutyReg && allowed_access==size)
+				else if( addr [3:0] ==`DutyReg && allowed_access==size)
 					duty_cycle<=truncate(data);
-				else if( addr==`ClockReg && allowed_access==size)
+				else if( addr [3:0] ==`ClockReg && allowed_access==size)
 					clock_divisor<=truncate(data);
 				else
 					 success=False;
@@ -220,13 +225,13 @@ package pwm;
 				let pw=valueOf(pwmwidth);
 				Bit#(data_width) data=0;
 				AccessSize allowed_access=(pw==8)?Byte:(pw==16)?HWord:Word;
-				if(addr==`ControlReg && size==Byte)
+				if(addr[3:0]==`ControlReg && size==Byte)
 					data=duplicate(control);
-				else if( addr==`PeriodReg && allowed_access==size)
+				else if( addr [3:0] ==`PeriodReg && allowed_access==size)
 					data=duplicate(period);
-				else if( addr==`DutyReg && allowed_access==size)
+				else if( addr [3:0] ==`DutyReg && allowed_access==size)
 					data=duplicate(duty_cycle);
-				else if( addr==`ClockReg && allowed_access==size)
+				else if( addr [3:0] ==`ClockReg && allowed_access==size)
 					data=duplicate(clock_divisor);
 				else
 					 success=False;
@@ -236,6 +241,7 @@ package pwm;
 			interface io=interface PWMIO
 				method pwm_o=pwm_output_enable==1?pwm_signal:0;
 			endinterface;
+      method sb_interrupt=interrupt;
 
 	endmodule:mkpwm
 
@@ -243,6 +249,7 @@ package pwm;
 	interface Ifc_pwm_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type pwmwidth);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 		interface PWMIO io;
+    method Bit#(1) sb_interrupt;
 	endinterface
 
 	module mkpwm_axi4lite#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4lite#(addr_width,data_width,user_width, pwmwidth))
@@ -273,12 +280,14 @@ package pwm;
 
      interface io = pwm.io;
      interface slave = s_xactor.axi_side;
+     method sb_interrupt=pwm.sb_interrupt;
 	endmodule
 
 	//axi4
 	interface Ifc_pwm_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type pwmwidth);
 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
 		interface PWMIO io;
+    method Bit#(1) sb_interrupt;
 	endinterface
 	module mkpwm_axi4#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4#(addr_width,data_width,user_width, pwmwidth))
 	provisos(
@@ -289,11 +298,11 @@ package pwm;
 				);
 		User_ifc#(addr_width,data_width,pwmwidth) pwm <-mkpwm(ext_clock, ext_reset);
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
 		rule read_request(rg_rdburst_count==0);
@@ -342,6 +351,7 @@ package pwm;
 
 		endrule
 
+    method sb_interrupt=pwm.sb_interrupt;
 		interface io=pwm.io;
 		interface slave = s_xactor.axi_side;
 	endmodule

@@ -26,7 +26,7 @@ package bram_template;
   import bram::*;
   (*synthesize*)
   module mkdummy(Empty);
-    Ifc_bram_axi4#(32, 64, 0,  17) u1 <- mkbram_axi4('h80000000, "code.mem", "code.mem");
-    Ifc_bram_axi4lite#(32, 64, 0,  17) u2 <- mkbram_axi4lite('h80000000, "code.mem", "code.mem");
+    Ifc_bram_axi4#(32, 64, 0,  17) u1 <- mkbram_axi4('h80000000, "code.mem", "MainA");
+    Ifc_bram_axi4lite#(32, 64, 0,  17) u2 <- mkbram_axi4lite('h80000000, "code.mem", "B");
   endmodule
 endpackage

@@ -11,4 +11,4 @@
 `define PeriodReg 'h0		
 `define DutyReg   'h4		
 `define ControlReg   'h8	
-`define ClockReg 'h10
+`define ClockReg 'hc

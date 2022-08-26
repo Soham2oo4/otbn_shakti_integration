@@ -29,7 +29,7 @@ package clint_template;
 	import clint::*;
 	(*synthesize*)
 	module mkdummy(Empty);
-		 Ifc_clint_axi4lite#(32,64,0,1) clint1<-mkclint_axi4lite;
-		 Ifc_clint_axi4#(32,64,0,1) clint2<-mkclint_axi4;
+		 Ifc_clint_axi4lite#(32,64,0,1,16) clint1<-mkclint_axi4lite;
+		 Ifc_clint_axi4#(32,64,0,1,4) clint2<-mkclint_axi4;
 	endmodule
 endpackage

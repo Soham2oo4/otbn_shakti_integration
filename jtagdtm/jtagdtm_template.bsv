@@ -35,13 +35,56 @@ package jtagdtm_template;
   import SpecialFIFOs::*;
   import BRAMCore::*;
   import FIFO::*;
-  import jtagdtm::*;
+  import Clocks::*;
 
+  import jtagdtm::*;
+  import rbb_jtag::*;
   (*synthesize*)
-  module mkdummy(Ifc_jtagdtm);
-    let ifc();
-    mkjtagdtm _temp(ifc);
-    return (ifc);
+  module mkdummy(Empty);
+
+    Clock defaultclk <- exposeCurrentClock;
+
+    MakeClockIfc#(Bit#(1)) tck_clk <-mkUngatedClock(1);
+    MakeResetIfc trst <- mkReset(0,False,tck_clk.new_clk);
+
+    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingRegA(tck_clk.new_clk,0);
+		CrossingReg#(Bit#(1)) tms<-mkNullCrossingRegA(tck_clk.new_clk,0);
+		CrossingReg#(Bit#(1)) tdo<-mkNullCrossingRegA(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst);
+		
+    Ifc_jtag_driver_sim openocd <- mkRbbJtag();
+    Ifc_jtagdtm jtag_tap <- mkjtagdtm(clocked_by tck_clk.new_clk, reset_by trst.new_rst);
+
+    // Connecting rules
+    rule rl_join_tdi;
+      tdi <= openocd.wire_tdi();
+    endrule
+
+    rule rl_join_tms;
+      tms <= openocd.wire_tms();
+    endrule
+
+    rule rl_join_tdo;
+      tdo <= jtag_tap.tdo();
+    endrule
+
+    rule rl_join_tck;
+      tck_clk.setClockValue(openocd.wire_tck());
+    endrule
+    
+    rule rl_join_trst;
+      if(openocd.wire_trst() == 1)
+        trst.assertReset();
+    endrule
+
+    rule assignment;
+      jtag_tap.tms_i(tms.crossed);
+      jtag_tap.tdi_i(tdi.crossed);
+    endrule
+
+    rule assignmentr;
+      openocd.wire_tdo(tdo.crossed);
+    endrule
+
   endmodule
 endpackage
 

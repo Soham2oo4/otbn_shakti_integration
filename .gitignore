@@ -20,4 +20,15 @@ build/
 
 verilog/
 
-software/build
+obj_dir/
+
+common_tb/sim_main\.h
+
+bin/
+
+*.gtkw
+
+*.o
+
+*.swp
+*.swo

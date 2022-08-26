@@ -82,17 +82,9 @@ package gpio;
 		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 		method Vector#(ionum,Bit#(1))   gpio_out;
 		method Vector#(ionum,Bit#(1))   gpio_out_en;
-		method Vector#(ionum,Bit#(1))   gpio_DRV0;
-		method Vector#(ionum,Bit#(1))   gpio_DRV1;
-		method Vector#(ionum,Bit#(1))   gpio_DRV2;
-		method Vector#(ionum,Bit#(1))   gpio_PD;
-		method Vector#(ionum,Bit#(1))   gpio_PPEN;
-		method Vector#(ionum,Bit#(1))   gpio_PRG_SLEW;
-		method Vector#(ionum,Bit#(1))   gpio_PUQ;
-		method Vector#(ionum,Bit#(1))   gpio_PWRUPZHL;
-		method Vector#(ionum,Bit#(1))   gpio_PWRUP_PULL_EN;
   endinterface
 	interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
+    (*always_ready,always_enabled*)
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
     interface GPIO#(ionum) io;
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
@@ -105,19 +97,10 @@ package gpio;
         Add#(c__, ionum, 64)
 			);
 			
-		Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigReg(False));
-		Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) drv0_reg			<-replicateM(mkConfigReg(1'b1));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) drv1_reg			<-replicateM(mkConfigReg(1'b1));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) drv2_reg			<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) pd_reg				<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) ppen_reg			<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) prg_slew_reg		<-replicateM(mkConfigReg(1'b1));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) puq_reg				<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) pwrupzhl_reg		<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) pwrup_pull_en_reg	<-replicateM(mkConfigReg(0));	
-		Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigReg(0));
+		Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigRegA(False));
+		Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigRegA(0));	
+		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigRegA(0));	
+		Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigRegA(0));
 
     let vionum = valueOf(ionum);
 
@@ -143,60 +126,6 @@ package gpio;
 		  		temp[i]=pack(direction_reg[i]);
 		  	return temp;
 		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_DRV0;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(drv0_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_DRV1;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(drv1_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_DRV2;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(drv2_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PD;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(pd_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PPEN;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(ppen_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PRG_SLEW;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(prg_slew_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PUQ;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(puq_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PWRUPZHL;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(pwrupzhl_reg[i]);
-		  	return temp;
-		  endmethod
-		  method Vector#(ionum,Bit#(1))   gpio_PWRUP_PULL_EN;
-		  	Vector#(ionum,Bit#(1)) temp;
-		  	for(Integer i=0;i<vionum ;i=i+1)
-		  		temp[i]=pack(pwrup_pull_en_reg[i]);
-		  	return temp;
-		  endmethod
     endinterface;
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
@@ -216,36 +145,9 @@ package gpio;
 			if( addr[6:0]>=`dir_reg && addr[6:0]<`dataout_reg )
 				for(Integer i=0;i<vionum ;i=i+1)
 					direction_reg[i]<=unpack(datamask[i]);
-			else if(addr[6:0]>=`dataout_reg  && addr[6:0]<`drv0_reg )
+			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< (`dataout_reg+8) )
 				for(Integer i=0;i<vionum ;i=i+1)
 					dataout_register[i]<=datamask[i];
-			else if(addr[6:0]>=`drv0_reg  && addr[6:0]<`drv1_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					drv0_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`drv1_reg  && addr[6:0]<`drv2_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					drv1_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`drv2_reg  && addr[6:0]<`addr_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					drv2_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`addr_reg  && addr[6:0]<`ppen_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					pd_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`ppen_reg  && addr[6:0]<`prg_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					ppen_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`prg_reg  && addr[6:0]<`puq_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					prg_slew_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`puq_reg  && addr[6:0]<`pwrupzhl_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
-					puq_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`pwrupzhl_reg && addr[6:0]<`pwruppull_reg  )
-				for(Integer i=0;i<vionum ;i=i+1)
-					pwrupzhl_reg[i]<=datamask[i];
-			else if(addr[6:0]>=`pwruppull_reg && addr[6:0]< (`pwruppull_reg+8) )
-				for(Integer i=0;i<vionum ;i=i+1)
-					pwrup_pull_en_reg[i]<=datamask[i];
 			else
 				success=False;
 			return success;	
@@ -263,45 +165,9 @@ package gpio;
 				for(Integer i=0;i<vionum ;i=i+1)
 					temp[i]=pack(direction_reg[i]);
 			end
-			else if(addr[6:0]>=`dataout_reg  && addr[6:0]<`drv0_reg ) begin
+			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< (`dataout_reg + 8)) begin
 				for(Integer i=0;i<vionum ;i=i+1)
 					temp[i]=datain_register[i];
-			end
-			else if(addr[6:0]>=`drv0_reg  && addr[6:0]<`drv1_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=drv0_reg[i];
-			end
-			else if(addr[6:0]>=`drv1_reg  && addr[6:0]<`drv2_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=drv1_reg[i];
-			end
-			else if(addr[6:0]>=`drv2_reg  && addr[6:0]<`addr_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=drv2_reg[i];
-			end
-			else if(addr[6:0]>=`addr_reg  && addr[6:0]<`ppen_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=pd_reg[i];
-			end
-			else if(addr[6:0]>=`ppen_reg  && addr[6:0]<`prg_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=ppen_reg[i];
-			end
-			else if(addr[6:0]>=`prg_reg  && addr[6:0]<`puq_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=prg_slew_reg[i];
-			end
-			else if(addr[6:0]>=`puq_reg  && addr[6:0]<`pwrupzhl_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=puq_reg[i];
-			end
-			else if(addr[6:0]>=`pwrupzhl_reg && addr[6:0]<`pwruppull_reg  )begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=pwrupzhl_reg[i];
-			end
-			else if(addr[6:0]>=`pwruppull_reg && addr[6:0]< (`pwruppull_reg+8) )begin
-				for(Integer i=0;i<vionum ;i=i+1)
-					temp[i]=pwrup_pull_en_reg[i];
 			end
 			else
 				success=False;
@@ -333,6 +199,7 @@ package gpio;
 
 	interface Ifc_gpio_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width,numeric type ionum);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width,user_width) slave;
+    (*always_ready,always_enabled*)
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
     interface GPIO#(ionum) io;
 	endinterface
@@ -382,10 +249,10 @@ package gpio;
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
 		
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);	
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);	
 
 		rule write_request(rg_wrburst_count==0);
 			let addreq <- pop_o (s_xactor.o_wr_addr);
