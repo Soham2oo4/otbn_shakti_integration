@@ -72,10 +72,10 @@ module mkMemory(Mcpu_slave#(base_address,mem_size));
 String mcpu_slave_32 = " ";
 //Defining the slave interface lines
 
-Reg #(Bit#(1)) s_dsack_0_l<-mkRegA(1);
-Reg #(Bit#(1)) s_dsack_1_l<-mkRegA(1);
-Reg #(Bit#(1)) s_berr_l<-mkRegA(1);
-Reg #(Bit#(1)) s_halt_l<-mkRegA(1);
+Reg #(Bit#(1)) s_dsack_0_l<-mkReg(1);
+Reg #(Bit#(1)) s_dsack_1_l<-mkReg(1);
+Reg #(Bit#(1)) s_berr_l<-mkReg(1);
+Reg #(Bit#(1)) s_halt_l<-mkReg(1);
 Wire #(Bit #(1)) s_as_l<-mkDWire(1);
 Wire #(Bit #(1)) s_ds_l<-mkDWire(1);
 Wire #(Bit #(1)) s_siz0<-mkDWire(0);
@@ -83,7 +83,7 @@ Wire #(Bit #(1)) s_siz1<-mkDWire(0);
 Wire #(Bit #(32)) s_addr<-mkDWire(0);
 Wire #(Bit #(1)) s_wr_l<-mkDWire(0);
 
-Reg#(State_slave) slave_state <- mkRegA (RCV_REQ);
+Reg#(State_slave) slave_state <- mkReg (RCV_REQ);
 
 
 //..........data_out registers of tristate buffers and their control......
@@ -94,11 +94,11 @@ Wire#(Bit#(8)) data_in_4<-mkDWire(0);
 Wire#(Bit#(8)) data_in_3<-mkDWire(0);
 Wire#(Bit#(8)) data_in_2<-mkDWire(0);
 Wire#(Bit#(8)) data_in_1<-mkDWire(0);
-Reg#(Bit#(8)) data_out_4<-mkRegA(0);
-Reg#(Bit#(8)) data_out_3<-mkRegA(0);
-Reg#(Bit#(8)) data_out_2<-mkRegA(0);
-Reg#(Bit#(8)) data_out_1<-mkRegA(0);
-Reg #(Bit#(4)) data_control <-mkRegA(0);
+Reg#(Bit#(8)) data_out_4<-mkReg(0);
+Reg#(Bit#(8)) data_out_3<-mkReg(0);
+Reg#(Bit#(8)) data_out_2<-mkReg(0);
+Reg#(Bit#(8)) data_out_1<-mkReg(0);
+Reg #(Bit#(4)) data_control <-mkReg(0);
 
 
 /*In REQ_RCV State_slave
@@ -151,32 +151,32 @@ rule send_ack(slave_state==DET_DS );
 			 2'b00:
        begin
 					
-			    data_out_1 <=data0[31:24];
-          data_out_2 <=data0[23:16];
-          data_out_3 <=data0[15:8];
-          data_out_4 <=data0[7:0];
+			    data_out_4 <=data0[31:24];
+          data_out_3 <=data0[23:16];
+          data_out_2 <=data0[15:8];
+          data_out_1 <=data0[7:0];
 					data_control<=4'b1111;
 
        end
 			2'b01 :
 			      case({s_addr[1],s_addr[0]})
             2'b00:begin
-						data_out_4<=data0[7:0];
+						data_out_1<=data0[7:0];
 						data_control<=4'b1111;
 					  end
                                		
             2'b01:begin
-						data_out_3<=data0[15:8];
+						data_out_2<=data0[15:8];
 						data_control<=4'b1111;
 					  end
                                		
             2'b10:begin
-						data_out_2<=data0[23:16];
+						data_out_3<=data0[23:16];
 					  data_control<=4'b1111;
 						end
             
             2'b11:begin
-						data_out_1<=data0[31:24];
+						data_out_4<=data0[31:24];
 					  data_control<=4'b1111;
             end
 
@@ -185,14 +185,14 @@ rule send_ack(slave_state==DET_DS );
 			2'b10 :
 			       if({s_addr[1],s_addr[0]}==2'b00)
              begin
-                data_out_3<=data0[15:8];
-                data_out_4<=data0[7:0];
+                data_out_2<=data0[15:8];
+                data_out_1<=data0[7:0];
 			       		data_control<=4'b1111;
 			       end
 			       else
                 begin 
-                data_out_1<=data0[31:24];
-                data_out_2<=data0[23:16];
+                data_out_4<=data0[31:24];
+                data_out_3<=data0[23:16];
 			       		data_control<=4'b1111;
                 end                                  
    endcase
@@ -205,26 +205,26 @@ rule send_ack(slave_state==DET_DS );
 		  Bit#(TSub#(mem_size,2)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:2];
 			case({s_siz1,s_siz0})
         2'b00 :begin
-				dmemLSB.b.put(4'b1111,index_address,{data_in_1,data_in_2,data_in_3,data_in_4});
+				dmemLSB.b.put(4'b1111,index_address,{data_in_4,data_in_3,data_in_2,data_in_1});
         end
 			  2'b01 :begin
 			       	 case({s_addr[1],s_addr[0]})
 						2'b00:begin
-							 dmemLSB.b.put(4'b0001,index_address,{24'b0,data_in_4});
+							 dmemLSB.b.put(4'b0001,index_address,{24'b0,data_in_1});
 							end 		
-			       			2'b01:dmemLSB.b.put(4'b0010,index_address,{16'b0,data_in_3,8'b0});
-			       			2'b10:dmemLSB.b.put(4'b0100,index_address,{8'b0,data_in_2,16'b0});
-			       			2'b11:dmemLSB.b.put(4'b1000,index_address,{data_in_1,24'b0});
+			       			2'b01:dmemLSB.b.put(4'b0010,index_address,{16'b0,data_in_2,8'b0});
+			       			2'b10:dmemLSB.b.put(4'b0100,index_address,{8'b0,data_in_3,16'b0});
+			       			2'b11:dmemLSB.b.put(4'b1000,index_address,{data_in_4,24'b0});
 			       		endcase
                 end
 			  2'b10 :
               if({s_addr[1],s_addr[0]}==2'b00)
 			      	begin
-					      dmemLSB.b.put(4'b0011,index_address,{16'b0,data_in_3,data_in_4});
+					      dmemLSB.b.put(4'b0011,index_address,{16'b0,data_in_2,data_in_1});
 				      end
 			    	  else 
 			      	begin	
-					      dmemLSB.b.put(4'b1100,index_address,{data_in_1,data_in_2,16'b0});
+					      dmemLSB.b.put(4'b1100,index_address,{data_in_4,data_in_3,16'b0});
               end
       endcase
   end 

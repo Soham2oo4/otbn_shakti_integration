@@ -224,7 +224,8 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 					Bit#(64) store_data;
 					store_data=zeroExtend(mem_req.write_data);
 										source_id = address[v_msb_ir_bits:0];
-										$display($time,"\tPLIC : source %d Priority set to %h", source_id, store_data);
+										`ifdef verbose $display($time,"\tPLIC : source %d Priority set to %h",
+										  source_id, store_data);`endif
 										rg_priority[source_id] <= truncate(store_data);
 									end
 								end
