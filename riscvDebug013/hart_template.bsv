@@ -45,15 +45,15 @@ package hart_template;
     MakeResetIfc hart_reset <-mkReset(0,False,curr_clk);          // create a new reset for curr_clk
     Reset derived_reset <- mkResetEither(hart_reset.new_rst,curr_reset);     // OR default and new_rst
 
-    Reg#(Bit#(1)) rg_reset_hart <- mkReg(0);              // Triggers the rule that resets your hart
+    Reg#(Bit#(1)) rg_reset_hart <- mkRegA(0);              // Triggers the rule that resets your hart
 
-    Reg#(Bit#(1)) rg_halted <- mkReg(0);                  // 0 : Hart "halted" , 1 hart Running
-    Reg#(Bit#(1)) rg_available <- mkReg(1);               // 0 : Hart not Available for debugging
+    Reg#(Bit#(1)) rg_halted <- mkRegA(0);                  // 0 : Hart "halted" , 1 hart Running
+    Reg#(Bit#(1)) rg_available <- mkRegA(1);               // 0 : Hart not Available for debugging
 
-    Reg#(Bit#(1)) rg_halt_request <- mkDReg(0);  // Equvalent Struicture to absorb incoming requests
-    Reg#(Bit#(1)) rg_resume_request <- mkDReg(0);// Equvalent Struicture to absorb incoming requests
+    Reg#(Bit#(1)) rg_halt_request <- mkDRegA(0);  // Equvalent Struicture to absorb incoming requests
+    Reg#(Bit#(1)) rg_resume_request <- mkDRegA(0);// Equvalent Struicture to absorb incoming requests
     
-    Reg#(Maybe#(Bit#(DXLEN))) rg_abst_response <- mkReg(tagged Invalid); // registered container for responses
+    Reg#(Maybe#(Bit#(DXLEN))) rg_abst_response <- mkRegA(tagged Invalid); // registered container for responses
 
     // No implict conditions hart state at the end of every cycle
     // rule hart_state; 

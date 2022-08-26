@@ -180,18 +180,18 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	////////////////////////////////////////////////////////////////
 	//////////////////////// DMA Registers /////////////////////////
 	////////////////////////////////////////////////////////////////
-	Vector#(numChannels,Reg#(Bit#(4))) dma_isr <- replicateM(mkReg(0));		//Interrupt Status Register
-	Vector#(numChannels,Reg#(Bit#(4))) dma_ifcr <- replicateM(mkReg(0));	//Interrupt Flag Clear Register
-	Vector#(numChannels,Reg#(Bit#(32))) dma_ccr <- replicateM(mkConfigReg(0));	//Channel Configuration Register
-	Vector#(numChannels,Reg#(Bit#(16))) dma_cndtr <- replicateM(mkConfigReg(0));	//Channel Number of Data Transfer Register
-	Vector#(numChannels,Reg#(Bit#(addr_width))) dma_cpar <- replicateM(mkReg(0));	//Channel Peripheral Address Register
-	Vector#(numChannels,Reg#(Bit#(addr_width))) dma_cmar <- replicateM(mkReg(0));	//Channel Memory Address Register
-	Vector#(numChannels,Reg#(Bit#(4))) dma1_cselr <- replicateM(mkReg(0));	//Channel SELection Register
+	Vector#(numChannels,Reg#(Bit#(4))) dma_isr <- replicateM(mkRegA(0));		//Interrupt Status Register
+	Vector#(numChannels,Reg#(Bit#(4))) dma_ifcr <- replicateM(mkRegA(0));	//Interrupt Flag Clear Register
+	Vector#(numChannels,Reg#(Bit#(32))) dma_ccr <- replicateM(mkConfigRegA(0));	//Channel Configuration Register
+	Vector#(numChannels,Reg#(Bit#(16))) dma_cndtr <- replicateM(mkConfigRegA(0));	//Channel Number of Data Transfer Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) dma_cpar <- replicateM(mkRegA(0));	//Channel Peripheral Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) dma_cmar <- replicateM(mkRegA(0));	//Channel Memory Address Register
+	Vector#(numChannels,Reg#(Bit#(4))) dma1_cselr <- replicateM(mkRegA(0));	//Channel SELection Register
 	//We do not have dma2_cselr because there is only one DMA, and not 2 in this architecture
 
 	//Registers to keep track if all the data read is wrtten
-	//Vector#(numChannels, Array#(Reg#(DMACounts))) currentReadRs[2]  <- replicateM(mkCReg(2,0));
-	//Vector#(numChannels, Array#(Reg#(DMACounts))) currentWriteRs[2] <- replicateM(mkCReg(2,0));
+	//Vector#(numChannels, Array#(Reg#(DMACounts))) currentReadRs[2]  <- replicateM(mkCRegA(2,0));
+	//Vector#(numChannels, Array#(Reg#(DMACounts))) currentWriteRs[2] <- replicateM(mkCRegA(2,0));
 	Reg#(DMACounts) currentReadRs[valueOf(numChannels)][2];
 	Reg#(DMACounts) currentWriteRs[valueOf(numChannels)][2];
 	Reg#(Bool)		rg_is_cndtr_zero[valueOf(numChannels)][2];
@@ -200,9 +200,9 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   Reg#(Bit#(1)) rg_burst_type <- mkRegU();
 
 	for(Integer i=0 ; i<valueOf(numChannels) ; i=i+1) begin
-		currentReadRs[i] <- mkCReg(2,0);
-		currentWriteRs[i] <- mkCReg(2,0);
-		rg_is_cndtr_zero[i] <- mkCReg(2,True);
+		currentReadRs[i] <- mkCRegA(2,0);
+		currentWriteRs[i] <- mkCRegA(2,0);
+		rg_is_cndtr_zero[i] <- mkCRegA(2,True);
 	end
 
 	// Use a FIFO to pass the read response to the write "side",
@@ -227,24 +227,24 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	
 	// This register stores the initial value of the CNDTR. It is used to restore the value back
 	// when operating in circular mode.
-	Vector#(numChannels,Reg#(Bit#(16))) rg_cndtr <- replicateM(mkReg(0));
+	Vector#(numChannels,Reg#(Bit#(16))) rg_cndtr <- replicateM(mkRegA(0));
 
 	// The spec specifies that the CPAR and CMAR values when read in middle of a transaction should
 	// still hold the original programmed value, and not the address of the current transaction.
 	// Therefore, we have a copy of these registers which indicate the address of the current
 	// ongoing transaction on that channel.
-	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cpa <- replicateM(mkConfigReg(0));	// Local Channel Peripheral Address Register
-	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cma <- replicateM(mkConfigReg(0));	// Local Channel Memory Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cpa <- replicateM(mkConfigRegA(0));	// Local Channel Peripheral Address Register
+	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cma <- replicateM(mkConfigRegA(0));	// Local Channel Memory Address Register
 
-	Reg#(Bit#(`Burst_length_bits)) rg_burst_count <- mkReg(0);
-	Reg#(Bit#(TLog#(numChannels))) rg_current_trans_chan_id <- mkReg(0);
-	Reg#(Tuple2#(Bool, Bit#(TLog#(numChannels)))) rg_disable_channel <- mkReg(tuple2(False, ?));
-	Reg#(Tuple2#(Bit#(TLog#(numChannels)), Bit#(config_data_width))) rg_writeConfig_ccr <- mkReg(tuple2(0,0));
+	Reg#(Bit#(`Burst_length_bits)) rg_burst_count <- mkRegA(0);
+	Reg#(Bit#(TLog#(numChannels))) rg_current_trans_chan_id <- mkRegA(0);
+	Reg#(Tuple2#(Bool, Bit#(TLog#(numChannels)))) rg_disable_channel <- mkRegA(tuple2(False, ?));
+	Reg#(Tuple2#(Bit#(TLog#(numChannels)), Bit#(config_data_width))) rg_writeConfig_ccr <- mkRegA(tuple2(0,0));
 	Reg#(Bool) rg_finish_write[valueOf(numChannels)][2];
 	Reg#(Bool) rg_finish_read[valueOf(numChannels)][2];
 	for(Integer i=0 ; i<valueOf(numChannels) ; i=i+1) begin
-		rg_finish_write[i]<- mkCReg(2,True);
-		rg_finish_read[i]<- mkCReg(2,True);
+		rg_finish_write[i]<- mkCRegA(2,True);
+		rg_finish_read[i]<- mkCRegA(2,True);
 	end
 
 	// This function returns the id of the peripheral for which this channel is configured
@@ -658,7 +658,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	// Rules and other code to interface config port /////////////
 
 	// Add a zero-size register as a default for invalid addresses
-	Reg#(Bit#(0)) nullReg <- mkReg( ? ) ;
+	Reg#(Bit#(0)) nullReg <- mkRegA( ? ) ;
 
 // ----------------------------------------------------------------
 // At times it is best to consider registers as completely homogeneous,
@@ -1110,13 +1110,13 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
 		AXI4_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 
-		Reg#(Bool) rg_is_rdburst[2] <- mkCReg(2,False);
-		Reg#(Bit#(4)) rg_arid[2] <- mkCReg(2,?);
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
+		Reg#(Bool) rg_is_rdburst[2] <- mkCRegA(2,False);
+		Reg#(Bit#(4)) rg_arid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		
-		Reg#(Bool) rg_is_wrburst[2] <- mkCReg(2,False);
-		Reg#(Bit#(4)) rg_awid[2] <- mkCReg(2,?);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
+		Reg#(Bool) rg_is_wrburst[2] <- mkCRegA(2,False);
+		Reg#(Bit#(4)) rg_awid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
 //	method Action read_req(Bit#(addr_width) addr, AccessSize size);
 //	method Tuple2#(Bool, Bit#(data_width)) read_resp;

@@ -222,31 +222,31 @@ function Bit#(data_width) fn_rd_data(Bit#(2) bsize,Bit#(6) lwr_addr,Bit#(data_wi
     return truncate(max_width);
 endfunction
 
-Reg#(bit)            rg_app_req <- mkDReg(0,clocked_by clk0, reset_by rst0);
-Reg#(bit)            rg_app_req_wrap <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(26))       rg_app_req_addr <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(4))        rg_cfg_sdr_tras_d <- mkConfigReg(4'h4,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(4))        rg_cfg_sdr_trp_d <- mkConfigReg(4'h2,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(4))        rg_cfg_sdr_trcd_d <- mkConfigReg(4'h2,clocked_by clk0, reset_by rst0); 
-Reg#(bit)            rg_cfg_sdr_en <- mkConfigReg(1'h1,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(2))        rg_cfg_req_depth <- mkConfigReg(2'h3,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(13))       rg_cfg_sdr_mode_reg <- mkConfigReg(13'h037,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(3))        rg_cfg_sdr_cas <- mkConfigReg(3'h3,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(4))        rg_cfg_sdr_trcar_d <- mkConfigReg(4'h7,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(4))        rg_cfg_sdr_twr_d <- mkConfigReg(4'h1,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(2))        rg_cfg_sdr_width <- mkConfigReg(2'b0,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(2))        rg_cfg_colbits <- mkConfigReg(2'b01,clocked_by clk0, reset_by rst0); 
-//Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigReg(9'b000100011,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(8))        rg_cfg_sdr_clk_delay <- mkConfigReg(8'b10001000,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(9))		 rg_cfg_write_delay   <- mkReg(0, clocked_by clk0, reset_by rst0);
-Reg#(bit)			 rg_cfg_mem_sel		  <- mkReg(0, clocked_by clk0, reset_by rst0);
+Reg#(bit)            rg_app_req <- mkDRegA(0,clocked_by clk0, reset_by rst0);
+Reg#(bit)            rg_app_req_wrap <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(26))       rg_app_req_addr <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(4))        rg_cfg_sdr_tras_d <- mkConfigRegA(4'h4,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(4))        rg_cfg_sdr_trp_d <- mkConfigRegA(4'h2,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(4))        rg_cfg_sdr_trcd_d <- mkConfigRegA(4'h2,clocked_by clk0, reset_by rst0); 
+Reg#(bit)            rg_cfg_sdr_en <- mkConfigRegA(1'h1,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(2))        rg_cfg_req_depth <- mkConfigRegA(2'h3,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(13))       rg_cfg_sdr_mode_reg <- mkConfigRegA(13'h037,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(3))        rg_cfg_sdr_cas <- mkConfigRegA(3'h3,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(4))        rg_cfg_sdr_trcar_d <- mkConfigRegA(4'h7,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(4))        rg_cfg_sdr_twr_d <- mkConfigRegA(4'h1,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(2))        rg_cfg_sdr_width <- mkConfigRegA(2'b0,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(2))        rg_cfg_colbits <- mkConfigRegA(2'b01,clocked_by clk0, reset_by rst0); 
+//Reg#(Bit#(9))        rg_cfg_sdio_ctrl <- mkConfigRegA(9'b000100011,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(8))        rg_cfg_sdr_clk_delay <- mkConfigRegA(8'b10001000,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(9))		 rg_cfg_write_delay   <- mkRegA(0, clocked_by clk0, reset_by rst0);
+Reg#(bit)			 rg_cfg_mem_sel		  <- mkRegA(0, clocked_by clk0, reset_by rst0);
 
-Reg#(Bit#(rfrsh_timer_width ))  rg_cfg_sdr_rfsh <- mkConfigReg('h100,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(rfrsh_row_width)) rg_cfg_sdr_rfmax <- mkConfigReg('h6,clocked_by clk0, reset_by rst0); 
-Reg#(Bit#(9))                   rg_app_req_len <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(2))                   rg_lwraddr <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-Reg#(Bit#(2))                   rg_arsize <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-Reg#(bit)                       rg_app_req_wr_n <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(rfrsh_timer_width ))  rg_cfg_sdr_rfsh <- mkConfigRegA('h100,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(rfrsh_row_width)) rg_cfg_sdr_rfmax <- mkConfigRegA('h6,clocked_by clk0, reset_by rst0); 
+Reg#(Bit#(9))                   rg_app_req_len <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(2))                   rg_lwraddr <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(2))                   rg_arsize <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+Reg#(bit)                       rg_app_req_wr_n <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(4))                   rg_app_wr_en_n <- mkDWire('hF,clocked_by clk0, reset_by rst0);
 Reg#(Bit#(data_width))                  rg_app_wr_data <- mkDWire(0,clocked_by clk0, reset_by rst0);
 Wire#(Bool)                     wr_sdr_init_done <- mkDWire(False,clocked_by clk0, reset_by rst0);
@@ -258,11 +258,11 @@ Wire#(Bool)                     wr_app_last_wr <- mkDWire(False,clocked_by clk0,
 Wire#(Bit#(data_width))                 wr_app_rd_data <- mkWire(clocked_by clk0, reset_by rst0);
 
 
-Reg#(Bit#(3))            rg_awsize          <- mkReg(0);
+Reg#(Bit#(3))            rg_awsize          <- mkRegA(0);
 
 
-Reg#(Write_state) rg_write_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
-Reg#(Read_state) rg_read_states <- mkReg(IDLE,clocked_by clk0, reset_by rst0);
+Reg#(Write_state) rg_write_states <- mkRegA(IDLE,clocked_by clk0, reset_by rst0);
+Reg#(Read_state) rg_read_states <- mkRegA(IDLE,clocked_by clk0, reset_by rst0);
 
 
 `ifdef sdram_ext_clk
@@ -299,19 +299,19 @@ FIFOF#(Bit#(addr_cntrl_width)) ff_sync_ctrl_read<- mkSizedFIFOF(1);
 FIFOF#(Bit#(data_cntrl_width)) ff_sync_ctrl_read_response<- mkSizedFIFOF(1);
 `endif
 // Polling Registers
-Reg#(Bit#(2)) rg_poll_cnt <- mkReg(0,clocked_by clk0, reset_by rst0);
+Reg#(Bit#(2)) rg_poll_cnt <- mkRegA(0,clocked_by clk0, reset_by rst0);
 `ifdef sdram_ext_clk
 Reg#(Bool)    rg_polling_status <- mkSyncRegToCC(False,clk0,rst0);
 `else
-Reg#(Bool)    rg_polling_status <- mkReg(False);
+Reg#(Bool)    rg_polling_status <- mkRegA(False);
 `endif 
-Reg#(Bool)    rg_polling_status_clk0 <- mkReg(False,clocked_by clk0, reset_by rst0);
-Reg#(Bool)    rg_rd_trnc_flg <- mkReg(False,clocked_by clk0,reset_by rst0);
-Reg#(Bool)    rg_wr_trnc_flg <- mkReg(False);
-Reg#(bit)     rg_odd_len     <- mkReg(0);   
+Reg#(Bool)    rg_polling_status_clk0 <- mkRegA(False,clocked_by clk0, reset_by rst0);
+Reg#(Bool)    rg_rd_trnc_flg <- mkRegA(False,clocked_by clk0,reset_by rst0);
+Reg#(Bool)    rg_wr_trnc_flg <- mkRegA(False);
+Reg#(bit)     rg_odd_len     <- mkRegA(0);   
 
 `ifdef simulate 
-	Reg#(Bit#(9)) rg_debug_count <- mkReg(0);
+	Reg#(Bit#(9)) rg_debug_count <- mkRegA(0);
 `endif
 // hardcoding the parameter value to resolve provisos
 AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Lite_Slave_Xactor;

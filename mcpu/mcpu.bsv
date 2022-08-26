@@ -15,7 +15,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 Author: Deepa N Sarma
 Email id: deepans.88@gmail.com
 
-This mo:dule
+This module
 1.Transalates  AXI master request to mcpu master request
 2.Provides support for burst transfers
 2.Manages dynamic bus sizing which is a feature of mcpu
@@ -84,7 +84,7 @@ package mcpu;
 		FIFOF#(Bool) ff_last<-mkSizedFIFOF(2);//To keep track of last pending request
     Reg#(Bit#(2)) rg_port_count <- mkReg(0);//To keep track of multi cycle requests
 		Reg#(Bit#(32)) rg_inst_rcvd <- mkReg(0);
-    Reg#(Bit#(3)) rg_endian  <- mkReg(0);//Dynamic endianness indicator
+    //Reg#(Bit#(3)) rg_endian  <- mkReg(0);//Dynamic endianness indicator
     Reg#(Bool) dw_write <- mkReg(False);//Double word write
     Reg#(Bool) dw_read  <-mkReg(False);//Double word read
     Reg#(Bool) err_buff  <-mkReg(False);//Buffer the bus_error across double word writes
@@ -111,17 +111,14 @@ package mcpu;
       let info<-pop_o(s_xactor.o_wr_addr);
       let data<-pop_o(s_xactor.o_wr_data);
 
-      Bool sram_big =False;
-      if (rg_endian<2)
-        rg_endian <= rg_endian+1;
-      else
-        sram_big  = True;
+      //Bool sram_big =False;
+      //if (rg_endian<2)
+      //  rg_endian <= rg_endian+1;
+      //else
+      //  sram_big  = True;
 
-       
-      
-      
       let request=Req_mcpu{addr:truncate(info.awaddr),wr_data:truncate(data.wdata),
-      mode:modeconv_mcpu(info.awsize),fun_code:3'b010,rd_req:0,endian_big:sram_big};
+      mode:modeconv_mcpu(info.awsize),fun_code:3'b010,rd_req:0};
 
 
       if(info.awsize==3'b011 && endian(info.awaddr,True)==Big)
@@ -164,11 +161,6 @@ package mcpu;
       if(info.awsize==3'b011)begin
         dw_write<=True;
         dw_addr<=info.awaddr;
-        if(endian(info.awaddr,True)==Big)
-        begin
-          dw_data<=data.wdata[31:0];
-        end
-        else
         begin
           dw_data<=data.wdata[63:32];
         end
@@ -183,11 +175,11 @@ package mcpu;
       let data<-pop_o(s_xactor.o_wr_data);
       
       //Controlling dynamic endianess of sram 
-      Bool sram_big =False;
-      if (rg_endian<2)
-        rg_endian <= rg_endian+1;
-      else
-        sram_big  = True;
+      //Bool sram_big =False;
+      //if (rg_endian<2)
+      //  rg_endian <= rg_endian+1;
+      //else
+      //  sram_big  = True;
 
        
       //Generating last word for endianness
@@ -204,15 +196,12 @@ package mcpu;
      //Generating address for burst_transfers
       if(rg_size!=0)
       addr= axi4burst_addrgen(rg_arlen,rg_size,rg_burst,rg_burst_addr);
-      
       rg_burst_addr<=addr;
 
 
       let request=Req_mcpu{addr:truncate(addr),wr_data:truncate(data.wdata),
-      mode:modeconv_mcpu(rg_size),fun_code:3'b010,rd_req:0,endian_big:sram_big};
+      mode:modeconv_mcpu(rg_size),fun_code:3'b010,rd_req:0};
       
-      if(rg_size==3'b011 && endian(addr,True)==Big)
-      request.wr_data = data.wdata[63:32];
      
       //accessing interrupt registers 
       if(addr[31:4]==28'hFFFF_FFF)
@@ -238,11 +227,6 @@ package mcpu;
       if(rg_size==3'b011)begin
         dw_write<=True;
         dw_addr<=addr;
-        if(endian(addr,True)==Big)
-        begin
-          dw_data<=data.wdata[31:0];
-        end
-        else
         begin
           dw_data<=data.wdata[63:32];
         end
@@ -255,13 +239,13 @@ package mcpu;
     //Rule fires in 2nd cycle of double wor d writes
 		rule check_wr_request_to_memory_dw_write(dw_write);
       
-      Bool sram_big =False;
-      if (rg_endian<2)
-        rg_endian <= rg_endian+1;
-      else
-        sram_big  = True;
+     // Bool sram_big =False;
+     // if (rg_endian<2)
+     //   rg_ndian <= rg_endian+1;
+     // else
+     //   sram_big  = True;
 
-      let request=Req_mcpu{addr:dw_addr+4,wr_data:dw_data,mode:2'b00,fun_code:3'b010,rd_req:0,endian_big:sram_big};
+      let request=Req_mcpu{addr:dw_addr+4,wr_data:dw_data,mode:2'b00,fun_code:3'b010,rd_req:0};
 
       //accessing  interrupt_registers
       if(dw_addr[31:4]==28'hFFFF_FFF)
@@ -283,11 +267,11 @@ package mcpu;
       ff_id.enq(info.arid);
       ff_address.enq(info.araddr);
      //sram is little-endian for first four cycles and big-endian after that 
-      Bool sram_big=False;
-      if (rg_endian <2)
-        rg_endian <= rg_endian+1;
-      else
-        sram_big = True;
+     //Bool sram_big=False;
+     // if (rg_endian <2)
+     //   rg_endian <= rg_endian+1;
+     // else
+     //   sram_big = True;
       //For burst transfers:-
       if (info.arlen!=0)
       begin
@@ -303,7 +287,7 @@ package mcpu;
       else
         ff_last.enq(True);
         let request=Req_mcpu{addr:truncate(info.araddr),wr_data:?,mode:modeconv_mcpu(info.arsize),
-        fun_code:3'b010,rd_req:1,endian_big:sram_big};
+        fun_code:3'b010,rd_req:1};
         if (info.araddr[31:4]==28'hFFFF_FFF)
         request.fun_code=3'b111;
             
@@ -332,11 +316,11 @@ package mcpu;
      
       let addr = rg_burst_addr;
       //sram is little-endian for first four cycles and big-endian after that 
-      Bool sram_big=False;
-      if (rg_endian <2)
-        rg_endian <= rg_endian+1;
-      else
-        sram_big = True;
+      //Bool sram_big=False;
+      //if (rg_endian <2)
+      //  rg_endian <= rg_endian+1;
+      //else
+      //  sram_big = True;
       //tracking the count for burst transfers:-
       if (rg_counter!=0)
       begin
@@ -357,7 +341,7 @@ package mcpu;
       
       ff_address.enq(addr);
       let request=Req_mcpu{addr:truncate(addr),wr_data:?,mode:modeconv_mcpu(rg_size),
-      fun_code:3'b010,rd_req:1,endian_big:sram_big};
+      fun_code:3'b010,rd_req:1};
       //function code if accessing interrupt registers(reading interrupt_vector)
       if (rg_burst_addr[31:4]==28'hFFFF_FFF)
        request.fun_code=3'b111;
@@ -392,13 +376,13 @@ package mcpu;
       ff_address.enq(dw_read_addr);
       
       //sram is little-endian for first four cycles and big-endian after that 
-      Bool sram_big=False;
-      if (rg_endian <2)
-        rg_endian <= rg_endian+1;
-      else
-        sram_big = True;
+      // Bool sram_big=False;
+     //if (rg_endian <2)
+     //   rg_endian <= rg_endian+1;
+     // else
+     //   sram_big = True;
       let request=Req_mcpu{addr:dw_read_addr+4,wr_data:?,mode:2'b00,
-      fun_code:3'b010,rd_req:1,endian_big:sram_big};
+      fun_code:3'b010,rd_req:1};
       
       //Managing double word transaction
       if (dw_read_addr[31:4]==28'hFFFF_FFF)
@@ -491,9 +475,6 @@ package mcpu;
              //checking last word for burst_transfers
             let r = AXI4_Rd_Data {rresp: AXI4_OKAY,rdata:duplicate({response.data[7:0],
             response_buff[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
-            if(endian(ff_address.first,response.endian_big)==Big)
-            r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:duplicate({response_buff[7:0],
-            response.data[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
             if(response.berr==1'b1||response_berr==1'b1)
             r.rresp = AXI4_SLVERR;
 
@@ -578,9 +559,6 @@ package mcpu;
 				response_buff<=0;
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data[15:0],
         response_buff[15:0]}),rlast:False,ruser: 0,rid: ff_id.first };
-	      if(endian(ff_address.first,response.endian_big)==Big)
-	      r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({response_buff[15:0],
-        response.data[15:0]}),rlast:False,ruser:0,rid: ff_id.first };
         
         //checking last word for burst_transfers
         if(ff_last.first)
@@ -603,16 +581,12 @@ package mcpu;
 			else if(response.port_type==2'b01)
 			begin
 			if(rg_port_count<3)
-				begin
-					if(endian(ff_address.first,response.endian_big) == Big )begin
-          if(response.berr==1'b1)
-            response_berr<=1'b1;
-					  response_buff<={response_buff[23:0],response.data[7:0]};
-          end
-          else begin
+	  			begin
+          begin
           if(response.berr==1'b1)
             response_berr<=1'b1;
           response_buff<={response.data[7:0],response_buff[31:8]};
+         // $display("Receiving 8 bit data %h to slave,response.data");
           end
 					rg_port_count<=rg_port_count+1;
 				end
@@ -624,8 +598,6 @@ package mcpu;
           response_berr<=0;
           let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({
           response.data[7:0],response_buff[31:8]}),rlast:False,ruser:0,rid: ff_id.first };
-	        if(endian(ff_address.first,response.endian_big)==Big)
-          r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({response_buff[23:0],response.data[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
     			if(response.berr==1'b1||response_berr==1'b1)    		
 					r.rresp = AXI4_SLVERR;
       		ff_address.deq;
@@ -668,9 +640,6 @@ package mcpu;
 				ff_req.deq();
 				rg_port_count<=0;
 				response_buff<=0;
-	      if(endian(ff_address.first,response.endian_big)==Big)
-	      data_buff <= {response_buff[15:0],response.data[15:0]};
-        else
         data_buff<={response.data[15:0],response_buff[15:0]};
       	if(response.berr==1'b1||response_berr==1'b1)
 		    err_buff<=True;
@@ -681,13 +650,7 @@ package mcpu;
 			begin
 			if(rg_port_count<3)
 				begin
-					if(endian(ff_address.first,response.endian_big) == Big )
           begin
-					 response_buff<={response_buff[23:0],response.data[7:0]};
-      	   if(response.berr==1'b1)
-		       response_berr<=1'b1;
-          end
-          else begin
         	 response_buff<={response.data[7:0],response_buff[31:8]};
       	   if(response.berr==1'b1)
 		       response_berr<=1'b1;
@@ -700,9 +663,6 @@ package mcpu;
 					rg_port_count<=0;
 					response_buff<=0;
           response_berr<=0;
-	        if(endian(ff_address.first,response.endian_big)==Big)
-          data_buff<={response_buff[23:0],response.data[7:0]};
-          else
           data_buff<={response.data[7:0],response_buff[31:8]};
     			if(response.berr==1'b1||response_berr==1'b1)    		
 				  err_buff<=True; 
@@ -716,9 +676,6 @@ package mcpu;
       if(response.port_type==2'b00) begin		
 			  ff_req.deq();
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:{response.data,data_buff},rlast:False,ruser: 0,
-        rid: ff_id.first };
-        if(endian((ff_address.first),True)==Big)
-        r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({data_buff,response.data}),rlast:False,ruser: 0,
         rid: ff_id.first };
     		if(response.berr == 1'b1||err_buff)
 			  r.rresp = AXI4_SLVERR;
@@ -756,9 +713,6 @@ package mcpu;
         response_berr<=1'b0;
         let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({response.data[15:0],
         response_buff[15:0],data_buff}),rlast:False,ruser: 0,rid: ff_id.first };
-	      if(endian(ff_address.first,response.endian_big)==Big)
-	      r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({data_buff,response_buff[15:0],
-        response.data[15:0]}),rlast:False,ruser:0,rid: ff_id.first };
       	if(response.berr==1'b1||err_buff||response_berr==1'b1)
 				r.rresp = AXI4_SLVERR;
 
@@ -780,15 +734,10 @@ package mcpu;
 			begin
 			if(rg_port_count<3)
 				begin
-					if(endian(ff_address.first,response.endian_big) == Big )begin
-            if(response.berr==1'b1)
-              response_berr<=1;
-					  response_buff<={response_buff[23:0],response.data[7:0]};
-          end
-          else begin
-					response_buff<={response.data[7:0],response_buff[31:8]};
-          if(response.berr==1'b1)
-              response_berr<=1;
+          begin
+					   response_buff<={response.data[7:0],response_buff[31:8]};
+             if(response.berr==1'b1)
+                response_berr<=1;
           end
 					rg_port_count<=rg_port_count+1;
 				end
@@ -800,8 +749,6 @@ package mcpu;
           response_berr<=0;
           let r = AXI4_Rd_Data{rresp: AXI4_OKAY, rdata:duplicate({
           response.data[7:0],response_buff[31:8],data_buff}),rlast:False,ruser:0,rid: ff_id.first };
-	        if(endian(ff_address.first,response.endian_big)==Big)
-          r = AXI4_Rd_Data{rresp: AXI4_OKAY,rdata:duplicate({data_buff,response_buff[23:0],response.data[7:0]}),rlast:False,ruser: 0,rid: ff_id.first };
     			if(response.berr==1'b1||err_buff||response_berr==1'b1)    		
 					r.rresp = AXI4_SLVERR; 
 					ff_address.deq;
@@ -993,7 +940,7 @@ package mcpu;
 				begin
           if(response.berr==1'b1)
             response_berr<=1;
-          rg_port_count<=rg_port_count+1;
+            rg_port_count<=rg_port_count+1;
 				end
 			else
 				begin

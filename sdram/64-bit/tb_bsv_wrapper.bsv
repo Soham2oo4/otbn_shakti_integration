@@ -47,23 +47,23 @@ endinterface
 
 module mktb_bsv_wrapper(Ifc_tb_bsv_wrapper);
 
-   Reg#(Bit#(9)) rg_burst_count <- mkReg(0);
-   Reg#(bit) rg_tb_app_req <- mkReg(0);       
+   Reg#(Bit#(9)) rg_burst_count <- mkRegA(0);
+   Reg#(bit) rg_tb_app_req <- mkRegA(0);       
    Reg#(bit) rg_tb_app_wr_n <- mkRegU();
-   Reg#(Bit#(64))  rg_tb_app_req_addr <- mkReg(0);
-   Reg#(Bit#(8))   rg_tb_app_req_len  <- mkReg(0);
-   Reg#(Bit#(64))  rg_tb_wr_data <- mkReg(0);
-   Reg#(Bit#(8))   rg_tb_wr_en_n <- mkReg(0);
-   Reg#(Bit#(64))  rg_tb_rd_data <- mkReg(0);
-   Reg#(Bit#(5))   rg_state_cnt  <- mkReg(0);
-   Reg#(Bit#(64))  rg_tb_app_rd_addr <- mkReg(0);
-   Reg#(Bit#(8))   rg_tb_app_rd_len  <- mkReg(0);
-   Reg#(Bit#(16))  rg_delay_count <- mkReg(0);
-   Reg#(bit)   rg_ff <- mkReg(0);
-   Reg#(Bit#(2)) rg_bmode <- mkReg(0);
+   Reg#(Bit#(64))  rg_tb_app_req_addr <- mkRegA(0);
+   Reg#(Bit#(8))   rg_tb_app_req_len  <- mkRegA(0);
+   Reg#(Bit#(64))  rg_tb_wr_data <- mkRegA(0);
+   Reg#(Bit#(8))   rg_tb_wr_en_n <- mkRegA(0);
+   Reg#(Bit#(64))  rg_tb_rd_data <- mkRegA(0);
+   Reg#(Bit#(5))   rg_state_cnt  <- mkRegA(0);
+   Reg#(Bit#(64))  rg_tb_app_rd_addr <- mkRegA(0);
+   Reg#(Bit#(8))   rg_tb_app_rd_len  <- mkRegA(0);
+   Reg#(Bit#(16))  rg_delay_count <- mkRegA(0);
+   Reg#(bit)   rg_ff <- mkRegA(0);
+   Reg#(Bit#(2)) rg_bmode <- mkRegA(0);
 
-   Reg#(Bit#(64)) rg_tb_cntrl_addr <- mkReg(0);
-   Reg#(Bit#(64)) rg_tb_cntrl_data <- mkReg(4);   
+   Reg#(Bit#(64)) rg_tb_cntrl_addr <- mkRegA(0);
+   Reg#(Bit#(64)) rg_tb_cntrl_data <- mkRegA(4);   
 
    AXI4_Master_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) m_xactor_sdram <- mkAXI4_Master_Xactor;
    AXI4_Master_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) m_xactor_cntrl_reg <- mkAXI4_Master_Xactor;

@@ -287,12 +287,23 @@ assign sdr_dout  = sdr_dout_int ;
 // register w.r.t pad sdram clk
 reg [SDR_DW-1:0] pad_sdr_din1;
 reg [SDR_DW-1:0] pad_sdr_din2;
-always@(posedge pad_clk) begin
-   pad_sdr_din1 <= pad_sdr_din;
+
+always@(posedge pad_clk or negedge reset_n) begin
+   if (~reset_n) begin
+      pad_sdr_din1 <= 32'b0;
+   end 
+   else begin 
+      pad_sdr_din1 <= pad_sdr_din;
+   end
 end
 
-always@(posedge clk) begin
-   pad_sdr_din2 <= pad_sdr_din1;
+always@(posedge clk or negedge reset_n) begin
+   if (~reset_n) begin
+      pad_sdr_din2 <= 32'b0;
+   end 
+   else begin 
+      pad_sdr_din2 <= pad_sdr_din1;
+   end
 end
 
 

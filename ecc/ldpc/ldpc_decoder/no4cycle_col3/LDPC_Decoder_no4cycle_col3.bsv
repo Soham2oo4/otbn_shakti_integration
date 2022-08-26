@@ -231,7 +231,7 @@ endfunction: fn_bit_flipping
 (*synthesize*)
 module mkDecoder (Ifc_Dec);
 	(*doc = "reg: To generate ready signal for decoder. " *)
-	Reg#(bit) dec_rdy <- mkReg(1);
+	Reg#(bit) dec_rdy <- mkRegA(1);
 	
 	(*doc = "fifo: To store the decoded value." *)
 	FIFOF#(Bit#(135)) ff_decoded <- mkFIFOF();
@@ -240,13 +240,13 @@ module mkDecoder (Ifc_Dec);
 	FIFOF#(Bit#(7)) ff_syndrome <- mkFIFOF();
 	
 	(*doc = "reg: To store the received cipher. " *)
-	Reg#(Bit#(135)) cipher <- mkReg(0);
+	Reg#(Bit#(135)) cipher <- mkRegA(0);
 	
 	(*doc = "reg: To store the syndrome returned by the function. " *)
-	Reg#(Bit#(7)) syndrome <- mkReg(1);
+	Reg#(Bit#(7)) syndrome <- mkRegA(1);
 	
 	(*doc = "reg: To keep track of the number of iterations. " *)
-	Reg#(Bit#(32)) counter <- mkReg(0);
+	Reg#(Bit#(32)) counter <- mkRegA(0);
 
 	//(*doc = "note: To store the rows of h matrix" *)
 	Vector#(7,Bit#(135)) h_matrix;
@@ -316,13 +316,13 @@ module mkTest (Empty);
 	//(*doc = "ifc: To create an instance of interface and instantiate it with mkDecoder. " *)
 	Ifc_Dec ifc_dec <- mkDecoder;
 	(*doc = "reg: To have a flag to make sure rule send_cipher is fired once. " *)
-	Reg#(bit) flag <-mkReg(0);
+	Reg#(bit) flag <-mkRegA(0);
 	
-	Reg#(Bit#(4)) flagd <- mkReg(0);
+	Reg#(Bit#(4)) flagd <- mkRegA(0);
 	
-	//Reg#(Bit#(135)) codeword <- mkReg(135'b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000010000000001010000000);
-	Reg#(bit) m0 <- mkReg(0);
-	Reg#(bit) m1 <-mkReg(0);
+	//Reg#(Bit#(135)) codeword <- mkRegA(135'b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000010000000001010000000);
+	Reg#(bit) m0 <- mkRegA(0);
+	Reg#(bit) m1 <-mkRegA(0);
 	Vector#(7,Bit#(135)) h_matrix;
 	// give values for h matrix
 	h_matrix[0]=135'b100000011010100001010001001001100000000000000000000100000000010011000000000000000101100100000000000110100001010000000000000001000000000; 

@@ -1,4 +1,3 @@
-
 /*
 Copyright (c) 2013, IIT Madras
 All rights reserved.
@@ -52,12 +51,12 @@ method Bit#(1) wr_halt_l();
 //.........Methods to write and read data when tristate is not enabled.........//
 
 
-method Bit#(8) wr_byte_31_24();
+method Bit#(8) wr_byte_7_0();
 //method Bit#(8) wr_byte_23_16();
 //method Bit#(8) wr_byte_15_8();
 //method Bit#(8) wr_byte_7_0();
 
-method Action rd_byte_31_24(Bit #(8) d3);
+method Action rd_byte_7_0(Bit #(8) d1);
 //method Action rd_byte_23_16(Bit #(8) d2);
 //method Action rd_byte_15_8 (Bit #(8) d1);
 //method Action rd_byte_7_0  (Bit #(8) d0);
@@ -154,7 +153,7 @@ rule send_ack(slave_state==DET_DS );
 		 slave_state<=END_REQ;
   	 Bit#(8) data0 = dmemLSB.b.read();
      `logLevel( mcpu_slave_8, 1, $format("8 bit data read %h",data0))
-      data_out_4<=data0;
+      data_out_1<=data0;
       data_control<=4'b1111;
 	end
 	  else	if(store_data)
@@ -165,7 +164,7 @@ rule send_ack(slave_state==DET_DS );
 		  slave_state<=END_REQ;
 		  Bit#(TSub#(mem_size,0)) index_address=(s_addr-fromInteger(valueOf(base_address)))
       [valueOf(mem_size)-1:0];
-		  dmemLSB.b.put(1,index_address,data_in_4);
+		  dmemLSB.b.put(1,index_address,data_in_1);
 			
   end 
 
@@ -233,13 +232,13 @@ endmethod
 /*Methods to emulate tristate functionality*/
 
 
-method Bit#(8) wr_byte_31_24()if(data_control[3]==1);
-return data_out_4;
+method Bit#(8) wr_byte_7_0()if(data_control[3]==1);
+return data_out_1;
 endmethod
 
 
-method Action rd_byte_31_24(Bit #(8) d4)if(data_control[3]==0);
-data_in_4<=d4;
+method Action rd_byte_7_0(Bit #(8) d1)if(data_control[3]==0);
+data_in_1<=d1;
 endmethod
 
 

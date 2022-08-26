@@ -177,41 +177,41 @@ module mkspi(Ifc_spi#(addr_width, data_width))
           Mul#(32, c__, data_width));
 
 
-  Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkReg(unpack(0));
-  Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkReg(unpack(0));
-  Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkConfigReg(unpack(0));
-  Reg#(Bit#(32))		rg_spi_cfg_dr1     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr2     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr3     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr4     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_dr5     <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_crcpr   <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_rxcrcr  <- mkReg(0);
-  Reg#(Bit#(32))		rg_spi_cfg_txcrcr  <- mkReg(0);
-  Reg#(Bit#(3)) 		rg_clk_counter	   <- mkReg(0);
-  Reg#(bit)			    tx_data_en		   <- mkReg(0);
+  Reg#(Cr1_cfg) rg_spi_cfg_cr1    <- mkRegA(unpack(0));
+  Reg#(Cr2_cfg) rg_spi_cfg_cr2    <- mkRegA(unpack(0));
+  Reg#(Sr_cfg)	rg_spi_cfg_sr     <- mkConfigRegA(unpack(0));
+  Reg#(Bit#(32))		rg_spi_cfg_dr1     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr2     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr3     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr4     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_dr5     <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_crcpr   <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_rxcrcr  <- mkRegA(0);
+  Reg#(Bit#(32))		rg_spi_cfg_txcrcr  <- mkRegA(0);
+  Reg#(Bit#(3)) 		rg_clk_counter	   <- mkRegA(0);
+  Reg#(bit)			    tx_data_en		   <- mkRegA(0);
   
   // MOSI and MISO signals of the spi
   Wire#(bit)			wr_spi_in_io1		<- mkWire();
   Wire#(bit)			wr_spi_in_io2		<- mkWire();
-  Reg#(bit)			    wr_spi_out_io1		<- mkReg(0);//TODO making wr_spi_out_io1 as Reg
+  Reg#(bit)			    wr_spi_out_io1		<- mkRegA(0);//TODO making wr_spi_out_io1 as Reg
   Wire#(bit)			wr_spi_out_io2		<- mkWire();
   Wire#(bit)			wr_spi_en_io1		<- mkWire();
   Wire#(bit)			wr_spi_en_io2		<- mkWire();
-  //Reg#(bit)			wr_clk				<- mkReg(0);
+  //Reg#(bit)			wr_clk				<- mkRegA(0);
   
-  Reg#(Transmit_state) rg_transmit_state <- mkReg(IDLE);
-  Reg#(Receive_state)	 rg_receive_state  <- mkReg(IDLE);
+  Reg#(Transmit_state) rg_transmit_state <- mkRegA(IDLE);
+  Reg#(Receive_state)	 rg_receive_state  <- mkRegA(IDLE);
   
-  Reg#(Bit#(8))		rg_data_tx		   <- mkReg(0);
-  Reg#(Bit#(8))		rg_data_rx		   <- mkReg(0);
-  Reg#(Bit#(8))		rg_data_counter	   	   <- mkReg(0);
-  Reg#(Bit#(8))		rg_bit_count	   	   <- mkReg(0);
-  Reg#(bit)			rg_transfer_done   <- mkReg(0);
-  Reg#(bit)			rg_tx_rx_start	   <- mkReg(0);
+  Reg#(Bit#(8))		rg_data_tx		   <- mkRegA(0);
+  Reg#(Bit#(8))		rg_data_rx		   <- mkRegA(0);
+  Reg#(Bit#(8))		rg_data_counter	   	   <- mkRegA(0);
+  Reg#(Bit#(8))		rg_bit_count	   	   <- mkRegA(0);
+  Reg#(bit)			rg_transfer_done   <- mkRegA(0);
+  Reg#(bit)			rg_tx_rx_start	   <- mkRegA(0);
   
-  Reg#(bit)			rg_nss			   <- mkReg(1);
-  Reg#(bit)			rg_clk			   <- mkReg(0);
+  Reg#(bit)			rg_nss			   <- mkRegA(1);
+  Reg#(bit)			rg_clk			   <- mkRegA(0);
   
   Reg#(Bit#(160))  rg_concat_reg = concatReg5(rg_spi_cfg_dr1, rg_spi_cfg_dr2, rg_spi_cfg_dr3, rg_spi_cfg_dr4, rg_spi_cfg_dr5); 
   Wire#(Bit#(addr_width))     wr_write_addr  <- mkWire();
@@ -527,7 +527,7 @@ rule rl_transmit_start(rg_transmit_state == START_TRANSMIT && rg_nss == 0);
   //This rule will decide the start of the receive state machine 
   // TODO define trigger event to start receive state to be defined
   rule rl_receive_idle(rg_receive_state == IDLE && (rg_spi_cfg_cr2.rx_start == 1 || (
-rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state == IDLE); 
+rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state == IDLE && wr_transfer_en == True); 
   		rg_receive_state <= START_RECEIVE;
 		rg_data_counter <= 0;
 		rg_bit_count    <= 0;
@@ -544,14 +544,8 @@ rg_spi_cfg_cr2.rx_imm_start == 1 && rg_tx_rx_start == 1)) && rg_transmit_state =
   
   rule rl_receive_start_receive(rg_receive_state == START_RECEIVE && rg_nss == 0);
 	Bit#(8) data_rx = 0;
-  	if(rg_spi_cfg_cr1.cpha == 1 && wr_clk_en == 1 && wr_transfer_en == True) begin
-  //		wr_clk <= rg_clk;
-  		rg_receive_state <= DATA_RECEIVE;
-  	  `logLevel( spi, 0, $format(" SPI : START_RECEIVE case1 counter %x", rg_data_counter))
-  	  $display($stime," SPI : START_RECEIVE case1 counter %x", rg_data_counter);
-  	end
-  	else if(rg_spi_cfg_cr1.cpha == 0 && wr_clk_en == 1 && wr_transfer_en == True) begin
-  //		wr_clk <= rg_clk;
+	 if( wr_clk_en == 1 && wr_transfer_en == True) begin
+
   		if(rg_spi_cfg_cr1.lsbfirst == 1) begin
   			data_rx = {wr_spi_in_io2, rg_data_rx[6:0]};
   			rg_data_rx <= data_rx >> 1;

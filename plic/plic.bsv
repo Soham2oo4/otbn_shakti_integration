@@ -99,8 +99,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_
 	Bit#(addr_width) base_address = fromInteger(slave_base);
 
 
-	Vector#(no_of_ir_pins,Reg#(Bool)) rg_gateway <- replicateM(mkReg(False));
-	Vector#(no_of_ir_pins,Array#(Reg#(Bool))) rg_ip <- replicateM(mkCReg(2,False));
+	Vector#(no_of_ir_pins,Reg#(Bool)) rg_gateway <- replicateM(mkRegA(False));
+	Vector#(no_of_ir_pins,Array#(Reg#(Bool))) rg_ip <- replicateM(mkCRegA(2,False));
 
 
 	Reg#(Bool) rg_ie[v_no_of_ir_pins];//interrupt enable 
@@ -109,7 +109,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_
 			if(i<valueOf(no_nmi))//these are for the non maskable interrupt
 				rg_ie[i] = readOnlyReg(True);// interrupt is always enabled for these interrupts 
 			else
-				rg_ie[i] <- mkReg(False);
+				rg_ie[i] <- mkRegA(False);
 		end		
 
 	Reg#(Bit#(no_of_ir_levels)) rg_priority_low[v_no_of_ir_pins];
@@ -118,20 +118,20 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_
 			if(i<valueOf(no_nmi))//for non maskable interrupt
 				rg_priority_low[i] = readOnlyReg(1);// these interrupts have the highest priority
 			else
-				rg_priority_low[i] <- mkConfigReg(0);
+				rg_priority_low[i] <- mkConfigRegA(0);
 		end	
 
 	Reg#(Bit#(32)) rg_priority[v_no_of_ir_pins];
 	for(Integer i=0;i < v_no_of_ir_pins;i=i+1)
 		rg_priority[i] = concatReg2(readOnlyReg(0), rg_priority_low[i]);
 
-	Reg#(Bit#(no_of_ir_levels))	 rg_priority_threshold <- mkReg(0);
-	Reg#(Bit#(ir_bits))	 rg_interrupt_id <- mkConfigReg(0);
-	Reg#(Bool)	 rg_interrupt_valid <- mkConfigReg(False);
-	Reg#(Maybe#(Bit#(ir_bits))) rg_completion_id <- mkReg(tagged Invalid);
-	Reg#(Bit#(no_of_ir_pins)) rg_total_priority <- mkReg(0);
-	Reg#(Bit#(1)) rg_plic_state <- mkReg(0); //TODO put an enum later
-	Reg#(Bit#(no_of_ir_levels)) rg_winner_priority <- mkReg(0);
+	Reg#(Bit#(no_of_ir_levels))	 rg_priority_threshold <- mkRegA(0);
+	Reg#(Bit#(ir_bits))	 rg_interrupt_id <- mkConfigRegA(0);
+	Reg#(Bool)	 rg_interrupt_valid <- mkConfigRegA(False);
+	Reg#(Maybe#(Bit#(ir_bits))) rg_completion_id <- mkRegA(tagged Invalid);
+	Reg#(Bit#(no_of_ir_pins)) rg_total_priority <- mkRegA(0);
+	Reg#(Bit#(1)) rg_plic_state <- mkRegA(0); //TODO put an enum later
+	Reg#(Bit#(no_of_ir_levels)) rg_winner_priority <- mkRegA(0);
 	Ifc_encoder#(no_of_ir_levels) ir_priority_encoder <- mkencoder();
 	Ifc_encoder#(no_of_ir_pins) irencoder <- mkencoder();
 
@@ -176,7 +176,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(addr_width,data_width,no_
 			`ifdef verbose $display("Interrupt valid");`endif
 			rg_interrupt_id <= interrupt_id;
 			rg_interrupt_valid <= True;
-			$display($time,"\t The highest priority interrupt is  %d and the priority is ", interrupt_id, rg_winner_priority);
+			//$display($time,"\t The highest priority interrupt is  %d and the priority is ", interrupt_id, rg_winner_priority);
 		end
 		rg_plic_state <= 0;
 			
@@ -223,7 +223,8 @@ interface ifc_prog_reg = interface IFC_PROGRAM_REGISTERS;
 					Bit#(64) store_data;
 					store_data=zeroExtend(mem_req.write_data);
 										source_id = address[v_msb_ir_bits:0];
-										$display($time,"\tPLIC : source %d Priority set to %h", source_id, store_data);
+										`ifdef verbose $display($time,"\tPLIC : source %d Priority set to %h",
+										  source_id, store_data);`endif
 										rg_priority[source_id] <= truncate(store_data);
 									end
 								end
@@ -471,11 +472,11 @@ endmodule
 		AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic(slave_base);
 
-	 	Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
+	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
 		 (*preempts="rl_config_plic_reg_read,rl_config_plic_reg_write"*)
