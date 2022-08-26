@@ -6,11 +6,11 @@ BUILD:=./build/
 BSVBUILDDIR:=$(BUILD)/hw/intermediate/
 VERILOGDIR:=$(BUILD)/hw/verilog/
 BSVOUTDIR:=./bin/
-define_macros:= -D simulate -D ASSERT=True -D nmasters=$(MASTERS) -D nslaves=$(SLAVES) -D simulate \
+define_macros:= -D VERBOSITY=2 -D simulate -D ASSERT=True -D nmasters=$(MASTERS) -D nslaves=$(SLAVES) -D simulate \
 	-D CORE_AXI4 -D paddr=32 -D debug_bus_sz=64
 
 # ---------- bluespec related settings -----------------------
-BSVINCDIR:= ./:%/Libraries:$(INCDIR)
+BSVINCDIR:= ./:$(TOP_DIR)/:common_bsv/:fabrics/axi4/:fabrics/bridges/:fabrics/axi4lite/:%/Libraries:$(INCDIR)
 BSC_DIR := $(shell which bsc)
 BSC_VDIR:=$(subst bin/bsc,bin/,${BSC_DIR})../lib/Verilog
 BSCCMD:=bsc -u -verilog -elab -vdir $(VERILOGDIR) -bdir $(BSVBUILDDIR) -info-dir $(BSVBUILDDIR) \
@@ -27,7 +27,7 @@ VERILATOR_FLAGS:= -O3 -LDFLAGS "-static" --x-assign fast  --x-initial fast --noa
 VERILATOR_SPEED:=OPT_SLOW="-O3" OPT_FAST="-O3"
 # -------------------------------------------------------------
 
-default: generate_verilog link_verilator simulate
+default: generate_verilog #link_verilator simulate
 
 .PHONY: link_verilator
 link_verilator: ## Generate simulation executable using Verilator
