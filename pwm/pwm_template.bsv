@@ -28,6 +28,6 @@ package pwm_template;
 	import pwm::*;
 	(*synthesize*)
 	module mkdummy#(Clock ext_clock, Reset ext_reset)(Empty);
-		Ifc_pwm_axi4lite#(32,32,0,32) pmw <- mkpwm_axi4lite(ext_clock,ext_reset);
+		Ifc_pwm_axi4lite#(32,32,0,32,2) pmw <- mkpwm_axi4lite(ext_clock,ext_reset);
 	endmodule
 endpackage
