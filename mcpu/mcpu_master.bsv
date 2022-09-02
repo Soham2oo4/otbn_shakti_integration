@@ -89,6 +89,7 @@ Data_mode :01 byte
   interface Data_bus_inf;
 
   method Bit#(8) wr_byte_31_24();
+  
   (*always_enabled,always_ready*)
     method Bit#(1) wr_siz1();
   (*always_enabled,always_ready*)
@@ -98,13 +99,11 @@ Data_mode :01 byte
     method Bit#(32) wr_addr();
     method Bool wr_addr_en();
     method Bit#(4)  wr_en();
-
     method Bit#(3) wr_fun_code();
     method Bool wr_fun_code_en();
     method Bit#(8) wr_byte_23_16();
     method Bit#(8) wr_byte_15_8();
     method Bit#(8) wr_byte_7_0();
-
     method Action rd_byte_31_24(Bit #(8) d3);
     method Action rd_byte_23_16(Bit #(8) d2);
     method Action rd_byte_15_8 (Bit #(8) d1);
@@ -126,15 +125,13 @@ Data_mode :01 byte
   (*synthesize*)
 
     module mkmcpumaster(Mcpu_master);
-
-
-
+    
     String mcpu_master = " ";
     //Fifos to get request and send response
     FIFOF #(Req_mcpu) ff_cpu_req <- mkFIFOF;
     FIFOF #(Resp_mcpu) ff_cpu_resp <- mkFIFOF;
     //............................................................//
-    Reg #(State_master) rg_master_state <- mkReg (RCV_REQ);
+    Reg#(State_master) rg_master_state <- mkReg (RCV_REQ);
     Reg#(Bit#(2)) rg_mode <- mkReg(0);
     Reg#(Bool) rg_mode_en <- mkReg(False);//Enable SIZ1,SIZ0
     Reg#(Bit#(3)) rg_fun_code <- mkReg(0);
@@ -149,7 +146,6 @@ Data_mode :01 byte
     Wire#(Bit#(1)) berr_l <-mkDWire(1);//Bus error from slave
     Wire#(Bit#(1)) halt_l<-mkDWire(1);//halt signal from the slave
     //Wire#(Bit#(3)) ipl_l<-mkDWire(1);//interrupt prioritylevel
-
     Reg #(Bit#(32))  rg_addr       <- mkReg(0);//addr_bus
     Reg #(Bool)      rg_addr_en    <- mkReg(False);
     Reg #(Bit#(8))   rg_data_out_4 <- mkReg(0);//wr_data_4
@@ -164,7 +160,6 @@ Data_mode :01 byte
     Wire #(Req_mcpu) mcpu_req    <- mkWire();
     Wire #(Resp_mcpu) mcpu_resp  <- mkWire();
 
-    Reg #(Bool)     rg_sram_big <- mkReg(False);
     Reg #(Bit#(1))  rg_wr_l     <- mkReg(1'd1);//read : 1,write:0
     Reg #(Bit#(4))  rg_data_control <-mkReg(0);//Enable bits to data and control registers
     Reg #(Bit#(2))  rg_cntl_wd<-mkReg(0); //To synchronize if more than one cycle is required to r/w data
@@ -172,7 +167,7 @@ Data_mode :01 byte
     //............Tristate signals...............//
     /*
      */
-    (* mutually_exclusive = "rcv_req_new,prc_req,prc_req_1,prc_req_2,req_wait,end_req" *)
+    (* mutually_exclusive = "rcv_req_new,prc_req,prc_req_1,prc_req_2,end_req" *)
 
     /* REQ_RCV rg_master_state....
        1. Master receives request
@@ -181,7 +176,6 @@ Data_mode :01 byte
     rule rcv_req_new(rg_master_state == RCV_REQ && rg_cntl_wd == 2'b00 && (halt_l == 1'b1) &&
     (berr_l==1'b1)) ;//To recieve new request
       let req =mcpu_req;
-
       `logLevel( mcpu_master, 1, $format("MCPU_MASTER:Request received to address %h req_type\
       %h",req.addr,req.rd_req))
       `logLevel( mcpu_master, 1, $format("MCPU_MASTER:funcode: %h mode of operation:\
@@ -196,27 +190,30 @@ Data_mode :01 byte
       rg_fun_code <= req.fun_code;
       rg_wr_l <= req.rd_req;
       rg_master_state <= PRC_REQ_1;
-      rg_sram_big <= req.endian_big;
 
-//............Multiplexing logic to route data to data bus......................................................................................................
+//............Multiplexing logic to route data to data bus...................................//
 
      if (req.mode==2'b01)//For 8 bit data operations
        case({req.addr[1],req.addr[0]})
-        2'b00:rg_data_out_4 <= req.wr_data[7:0];
-        2'b01:begin
-        rg_data_out_4 <= req.wr_data[7:0];
-        rg_data_out_3 <= req.wr_data[7:0];
-        end	
+        2'b00:
+        begin
+        rg_data_out_1<= req.wr_data[7:0];
+        end
+        2'b01:
+        begin
+        rg_data_out_1<= req.wr_data[7:0];
+        rg_data_out_2<= req.wr_data[7:0];
+        end
         2'b10:
         begin
-        rg_data_out_4 <= req.wr_data[7:0];
-        rg_data_out_2 <= req.wr_data[7:0];
-        end	
+        rg_data_out_1<= req.wr_data[7:0];
+        rg_data_out_3<= req.wr_data[7:0];
+        end
         2'b11:
-        begin 
-        rg_data_out_4 <= req.wr_data[7:0];
-        rg_data_out_3 <= req.wr_data[7:0];
+        begin
         rg_data_out_1 <= req.wr_data[7:0];
+        rg_data_out_2 <= req.wr_data[7:0];
+        rg_data_out_4 <= req.wr_data[7:0];
         end
        endcase
 
@@ -224,42 +221,24 @@ Data_mode :01 byte
      else  if (req.mode==2'b10)//For 16 data operations
       case({req.addr[1],req.addr[0]})
         2'b00:
-          if (endian(req.addr,req.endian_big)==Little)begin
-            rg_data_out_4 <= req.wr_data[7:0];
-            rg_data_out_3 <= req.wr_data[15:8];
-          end
-          else begin
-            rg_data_out_4 <= req.wr_data[15:8];
-            rg_data_out_3 <= req.wr_data[7:0];
-          end
+        begin
+            rg_data_out_1 <= req.wr_data[7:0];
+            rg_data_out_2 <= req.wr_data[15:8];
+        end
         2'b10: 
-          if(endian(req.addr,req.endian_big)==Little)begin
-              rg_data_out_4 <= req.wr_data[7:0];
-              rg_data_out_3 <= req.wr_data[15:8];
-              rg_data_out_2 <= req.wr_data[7:0];
-              rg_data_out_1 <= req.wr_data[15:8];
-          end
-          else begin
+        begin
               rg_data_out_4 <= req.wr_data[15:8];
               rg_data_out_3 <= req.wr_data[7:0];
               rg_data_out_2 <= req.wr_data[15:8];
               rg_data_out_1 <= req.wr_data[7:0];
-            end
+          end
       endcase
 
       else  if (req.mode==2'b00)//for 32 bit operation
         case({req.addr[1],req.addr[0]})
           2'b00:
           begin
-            if(endian(req.addr,req.endian_big)==Little)
               begin
-              rg_data_out_1 <= req.wr_data[31:24];
-              rg_data_out_2 <= req.wr_data[23:16];
-              rg_data_out_3 <= req.wr_data[15:8];
-              rg_data_out_4 <= req.wr_data[7:0];
-              end
-            else
-              begin		
               rg_data_out_4 <= req.wr_data[31:24];
               rg_data_out_3 <= req.wr_data[23:16];
               rg_data_out_2 <= req.wr_data[15:8];
@@ -273,21 +252,22 @@ Data_mode :01 byte
     rule prc_req(rg_master_state==RCV_REQ && rg_cntl_wd!=2'b00);//If a request takes multiple cycles
       if(rg_cntl_wd==2'b01)//32 bit operation from 8 bit or 16 bit slave
       begin	
-      rg_data_out_4 <= rg_data_out_3;
-      rg_data_out_3 <= rg_data_out_2;
-      rg_data_out_2 <= rg_data_out_1;
-      rg_data_out_1 <= 8'b0;
-      rg_addr     <= rg_addr+1;
-      rg_mode     <= rg_mode-1;
+        rg_data_out_1 <= rg_data_out_2;
+        rg_data_out_2 <= rg_data_out_3;
+        rg_data_out_3 <= rg_data_out_4;
+        rg_data_out_4 <= 8'b0;
+        rg_addr     <= rg_addr+1;
+        rg_mode     <= rg_mode-1;
       end
+
       else
-      begin//32 bit operation on a 16 bit slave
-      rg_data_out_4 <= rg_data_out_2;
-      rg_data_out_3 <= rg_data_out_1;
-      rg_data_out_2 <= 8'b0;
-      rg_data_out_1 <= 8'b0;
-      rg_addr     <= rg_addr+2;
-      rg_mode     <= 2'b10;
+      begin	
+        rg_data_out_2 <= rg_data_out_4;
+        rg_data_out_1 <= rg_data_out_3;
+        rg_data_out_3 <= 8'b0;
+        rg_data_out_4 <= 8'b0;
+        rg_addr     <= rg_addr+2;
+        rg_mode     <= 2'b10;
       end
       rg_master_state <= PRC_REQ_1;
     endrule
@@ -305,37 +285,41 @@ Data_mode :01 byte
     rule prc_req_1(rg_master_state==PRC_REQ_1);
       `logLevel( mcpu_master, 1, $format("MASTER_STATE 2: Activating address strobe"))
       rg_as_l <= 0;
-      rg_master_state <= PRC_REQ_2; 
-      rg_ds_l <= 0;
-      if(rg_wr_l==1'b0)
-      rg_data_control <= 4'b1111;
+      if(rg_wr_l==1'b1)
+      begin
+        rg_ds_l <= 0;
+        if(({dsack_0_l,dsack_1_l} != 2'b11)||(berr_l == 1'b0)||(halt_l == 1'b0))
+        rg_master_state <= LATCH_DATA;
+      end
+      else 
+        rg_master_state <= PRC_REQ_2;
+        if(rg_wr_l==1'b0)
+            rg_data_control <= 4'b1111;
+            
     endrule
     /*
        In PRC_REQ_2
-       1.Wait till ack received
+       2.Data_strobe is asserted for write cycle
+       3.On acknowledgement goes to latch data state
      */
     
     rule prc_req_2(rg_master_state==PRC_REQ_2);		
     begin
-      `logLevel(mcpu_master,1,$format("MASTER_STATE_3 :WAIT"))
-      if (({dsack_0_l,dsack_1_l}!=2'b11)||(berr_l==1'b0)||(halt_l==1'b0))
-      begin
-      rg_master_state <= PRC_REQ_3;
-      end
+      `logLevel(mcpu_master,1,$format("MASTER_STATE_3 :Activating data strobe write"))
+       rg_ds_l<=1'b0;
+       if(({dsack_0_l,dsack_1_l} != 2'b11)||(berr_l == 1'b0)||(halt_l == 1'b0))
+        rg_master_state<=LATCH_DATA;
     end
     endrule
 
-    /*In WAIT_RESP
-      1. Master waits for response
-      2. On receiving response,goes to next state
-     */
 
-    rule req_wait((rg_master_state == PRC_REQ_3)&&(({dsack_0_l,dsack_1_l} != 2'b11)||
-    (berr_l == 1'b0)||(halt_l == 1'b0))); 
+//.......................Latch_data when not using tristatebuffers.............................//
+//........................In LATCH DATA state................................................../
+//........................Latches on-to data and response.....................................//
 
-      rg_master_state <= LATCH_DATA;
-      `logLevel(mcpu_master,1,$format(" MASTER_STATE_4"))
-
+    rule latch_data(rg_master_state==LATCH_DATA);
+    
+      //setting control bits for multicycle transfers
       if({dsack_0_l,dsack_1_l} == rg_mode) begin
         rg_cntl_wd <= 2'b00;//Done can take the next request
       end
@@ -347,13 +331,7 @@ Data_mode :01 byte
       else if({dsack_0_l,dsack_1_l} == 2'b01 && rg_mode != 2'b01)begin
         rg_cntl_wd <= 2'b01;
       end
-    endrule
 
-//.......................Latch_data when not using tristatebuffers.............................//
-//........................In LATCH DATA state................................................../
-//........................Latches on-to data and response.....................................//
-
-    rule latch_data(rg_master_state==LATCH_DATA);
       if(berr_l==1'b0 && halt_l==1'b0) begin
           rg_retry<=1;
       end
@@ -361,7 +339,7 @@ Data_mode :01 byte
           rg_stop<=1;
       end
       else if(berr_l==1'b0) begin			
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,8'b0},
+          let resp_data = Resp_mcpu{data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,8'b0},
           berr:1};
           mcpu_resp<=resp_data;
       end
@@ -374,51 +352,55 @@ Data_mode :01 byte
        case({rg_addr[1],rg_addr[0]})//Position where byte read from depends on A1,A0          
            2'b00 :
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-              rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
               mcpu_resp<=resp_data; 
              end
            2'b01 :
             begin
-              let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-              rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-              mcpu_resp<=resp_data;
-            end
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
           2'b10 :
-          begin
-             let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-             rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-             mcpu_resp<=resp_data;
-          end
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
           2'b11 :
-          begin
-             let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,
-             rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-             mcpu_resp<=resp_data;
-          end
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
       endcase
 
       //If slave is an 8 bit port		
-        2'b01  : 
-        begin
-          let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4
-          },berr:0,port_type:{dsack_0_l,dsack_1_l}};
-          mcpu_resp<=resp_data;
-        end
+        2'b01  :
+
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
         //if slave is a 16 bit port
         2'b10 :
         if (rg_addr[0]==1'b0)begin
-            let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,rg_data_in_4
-            },berr:0,port_type:{dsack_0_l,dsack_1_l}};      
-            mcpu_resp<=resp_data;
-        end
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
+            end
         else
         begin
-          let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{24'b0,rg_data_in_3
-          },berr:0,port_type:{dsack_0_l,dsack_1_l}};      
-          mcpu_resp<=resp_data;
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+            end
         end
-
         endcase
 
         else
@@ -431,21 +413,15 @@ Data_mode :01 byte
                   
                   2'b00 :
                   begin
-                   let resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_3,
-                   rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                   if(endian(rg_addr,rg_sram_big)==Big)
-                   resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,
-                   rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                    let resp_data = Resp_mcpu{data:{16'b0,rg_data_in_2,
+                   rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
                    mcpu_resp<=resp_data;
                   end
 
                   2'b10 :
                   begin
-                   let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_1,
-                   rg_data_in_2},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-                   if (endian(rg_addr,rg_sram_big)==Big)
-                   resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_2,
-                   rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                   let resp_data = Resp_mcpu{data:{16'b0,rg_data_in_4,
+                   rg_data_in_3},berr:0,port_type:{dsack_0_l,dsack_1_l}};
                    mcpu_resp<=resp_data;
                   end
 
@@ -453,24 +429,21 @@ Data_mode :01 byte
 
         //If slave is an 8 bit port		
           2'b01  :
-          begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4},berr:0,port_type:
-            {dsack_0_l,dsack_1_l}};
-            mcpu_resp<=resp_data;
-          end
+              begin
+                let resp_data = Resp_mcpu{data:{24'b0,
+                rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+                mcpu_resp<=resp_data; 
+              end
 
           //if slave is a 16 bit port
 
           2'b10 :
 
-          begin
-            let resp_data =Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_3,rg_data_in_4},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};      
-            if (endian(rg_addr,rg_sram_big)==Big)
-            resp_data = Resp_mcpu{endian_big:rg_sram_big,  data:{16'b0,rg_data_in_4,rg_data_in_3},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            mcpu_resp<=resp_data;
-          end
+             begin
+              let resp_data =Resp_mcpu{data:{16'b0,rg_data_in_2,rg_data_in_1},
+              berr:0,port_type:{dsack_0_l,dsack_1_l}};      
+              mcpu_resp<=resp_data;
+            end
 
           endcase
 
@@ -480,40 +453,34 @@ Data_mode :01 byte
           //...........SLAVE PORT....................:-32 bit port..............................//
           2'b00 :
           begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{rg_data_in_1,rg_data_in_2,rg_data_in_3,rg_data_in_4},
+            let resp_data =
+            Resp_mcpu{data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},
             berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            if (endian(rg_addr,rg_sram_big)==Big)
-            resp_data = Resp_mcpu{endian_big:rg_sram_big,
-            data:{rg_data_in_4,rg_data_in_3,rg_data_in_2,rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
             mcpu_resp<=resp_data; 
           end
         //.......................................16 bit port....................................//	
         2'b10 :
         begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_3,rg_data_in_4},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            if(endian(rg_addr,rg_sram_big)==Big)
-            resp_data = Resp_mcpu{endian_big:rg_sram_big,data:{16'b0,rg_data_in_4,rg_data_in_3},
+            let resp_data = Resp_mcpu{data:{16'b0,rg_data_in_2,rg_data_in_1},
             berr:0,port_type:{dsack_0_l,dsack_1_l}};
             mcpu_resp<=resp_data;
         end
 
         //........................If slave is an 8 bit port......................................//		
-        2'b01  : 
-        begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big, data:{24'b0,rg_data_in_4},
-            berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            mcpu_resp<=resp_data;
-        end
+        2'b01  :
 
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
         endcase
-
         else
-        begin
-            let resp_data = Resp_mcpu{endian_big:rg_sram_big,
-            data:{24'b0,rg_data_in_4},berr:0,port_type:{dsack_0_l,dsack_1_l}};
-            mcpu_resp<=resp_data;
-        end
+            begin
+              let resp_data = Resp_mcpu{data:{24'b0,
+              rg_data_in_1},berr:0,port_type:{dsack_0_l,dsack_1_l}};
+              mcpu_resp<=resp_data; 
+             end
         rg_master_state<=END_REQ;
     endrule
   /*
@@ -542,7 +509,7 @@ Data_mode :01 byte
           rg_mode_en<=False;
           rg_fun_code_en<=False;
         end
-        $display("Ready to receive a new request",$time);
+        `logLevel( mcpu_master, 1, $format("MASTER_STATE 7:Ready to receive new request"))
       end
       else
       rg_master_state<=HALT;

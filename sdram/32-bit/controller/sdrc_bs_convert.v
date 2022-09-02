@@ -216,7 +216,7 @@ always @(*) begin
 
 
 
-always @(posedge clk)
+always @(posedge clk or negedge reset_n)
   begin
     if(!reset_n)
       begin

@@ -101,29 +101,29 @@ Clock clk     <- exposeCurrentClock();
 
 
 // Wires and Regs related to the Nand Flash Interface 
-Reg#(Bit#(64))	  wr_address_from_nvm   <- mkReg(0);//address
+Reg#(Bit#(64))	  wr_address_from_nvm   <- mkRegA(0);//address
 Wire#(Bit#(`WDC)) wr_data_from_nvm 	    <- mkDWire(0);//data in
-Reg#(Maybe#(Bit#(`WDC))) rg_data_to_nvm	<- mkDReg(tagged Invalid);// data out
+Reg#(Maybe#(Bit#(`WDC))) rg_data_to_nvm	<- mkDRegA(tagged Invalid);// data out
 Wire#(Bit#(1))	wr_nand_ce_n            <- mkDWire(1);// active low
 Wire#(Bit#(1))	wr_nand_we_n            <- mkDWire(1);// active low
 Wire#(Bit#(1))	wr_nand_re_n            <- mkDWire(1);// active low
-Reg#(Bit#(1))	rg_interrupt            <- mkDReg(0);// active high
-Reg#(Bit#(1))	rg_ready_busy_n	        <- mkReg(0);//active low.
-Reg#(Bit#(11))	wr_w_length		        <- mkReg(0) ;	//Write length
+Reg#(Bit#(1))	rg_interrupt            <- mkDRegA(0);// active high
+Reg#(Bit#(1))	rg_ready_busy_n	        <- mkRegA(0);//active low.
+Reg#(Bit#(11))	wr_w_length		        <- mkRegA(0) ;	//Write length
 Wire#(Bit#(11))	wr_r_length		        <- mkDWire(0) ;	//Read length
 Wire#(Bit#(64))	wr_rd_addr_frm_nvm      <- mkDWire(0);  //Read address
 Wire#(Bit#(1))	wr_nand_erase           <- mkDWire(0) ;	//Write length
-Reg#(Bit#(1))	rg_write_success        <- mkDReg(0) ;	// active high
-Reg#(Bit#(1))	rg_write_fail	        <- mkDReg(0) ;	// active high
-Reg#(Bit#(1))	rg_erase_success        <- mkDReg(0) ;	// active high
-Reg#(Bit#(1))	rg_erase_fail	        <- mkDReg(0) ;	// active high
+Reg#(Bit#(1))	rg_write_success        <- mkDRegA(0) ;	// active high
+Reg#(Bit#(1))	rg_write_fail	        <- mkDRegA(0) ;	// active high
+Reg#(Bit#(1))	rg_erase_success        <- mkDRegA(0) ;	// active high
+Reg#(Bit#(1))	rg_erase_fail	        <- mkDRegA(0) ;	// active high
 Wire#(Bit#(1))	wr_nand_bbm_n           <- mkDWire(1) ;	// active low
 
 // Regs and Wires for ONFI Interface
-Vector#(`TOTAL_CHIPS,Reg#(Bit#(8)))  rg_data_to_flash           <- replicateM(mkReg(0));// data out 
-Vector#(`TOTAL_CHIPS,Reg#(Bit#(8)))  rg_data_to_controller      <- replicateM(mkReg(0,clocked_by clk_mux,reset_by rst_mux)) ;// data out 
-Vector#(`TOTAL_CHIPS, Reg#(Bool)) rg_dqs_to_flash    <- replicateM(mkReg(False, clocked_by clk_inv, reset_by rst_inv));
-Vector#(`TOTAL_CHIPS, Reg#(Bool)) rg_dqs_c_to_flash  <- replicateM(mkReg(True, clocked_by clk_inv, reset_by rst_inv));
+Vector#(`TOTAL_CHIPS,Reg#(Bit#(8)))  rg_data_to_flash           <- replicateM(mkRegA(0));// data out 
+Vector#(`TOTAL_CHIPS,Reg#(Bit#(8)))  rg_data_to_controller      <- replicateM(mkRegA(0,clocked_by clk_mux,reset_by rst_mux)) ;// data out 
+Vector#(`TOTAL_CHIPS, Reg#(Bool)) rg_dqs_to_flash    <- replicateM(mkRegA(False, clocked_by clk_inv, reset_by rst_inv));
+Vector#(`TOTAL_CHIPS, Reg#(Bool)) rg_dqs_c_to_flash  <- replicateM(mkRegA(True, clocked_by clk_inv, reset_by rst_inv));
 //Vector#(`TOTAL_CHIPS,Reg#(Bit#(8)))  rg_read_data_to_controller <- replicateM(mkSyncRegToCC(0, clk_inv, rst0));// data out 
 
 ReadOnly#(Bit#(8)) wr_null_data0         <- mkNullCrossingWire(clk, rg_data_to_controller[0]);
@@ -138,17 +138,17 @@ ReadOnly#(Bool) wr_dqs2_c_sync	   <-mkNullCrossingWire(clk, rg_dqs_c_to_flash[1]
 Reg#(bit)  rg_en_rd_sync_data  <- mkSyncRegFromCC(0,clk_inv);
 
 
-Reg#(bit)       rg_we_toggle   <- mkReg(1, clocked_by clk_inv, reset_by rst_inv);
-Reg#(Bit#(1))   rg_onfi_we_n   <- mkReg(0);// active low
-Reg#(Bit#(1))   rg_onfi_re_n   <- mkReg(1);// active low
-Reg#(Bit#(1))   rg_onfi_cle    <- mkReg(0);// active high
-Reg#(Bit#(1))   rg_onfi_ale	   <- mkReg(0);// active high
-Reg#(Bit#(1))   rg_onfi_wp_n   <- mkReg(1);// active low
+Reg#(bit)       rg_we_toggle   <- mkRegA(1, clocked_by clk_inv, reset_by rst_inv);
+Reg#(Bit#(1))   rg_onfi_we_n   <- mkRegA(0);// active low
+Reg#(Bit#(1))   rg_onfi_re_n   <- mkRegA(1);// active low
+Reg#(Bit#(1))   rg_onfi_cle    <- mkRegA(0);// active high
+Reg#(Bit#(1))   rg_onfi_ale	   <- mkRegA(0);// active high
+Reg#(Bit#(1))   rg_onfi_wp_n   <- mkRegA(1);// active low
 Vector#(`TOTAL_CHIPS,Wire#(Bit#(1))) wr_ready_busy_n  <- replicateM(mkWire);  // active low
-Vector#(`TOTAL_CHIPS,Reg#(Bit#(1)))  rg_onfi_ce_n	  <- replicateM(mkReg(1));// active low
+Vector#(`TOTAL_CHIPS,Reg#(Bit#(1)))  rg_onfi_ce_n	  <- replicateM(mkRegA(1));// active low
 
-Reg#(bit)   we_flag     <- mkReg(0);
-Reg#(bit)   set_we_ce   <- mkReg(0);
+Reg#(bit)   we_flag     <- mkRegA(0);
+Reg#(bit)   set_we_ce   <- mkRegA(0);
 /* debug register and wire declaration*/
 
 Wire#(Bool) wr_read_resp_ready <- mkWire();
@@ -161,128 +161,128 @@ Wire#(Bool) wr_read_resp_ready <- mkWire();
 FIFOF#(Bit#(`WDC))   ff_data_w_fifo   <- mkSizedBRAMFIFOF(`FIFO_ROWS+1);//FIFO size is 4 pages
 //Will use  FIFO's for sending data b/t NVMe and NFC.
 FIFOF#(Bit#(`WDC))   ff_data_r_fifo   <- mkSizedBRAMFIFOF(`FIFO_ROWS+1);	
-Reg#(Bit#(1))        data_w_fifo_free <- mkReg(1); // Initially both write FIFO are free.
-Reg#(Bit#(1))        data_r_fifo_free <- mkReg(1); // Initially both read FIFO are free.
-Reg#(Bit#(64))       addr_register    <- mkReg(0); // Address register to store address.
-Reg#(Bit#(64))       present_nvm_addr <- mkReg(0);
-Reg#(Bit#(32))       rg_bbm_offset    <- mkReg(0); // To keep offset for bad block request
-Reg#(Bit#(32))       rg_bbm_tempof    <- mkReg(0); // Temp offset for bad block request
-Reg#(Bit#(`WDC))     rg_bit_map       <- mkReg(0); // To hold bbm data temparorily
-Reg#(Bit#(TAdd#(TLog#(`WDC),1)))  bb_count   <- mkReg(0);// To keep count of bad blocks scanned
-Reg#(Bit#(TAdd#(TLog#(`WDC),1)))  bb_count_t <- mkReg(0);
-Reg#(Bit#(1))    send_bbm_data   <- mkReg(0);
-Reg#(Bit#(64))   next_nvm_addr   <- mkReg(0); // Tracking Address from nvm with the length parameter.
-Reg#(Bit#(TLog#(TAdd#(`PAGE_LENGTH,1))))   q_data_count_t  <- mkReg(0); // Track the data being put into the FIFO from NVM(_t means take) 
-Reg#(Bit#(TLog#(TAdd#(`PAGE_LENGTH,1))))   q_data_count_g  <- mkReg(0); // Track the data being put into the FIFO from NVM(_g means give)
-Reg#(Bit#(TLog#(TAdd#(`VALID_SPARE_AREA,1)))) spare_cnt  <- mkReg(0); // Track the spare area.
-Reg#(Bit#(11))  local_length_w  <- mkReg(0);// This will hold the length parameter during the first request and then tracks(for write)
-Reg#(Bit#(11))  local_length_r  <- mkReg(0);// This will hold the length parameter during the first request and then tracks(for read)
-Reg#(Bit#(11))  pages2b_written <- mkReg(0);// This will hold the length parameter during the first request and then tracks(for write)
-Reg#(Bit#(1))   chip_sel   <- mkConfigReg(0);// Points to which chip is going to be selected.
-Reg#(Bit#(1))   plane_sel   <- mkConfigReg(0);// Points to which plane is going to be selected.
-Reg#(Bit#(1))   cache_op_need   <- mkReg(0);// Flag to indicate whether cache operation is needed
-Reg#(Bit#(8))   addr_cycl1   <- mkReg(0) ;// Can process 2 requests of write at a time, since we have 2 FIFO taking data from NVM
-Reg#(Bit#(8))   addr_cycl2   <- mkReg(0) ;
-Reg#(Bit#(8))   addr_cycl3   <- mkReg(0) ;
-Reg#(Bit#(8))   addr_cycl4   <- mkReg(0) ;
-Reg#(Bit#(8))   addr_cycl5   <- mkReg(0) ;
-Reg#(Bit#(8))   a_cycl3_buff1   <- mkReg(0);// Temp location for addr
-Reg#(Bit#(8))   a_cycl3_buff2   <- mkReg(0);// Temp location for addr
-Reg#(Bit#(8))   a_cycl4_buff1   <- mkReg(0);// Temp location for  addr
-Reg#(Bit#(8))   a_cycl4_buff2   <- mkReg(0);// Temp location for  addr
-Reg#(Bit#(8))   a_cycl5_buff1   <- mkReg(0);// Temp location for  addr
-Reg#(Bit#(8))   a_cycl5_buff2   <- mkReg(0);// Temp location for  addr
-Reg#(Bit#(8))   mplane_cycl3_buff1   <- mkReg(0);// Temp location for multi plane addr
-Reg#(Bit#(8))   mplane_cycl3_buff2   <- mkReg(0);
-Reg#(Bit#(8))   mplane_cycl4_buff1   <- mkReg(0);
-Reg#(Bit#(8))   mplane_cycl4_buff2   <- mkReg(0);
-Reg#(Bit#(8))   mplane_cycl5_buff1   <- mkReg(0);
-Reg#(Bit#(8))   mplane_cycl5_buff2   <- mkReg(0);
-Reg#(Bit#(TLog#(TDiv#(`WDC,8)))) byte_count <- mkReg(0);// This is to keep track of how many bytes are sent to flash.
-Reg#(Bit#(TLog#(TDiv#(`WDC,8)))) zero_index <- mkReg(0);// Index to compute filling of zeros in case of col offset.
-Reg#(Bit#(1))                    new_r_req  <- mkReg(0);// New read request flag.
-Reg#(Bit#(`WDC)) data_from_flash <- mkReg(0);// Buffer to store half words recieved from flash and convert them to `WDC to send to nvm.
-Reg#(Bit#(1))    reset_flag      <- mkReg(0);// To reset the flash memory for power-on-reset.
-Reg#(Bit#(1))    reset_wait_flag <- mkReg(1);// To wait before reset the flash memory for power-on-reset.
-Reg#(Bit#(1))    reset_ongoing   <- mkReg(0);
-Reg#(Bit#(1))    reset_applied   <- mkReg(0);
-Reg#(Bit#(`COLUMN_WIDTH)) col_offset_p     <- mkReg(0);// Col offset during program
-Reg#(Bit#(`COLUMN_WIDTH)) col_offset_r     <- mkReg(0);// Col offset during read
-Reg#(Bit#(`COLUMN_WIDTH)) buf_col_offset_r <- mkReg(0);// Col offset during read
-Reg#(Bit#(1)) get_next_addr         <- mkReg(0);
-Reg#(Bit#(1)) block_erase_ongoing   <- mkReg(0);//Indicates erase is in progress
-Reg#(Bit#(1)) read_pending          <- mkReg(0);//Indicates read in progress
-Reg#(Bit#(1)) start_program         <- mkReg(0);//Indicates start of program cycle
-Reg#(Bit#(1)) last_r_req            <- mkReg(0);//Indicates last read in progress
-Reg#(Bit#(1)) stay_with_decision    <- mkReg(0);//Control for next flag "decide_read"
-Reg#(Bit#(1)) decide_read           <- mkConfigReg(0);// Indicates decision of read
-Reg#(Bit#(1)) initial_status_ck     <- mkReg(0);//Indicates if a status check is needed or not.
-Reg#(Bit#(1)) q_fill_zeros          <- mkReg(0);//Indicates if Q needs zeros in caseof coloffset.
-Reg#(Bit#(1)) multi_plane_r_pend_1  <- mkReg(0);//Multi plane op flag
-Reg#(Bit#(1)) multi_plane_r_pend_2  <- mkReg(0);//Multi plane op flag
-Reg#(Bit#(1)) page_r_pend_1         <- mkReg(0);//Multi plane op flag
-Reg#(Bit#(1)) page_r_pend_2         <- mkReg(0);
-Reg#(Bit#(1)) multi_plane_after_page<- mkReg(0);//To identify multiplane req aftr a single page req
-Reg#(Bit#(2)) status_count          <- mkReg(0);
-Reg#(Bit#(2)) status_done           <- mkReg(0);//flag to keep track of the status checks done
-Reg#(Bit#(2)) alter_cnt             <- mkReg(0);  //during program.
-Reg#(Bit#(1)) flag_end_read         <- mkReg(0);
-Reg#(Bit#(1)) data_reg_loaded       <- mkReg(0);
-Reg#(Bit#(1)) first_entry           <- mkReg(0);
-Reg#(Bit#(1)) program_failed        <- mkReg(0);//To keep track if any program failed.
-Reg#(Bit#(1)) last_status_r         <- mkReg(0);//To keep track of the last status read 
-Reg#(Bit#(1)) first_byte            <- mkReg(0);
-Reg#(Bit#(1)) allow_write_q         <- mkReg(0);
-Reg#(Bit#(1)) cal_block_addr        <- mkReg(0);
-Reg#(Bit#(1)) feature_data_done     <- mkReg(0);
-Reg#(Bit#(1)) badblock_flag         <- mkReg(0);// To initiate BBM on power-on.TODO revert back to 1
-Reg#(Bit#(1)) bb_search             <- mkReg(0);// To start searching for bad block
+Reg#(Bit#(1))        data_w_fifo_free <- mkRegA(1); // Initially both write FIFO are free.
+Reg#(Bit#(1))        data_r_fifo_free <- mkRegA(1); // Initially both read FIFO are free.
+Reg#(Bit#(64))       addr_register    <- mkRegA(0); // Address register to store address.
+Reg#(Bit#(64))       present_nvm_addr <- mkRegA(0);
+Reg#(Bit#(32))       rg_bbm_offset    <- mkRegA(0); // To keep offset for bad block request
+Reg#(Bit#(32))       rg_bbm_tempof    <- mkRegA(0); // Temp offset for bad block request
+Reg#(Bit#(`WDC))     rg_bit_map       <- mkRegA(0); // To hold bbm data temparorily
+Reg#(Bit#(TAdd#(TLog#(`WDC),1)))  bb_count   <- mkRegA(0);// To keep count of bad blocks scanned
+Reg#(Bit#(TAdd#(TLog#(`WDC),1)))  bb_count_t <- mkRegA(0);
+Reg#(Bit#(1))    send_bbm_data   <- mkRegA(0);
+Reg#(Bit#(64))   next_nvm_addr   <- mkRegA(0); // Tracking Address from nvm with the length parameter.
+Reg#(Bit#(TLog#(TAdd#(`PAGE_LENGTH,1))))   q_data_count_t  <- mkRegA(0); // Track the data being put into the FIFO from NVM(_t means take) 
+Reg#(Bit#(TLog#(TAdd#(`PAGE_LENGTH,1))))   q_data_count_g  <- mkRegA(0); // Track the data being put into the FIFO from NVM(_g means give)
+Reg#(Bit#(TLog#(TAdd#(`VALID_SPARE_AREA,1)))) spare_cnt  <- mkRegA(0); // Track the spare area.
+Reg#(Bit#(11))  local_length_w  <- mkRegA(0);// This will hold the length parameter during the first request and then tracks(for write)
+Reg#(Bit#(11))  local_length_r  <- mkRegA(0);// This will hold the length parameter during the first request and then tracks(for read)
+Reg#(Bit#(11))  pages2b_written <- mkRegA(0);// This will hold the length parameter during the first request and then tracks(for write)
+Reg#(Bit#(1))   chip_sel   <- mkConfigRegA(0);// Points to which chip is going to be selected.
+Reg#(Bit#(1))   plane_sel   <- mkConfigRegA(0);// Points to which plane is going to be selected.
+Reg#(Bit#(1))   cache_op_need   <- mkRegA(0);// Flag to indicate whether cache operation is needed
+Reg#(Bit#(8))   addr_cycl1   <- mkRegA(0) ;// Can process 2 requests of write at a time, since we have 2 FIFO taking data from NVM
+Reg#(Bit#(8))   addr_cycl2   <- mkRegA(0) ;
+Reg#(Bit#(8))   addr_cycl3   <- mkRegA(0) ;
+Reg#(Bit#(8))   addr_cycl4   <- mkRegA(0) ;
+Reg#(Bit#(8))   addr_cycl5   <- mkRegA(0) ;
+Reg#(Bit#(8))   a_cycl3_buff1   <- mkRegA(0);// Temp location for addr
+Reg#(Bit#(8))   a_cycl3_buff2   <- mkRegA(0);// Temp location for addr
+Reg#(Bit#(8))   a_cycl4_buff1   <- mkRegA(0);// Temp location for  addr
+Reg#(Bit#(8))   a_cycl4_buff2   <- mkRegA(0);// Temp location for  addr
+Reg#(Bit#(8))   a_cycl5_buff1   <- mkRegA(0);// Temp location for  addr
+Reg#(Bit#(8))   a_cycl5_buff2   <- mkRegA(0);// Temp location for  addr
+Reg#(Bit#(8))   mplane_cycl3_buff1   <- mkRegA(0);// Temp location for multi plane addr
+Reg#(Bit#(8))   mplane_cycl3_buff2   <- mkRegA(0);
+Reg#(Bit#(8))   mplane_cycl4_buff1   <- mkRegA(0);
+Reg#(Bit#(8))   mplane_cycl4_buff2   <- mkRegA(0);
+Reg#(Bit#(8))   mplane_cycl5_buff1   <- mkRegA(0);
+Reg#(Bit#(8))   mplane_cycl5_buff2   <- mkRegA(0);
+Reg#(Bit#(TLog#(TDiv#(`WDC,8)))) byte_count <- mkRegA(0);// This is to keep track of how many bytes are sent to flash.
+Reg#(Bit#(TLog#(TDiv#(`WDC,8)))) zero_index <- mkRegA(0);// Index to compute filling of zeros in case of col offset.
+Reg#(Bit#(1))                    new_r_req  <- mkRegA(0);// New read request flag.
+Reg#(Bit#(`WDC)) data_from_flash <- mkRegA(0);// Buffer to store half words recieved from flash and convert them to `WDC to send to nvm.
+Reg#(Bit#(1))    reset_flag      <- mkRegA(0);// To reset the flash memory for power-on-reset.
+Reg#(Bit#(1))    reset_wait_flag <- mkRegA(1);// To wait before reset the flash memory for power-on-reset.
+Reg#(Bit#(1))    reset_ongoing   <- mkRegA(0);
+Reg#(Bit#(1))    reset_applied   <- mkRegA(0);
+Reg#(Bit#(`COLUMN_WIDTH)) col_offset_p     <- mkRegA(0);// Col offset during program
+Reg#(Bit#(`COLUMN_WIDTH)) col_offset_r     <- mkRegA(0);// Col offset during read
+Reg#(Bit#(`COLUMN_WIDTH)) buf_col_offset_r <- mkRegA(0);// Col offset during read
+Reg#(Bit#(1)) get_next_addr         <- mkRegA(0);
+Reg#(Bit#(1)) block_erase_ongoing   <- mkRegA(0);//Indicates erase is in progress
+Reg#(Bit#(1)) read_pending          <- mkRegA(0);//Indicates read in progress
+Reg#(Bit#(1)) start_program         <- mkRegA(0);//Indicates start of program cycle
+Reg#(Bit#(1)) last_r_req            <- mkRegA(0);//Indicates last read in progress
+Reg#(Bit#(1)) stay_with_decision    <- mkRegA(0);//Control for next flag "decide_read"
+Reg#(Bit#(1)) decide_read           <- mkConfigRegA(0);// Indicates decision of read
+Reg#(Bit#(1)) initial_status_ck     <- mkRegA(0);//Indicates if a status check is needed or not.
+Reg#(Bit#(1)) q_fill_zeros          <- mkRegA(0);//Indicates if Q needs zeros in caseof coloffset.
+Reg#(Bit#(1)) multi_plane_r_pend_1  <- mkRegA(0);//Multi plane op flag
+Reg#(Bit#(1)) multi_plane_r_pend_2  <- mkRegA(0);//Multi plane op flag
+Reg#(Bit#(1)) page_r_pend_1         <- mkRegA(0);//Multi plane op flag
+Reg#(Bit#(1)) page_r_pend_2         <- mkRegA(0);
+Reg#(Bit#(1)) multi_plane_after_page<- mkRegA(0);//To identify multiplane req aftr a single page req
+Reg#(Bit#(2)) status_count          <- mkRegA(0);
+Reg#(Bit#(2)) status_done           <- mkRegA(0);//flag to keep track of the status checks done
+Reg#(Bit#(2)) alter_cnt             <- mkRegA(0);  //during program.
+Reg#(Bit#(1)) flag_end_read         <- mkRegA(0);
+Reg#(Bit#(1)) data_reg_loaded       <- mkRegA(0);
+Reg#(Bit#(1)) first_entry           <- mkRegA(0);
+Reg#(Bit#(1)) program_failed        <- mkRegA(0);//To keep track if any program failed.
+Reg#(Bit#(1)) last_status_r         <- mkRegA(0);//To keep track of the last status read 
+Reg#(Bit#(1)) first_byte            <- mkRegA(0);
+Reg#(Bit#(1)) allow_write_q         <- mkRegA(0);
+Reg#(Bit#(1)) cal_block_addr        <- mkRegA(0);
+Reg#(Bit#(1)) feature_data_done     <- mkRegA(0);
+Reg#(Bit#(1)) badblock_flag         <- mkRegA(0);// To initiate BBM on power-on.TODO revert back to 1
+Reg#(Bit#(1)) bb_search             <- mkRegA(0);// To start searching for bad block
 //ecc control reg
-//Reg#(Bit#(2))         write_delay        <- mkReg(0) ;
-//Reg#(Bit#(2))         end_write_delay    <- mkReg(0) ;
-//Reg#(Bit#(1))	      send_ecc_enc_start <- mkReg(1) ;
-Reg#(Bit#(10))        sector_byte_cnt <-mkReg(0);// Track each sector of 512B.Fixed.
-Reg#(Erase_operation_state) erase_state <-mkReg(START_ERASE);//State variable for erase operation.
-Reg#(Read_operation_state) read_state   <-mkReg(START_READ);//State variable for read operation. 
-Reg#(BBM_operation_state) bbm_state     <-mkReg(GET_ADDR);//State variable for bbm operation.     
-Reg#(Program_operation_state) program_state <-mkReg(START_PROGRAM);//State reg for write operation. 
-Reg#(Feature_operation_state) feature_state <-mkReg(IDLE);//State reg for set feature. 
-Reg#(Read_states)     present_r_state <-mkReg(IDLE);// Present read state.
-Reg#(Read_states)     next_r_state    <-mkReg(IDLE);// Next read state.
-Reg#(Program_states)  present_w_state <-mkReg(IDLE);// Present write state.
-Reg#(Program_states)  next_w_state    <-mkReg(IDLE);// Next write state.
-Reg#(Program_states)  prev_w_state    <-mkReg(IDLE);// Previous write state.
-Reg#(Bit#(13))        delay_count     <-mkReg(0);// Counter to manage timing issues.
-Reg#(Bit#(3))         d_sync_count    <-mkReg(0);
-Reg#(Bit#(1))         timing_set      <- mkReg(0);// Bit indicates whether timing is set or not
+//Reg#(Bit#(2))         write_delay        <- mkRegA(0) ;
+//Reg#(Bit#(2))         end_write_delay    <- mkRegA(0) ;
+//Reg#(Bit#(1))	      send_ecc_enc_start <- mkRegA(1) ;
+Reg#(Bit#(10))        sector_byte_cnt <-mkRegA(0);// Track each sector of 512B.Fixed.
+Reg#(Erase_operation_state) erase_state <-mkRegA(START_ERASE);//State variable for erase operation.
+Reg#(Read_operation_state) read_state   <-mkRegA(START_READ);//State variable for read operation. 
+Reg#(BBM_operation_state) bbm_state     <-mkRegA(GET_ADDR);//State variable for bbm operation.     
+Reg#(Program_operation_state) program_state <-mkRegA(START_PROGRAM);//State reg for write operation. 
+Reg#(Feature_operation_state) feature_state <-mkRegA(IDLE);//State reg for set feature. 
+Reg#(Read_states)     present_r_state <-mkRegA(IDLE);// Present read state.
+Reg#(Read_states)     next_r_state    <-mkRegA(IDLE);// Next read state.
+Reg#(Program_states)  present_w_state <-mkRegA(IDLE);// Present write state.
+Reg#(Program_states)  next_w_state    <-mkRegA(IDLE);// Next write state.
+Reg#(Program_states)  prev_w_state    <-mkRegA(IDLE);// Previous write state.
+Reg#(Bit#(13))        delay_count     <-mkRegA(0);// Counter to manage timing issues.
+Reg#(Bit#(3))         d_sync_count    <-mkRegA(0);
+Reg#(Bit#(1))         timing_set      <- mkRegA(0);// Bit indicates whether timing is set or not
 //Reg#(Bit#(1))         timing_set_cc   <- mkSyncRegFromCC(0,clk_inv);// Bit indicates whether timing is set or not
-Reg#(Bit#(1))         gate_we         <-mkReg(0);// To hold we_n for longer period than the clock.
-Reg#(Bit#(8))         sreg            <-mkReg(0);// Status register
-Reg#(Bit#(8))         dreg            <-mkReg(0);// Data reg
+Reg#(Bit#(1))         gate_we         <-mkRegA(0);// To hold we_n for longer period than the clock.
+Reg#(Bit#(8))         sreg            <-mkRegA(0);// Status register
+Reg#(Bit#(8))         dreg            <-mkRegA(0);// Data reg
 
 // Configuration register
-Reg#(Bit#(8))       rg_cfg_timing_mode <- mkReg('h12);
+Reg#(Bit#(8))       rg_cfg_timing_mode <- mkRegA('h12);
 
 
-Reg#(Bit#(TSub#(`MAX_ROW_BITS,`PAGE_WIDTH))) block_addr <- mkReg(0);//scan block address on power-on.
+Reg#(Bit#(TSub#(`MAX_ROW_BITS,`PAGE_WIDTH))) block_addr <- mkRegA(0);//scan block address on power-on.
 //Below registers are used for block erase operation and BBM purpose.
-Vector#(`TOTAL_PLANE,Reg#(Bit#(8)))  alter_addr_cycl3     <- replicateM(mkReg(0)) ;
-Vector#(`TOTAL_PLANE,Reg#(Bit#(8)))  alter_addr_cycl4     <- replicateM(mkReg(0)) ;
-Vector#(`TOTAL_PLANE,Reg#(Bit#(8)))  alter_addr_cycl5     <- replicateM(mkReg(0)) ;
+Vector#(`TOTAL_PLANE,Reg#(Bit#(8)))  alter_addr_cycl3     <- replicateM(mkRegA(0)) ;
+Vector#(`TOTAL_PLANE,Reg#(Bit#(8)))  alter_addr_cycl4     <- replicateM(mkRegA(0)) ;
+Vector#(`TOTAL_PLANE,Reg#(Bit#(8)))  alter_addr_cycl5     <- replicateM(mkRegA(0)) ;
 
 BRAM_Configure cfg_bbm_list = defaultValue ;
 //Memory to store bad block list on power-on
 BRAM1Port#(Bit#(TAdd#(`BLOCK_WIDTH,1)), Bit#(1))  bbm_list      <- mkBRAM1Server (cfg_bbm_list) ; 
-Reg#(Bit#(TAdd#(`BLOCK_WIDTH,1))) bbm_list_addr <- mkReg(0);// Addres register for bbm list memory.
+Reg#(Bit#(TAdd#(`BLOCK_WIDTH,1))) bbm_list_addr <- mkRegA(0);// Addres register for bbm list memory.
 
 Wire#(Bit#(6)) wr_onfi_signal <- mkWire();
 Wire#(bit)     wr_onfi_we_n   <- mkWire();  
 
-Reg#(bit)		 enable_dataout  <- mkReg(0) ;	         // active high
-Reg#(bit)		 enable_dqs      <- mkReg(0) ;	         // active high
+Reg#(bit)		 enable_dataout  <- mkRegA(0) ;	         // active high
+Reg#(bit)		 enable_dqs      <- mkRegA(0) ;	         // active high
 
 Vector#(`TOTAL_CHIPS, Wire#(bit))       rg_dqs_to_controller    <- replicateM(mkWire());
-Vector#(`TOTAL_CHIPS, Reg#(bit))        rg_dqs_c_to_controller  <- replicateM(mkReg(0));
+Vector#(`TOTAL_CHIPS, Reg#(bit))        rg_dqs_c_to_controller  <- replicateM(mkRegA(0));
 
 ReadOnly#(Bit#(1))    wr_we_null_cc	    <- mkNullCrossingWire(clk, rg_we_toggle);
 

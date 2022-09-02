@@ -5,23 +5,25 @@
 #include<stdint.h>
 
 #define DEF_TIMEOUT 60
+#define BASE_ADDR 0x00050000 
+                                                                                                    
+//Memory Maps                                                                                       
+#define CR      0x00050000                                                                    
+#define DCR     0x00050004                                                                    
+#define SR      0x00050008                                                                    
+#define FCR     0x0005000c                                                                    
+#define DLR     0x00050010                                                                    
+#define CCR     0x00050014                                                                    
+#define AR      0x00050018                                                                    
+#define ABR     0x0005001c                                                                    
+#define DR      0x00050020                                                                    
+#define PSMKR   0x00050024                                                                    
+#define PSMAR   0x00050028                                                                    
+#define PIR     0x0005002c                                                                    
+#define LPRT    0x00050030                                                                    
+#define STARTMM 0x90000000                                                                          
+#define ENDMM   0x9FFFFFFF     
 
-//Memory Maps
-#define CR      0x11800 
-#define DCR     0x11804
-#define SR      0x11808
-#define FCR     0x1180c
-#define DLR     0x11810
-#define CCR     0x11814
-#define AR      0x11818
-#define ABR     0x1181c
-#define DR      0x11820
-#define PSMKR   0x11824
-#define PSMAR   0x11828
-#define PIR     0x1182c
-#define LPRT    0x11830
-#define STARTMM 0x90000000
-#define ENDMM   0x9FFFFFFF
 //Defines for configuring the registers at ease
 //Bit vectors for all the parameters in the CR
 #define CR_PRESCALER(x)   (x<<24)

@@ -125,32 +125,32 @@ clock_divider.slowclock, rst0);
 SyncFIFOIfc#(Tuple2#(Bit#(`PADDR),Bit#(`Reg_width))) ff_sync_ctrl_write <- mkSyncFIFOFromCC(1,clock_divider.slowclock);
 `endif
 
-  Reg#(Bit#(`DIVWIDTH)) rg_clock_divisor <- mkReg(2, clocked_by core_clk,reset_by core_rst);
-  Reg#(bit)             rg_clk_select    <- mkReg(1);
+  Reg#(Bit#(`DIVWIDTH)) rg_clock_divisor <- mkRegA(2, clocked_by core_clk,reset_by core_rst);
+  Reg#(bit)             rg_clk_select    <- mkRegA(1);
 
 // local registers
-    Reg#(Bit#(10)) rg_rsp_cnt 		  <- mkConfigReg(0);
+    Reg#(Bit#(10)) rg_rsp_cnt 		  <- mkConfigRegA(0);
     `ifdef Out_clock
-    Reg#(Bit#(9))  rg_rd_data_cnt  <- mkReg(0, clocked_by clk0, reset_by rst0);
-    Reg#(Bit#(32)) rg_read_addr    <- mkReg(0, clocked_by clk0, reset_by rst0);
-    Reg#(Bit#(32)) rg_write_addr   <- mkReg(0, clocked_by clk0, reset_by rst0);
-    Reg#(Bit#(11)) rg_cfg_page_len   <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-    Reg#(Bit#(1))  rg_control_rd_er  <- mkConfigReg(0,clocked_by clk0, reset_by rst0);
-    Reg#(bit)      rg_read_start     <- mkReg(0,clocked_by clk0, reset_by rst0);
-    Reg#(Bit#(8))  rg_timing_mode    <- mkReg(0,clocked_by clk0, reset_by rst0);
+    Reg#(Bit#(9))  rg_rd_data_cnt  <- mkRegA(0, clocked_by clk0, reset_by rst0);
+    Reg#(Bit#(32)) rg_read_addr    <- mkRegA(0, clocked_by clk0, reset_by rst0);
+    Reg#(Bit#(32)) rg_write_addr   <- mkRegA(0, clocked_by clk0, reset_by rst0);
+    Reg#(Bit#(11)) rg_cfg_page_len   <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+    Reg#(Bit#(1))  rg_control_rd_er  <- mkConfigRegA(0,clocked_by clk0, reset_by rst0);
+    Reg#(bit)      rg_read_start     <- mkRegA(0,clocked_by clk0, reset_by rst0);
+    Reg#(Bit#(8))  rg_timing_mode    <- mkRegA(0,clocked_by clk0, reset_by rst0);
     `else
-    Reg#(Bit#(9))  rg_rd_data_cnt  <- mkReg(0, clocked_by clock_divider.slowclock, reset_by rst0);
-    Reg#(Bit#(32)) rg_read_addr    <- mkReg(0, clocked_by clock_divider.slowclock, reset_by rst0);
-    Reg#(Bit#(32)) rg_write_addr   <- mkReg(0, clocked_by clock_divider.slowclock, reset_by rst0);
-    Reg#(Bit#(11)) rg_cfg_page_len   <- mkConfigReg(0,clocked_by clock_divider.slowclock , reset_by rst0);
-    Reg#(Bit#(1))  rg_control_rd_er  <- mkConfigReg(0,clocked_by clock_divider.slowclock , reset_by rst0);
-    Reg#(bit)      rg_read_start     <- mkReg(0,clocked_by clock_divider.slowclock, reset_by rst0);
-    Reg#(Bit#(8))  rg_timing_mode    <- mkReg(0,clocked_by clock_divider.slowclock, reset_by rst0);
+    Reg#(Bit#(9))  rg_rd_data_cnt  <- mkRegA(0, clocked_by clock_divider.slowclock, reset_by rst0);
+    Reg#(Bit#(32)) rg_read_addr    <- mkRegA(0, clocked_by clock_divider.slowclock, reset_by rst0);
+    Reg#(Bit#(32)) rg_write_addr   <- mkRegA(0, clocked_by clock_divider.slowclock, reset_by rst0);
+    Reg#(Bit#(11)) rg_cfg_page_len   <- mkConfigRegA(0,clocked_by clock_divider.slowclock , reset_by rst0);
+    Reg#(Bit#(1))  rg_control_rd_er  <- mkConfigRegA(0,clocked_by clock_divider.slowclock , reset_by rst0);
+    Reg#(bit)      rg_read_start     <- mkRegA(0,clocked_by clock_divider.slowclock, reset_by rst0);
+    Reg#(Bit#(8))  rg_timing_mode    <- mkRegA(0,clocked_by clock_divider.slowclock, reset_by rst0);
     `endif
     
 //Control Registers for NandflashController
 
-    Reg#(Bit#(4))  rg_axi_id         <- mkReg(0);
+    Reg#(Bit#(4))  rg_axi_id         <- mkRegA(0);
 `ifdef Out_clock
 	SyncFIFOIfc#(Bit#(`Reg_width)) ff_read_cntrl_read_response <- mkSyncFIFOToCC(1, clk0, rst0);
 	SyncFIFOIfc#(Bit#(`PADDR))     ff_sync_read_response       <- mkSyncFIFOFromCC(1,clk0);
@@ -358,24 +358,24 @@ let onfi_nfc = onfi_controller.nfc_onfi_interface;
 //      onfi_nfc.data1_data_in(wr_data1);
 //endrule
 
-Reg#(bit)      rg_ready_busy_n_0   <- mkReg(0); 
-Reg#(bit)      rg_ready_busy_n_1   <- mkReg(0); 
-Reg#(bit)      rg_dqs_in           <- mkReg(0);
-Reg#(bit)      rg_dqs_c_in         <- mkReg(0);
-Reg#(bit)      rg_dqs2_in          <- mkReg(0);
-Reg#(bit)      rg_dqs2_c_in        <- mkReg(0);
-Reg#(Bit#(8))  rg_data0_in         <- mkReg(0);
-Reg#(Bit#(8))  rg_data1_in         <- mkReg(0);
+Reg#(bit)      rg_ready_busy_n_0   <- mkRegA(0); 
+Reg#(bit)      rg_ready_busy_n_1   <- mkRegA(0); 
+Reg#(bit)      rg_dqs_in           <- mkRegA(0);
+Reg#(bit)      rg_dqs_c_in         <- mkRegA(0);
+Reg#(bit)      rg_dqs2_in          <- mkRegA(0);
+Reg#(bit)      rg_dqs2_c_in        <- mkRegA(0);
+Reg#(Bit#(8))  rg_data0_in         <- mkRegA(0);
+Reg#(Bit#(8))  rg_data1_in         <- mkRegA(0);
 `ifdef Out_clock
-Reg#(Bool)     rg_dqs_out          <- mkReg(False,clocked_by clk0, reset_by rst0);
-Reg#(Bool)     rg_dqs_c_out        <- mkReg(True,clocked_by  clk0, reset_by rst0);
-Reg#(Bool)     rg_dqs2_out         <- mkReg(False,clocked_by clk0, reset_by rst0);
-Reg#(Bool)     rg_dqs2_c_out       <- mkReg(True,clocked_by  clk0, reset_by rst0);
+Reg#(Bool)     rg_dqs_out          <- mkRegA(False,clocked_by clk0, reset_by rst0);
+Reg#(Bool)     rg_dqs_c_out        <- mkRegA(True,clocked_by  clk0, reset_by rst0);
+Reg#(Bool)     rg_dqs2_out         <- mkRegA(False,clocked_by clk0, reset_by rst0);
+Reg#(Bool)     rg_dqs2_c_out       <- mkRegA(True,clocked_by  clk0, reset_by rst0);
 `else
-Reg#(Bool)     rg_dqs_out          <- mkReg(False,clocked_by clock_divider.slowclock, reset_by rst0);
-Reg#(Bool)     rg_dqs_c_out        <- mkReg(True,clocked_by clock_divider.slowclock, reset_by rst0);
-Reg#(Bool)     rg_dqs2_out         <- mkReg(False,clocked_by clock_divider.slowclock, reset_by rst0);
-Reg#(Bool)     rg_dqs2_c_out       <- mkReg(True,clocked_by clock_divider.slowclock, reset_by rst0);
+Reg#(Bool)     rg_dqs_out          <- mkRegA(False,clocked_by clock_divider.slowclock, reset_by rst0);
+Reg#(Bool)     rg_dqs_c_out        <- mkRegA(True,clocked_by clock_divider.slowclock, reset_by rst0);
+Reg#(Bool)     rg_dqs2_out         <- mkRegA(False,clocked_by clock_divider.slowclock, reset_by rst0);
+Reg#(Bool)     rg_dqs2_c_out       <- mkRegA(True,clocked_by clock_divider.slowclock, reset_by rst0);
 `endif
 Wire#(bit)     wr_we_n             <- mkWire();
 

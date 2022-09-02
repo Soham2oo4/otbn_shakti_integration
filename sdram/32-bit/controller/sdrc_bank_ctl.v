@@ -343,7 +343,7 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
 
    // synopsys translate_off
 
-   always @ (posedge clk) begin
+   always @ (posedge clk ) begin
 
       if (~rank_fifo_wr & rank_fifo_rd && rank_cnt == 3'h0) begin
 	 $display ("%t: %m: ERROR!!! Read from empty Fifo", $time);
@@ -359,7 +359,7 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
    
    // synopsys translate_on
       
-   always @ (posedge clk)
+   always @ (posedge clk or negedge reset_n)
       if (~reset_n) begin
 	 rank_cnt <= 3'b0;
 	 rank_ba <= 8'b0;

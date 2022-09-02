@@ -189,7 +189,7 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
    /*** Timing Break Logic Added for FPGA - Start ****/
    reg	x2b_wrok_r, xfr_ok_r , x2b_rdok_r;
    reg [1:0] b2x_cmd_r,timer0_tc_r,tras_ok_r,x2b_pre_ok_r,x2b_act_ok_r;
-   always @ (posedge clk)
+   always @ (posedge clk or negedge reset_n)
       if (~reset_n) begin
 	 x2b_wrok_r <= 1'b0;
 	 xfr_ok_r   <= 1'b0;
@@ -223,7 +223,7 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
    /*** Timing Break Logic Added for FPGA - End****/
 
 
-   always @ (posedge clk)
+   always @ (posedge clk or negedge reset_n)
       if (~reset_n) begin
 	 bank_valid <= 1'b0;
 	 tras_cntr <= 4'b0;
@@ -247,9 +247,8 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
 
       end // else: !if(~reset_n)
 
-   always @ (posedge clk) begin 
+   always @ (posedge clk or negedge reset_n) begin 
 
-      bank_row <= (bank_st == `BANK_ACT) ? b2x_addr : bank_row;
 
       if (~reset_n) begin
 	 l_start <= 1'b0;
@@ -261,6 +260,7 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
 	 l_raddr <= 1'b0;
 	 l_caddr <= 1'b0;
          l_sdr_dma_last <= 1'b0;
+         bank_row <= 13'b0;
       end
       else begin
         if (b2r_ack) begin
@@ -274,6 +274,7 @@ parameter  SDR_BW   = 4;   // SDR Byte Width
   	   l_caddr <= r2b_caddr;
            l_sdr_dma_last <= sdr_dma_last;
         end // if (b2r_ack)
+         bank_row <= (bank_st == `BANK_ACT) ? b2x_addr : bank_row;
       end
 
    end // always @ (posedge clk)

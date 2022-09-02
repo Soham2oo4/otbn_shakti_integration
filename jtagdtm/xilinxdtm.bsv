@@ -61,7 +61,7 @@ package xilinxdtm;
     Wire#(Bit#(1)) wr_shift<-mkDWire(0);
     Wire#(Bit#(1)) wr_update<-mkDWire(0);
   /*========= Main Data Register =========== */
-    Reg#(Bit# (139)) srg_mdr <- mkReg(0);
+    Reg#(Bit# (139)) srg_mdr <- mkRegA(0);
 
     Wire#(Bool) wr_dmi_hardreset <- mkDWire(False);
     Wire#(Bool) wr_dmi_reset <- mkDWire(False);
@@ -71,7 +71,7 @@ package xilinxdtm;
     Reg#(Bit#(6))	abits =readOnlyReg(6'd6);
     Reg#(Bit#(4))	version = readOnlyReg('d1);
     
-    Reg#(Bit#(2))	response_status<-mkReg(0);
+    Reg#(Bit#(2))	response_status<-mkRegA(0);
     Reg#(Bool)		capture_repsonse_from_dm<-mkRegA(False);
     Reg#(Bit#(1)) rg_tdo<-mkRegA(0, clocked_by invert_clock, reset_by invert_reset);
 
@@ -79,7 +79,7 @@ package xilinxdtm;
     ReadOnly#(Bit#(139))	crossed_srg_mdr <- mkNullCrossingWire(invert_clock,srg_mdr);
     ReadOnly#(Bit#(1)) crossed_output_tdo <- mkNullCrossingWire(def_clk,rg_tdo);
     
-    Reg#(Bit#(5)) rg_pseudo_ir <- mkReg(0);
+    Reg#(Bit#(5)) rg_pseudo_ir <- mkRegA(0);
 
     /*======= perform dtmcontrol shifts ======== */
     rule generate_tdo_outputpin;
@@ -90,7 +90,7 @@ package xilinxdtm;
       srg_mdr<={wr_tdi,srg_mdr[138:1]};
     endrule
 
-    Reg#(Bit#(41)) rg_packet <- mkReg(0);
+    Reg#(Bit#(41)) rg_packet <- mkRegA(0);
 
     rule tunneled_update ((wr_sel == 1'b1) && (wr_update ==1'b1) && (wr_capture ==1'b0) &&
                           (wr_shift == 1'b0) );
@@ -116,6 +116,7 @@ package xilinxdtm;
             capture_repsonse_from_dm<=True;
           end
           rg_packet <= packet[40:0];
+          dmistat <= 2'b11;
         end
       end
       srg_mdr <= 0;
@@ -141,14 +142,15 @@ package xilinxdtm;
         end
         else if(capture_repsonse_from_dm) begin
           response_status<=3;
-          capture_frame[43:0] = {rg_packet[40:0],3'b000};
+          dmistat<=2'b11;
+          capture_frame[43:0] = {rg_packet[40:2],2'b11,3'b000};
         end
         else begin
-          capture_frame[43:0] = {rg_packet[40:0],3'b000};
+          capture_frame[43:0] = {rg_packet[40:2],2'b00,3'b000};
         end
       end 
       else begin
-        capture_frame[43:0] = {rg_packet[40:0],3'b000};
+        capture_frame[43:0] = {rg_packet[40:2],2'b00,3'b000};
       end
       srg_mdr <= capture_frame;
     endrule

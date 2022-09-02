@@ -56,11 +56,11 @@ method Bit#(1) wr_halt_l();
 //.........Methods to write and read data when tristate is not enabled.........//
 
 
-method Bit#(8) wr_byte_31_24();
-method Bit#(8) wr_byte_23_16();
+method Bit#(8) wr_byte_15_8();
+method Bit#(8) wr_byte_7_0();
 
-method Action rd_byte_31_24(Bit #(8) d3);
-method Action rd_byte_23_16(Bit #(8) d2);
+method Action rd_byte_15_8(Bit #(8) d2);
+method Action rd_byte_7_0(Bit #(8) d1);
 
 
 
@@ -93,11 +93,11 @@ Reg#(State_slave) slave_state <- mkReg (RCV_REQ);
 //.......................................................................
 
 
-Wire#(Bit#(8)) data_in_4<-mkDWire(0);
-Wire#(Bit#(8)) data_in_3<-mkDWire(0);
+Wire#(Bit#(8)) data_in_2<-mkDWire(0);
+Wire#(Bit#(8)) data_in_1<-mkDWire(0);
 
-Reg#(Bit#(8)) data_out_4<-mkReg(0);
-Reg#(Bit#(8)) data_out_3<-mkReg(0);
+Reg#(Bit#(8)) data_out_2<-mkReg(0);
+Reg#(Bit#(8)) data_out_1<-mkReg(0);
 Reg #(Bit#(2)) data_control <-mkReg(0);
 
 
@@ -144,28 +144,28 @@ rule send_ack(slave_state==DET_DS );
     case({s_siz1,s_siz0})
 			 2'b00:
          begin
-					data_out_4 <=data0[7:0];
-          data_out_3 <=data0[15:8];
+					data_out_1 <=data0[7:0];
+          data_out_2 <=data0[15:8];
 					data_control<=2'b11;
          end
 			2'b01 :
 			   case({s_addr[1],s_addr[0]})
               2'b00:begin
-						        data_out_4<=data0[7:0];
+						        data_out_1<=data0[7:0];
 						        data_control<=2'b11;
 					            end
               2'b01:begin
-						        data_out_3<=data0[15:8];
+						        data_out_2<=data0[15:8];
 						        data_control<=2'b11;
 					          end
              
              2'b10:begin
-					      	data_out_4<=data0[7:0];
+					      	data_out_1<=data0[7:0];
 					        data_control<=2'b11;
 						      end
               
              2'b11:begin
-					      	data_out_3<=data0[15:8];
+					      	data_out_2<=data0[15:8];
 					        data_control<=2'b11;
                   end
 
@@ -173,14 +173,14 @@ rule send_ack(slave_state==DET_DS );
 			2'b10 :
 			       if({s_addr[1],s_addr[0]}==2'b00)
              begin
-                data_out_4<=data0[7:0];
-                data_out_3<=data0[15:8];
+                data_out_1<=data0[7:0];
+                data_out_2<=data0[15:8];
 			       		data_control<=2'b11;
 			       end
 			       else
              begin 
-                data_out_4<=data0[7:0];
-                data_out_3<=data0[15:8];
+                data_out_1<=data0[7:0];
+                data_out_2<=data0[15:8];
 			       		data_control<=2'b11;
               end                                  
           endcase
@@ -196,28 +196,28 @@ rule send_ack(slave_state==DET_DS );
       case({s_siz1,s_siz0})
       
       2'b00 :begin
-				        dmemLSB.b.put(2'b11,index_address,{data_in_3,data_in_4});
+				        dmemLSB.b.put(2'b11,index_address,{data_in_2,data_in_1});
                end
 
 			2'b01 :begin
 			       		case({s_addr[1],s_addr[0]})
 						    2'b00:
 						    begin
-							    dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_4});
+							    dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_1});
 						    end 		
-			       			2'b01:dmemLSB.b.put(2'b10,index_address,{data_in_3,8'b0});
-			       			2'b10:dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_4});
-			       			2'b11:dmemLSB.b.put(2'b10,index_address,{data_in_3,8'b0});
+			       			2'b01:dmemLSB.b.put(2'b10,index_address,{data_in_2,8'b0});
+			       			2'b10:dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_1});
+			       			2'b11:dmemLSB.b.put(2'b10,index_address,{data_in_2,8'b0});
 			       		endcase
                end
 			2'b10 :
               if({s_addr[1],s_addr[0]}==2'b00)
 			      	begin
-				      	dmemLSB.b.put(2'b11,index_address,{data_in_3,data_in_4});
+				      	dmemLSB.b.put(2'b11,index_address,{data_in_2,data_in_1});
 			      	end
 			    	  else 
 				      begin	
-				        	dmemLSB.b.put(2'b11,index_address,{data_in_3,data_in_4});
+				        	dmemLSB.b.put(2'b11,index_address,{data_in_2,data_in_1});
               end
       endcase
     end 
@@ -287,12 +287,12 @@ endmethod
 /*Methods to emulate tristate functionality*/
 
 
-method Bit#(8) wr_byte_31_24()if(data_control[1]==1);
-return data_out_4;
+method Bit#(8) wr_byte_15_8()if(data_control[1]==1);
+return data_out_2;
 endmethod
 
-method Bit#(8) wr_byte_23_16()if(data_control[0]==1);
-return data_out_3;
+method Bit#(8) wr_byte_7_0()if(data_control[0]==1);
+return data_out_1;
 endmethod
 
 /*method Bit#(8) wr_byte_15_8()if(data_control[1]==1);
@@ -305,12 +305,12 @@ return data_out_1;
 endmethod
 */
 
-method Action rd_byte_31_24(Bit #(8) d4)if(data_control[1]==0);
-data_in_4<=d4;
+method Action rd_byte_15_8(Bit #(8) d2)if(data_control[1]==0);
+data_in_2<=d2;
 endmethod
 
-method Action rd_byte_23_16(Bit #(8) d3)if(data_control[0]==0);
-data_in_3<=d3;
+method Action rd_byte_7_0(Bit #(8) d1)if(data_control[0]==0);
+data_in_1<=d1;
 endmethod
 
 
