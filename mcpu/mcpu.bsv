@@ -226,6 +226,17 @@ package mcpu;
 		r.rresp = AXI4_SLVERR;
 		ff_address.deq();
 		s_xactor.i_rd_data.enq(r);
+    
+	          //checking last word for burst_transfers
+          if(ff_last.first)
+          begin
+            r.rlast=True;
+            ff_id.deq;
+          end
+          r.rid=ff_id.first;
+          ff_last.deq;
+
+
     `ifdef verbose
     if (response.berr==1'b1)
 		 $display("MCPU:SLV_ERR");`endif
