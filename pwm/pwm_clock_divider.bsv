@@ -22,12 +22,51 @@ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISI
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 */
+package pwm_clock_divider;
+  /*=== Project imports ==*/
+  import Clocks::*;
+  /*======================*/
+  // =========================== Clock divider module ================ //
+  interface Ifc_pwm_clock_divider#(numeric type width);
+    interface Clock slowclock;
+    method Action divisor(Bit#(width) in);
+  endinterface
 
-package pwm_template;
-	`include "pwm.defines"
-	import pwm::*;
-	(*synthesize*)
-	module mkdummy#(Clock ext_clock, Reset ext_reset)(Empty);
-		Ifc_pwm_axi4lite#(32,32,0,32) pmw <- mkpwm_axi4lite(ext_clock,ext_reset);
-	endmodule
+  module mkpwm_clock_divider(Ifc_pwm_clock_divider#(width));
+    let defclock <- exposeCurrentClock;
+    Reg#(Bit#(1)) clk <- mkReg(1);
+    Reg#(Bit#(width)) rg_divisor <- mkReg(0);
+	Reg#(Bit#(width)) rg_half_divisor <- mkReg(0);
+    Reg#(Bit#(width)) rg_counter <- mkReg(0);
+    MakeClockIfc#(Bit#(1)) new_clock <- mkUngatedClock(0);
+    MuxClkIfc clock_selector <- mkUngatedClockMux(new_clock.new_clk,defclock);
+    Bool clockmux_sel = rg_divisor!=0;
+    rule increment_counter(rg_divisor != 0);
+		if(rg_counter <= rg_half_divisor)
+			clk <= 1;
+		else
+			clk <= 0;
+		if(rg_counter == rg_divisor)
+			rg_counter <= 0;
+		else
+			rg_counter <= rg_counter + 1;
+    endrule
+
+    rule generate_clock;
+      new_clock.setClockValue(clk);
+    endrule
+
+    rule select_clock;
+      clock_selector.select(clockmux_sel);
+    endrule
+
+    method Action divisor(Bit#(width) in);
+	  rg_half_divisor <= in >> 1;
+      rg_divisor <= in;
+    endmethod
+
+    interface slowclock=clock_selector.clock_out;
+  endmodule
+  // ============================================================== //
+  
 endpackage

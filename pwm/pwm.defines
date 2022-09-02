@@ -8,7 +8,8 @@
 	`define PWMWIDTH 32
 
 // Memory Map
-`define PeriodReg 'h0		
-`define DutyReg   'h4		
-`define ControlReg   'h8	
-`define ClockReg 'hc
+`define Pwm_clock			'h00
+`define Pwm_control			'h04
+`define Pwm_period			'h08
+`define Pwm_duty_cycle		'h0C
+`define Pwm_deadband_delay	'h10
