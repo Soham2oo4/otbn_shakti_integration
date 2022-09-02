@@ -96,7 +96,7 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 	Reg#(Bit#(1))	rg_dmihardreset<-mkRegA(0);
 	Reg#(Bit#(1))	dmihardreset=condwriteSideEffect(rg_dmihardreset,wr_dmihardreset_generated._write(True));
 	Wire#(Bool)		wr_dmireset_generated<-mkDWire(False);
-	Reg#(Bit#(1))	rg_dmireset<-mkDReg(0);
+	Reg#(Bit#(1))	rg_dmireset<-mkDRegA(0);
 	Reg#(Bit#(1))	dmireset=condwriteSideEffect(rg_dmireset,wr_dmireset_generated._write(True));
 	Reg#(Bit#(3))	idle=readOnlyReg(3'd7);
 	Reg#(Bit#(2))	dmistat<-mkRegA(0);
@@ -107,8 +107,8 @@ typedef enum {TestLogicReset = 4'h0,  RunTestIdle    = 4'h1,  SelectDRScan   = 4
 		idle,readOnlyReg(dmistat),abits,version);
 	Reg#(Bit#(32)) dtmcontrol_shiftreg<-mkRegA({17'd0,3'd7,2'd0,6'd6,4'd1});
 
-	Reg#(Bit#(40)) dmiaccess_shiftreg[2]<-mkCReg(2,'d2);
-	Reg#(Bit#(2))	response_status<-mkReg(0);
+	Reg#(Bit#(40)) dmiaccess_shiftreg[2]<-mkCRegA(2,'d2);
+	Reg#(Bit#(2))	response_status<-mkRegA(0);
 	Reg#(Bool)		capture_repsonse_from_dm<-mkRegA(False);
 	Reg#(Bit#(1)) rg_tdo<-mkRegA(0, clocked_by invert_clock, reset_by invert_reset);
 

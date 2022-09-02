@@ -6,9 +6,11 @@
 #define SPI_DR1  	 0x0002000C
 #define SPI_DR2  	 0x00020010
 #define SPI_DR3  	 0x00020014
-#define SPI_CRCPR    0x00020018
-#define SPI_RXCRCR   0x0002001C
-#define SPI_TXCRCR   0x00020020
+#define SPI_DR4		 0x00020018
+#define SPI_DR5		 0x0002001C
+#define SPI_CRCPR    0x00020020
+#define SPI_RXCRCR   0x00020024
+#define SPI_TXCRCR   0x00020028
 
 // defining SPI_CR1 register
 
@@ -27,7 +29,7 @@
 #define SPI_BIDIOE				(1 << 14)
 #define SPI_BIDIMODE			(1 << 15)
 #define SPI_TOTAL_BITS_TX(x)  	(x << 16)
-#define SPI_TOTAL_BITS_RX(x)  	(x << 23)
+#define SPI_TOTAL_BITS_RX(x)  	(x << 24)
 
 // defining SPI_CR2 register
 
@@ -65,9 +67,13 @@ int* spi_sr  = (int*) SPI_SR ;
 int* spi_dr1  = (int*) SPI_DR1 ;
 int* spi_dr2  = (int*) SPI_DR2 ;
 int* spi_dr3  = (int*) SPI_DR3 ;
+int* spi_dr4  = (int*) SPI_DR4 ;
+int* spi_dr5  = (int*) SPI_DR5 ;
 int* spi_crcpr  = (int*) SPI_CRCPR;
 int* spi_rxcrcr = (int*) SPI_RXCRCR;
 int* spi_txcrcr = (int*) SPI_TXCRCR; 
+
+int read_data[4096];
 
 
 void set_spi(int* addr, int val)
@@ -112,7 +118,7 @@ int spi_rxne_enable(){
 	int value = 0;
 	while (!(value & 0x1)){
 		waitfor(100);
-		value = get_spi(spi_sr);
+		value = *spi_sr;
 	}
 	return 1;
 }
@@ -122,6 +128,7 @@ int spi_notbusy(){
 	while((value & 0x80)){
 		waitfor(10);
 		value = get_spi(spi_sr);
+		printf("Reading SR  %x \n",value);
 	}
 	return 1;
 }
@@ -141,17 +148,19 @@ void waitfor(unsigned int secs) {
 int flash_write_enable(){
 	printf("Cypress write enable \n");
 	set_spi(spi_dr1, 0x06000000);
-	set_spi(spi_dr3, 0x06);
+	set_spi(spi_dr5, 0x06);
 	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(8)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
-	waitfor(20);
+//	waitfor(20);
 	spi_notbusy();
 	return 1;
 }
 
-int flash_command(int command){
-	set_spi(spi_dr3, command);
+
+
+int flash_clear_sr(){
+	set_spi(spi_dr1,0x30000000);
+	set_spi(spi_dr5,0x30);
 	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(8)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
-	waitfor(20);
 	spi_notbusy();
 	return 1;
 }
@@ -161,35 +170,16 @@ int flash_cmd_addr(int command, int addr){
 	int address2 = bitExtracted(addr, 8, 1);
 	int data1 = command | address1 ;
 	address2 = address2 << 24;
-	printf("Erase dr1 \n");
-	bin(data1);
 	printf("\n");
 	set_spi(spi_dr1, data1);
 	set_spi(spi_dr2, address2);
-	set_spi(spi_dr3, 0);
+	set_spi(spi_dr5, 0);
 	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	waitfor(20);
 	spi_notbusy();
 	return 1;
 }
 
-int flash_cmd_addr_read(int command, int addr){
-	int address1 = bitExtracted(addr, 24, 9);
-	int address2 = bitExtracted(addr, 8, 1);
-	int cmd_addr = command  | address1;
-	int dr2, dr3;
-	address2 = address2 << 24;
-	set_spi(spi_dr1, cmd_addr);
-	set_spi(spi_dr2, address2);
-	set_spi(spi_dr3, 0);
-	spi_tx_rx_start();	
-	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(48)|SPI_TOTAL_BITS_RX(32)|SPI_SPE|SPI_CPHA|SPI_CPOL));
-	if(spi_rxne_enable()) {
-		dr3 = *spi_dr3;
-		dr2 = *spi_dr2;
-	}
-	return dr3;
-}
 
 void flash_cmd_addr_data(int command, int addr, int data){
 	int address1 = bitExtracted(addr, 24, 9);
@@ -198,53 +188,66 @@ void flash_cmd_addr_data(int command, int addr, int data){
 	address2 = address2 << 24;
 	int data1 = bitExtracted(data, 24, 9);
 	data1 = address2 | data1;
-	printf("concat of 17bit data and 7dummy \n");
-	bin(data1);
-	printf("\n");
 	int data2 = bitExtracted(data, 8, 1);
 	data2 = data2 << 24;
-	printf("concat of 17bit data and 7dummy 8 bit of address \n");
-	bin(data2);
-	printf("\n");
 	set_spi(spi_dr1, cmd_addr);
 	set_spi(spi_dr2, data1);
 	set_spi(spi_dr3, data2);
+	set_spi(spi_dr5, 0);
 	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(72)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	waitfor(20);
 	spi_notbusy();
 }
 
-void flash_write(){
-	printf("Writing to flash\n");
-	flash_cmd_addr_data(0x12000000, 0x0, 0x00000005);
-	printf("Write done\n");
+void flash_write(int address, int data){
+	flash_cmd_addr_data(0x12000000, address,data);
 }
 
-void flash_read(){
-	printf("Read from flash\n");
-	int dat = flash_cmd_addr_read(0x0C000000, 0x0);
-	printf("Read data %x\n",dat);
-}	
+
+int flash_cmd_to_read(int command, int addr){
+	int dr5;
+	int address1 = bitExtracted(addr, 24, 9);
+	int address2 = bitExtracted(addr, 8, 1);
+	int cmd_addr = command  | address1;
+	address2 = address2 << 24;
+	set_spi(spi_dr1, cmd_addr);
+	set_spi(spi_dr2, address2);
+	set_spi(spi_dr5, 0);
+	spi_tx_rx_start();
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(48)|SPI_TOTAL_BITS_RX(32)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	waitfor(20);
+	if(spi_rxne_enable()) {
+		dr5 = *spi_dr5;
+	}
+	return dr5;
+
+}
+
+int flash_read(int address){
+	int read_value = flash_cmd_to_read(0x0C000000,address);
+	return read_value;
+}
 
 int flash_cmd_read(int command){
-	int dr1, dr2, dr3;
+	int dr1, dr2, dr5;
 	set_spi(spi_dr1, command);
-	set_spi(spi_dr3, command);
+	set_spi(spi_dr5, command);
 	spi_tx_rx_start();
 	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(8)|SPI_TOTAL_BITS_RX(32)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	if(spi_rxne_enable()) {
-		dr3 = *spi_dr3;
+		dr5 = *spi_dr5;
 		dr2 = *spi_dr2;
 	}
-  	return dr3;
+  	return dr5;
 }
 
-void flash_erase(){
+void flash_erase(int address){
 	printf("Cypress erase \n");
-	flash_cmd_addr(0x21000000, 0x0);
+	flash_cmd_addr(0xDC000000, address);
 	printf("Cypress erase done\n");
-}
-
+}                                                                      
+                                                                
+                                                                     
 int flash_status_register_read(){
 	int stat = 0x3;
 	while (stat & 0x03){
@@ -259,22 +262,100 @@ int flash_device_id(){
 	int dr1, dr2, dr3;
 	int val1, val2;
 	flash_write_enable();
-	set_spi(spi_dr1, 0x9f);
-	set_spi(spi_dr3, 0x9f);
+	set_spi(spi_dr1, 0x9f000000);
+	set_spi(spi_dr5, 0x9f000000);
 	spi_tx_rx_start();
-	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(8)|SPI_TOTAL_BITS_RX(32)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(8)|SPI_TOTAL_BITS_RX(24)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	printf("REad status Reg %x \n",get_spi(spi_sr));	
 	if(spi_rxne_enable()) {
-		dr3 = *spi_dr3;
-		dr2 = *spi_dr2;
-	}
-	
-	val1 = bitExtracted(dr3, 24, 9);
-	val2 = bitExtracted(dr2, 8, 1);
-	dr1 = concat(val2, val1);	
-	printf("Device ID %x \n", dr3);
-	printf("Device ID %x \n", dr2);
-	printf("extracted device id %x \n",dr1);
+		dr3 = *spi_dr5;
+			}
+	val1 = bitExtracted(dr3, 8, 17);
+	val2 = bitExtracted(dr3, 16, 1);
+	dr1 = concat(val2, val1);
+	printf("Device ID %x \n", dr1);
+	printf("extracted device id %x \n",dr3);
 
 
 	return 1;	
 }
+
+void flash_cmd_to_read_xip_mode(int command, int addr, int bits_to_be_received, int read_data_store){
+	int dr1,dr2,dr3,dr4,dr5;
+	int address1 = bitExtracted(addr, 24, 9);
+	int address2 = bitExtracted(addr, 8, 1);
+	int cmd_addr = command  | address1;
+	address2 = address2 << 24;
+	printf("\n");
+	set_spi(spi_dr1, cmd_addr);
+	set_spi(spi_dr2, address2);
+	set_spi(spi_dr5, 0);
+	spi_tx_rx_start();
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(bits_to_be_received)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	if(spi_rxne_enable()) {
+		dr5 = *spi_dr5;
+		dr4 = *spi_dr4;
+		dr3 = *spi_dr3;
+		dr2 = *spi_dr2;
+		dr1 = *spi_dr1;
+		read_data[read_data_store] = dr1;
+		read_data[read_data_store+1] = dr2;
+		read_data[read_data_store+2] = dr3;
+		read_data[read_data_store+3] = dr4;
+		read_data[read_data_store+4] = dr5;
+		printf("Data received : %d : %x, %x, %x, %x, %x \n", read_data_store,dr5,dr4,dr3,dr2,dr1);
+		printf("\n");
+	}
+	val1 = bitExtracted(dr3, 8, 17);
+	val2 = bitExtracted(dr3, 16, 1);
+	dr1 = concat(val2, val1);
+	printf("Device ID %x \n", val1);
+	printf("Extracted device id %x \n",val2);
+
+}
+
+
+void flash_xip_read(int start_address,int bits_to_be_received,int read_data_store){
+	printf("XIP mode : Reading from flash\n");
+	flash_cmd_to_read_xip_mode(0x13000000,start_address,bits_to_be_received,read_data_store);
+	printf("Read request for XIP mode done\n");
+}
+
+/*
+int read_data[4096];
+
+void flash_cmd_to_read_xip_mode(int command, int addr, int bits_to_be_received, int read_data_store){
+	int dr1,dr2,dr3,dr4,dr5;
+	int address1 = bitExtracted(addr, 24, 9);
+	int address2 = bitExtracted(addr, 8, 1);
+	int cmd_addr = command  | address1;
+	address2 = address2 << 24;
+	printf("\n");
+	set_spi(spi_dr1, cmd_addr);
+	set_spi(spi_dr2, address2);
+	set_spi(spi_dr5, 0);
+	spi_tx_rx_start();
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(bits_to_be_received)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	if(spi_rxne_enable()) {
+		dr5 = *spi_dr5;
+		dr4 = *spi_dr4;
+		dr3 = *spi_dr3;
+		dr2 = *spi_dr2;
+		dr1 = *spi_dr1;
+		read_data[read_data_store] = dr1;
+		read_data[read_data_store+1] = dr2;
+		read_data[read_data_store+2] = dr3;
+		read_data[read_data_store+3] = dr4;
+		read_data[read_data_store+4] = dr5;
+		printf("Data received : %d : %x, %x, %x, %x, %x \n", read_data_store,dr5,dr4,dr3,dr2,dr1);
+		printf("\n");
+	}
+
+}
+
+
+void flash_xip_read(int start_address,int bits_to_be_received,int read_data_store){
+	printf("XIP mode : Reading from flash\n");
+	flash_cmd_to_read_xip_mode(0x13000000,start_address,bits_to_be_received,read_data_store);
+	printf("Read request for XIP mode done\n");
+}*/

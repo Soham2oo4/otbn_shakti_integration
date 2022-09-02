@@ -79,12 +79,12 @@ package clint;
     staticAssert(valueOf(TExp#(i__))==valueOf(tick_count),"tick count has to be power of 2");
     let dvalue=valueOf(data_width);
 		Wire#(Bool) wr_mtimecmp_written<-mkDWire(False);
-		Reg#(Bit#(msip_size)) msip <-mkReg(0);// Msip_size has been parameterised
-		Reg#(Bit#(1)) mtip <-mkReg(0);
-		Reg#(Bit#(64)) rgmtime<-mkReg(0);
-		Reg#(Bit#(64)) rgmtimecmp<-mkReg(0);
+		Reg#(Bit#(msip_size)) msip <-mkRegA(0);// Msip_size has been parameterised
+		Reg#(Bit#(1)) mtip <-mkRegA(0);
+		Reg#(Bit#(64)) rgmtime<-mkRegA(0);
+		Reg#(Bit#(64)) rgmtimecmp<-mkRegA('hFFFFFFFFFFFFFFFF);
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
-		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkReg(0);
+		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkRegA(0);
 
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			mtip<=pack(rgmtime>=rgmtimecmp);
@@ -235,11 +235,11 @@ package clint;
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
 	 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
-	 	Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
+	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 	 	rule axi_read_transaction(rg_rdburst_count==0);
 	 		let req <- pop_o(s_xactor.o_rd_addr);

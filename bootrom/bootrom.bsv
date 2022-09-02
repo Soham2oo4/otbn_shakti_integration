@@ -78,8 +78,8 @@ package bootrom;
     BRAM_PORT#(Bit#(index_size ), Bit#(32)) dmemLSB <- 
                                      mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "boot.LSB", False);
   
-    Reg#(Bool) read_request_sent <-mkDReg(False);
-    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkReg(tuple2(0,Byte));
+    Reg#(Bool) read_request_sent <-mkDRegA(False);
+    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
     
     // A write request to bootrom has no significance.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
@@ -127,12 +127,12 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
-    Reg#(Mem_State) read_state <-mkReg(Idle);
-    Reg#(Mem_State) write_state <-mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkReg(?);
-	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <-mkReg(?);
+    Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
+    Reg#(Mem_State) read_state <-mkRegA(Idle);
+    Reg#(Mem_State) write_state <-mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
+	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkRegA(?);
+	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <-mkRegA(?);
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -206,8 +206,8 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
-    Reg#(Bit#(2)) rg_size <-mkReg(3);
-    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+    Reg#(Bit#(2)) rg_size <-mkRegA(3);
+    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
     rule write_request_address_channel;
@@ -252,9 +252,9 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
 //    Ifc_Slave_link_lite#(a, w, z)  s_xactor <- mkSlaveXactorLite(True, True);
 //    Integer verbosity = `VERBOSITY;
 //    Integer byte_offset = valueOf(TDiv#(data_width, 32));
-//    Reg#(Bit#(z)) rg_size <-mkReg(3);
-//    Reg#(Bit#(2)) rg_source <- mkReg(0);
-//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+//    Reg#(Bit#(z)) rg_size <-mkRegA(3);
+//    Reg#(Bit#(2)) rg_source <- mkRegA(0);
+//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
 //    Wire#(A_channel_lite#(a, w, z)) wr_request <- mkWire();
 //
 //    rule capture_request;

@@ -72,7 +72,7 @@ package bram;
           mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size, TLog#(TDiv#(data_width, 8))))), False,
                             readfile, False);
 
-    Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
+    Reg#(Bool) read_request_sent[2] <-mkCRegA(2,False);
 
     // A write request to memory. Single cycle operation.
     // This model assumes that the master sends the data strb aligned for the data_width bytes.
@@ -125,12 +125,12 @@ package bram;
     UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, readfile,
         modulename);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
-    Reg#(Mem_State) read_state <-mkReg(Idle);
-    Reg#(Mem_State) write_state <-mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkReg(?);
-		Reg#(AXI4_Wr_Addr	#(addr_width, user_width)) rg_write_packet<-mkReg(?);
+    Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
+    Reg#(Mem_State) read_state <-mkRegA(Idle);
+    Reg#(Mem_State) write_state <-mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
+	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkRegA(?);
+		Reg#(AXI4_Wr_Addr	#(addr_width, user_width)) rg_write_packet<-mkRegA(?);
     Wire#(Bool) wr_read_ack <- mkWire();
 
     // If the request is single then simple send ERR. If it is a burst write request then change
@@ -212,8 +212,8 @@ package bram;
                                                                                         modulename);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
-    Reg#(Bit#(2)) rg_size <-mkReg(3);
-    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+    Reg#(Bit#(2)) rg_size <-mkRegA(3);
+    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
     rule write_request_address_channel;
@@ -265,9 +265,9 @@ package bram;
 //
 //    Integer verbosity = `VERBOSITY;
 //    Integer byte_offset = valueOf(TDiv#(data_width, 32));
-//    Reg#(Bit#(z)) rg_size <-mkReg(3);
-//    Reg#(Bit#(2)) rg_source <- mkReg(0);
-//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+//    Reg#(Bit#(z)) rg_size <-mkRegA(3);
+//    Reg#(Bit#(2)) rg_source <- mkRegA(0);
+//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
 //    // If the request is single then simple send ERR. If it is a burst write request then change
 //    // state to Burst and do not send response.
 //    rule write_request_address_channel;

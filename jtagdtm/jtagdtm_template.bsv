@@ -47,9 +47,9 @@ package jtagdtm_template;
     MakeClockIfc#(Bit#(1)) tck_clk <-mkUngatedClock(1);
     MakeResetIfc trst <- mkReset(0,False,tck_clk.new_clk);
 
-    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingReg(tck_clk.new_clk,0);
-		CrossingReg#(Bit#(1)) tms<-mkNullCrossingReg(tck_clk.new_clk,0);
-		CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst);
+    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingRegA(tck_clk.new_clk,0);
+		CrossingReg#(Bit#(1)) tms<-mkNullCrossingRegA(tck_clk.new_clk,0);
+		CrossingReg#(Bit#(1)) tdo<-mkNullCrossingRegA(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst);
 		
     Ifc_jtag_driver_sim openocd <- mkRbbJtag();
     Ifc_jtagdtm jtag_tap <- mkjtagdtm(clocked_by tck_clk.new_clk, reset_by trst.new_rst);

@@ -46,6 +46,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 */
 package uart;
+	  `include "Logger.bsv"       // for logging display statements.
 	`include "uart.defines"
 
 	import AXI4_Lite_Types::*;
@@ -78,14 +79,15 @@ package uart;
 
 	module mkuart_user#(parameter Bit#(16) baudrate)
       (UserInterface#(addr_width,data_width, depth))
-      provisos(Mul#(16, a__, data_width),
-              Add#(d__, 8, data_width),    
-              Mul#(8, b__, data_width),
-              Mul#(4, f__, data_width),
-              Add#(c__, 16, data_width), 
-              Add#(2, e__, depth));
+      provisos(
+        Add#(a__, 8, data_width),
+        Add#(b__, 16, data_width),
+        Mul#(16, c__, data_width),
+        Mul#(8, d__, data_width),
+        Add#(2, e__, depth)
+      );
 
-		Reg#(Bit#(16)) baud_value <-mkReg(baudrate);
+		Reg#(Bit#(16)) baud_value <-mkRegA(baudrate);
 		UART#(depth) uart <-mkUART(8,NONE,STOP_1,baud_value); // charasize,Parity,Stop Bits,BaudDIV
     Wire#(Bit#(4)) wr_status <- mkWire();
     rule capture_status;
@@ -96,14 +98,16 @@ package uart;
 
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
-      if( addr[3:0]==`StatusReg && size==Byte)begin
-        return tuple2(duplicate(wr_status),True);
+      if( addr[3:0]==`StatusReg)begin
+        return tuple2(duplicate({4'd0,wr_status}),True);
       end
-			else if( addr[3:0]==`RxReg && size==Byte)begin
-				Bit#(8) data<-uart.tx.get; 
+			else if( addr[3:0]==`RxReg)begin
+				Bit#(8) data =0;
+				if(uart.receiver_not_empty)
+				  data<-uart.tx.get; 
 				return tuple2(duplicate(data),True);
 			end
-			else if(addr[3:0]==`BaudReg && size==HWord ) begin
+			else if(addr[3:0]==`BaudReg) begin
 				return tuple2(duplicate(baud_value),True);
 			end
 			else
@@ -112,11 +116,11 @@ package uart;
 
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-			if(addr[3:0]==`TxReg && size==Byte)begin
+			if(addr[3:0]==`TxReg)begin
 				uart.rx.put(truncate(data));//putting write data in the UART
 				return True;
 			end
-			else if(addr[3:0]==`BaudReg && size==HWord) begin
+			else if(addr[3:0]==`BaudReg) begin
 				baud_value<=truncate(data);
 				return True;
 			end
@@ -138,12 +142,13 @@ package uart;
 	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate)
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
-    provisos(Mul#(16, a__, data_width),
-              Add#(d__, 8, data_width),    
-              Mul#(8, b__, data_width),
-              Mul#(4, f__, data_width),
-              Add#(c__, 16, data_width), 
-              Add#(2, e__, depth));
+      provisos(
+        Add#(a__, 8, data_width),
+        Add#(b__, 16, data_width),
+        Mul#(16, c__, data_width),
+        Mul#(8, d__, data_width),
+        Add#(2, e__, depth)
+        );
 
 		
 		Clock core_clock<-exposeCurrentClock;
@@ -244,24 +249,25 @@ package uart;
 	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate)
                                           (Ifc_uart_axi4#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
-    provisos(Mul#(16, a__, data_width),
-              Add#(d__, 8, data_width),    
-              Mul#(8, b__, data_width),
-              Mul#(4, f__, data_width),
-              Add#(c__, 16, data_width), 
-              Add#(2, e__, depth));
+      provisos(
+        Add#(a__, 8, data_width),
+        Add#(b__, 16, data_width),
+        Mul#(16, c__, data_width),
+        Mul#(8, d__, data_width),
+        Add#(2, e__, depth)
+        );
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
 		AXI4_Slave_Xactor_IFC #(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
-		Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0, clocked_by uart_clock, reset_by uart_reset);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0, clocked_by uart_clock, reset_by uart_reset);
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
 
 		if(!sync_required)begin // If uart is clocked by core-clock.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate);
-		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
-  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 			//capturing the read requests
 			rule capture_read_request(rg_rdburst_count==0);
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
