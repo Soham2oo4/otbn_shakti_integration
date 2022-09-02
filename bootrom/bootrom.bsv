@@ -40,7 +40,6 @@ package bootrom;
 	import BUtils::*;
   import GetPut::*;
   import device_common::*;
-  `include "bootrom.defines"
 
   `include "Logger.bsv"
   export mkbootrom_axi4;
@@ -50,16 +49,18 @@ package bootrom;
   export Ifc_bootrom_axi4lite (..);
 //  export Ifc_bootrom_TLU  (..);
 
-  interface UserInterface#(numeric type addr_width,  numeric type data_width);
+  interface UserInterface#(numeric type addr_width,  numeric type data_width, 
+                            numeric type index_size);
     method Action read_request (Bit#(addr_width) addr, AccessSize size);
-    method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
+    method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  
+                                                            Bit#(TDiv#(data_width, 8))) req);
     method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response;
     method ActionValue#(Bool) write_response;
   endinterface
  
   // to make is synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
-  module mkbootrom#(parameter Integer slave_base)(UserInterface#(addr_width, data_width))
+  module mkbootrom#(parameter Integer slave_base)(UserInterface#(addr_width, data_width, index_size))
     provisos(Add#(data_width, a, 64), // provisos ensures we support only up-to 64-bit data width.
              Mul#(8, a__, data_width), // data_width should always be multiple of 8. 16 and 32.
              Mul#(16, b__, data_width),
@@ -71,14 +72,14 @@ package bootrom;
   	// which makes it easy to use data2mem for updating the bit file.
 
     // in case data_width is 32-bits, dmemMSB width becomes 0 and only dmemLSB is functional
-    BRAM_PORT#(Bit#(`bootaddrwidth ), Bit#(TSub#(data_width, 32))) dmemMSB <- 
-                                      mkBRAMCore1Load(valueOf(TExp#(13)), False, "boot.MSB", False);
+    BRAM_PORT#(Bit#(index_size ), Bit#(TSub#(data_width, 32))) dmemMSB <- 
+                                     mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "boot.MSB", False);
 
-    BRAM_PORT#(Bit#(`bootaddrwidth ), Bit#(32)) dmemLSB <- 
-                                      mkBRAMCore1Load(valueOf(TExp#(13)), False, "boot.LSB", False);
+    BRAM_PORT#(Bit#(index_size ), Bit#(32)) dmemLSB <- 
+                                     mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "boot.LSB", False);
   
-    Reg#(Bool) read_request_sent <-mkDReg(False);
-    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkReg(tuple2(0,Byte));
+    Reg#(Bool) read_request_sent <-mkDRegA(False);
+    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
     
     // A write request to bootrom has no significance.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
@@ -92,7 +93,7 @@ package bootrom;
   
     // capture a read_request and latch the address on a BRAM.
     method Action read_request (Bit#(addr_width) addr, AccessSize size);
-  	  Bit#(`bootaddrwidth) index_address=(addr-(base_address))[byte_offset+ `bootaddrwidth :
+  	  Bit#(index_size) index_address=(addr-(base_address))[byte_offset+ valueOf(index_size) :
                                                                                   byte_offset+1];
       rg_req<= tuple2(addr[byte_offset:0],size);
   		dmemLSB.put(False, index_address, ?);
@@ -106,30 +107,32 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response if(read_request_sent);
       let {offset, size}=rg_req;
       Bit#(data_width) data={dmemMSB.read(), dmemLSB.read()};
-      return tuple2(False, data_shift(data,size,offset));
+      return tuple2(False, data);
     endmethod
   endmodule
 
-  interface Ifc_bootrom_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
+  interface Ifc_bootrom_axi4#(numeric type addr_width, numeric type data_width, 
+                              numeric type user_width, numeric type index_size);
     interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave; 
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, data_width, user_width))
+  module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, data_width,
+                                                                          user_width, index_width))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width), 
              Add#(3, d__, TLog#(data_width)));
-    UserInterface#(addr_width, data_width) dut <- mkbootrom(slave_base);
+    UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
-    Reg#(Mem_State) read_state <-mkReg(Idle);
-    Reg#(Mem_State) write_state <-mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkReg(?);
-	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <-mkReg(?);
+    Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
+    Reg#(Mem_State) read_state <-mkRegA(Idle);
+    Reg#(Mem_State) write_state <-mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
+	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkRegA(?);
+	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <-mkRegA(?);
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -188,21 +191,23 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     interface slave = s_xactor.axi_side;
   endmodule
   
-  interface Ifc_bootrom_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
+  interface Ifc_bootrom_axi4lite#(numeric type addr_width, numeric type data_width, 
+                              numeric type user_width, numeric type index_size);
     interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave; 
   endinterface
 
 
-  module mkbootrom_axi4lite#(parameter Integer slave_base)(Ifc_bootrom_axi4lite#(addr_width, data_width, user_width))
+  module mkbootrom_axi4lite#(parameter Integer slave_base)(Ifc_bootrom_axi4lite#(addr_width,
+                                                              data_width, user_width, index_width))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width));
-    UserInterface#(addr_width, data_width) dut <- mkbootrom(slave_base);
+    UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
 	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
-    Reg#(Bit#(2)) rg_size <-mkReg(3);
-    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+    Reg#(Bit#(2)) rg_size <-mkRegA(3);
+    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
     rule write_request_address_channel;
@@ -247,9 +252,9 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
 //    Ifc_Slave_link_lite#(a, w, z)  s_xactor <- mkSlaveXactorLite(True, True);
 //    Integer verbosity = `VERBOSITY;
 //    Integer byte_offset = valueOf(TDiv#(data_width, 32));
-//    Reg#(Bit#(z)) rg_size <-mkReg(3);
-//    Reg#(Bit#(2)) rg_source <- mkReg(0);
-//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkReg(0);
+//    Reg#(Bit#(z)) rg_size <-mkRegA(3);
+//    Reg#(Bit#(2)) rg_source <- mkRegA(0);
+//    Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
 //    Wire#(A_channel_lite#(a, w, z)) wr_request <- mkWire();
 //
 //    rule capture_request;

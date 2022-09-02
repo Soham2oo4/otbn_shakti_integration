@@ -1,4 +1,5 @@
 
+*.elf
 uart/build/
 
 uart/verilog/
@@ -28,3 +29,6 @@ bin/
 *.gtkw
 
 *.o
+
+*.swp
+*.swo

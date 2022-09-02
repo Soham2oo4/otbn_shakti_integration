@@ -43,3 +43,11 @@ This file defines the functions and the types required to implement I2C routines
 `define SCL1    6992
 
 
+`define     S2             8'h00
+`define     Control        8'h08
+`define     S0             8'h10
+`define     Status         8'h18
+`define     S01            8'h20
+`define     S3             8'h28
+`define     Time           8'h30
+`define     SCL            8'h38

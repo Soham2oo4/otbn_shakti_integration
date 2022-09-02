@@ -17,7 +17,8 @@ Email id: deepans.88@gmail.com
 */
 
 package Memory_mcpu_16;
-  	import BRAMCore :: *;
+import BRAMCore :: *;
+`include "Logger.bsv"
  //       import TriState ::*;
 //	import DReg::*;
 //	import Semi_FIFOF   :: *;
@@ -55,11 +56,11 @@ method Bit#(1) wr_halt_l();
 //.........Methods to write and read data when tristate is not enabled.........//
 
 
-method Bit#(8) wr_byte_31_24();
-method Bit#(8) wr_byte_23_16();
+method Bit#(8) wr_byte_15_8();
+method Bit#(8) wr_byte_7_0();
 
-method Action rd_byte_31_24(Bit #(8) d3);
-method Action rd_byte_23_16(Bit #(8) d2);
+method Action rd_byte_15_8(Bit #(8) d2);
+method Action rd_byte_7_0(Bit #(8) d1);
 
 
 
@@ -67,7 +68,9 @@ endinterface:Memory_mcpu_16
 
 module mkMemory_16 #(parameter String mem_init_file, parameter String module_name) (Memory_mcpu_16#(base_address,mem_size));
 	
-	BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,1)),Bit#(16),TDiv#(16,8)) dmemLSB <- mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,1))),False,mem_init_file,False);
+  
+String mcpu_slave_16 = " ";
+BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,1)),Bit#(16),TDiv#(16,8)) dmemLSB <- mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,1))),False,mem_init_file,False);
 
 //Defining the slave interface lines
 
@@ -90,15 +93,11 @@ Reg#(State_slave) slave_state <- mkReg (RCV_REQ);
 //.......................................................................
 
 
-Wire#(Bit#(8)) data_in_4<-mkDWire(0);
-Wire#(Bit#(8)) data_in_3<-mkDWire(0);
-//Wire#(Bit#(8)) data_in_2<-mkDWire(0);
-//Wire#(Bit#(8)) data_in_1<-mkDWire(0);
+Wire#(Bit#(8)) data_in_2<-mkDWire(0);
+Wire#(Bit#(8)) data_in_1<-mkDWire(0);
 
-Reg#(Bit#(8)) data_out_4<-mkReg(0);
-Reg#(Bit#(8)) data_out_3<-mkReg(0);
-//Reg#(Bit#(8)) data_out_2<-mkReg(0);
-//Reg#(Bit#(8)) data_out_1<-mkReg(0);
+Reg#(Bit#(8)) data_out_2<-mkReg(0);
+Reg#(Bit#(8)) data_out_1<-mkReg(0);
 Reg #(Bit#(2)) data_control <-mkReg(0);
 
 
@@ -114,25 +113,18 @@ Bool store_data=(s_wr_l==1'b0)&&(s_ds_l==1'b0);
 rule rcv_req((slave_state==RCV_REQ)&&(start_rd||start_wr));
         
 
-        `ifdef verbose $display(".......SELECTING SLAVE WITH PORT WIDTH 32.........");`endif
-       	if(start_wr)
-
-
-	begin
-		`ifdef $display("Write_cycle");`endif
-		s_dsack_0_l<=1'b1;
-		s_dsack_1_l<=1'b0;
+      `logLevel(mcpu_slave_16, 1, $format("Selecting MCPU_SLAVE_16"))
+       	if(start_wr) begin
+		            s_dsack_0_l<=1'b1;
+		            s_dsack_1_l<=1'b0;
                 slave_state<=DET_DS;
-	end
-	else
-		begin
- 		`ifdef $display("Starting read from address",$time);`endif
-     slave_state<=DET_DS;
-		 Bit#(TSub#(mem_size,1)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:1];
-                dmemLSB.b.put(0,index_address,?);
-		`ifdef verbose $display("Index Address : %h",index_address);`endif
-		end
-      
+	      end
+	      else begin
+              
+               slave_state<=DET_DS;
+		           Bit#(TSub#(mem_size,1)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:1];
+               dmemLSB.b.put(0,index_address,?);
+		     end
 endrule
 
 /*
@@ -148,115 +140,103 @@ rule send_ack(slave_state==DET_DS );
 		s_dsack_1_l<=1'b0;		
 		slave_state<=END_REQ;
    	Bit#(16) data0 = dmemLSB.b.read();
-	 `ifdef verbose $display("32 bit data_read : %h",data0,$time);`endif
-       case({s_siz1,s_siz0})
+    `logLevel( mcpu_slave_16, 1, $format("32 bit data read %h",data0))
+    case({s_siz1,s_siz0})
 			 2'b00:
          begin
-					
-					data_out_4 <=data0[7:0];
-          data_out_3 <=data0[15:8];
+					data_out_1 <=data0[7:0];
+          data_out_2 <=data0[15:8];
 					data_control<=2'b11;
-          
-          end
+         end
 			2'b01 :
-
-			      case({s_addr[1],s_addr[0]})
+			   case({s_addr[1],s_addr[0]})
               2'b00:begin
-						        data_out_4<=data0[7:0];
+						        data_out_1<=data0[7:0];
 						        data_control<=2'b11;
-						        `ifdef verbose $display("Reading data %h from %h addr",data0[7:0],s_addr);    `endif	
 					            end
-
-
               2'b01:begin
-						        data_out_3<=data0[15:8];
+						        data_out_2<=data0[15:8];
 						        data_control<=2'b11;
-						        `ifdef verbose $display("Reading data %h from %h addr",data0[15:8],s_addr);`endif	
 					          end
              
              2'b10:begin
-					      	data_out_4<=data0[7:0];
+					      	data_out_1<=data0[7:0];
 					        data_control<=2'b11;
-						      `ifdef verbose $display("Reading data %h from %h addr",data0[7:0],s_addr);`endif	
 						      end
               
              2'b11:begin
-					      	data_out_3<=data0[15:8];
+					      	data_out_2<=data0[15:8];
 					        data_control<=2'b11;
-						      `ifdef verbose $display("Reading data %h from %h addr",data0[15:8],s_addr); `endif	
                   end
 
 				endcase
 			2'b10 :
 			       if({s_addr[1],s_addr[0]}==2'b00)
              begin
-                data_out_4<=data0[7:0];
-                data_out_3<=data0[15:8];
+                data_out_1<=data0[7:0];
+                data_out_2<=data0[15:8];
 			       		data_control<=2'b11;
 			       end
 			       else
              begin 
-                data_out_4<=data0[7:0];
-                data_out_3<=data0[15:8];
+                data_out_1<=data0[7:0];
+                data_out_2<=data0[15:8];
 			       		data_control<=2'b11;
               end                                  
           endcase
 
 	end
-	  else	if(store_data)
+	  else if(store_data)
 		
     begin
-		`ifdef verbose $display("Writing to addr %0d ",s_addr,$time);`endif 
-		slave_state<=END_REQ;
-		Bit#(TSub#(mem_size,1)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:1];
-      `ifdef verbose $display("Index_address : %h",index_address);`endif 	
-			case({s_siz1,s_siz0})
-        2'b00 :begin
-				        dmemLSB.b.put(2'b11,index_address,{data_in_3,data_in_4});
-                `ifdef verbose $display ("Data :%0h mode: quad_word",{data_in_3,data_in_4});`endif
+     `logLevel( mcpu_master_slave_16, 1, $format("Writing to address",s_addr))
+		  slave_state<=END_REQ;
+		  Bit#(TSub#(mem_size,1)) index_address=(s_addr-fromInteger(valueOf(base_address)))[valueOf(mem_size)-1:1];
+			
+      case({s_siz1,s_siz0})
+      
+      2'b00 :begin
+				        dmemLSB.b.put(2'b11,index_address,{data_in_2,data_in_1});
                end
+
 			2'b01 :begin
 			       		case({s_addr[1],s_addr[0]})
-						2'b00:
-						begin
-							dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_4});
-							`ifdef verbose $display("Writing data %h",data_in_4);`endif
-						end 		
-			       			2'b01:dmemLSB.b.put(2'b10,index_address,{data_in_3,8'b0});
-			       			2'b10:dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_4});
-			       			2'b11:dmemLSB.b.put(2'b10,index_address,{data_in_3,8'b0});
+						    2'b00:
+						    begin
+							    dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_1});
+						    end 		
+			       			2'b01:dmemLSB.b.put(2'b10,index_address,{data_in_2,8'b0});
+			       			2'b10:dmemLSB.b.put(2'b01,index_address,{8'b0,data_in_1});
+			       			2'b11:dmemLSB.b.put(2'b10,index_address,{data_in_2,8'b0});
 			       		endcase
-                               end
+               end
 			2'b10 :
               if({s_addr[1],s_addr[0]}==2'b00)
 			      	begin
-				      	dmemLSB.b.put(2'b11,index_address,{data_in_3,data_in_4});
-                `ifdef verbose $display ("Data :%0h mode: double_word",{data_in_3,data_in_4});`endif
+				      	dmemLSB.b.put(2'b11,index_address,{data_in_2,data_in_1});
 			      	end
 			    	  else 
 				      begin	
-				        	dmemLSB.b.put(2'b11,index_address,{data_in_3,data_in_4});
-                  `ifdef verbose $display ("Data :%0h mode: double_word",{data_in_3,data_in_4});`endif
-					               
+				        	dmemLSB.b.put(2'b11,index_address,{data_in_2,data_in_1});
               end
-          endcase
-        end 
-
+      endcase
+    end 
 endrule
 
 //Releases bus if data strobe is released//
 rule end_req(slave_state==END_REQ);
 
-if((s_ds_l==1) &&(s_as_l==1))
-begin
-s_dsack_0_l<=1;
-s_dsack_1_l<=1;
-s_berr_l<=1;
-s_halt_l<=1;
-data_control<=2'b00;
-$display("SLAVE_STATE:3 Releasing bus ",$time);
-slave_state<=RCV_REQ;
-end
+  if((s_ds_l==1) &&(s_as_l==1))
+  begin
+    s_dsack_0_l<=1;
+    s_dsack_1_l<=1;
+    s_berr_l<=1;
+    s_halt_l<=1;
+    data_control<=2'b00;
+
+   `logLevel( mcpu_master_slave_16, 1, $format("SLAVE STATE :Releasing bus"))
+    slave_state<=RCV_REQ;
+  end
 
 endrule
 
@@ -307,12 +287,12 @@ endmethod
 /*Methods to emulate tristate functionality*/
 
 
-method Bit#(8) wr_byte_31_24()if(data_control[1]==1);
-return data_out_4;
+method Bit#(8) wr_byte_15_8()if(data_control[1]==1);
+return data_out_2;
 endmethod
 
-method Bit#(8) wr_byte_23_16()if(data_control[0]==1);
-return data_out_3;
+method Bit#(8) wr_byte_7_0()if(data_control[0]==1);
+return data_out_1;
 endmethod
 
 /*method Bit#(8) wr_byte_15_8()if(data_control[1]==1);
@@ -325,12 +305,12 @@ return data_out_1;
 endmethod
 */
 
-method Action rd_byte_31_24(Bit #(8) d4)if(data_control[1]==0);
-data_in_4<=d4;
+method Action rd_byte_15_8(Bit #(8) d2)if(data_control[1]==0);
+data_in_2<=d2;
 endmethod
 
-method Action rd_byte_23_16(Bit #(8) d3)if(data_control[0]==0);
-data_in_3<=d3;
+method Action rd_byte_7_0(Bit #(8) d1)if(data_control[0]==0);
+data_in_1<=d1;
 endmethod
 
 

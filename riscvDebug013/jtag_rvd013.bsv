@@ -41,9 +41,9 @@ package jtag_rvd013;
     MakeClockIfc#(Bit#(1)) tck_clk <-mkUngatedClock(1);
     MakeResetIfc trst <- mkReset(0,False,tck_clk.new_clk);
 
-    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingReg(tck_clk.new_clk,0);
-    CrossingReg#(Bit#(1)) tms<-mkNullCrossingReg(tck_clk.new_clk,0);
-    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingReg(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst); 
+    CrossingReg#(Bit#(1)) tdi<-mkNullCrossingRegA(tck_clk.new_clk,0);
+    CrossingReg#(Bit#(1)) tms<-mkNullCrossingRegA(tck_clk.new_clk,0);
+    CrossingReg#(Bit#(1)) tdo<-mkNullCrossingRegA(defaultclk,0,clocked_by tck_clk.new_clk, reset_by trst.new_rst); 
 
     Ifc_jtagdtm jtag_tap <- mkjtagdtm(clocked_by tck_clk.new_clk, reset_by trst.new_rst);
     // ReadOnly#(Bit#(1)) tdo_crossed <- mkNullCrossingWire(defaultclk,jtag_tap.tdo);
@@ -66,13 +66,13 @@ package jtag_rvd013;
 
     Wire#(Bit#(1)) wr_tdo <- mkWire();
 
-    Reg#(Bit#(1)) tdi_delay <- mkReg(0);
-    Reg#(Bit#(1)) tms_delay <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor2 <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor3 <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor4 <- mkReg(0);
-    Reg#(Bit#(5)) delayed_actor5 <- mkReg(0);
+    Reg#(Bit#(1)) tdi_delay <- mkRegA(0);
+    Reg#(Bit#(1)) tms_delay <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor2 <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor3 <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor4 <- mkRegA(0);
+    Reg#(Bit#(5)) delayed_actor5 <- mkRegA(0);
     // Needed to spread the Jtag signals to properly work with the neg edge sampling business withh vpis
 
     rule rl_get_frame((rg_initial == 1'b1));

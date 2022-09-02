@@ -347,7 +347,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
    wire [1:0] xfr_caddr_lsb	= (xfr_caddr[1:0]+1);
    assign burst_bdry = ~|(xfr_caddr_lsb[1:0]);
   
-   always @ (posedge clk) begin
+   always @ (posedge clk or negedge reset_n) begin
       if (~reset_n) begin
 	 xfr_caddr <= 13'b0;
 	 l_start <= 1'b0;
@@ -403,7 +403,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 			 (~b2x_req) ? `XFR_IDLE :
 			 (b2x_read) ? `XFR_READ :
 			 (b2x_write) ? `XFR_WRITE : `XFR_IDLE;
-
+	   temp_addr = 0;	// ##
 	end // case: `XFR_IDLE
 	   
 	`XFR_READ : begin
@@ -450,7 +450,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	      end // else: !if(~l_wrap)
 		 
 	      next_xfr_st = (sdr_init_done) ? ((b2x_req & ~mgmt_req & b2x_read) ? `XFR_READ : `XFR_RDWT) : `XFR_IDLE;
-
+		  temp_addr = 0; // ## 
 	   end // if (l_xfr_end)
 
 	   else begin
@@ -488,7 +488,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 			 (~rd_pipe_mt) ? `XFR_RDWT :
 			 (~mgmt_req & b2x_req & b2x_write) ? `XFR_WRITE : 
 			 `XFR_IDLE;
-
+	   temp_addr = 0; //##
 	end // case: `XFR_RDWT
 	
 	`XFR_WRITE : begin
@@ -499,7 +499,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
 	   cb_pre_ok = 1'b0;
 	   wrok = l_xfr_end & ~mgmt_req;
 	   sel_mgmt = 1'b0;
-
+	   temp_addr = 0;  //##
 	   if (l_xfr_end) begin		  // End of transfer
 
 	      if (~l_wrap) begin
@@ -625,7 +625,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
    reg [SDR_DW-1:0] 	sdr_dout;
    reg [SDR_BW-1:0] 	sdr_den_n;
 
-   always @ (posedge clk)
+   always @ (posedge clk or negedge reset_n)
       if (~reset_n) begin
 	 sdr_cs_n <= 1'b1;
 	 sdr_cke <= 1'b1;
@@ -651,15 +651,22 @@ output [SDR_BW-1:0] 	sdr_den_n;
      sdr_den_n <= (wr_next) ? {SDR_BW{1'b0}} : {SDR_BW{1'b1}};
       end // else: !if(~reset_n)
 
-   always @ (posedge clk) begin 
+   always @ (posedge clk or negedge reset_n) begin 
 
-      if (~xfr_cmd[3]) begin 
-	 sdr_addr <= xfr_addr;
-	 sdr_ba <= xfr_ba;
-      end // if (~xfr_cmd[3])
+      if (~reset_n) begin
+             sdr_addr <= 13'b0;
+             sdr_ba <= 2'b0;
       
-      sdr_dout <= (wr_next) ? a2x_wrdt : sdr_dout;
-
+         sdr_dout <= 32'b0;
+      end
+      else begin
+         if (~xfr_cmd[3]) begin 
+             sdr_addr <= xfr_addr;
+             sdr_ba <= xfr_ba;
+         end // if (~xfr_cmd[3])
+      
+         sdr_dout <= (wr_next) ? a2x_wrdt : sdr_dout;
+      end
    
   end // always @ (posedge clk)
    
@@ -688,7 +695,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
    reg [`SDR_RFSH_TIMER_W-1 : 0]  rfsh_timer;
    reg [`SDR_RFSH_ROW_CNT_W-1:0]  rfsh_row_cnt;
    
-   always @ (posedge clk) 
+   always @ (posedge clk or negedge reset_n) 
       if (~reset_n) begin
 	 mgmt_st <= `MGM_POWERUP;
 	 tmr0 <= 4'b0;
@@ -722,7 +729,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
    assign xfr_bank_sel = l_ba;
   
 
-   always @ (posedge clk) begin
+   always @ (posedge clk or negedge reset_n) begin
        if(~reset_n) begin
            rg_initial_delay <= 0;
            init_delay_done <= 0;
@@ -739,7 +746,7 @@ output [SDR_BW-1:0] 	sdr_den_n;
         end
     end
 
-    always@(posedge clk) begin
+    always@(posedge clk or negedge reset_n) begin
         if(~reset_n) begin
            mode_set <= 0;
        end
