@@ -1,0 +1,17 @@
+// slave_bound: 12 bytes
+// space-allocation: (R: reserved, U-Used)
+// 0x0: U U R R
+// 0x4: U R R R
+// 0x8: U R R R
+
+
+`define clicintbits 8 //this determines the number of bits that are implemented in clicintcfg
+// Memory Map
+`define clicintcontrol 'h03002000//number_of_interrupt x Bit#(8) bits 
+`define clicint_ie 'h03003000// number_of_interrupt bits interrupt enable
+`define clicint_ip 'h03020000// number_of_interrupt bits interrupt pending
+`define clicconfig 'h03030000//8 bit register
+`define clic_final_int 'h03030010//8 bit interrupt 
+`define clic_int_index 'h03031000//getting the interrupt number
+
+

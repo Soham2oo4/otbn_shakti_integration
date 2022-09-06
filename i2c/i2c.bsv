@@ -45,9 +45,11 @@ import  BUtils            ::*;
 import  Semi_FIFOF       ::*;
 import  Clocks::*;
 import  FIFO::*;
+import  Vector :: * ;
 `include "i2c.defs"
 `include "Logger.bsv"
 
+`define sda_delay 10
 
 typedef union tagged {
   void Dead;
@@ -163,39 +165,41 @@ endfunction
       String i2c = "";
 
         //Timing Registers
-      Reg#(Bit#(1))               val_SCL        <-  mkRegA(1);                    // SCL value that is sent through the inout pin using tristate
-      Reg#(Bit#(1))               val_SCL_in     <-  mkRegA(1);
-      Reg#(Bit#(1))               val_SDA        <-  mkRegA(1);                    // SDA value that is sent through the inout pin using tristate
-      Reg#(Bit#(1))               val_SDA_in     <- mkRegA(1);
-      Reg#(Bool)                  dOutEn         <-  mkRegA(False);                 // Data out Enable for the SDA Tristate Buffer
-      Reg#(Bool)                  cOutEn         <-  mkRegA(False);                 // Data out Enable for the SCL Tristate Buffer
+      Reg#(Bit#(1))               val_SCL        <-  mkReg(1);                    // SCL value that is sent through the inout pin using tristate
+      Reg#(Bit#(1))               val_SCL_in     <-  mkReg(1);
+      Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
+      Reg#(Bit#(1))               val_SDA_in     <- mkReg(1);
+      Vector#(`sda_delay, Reg#(Bit#(1)))   val_sda_delay   <- replicateM(mkReg(0));
+      Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
+      Vector#(`sda_delay, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
+      Reg#(Bool)                  cOutEn         <-  mkReg(False);                 // Data out Enable for the SCL Tristate Buffer
 
-      Reg#(Bit#(8))              cprescaler     <-  mkRegA(0);                    // Prescaler Counter for the Chip clock
-      Reg#(Bit#(8))              rprescaler     <-  mkRegA(0);                    // Prescaler Counter Restorer for the chip clock
-      Reg#(Bit#(32))              coSCL          <-  mkRegA(0);                    // SCL Counter for the SCL clock
-      Reg#(Bit#(32))              reSCL          <-  mkRegA(0);                    // SCL Counter Restorer for the SCL clock
-      Reg#(Bit#(10))              cycwaste       <-  mkRegA(0);                    // Waste Cycle count
-      Reg#(Bit#(32))              c_scl       <-  mkRegA(0);                    // Waste Cycle count
+      Reg#(Bit#(8))              cprescaler     <-  mkReg(0);                    // Prescaler Counter for the Chip clock
+      Reg#(Bit#(8))              rprescaler     <-  mkReg(0);                    // Prescaler Counter Restorer for the chip clock
+      Reg#(Bit#(32))              coSCL          <-  mkReg(0);                    // SCL Counter for the SCL clock
+      Reg#(Bit#(32))              reSCL          <-  mkReg(0);                    // SCL Counter Restorer for the SCL clock
+      Reg#(Bit#(10))              cycwaste       <-  mkReg(0);                    // Waste Cycle count
+      Reg#(Bit#(32))              c_scl       <-  mkReg(0);                    // Waste Cycle count
 
       //Programmable Registers (Will be used by the Device Drivers to Initialize - Based On PCF8584)
-      Reg#(I2C_RegWidth)          s01            <-  mkRegA(0);                    //I2C Own Address Slave Register
-      Reg#(I2C_RegWidth)          s2             <-  mkRegA('b11000000);           //Clock Register - Use to set the module and SCL clock
-      Reg#(I2C_RegWidth)         drv0_rg     <-  mkRegA(1);
-      Reg#(I2C_RegWidth)         drv1_rg     <-  mkRegA(1);
-      Reg#(I2C_RegWidth)         drv2_rg     <-  mkRegA(0);
-      Reg#(I2C_RegWidth)         pd_rg       <-  mkRegA(0);
-      Reg#(I2C_RegWidth)         ppen_rg     <-  mkRegA(0);
-      Reg#(I2C_RegWidth)         prg_slew_rg <-  mkRegA(1);
-      Reg#(I2C_RegWidth)         puq_rg      <-  mkRegA(0);
-      Reg#(I2C_RegWidth)         pwrupzhl_rg <-  mkRegA(0);
-      Reg#(I2C_RegWidth)         pwrup_pull_en_rg     <-  mkRegA(0);
+      Reg#(I2C_RegWidth)          s01            <-  mkReg(0);                    //I2C Own Address Slave Register
+      Reg#(I2C_RegWidth)          s2             <-  mkReg('b11000000);           //Clock Register - Use to set the module and SCL clock
+      Reg#(I2C_RegWidth)         drv0_rg     <-  mkReg(1);
+      Reg#(I2C_RegWidth)         drv1_rg     <-  mkReg(1);
+      Reg#(I2C_RegWidth)         drv2_rg     <-  mkReg(0);
+      Reg#(I2C_RegWidth)         pd_rg       <-  mkReg(0);
+      Reg#(I2C_RegWidth)         ppen_rg     <-  mkReg(0);
+      Reg#(I2C_RegWidth)         prg_slew_rg <-  mkReg(1);
+      Reg#(I2C_RegWidth)         puq_rg      <-  mkReg(0);
+      Reg#(I2C_RegWidth)         pwrupzhl_rg <-  mkReg(0);
+      Reg#(I2C_RegWidth)         pwrup_pull_en_rg     <-  mkReg(0);
       // Clock Reg Syntax difference from PCF5854 (maybe internally it does so  but who knows)
       // MSB = 1 By default
       // Intialization Of clock register will be accepted only if MSB = 0 ;
       // Once the initial initialization has been done and I2C Controller has started we dont care about that bit
       // Maybe the ultimate reset can be synced using it /~/Discuss
 
-      Reg#(I2C_RegWidth)          s3             <-  mkRegA(9);                    //Interrupt Vector Register
+      Reg#(I2C_RegWidth)          s3             <-  mkReg(9);                    //Interrupt Vector Register
 
       //~/Discuss : If there are only 4-5 interupts why use a 8 bit register And decide upon final values for interupts
 
@@ -204,26 +208,26 @@ endfunction
 
 
       // Control Registers
-      Reg#(Bit#(1))               pin            <-  mkRegA(1);             // Used as a software reset. If pin is 1 all status bits are reset.Used as transmission complete status in polled applications
-      Reg#(Bit#(1))               eso            <-  mkRegA(0);             // Enable Serial Output. ESO = 0 - Registers can be initialized. ESO = 1 - I2C Serial Transmission
-      Reg#(Bit#(1))               es1            <-  mkRegA(0);             // Selection of registers. Not used currently
-      Reg#(Bit#(1))               es2            <-  mkRegA(0);             // Selection of registers. Not used currently.
-      Reg#(Bit#(1))               eni            <-  mkRegA(0);             // Enables the external interrupt output, which is generated when the PIN is active (active low - 0)
-      Reg#(Bit#(1))               sta            <-  mkRegA(0);             // STA and STO generates the START and STOP bit for the processor
-      Reg#(Bit#(1))               sto            <-  mkRegA(0);
-      Reg#(Bit#(1))               ack            <-  mkRegA(1);             // This is normally set to 1. I2C automatically sends an acknowledge after a read/write transaction
+      Reg#(Bit#(1))               pin            <-  mkReg(1);             // Used as a software reset. If pin is 1 all status bits are reset.Used as transmission complete status in polled applications
+      Reg#(Bit#(1))               eso            <-  mkReg(0);             // Enable Serial Output. ESO = 0 - Registers can be initialized. ESO = 1 - I2C Serial Transmission
+      Reg#(Bit#(1))               es1            <-  mkReg(0);             // Selection of registers. Not used currently
+      Reg#(Bit#(1))               es2            <-  mkReg(0);             // Selection of registers. Not used currently.
+      Reg#(Bit#(1))               eni            <-  mkReg(0);             // Enables the external interrupt output, which is generated when the PIN is active (active low - 0)
+      Reg#(Bit#(1))               sta            <-  mkReg(0);             // STA and STO generates the START and STOP bit for the processor
+      Reg#(Bit#(1))               sto            <-  mkReg(0);
+      Reg#(Bit#(1))               ack            <-  mkReg(1);             // This is normally set to 1. I2C automatically sends an acknowledge after a read/write transaction
 
       //  Status Registers - Many of the status bits are unused for now since only single master support is present
-      Reg#(Bit#(1))               configchange           <-  mkRegA(0);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
+      Reg#(Bit#(1))               configchange           <-  mkReg(0);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
 
-      Reg#(Bit#(1))               zero           <-  mkRegA(1);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
-      Reg#(Bit#(1))               sts            <-  mkRegA(0);             // Used only Slave receiver mode to detect STOP. Not used
-      Reg#(Bit#(1))               ber            <-  mkRegA(0);             // Bus Error - Set to 1 when there is a misplaced START, STOP bit
-      Reg#(Bit#(1))               ad0_lrb        <-  mkRegA(0);             // LRB - holds the last received bit through I2C bus. AD0 - Generall Call bit used for broadcast. Valid only while PIN=0
-      Reg#(Bit#(1))               aas            <-  mkRegA(0);             // Addressed as slave - Used in Slave Receiver mode
-      Reg#(Bit#(1))               lab            <-  mkRegA(0);             // Lost Arbitration bit - Used in Multiple Master systems only to denote that the master lost the arbitration
-      Reg#(Bit#(1))               bb             <-  mkRegA(1);             // ~Bus Busy bit - Indicates that the bus is busy(0 = busy). Also used in multi master systems only // 0 = busy
-      Reg#(Bit#(16))              i2ctime        <-  mkRegA(0);  //~/Discuss :- Should We have it configurable PCA9654 does
+      Reg#(Bit#(1))               zero           <-  mkReg(1);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
+      Reg#(Bit#(1))               sts            <-  mkReg(0);             // Used only Slave receiver mode to detect STOP. Not used
+      Reg#(Bit#(1))               ber            <-  mkReg(0);             // Bus Error - Set to 1 when there is a misplaced START, STOP bit
+      Reg#(Bit#(1))               ad0_lrb        <-  mkReg(0);             // LRB - holds the last received bit through I2C bus. AD0 - Generall Call bit used for broadcast. Valid only while PIN=0
+      Reg#(Bit#(1))               aas            <-  mkReg(0);             // Addressed as slave - Used in Slave Receiver mode
+      Reg#(Bit#(1))               lab            <-  mkReg(0);             // Lost Arbitration bit - Used in Multiple Master systems only to denote that the master lost the arbitration
+      Reg#(Bit#(1))               bb             <-  mkReg(1);             // ~Bus Busy bit - Indicates that the bus is busy(0 = busy). Also used in multi master systems only // 0 = busy
+      Reg#(Bit#(16))              i2ctime        <-  mkReg(0);  //~/Discuss :- Should We have it configurable PCA9654 does
 
       ////########## COnfigurable Registers Over.....
 	    /// Unused Pins : zero
@@ -231,7 +235,7 @@ endfunction
 	    ////########################################
 
       //Custom added MM registers be read or written by the processor master in buffered mode. Support not added yet
-      Reg#(Bit#(14))              i2ctimeout     <-  mkRegA(1);  //~/Discuss :- Should We have it configurable PCA9654 does
+      Reg#(Bit#(14))              i2ctimeout     <-  mkReg(1);  //~/Discuss :- Should We have it configurable PCA9654 does
 
       // Concatenated CSRs TODO
       Reg#(I2C_RegWidth)          mcontrolReg    =   concatReg8(pin,writeOnlyReg(eso),
@@ -244,19 +248,19 @@ endfunction
                                                       readOnlyReg(ad0_lrb),readOnlyReg(aas),
                                                       readOnlyReg(lab),readOnlyReg(bb));
       //FSM Registers
-      Reg#(MTrans_State)          mTransFSM      <-  mkRegA(Idle);
-      Reg#(Bool)                  mod_start      <-  mkRegA(False);  //Redundant actually
-      Reg#(Bool)                  scl_start      <-  mkRegA(False);
-      Reg#(Bool)                  st_toggle      <-  mkRegA(False);
+      Reg#(MTrans_State)          mTransFSM      <-  mkReg(Idle);
+      Reg#(Bool)                  mod_start      <-  mkReg(False);  //Redundant actually
+      Reg#(Bool)                  scl_start      <-  mkReg(False);
+      Reg#(Bool)                  st_toggle      <-  mkReg(False);
       PulseWire                   pwI2C          <-  mkPulseWire;
       PulseWire                   pwSCL          <-  mkPulseWire;
 
       //Maintenance variables
-      Reg#(Bit#(4))               dataBit        <-  mkRegA(9);
-      Reg#(Bool)                  last_byte_read <-  mkRegA(False);
+      Reg#(Bit#(4))               dataBit        <-  mkReg(9);
+      Reg#(Bool)                  last_byte_read <-  mkReg(False);
       Reg#(I2C_RegWidth)          controlReg     =   concatReg8(pin,eso,es1,es2,eni,sta,sto,ack);
       Reg#(Bit#(7))               statusReg      =   concatReg7(zero,sts,ber,ad0_lrb,aas,lab,bb);
-      Reg#(Transaction)           operation      <-  mkRegA(Write);
+      Reg#(Transaction)           operation      <-  mkReg(Write);
       Bool                        pwesoCond      = (pwI2C && eso == 1'b1);
       //pwI2C not required if the clock itself is going to be stepped down
       Bool                        pwsclCond      = (pwSCL && eso == 1'b1);
@@ -269,15 +273,25 @@ endfunction
       Bool                        intCond        = mTransFSM == Intrpt;
       Bit#(3)                     startSig       = 3'b110; //To prevent quick transitions which might result in a spike
       Bit#(3)                     stopSig        = 3'b001;
-      Reg#(Bit#(2))               sendInd        <- mkRegA(2);
+      Reg#(Bit#(2))               sendInd        <- mkReg(2);
 
 
       //Intrupt Register
-      Reg#(Bit#(1)) rstsig <- mkRegA(0); //~/ Use wire Creg is costly
-      Reg#(Bit#(6)) resetcount <- mkRegA(0); // To count no. of cycles reset pin has been high
+      Reg#(Bit#(1)) rstsig <- mkReg(0); //~/ Use wire Creg is costly
+      Reg#(Bit#(6)) resetcount <- mkReg(0); // To count no. of cycles reset pin has been high
 
       //Module Instantiations
       //AXI4_Lite_Slave_Xactor_IFC #(`PADDR, `Reg_width, `USERSPACE)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
+
+      /*doc:rule: */
+      rule rl_delay_sda;
+        for (Integer i = 1; i<`sda_delay; i = i + 1) begin
+          val_sda_delay[i] <= val_sda_delay[i-1];
+          dOutEn_delay[i] <= dOutEn_delay[i-1];
+        end
+        val_sda_delay[0] <= val_SDA;
+        dOutEn_delay[0] <= dOutEn;
+      endrule
 
 
       //Function to access Registers
@@ -792,13 +806,13 @@ endfunction
             return (cOutEn && eso == 1'b1);
         endmethod
         method Bit#(1) sda_out;
-            return val_SDA;
+            return val_sda_delay[`sda_delay-1];
         endmethod
         method Action sda_in(Bit#(1) in);
             val_SDA_in <= in;
         endmethod
         method Bool sda_out_en;
-            return (dOutEn && eso == 1'b1);
+            return (dOutEn_delay[`sda_delay-1] && eso == 1'b1);
         endmethod
       endinterface
 
