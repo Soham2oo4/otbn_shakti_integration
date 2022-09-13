@@ -25,6 +25,48 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Vishvesh Sundararaman
 Email id: vishu.vivek@gmail.com
 Details:
+
+mmap-start
+slave_bound: 128 bytes
+
+schema-start
+module:
+    type: string
+    regex: ^sdram$
+type:
+    type: string
+    regex: ^device$
+clusters:
+    type: list
+    schema:
+        type: string
+roles:
+    type: dict
+    schema:
+        master:
+            type: list
+            schema:
+                type: string
+                regex: ^(null$
+                nullable: True
+        slave:
+            type: list
+parameters:
+    type: dict
+    schema:
+        clock:
+            type: integer
+            min: 1
+            max: 1
+        io_width:
+            type: integer
+            max: 64
+        rfrsh_timer_width:
+            type: integer
+        rfrsh_row_width:
+            type: integer
+schema-end
+
 */
 
 package sdram_template;

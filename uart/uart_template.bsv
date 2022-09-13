@@ -26,6 +26,52 @@ Author: Neel Gala
 Email id: neelgala@gmail.com
 Details:
 
+schema-start
+module:
+    type: string
+    regex: ^uart$
+type:
+    type: string
+    regex: ^device$
+clusters:
+    type: list
+    schema:
+        type: string
+roles:
+    type: dict
+    schema:
+        master:
+            type: list
+            schema:
+                type: string
+                regex: ^(null$
+                nullable: True
+        slave:
+            type: list
+mmap:
+    type: dict
+    schema:
+        fixed:
+            type: boolean
+        base:
+            type: integer
+        size:
+            type: integer
+            default: 16
+            readonly: True
+parameters:
+    type: dict
+    schema:
+        depth:
+            type: integer
+        baudrate:
+            type: integer
+        clock:
+            type: integer
+            max: 1
+        memory_bytes:
+            type: integer
+schema-end
 --------------------------------------------------------------------------------------------------
 */
 package uart_template;
