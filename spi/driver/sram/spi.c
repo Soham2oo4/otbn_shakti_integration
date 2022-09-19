@@ -2,7 +2,7 @@
 #include "spi.h"
 
 int main(){
-	int burst = 4;
+
 	printf("SPI SRAM START \n"); 
 	spi_init();
 	printf("SPI init done\n");
@@ -12,18 +12,15 @@ int main(){
 
 
 //=====Writeing some data in ram ======//
-for(int i =0; i<20; i=i+4){
-	sram_write(addr,0xaa9955aa*(i+1),burst);
-	printf("write data done: %x\n",(0xaa9955aa)*(i+1));
-	addr=addr+4;
-	}
+	sram_write(addr,0xdeadbeef,8,4);
+	
 
 //===reading data=====//
 addr =0x000100;
-
-	int read = sram_read(addr,20); // reading 20 times 8 bit data
+	int read = sram_read(addr); 
 	printf("sram read done %x:\n",read);
 
+	
 	return 0; 
 } 
  
