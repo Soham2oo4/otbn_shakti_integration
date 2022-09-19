@@ -1,7 +1,5 @@
 #include <stdint.h>
 #include "spi.h"
-#include "cypress_data.h"
-
 
 int main(){
 

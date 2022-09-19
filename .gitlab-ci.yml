@@ -18,6 +18,7 @@ compile-check:
         - make TOP_FILE=riscvDebug013_template.bsv TOP_DIR=riscvDebug013
         - make TOP_FILE=spi_template.bsv TOP_DIR=spi
         - make TOP_FILE=watchdog_template.bsv TOP_DIR=watchdog
+        - make TOP_FILE=plic_instance.bsv TOP_DIR=riscv-plic
         - python3 /scratch/version-update.py
     only:
         - master
