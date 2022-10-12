@@ -34,10 +34,10 @@ package riscvDebug013Pbuf;
 
   // TODO: Add abst_cmderr setting when encountering exceptions in debug mode.
   (* doc = " Module: This Module implements the RISC-V Debug Spec 0.13 \
-    The Module Exposes a Ifc_riscvDebug013 Type Interface which intern houses \
-    a Axi4 / Axi4-Lite Master , an AXI4/ Axi4-Lite interface onto the system bus \
-    a IFC_DM_DTM reciever interface from the Debug Transport Module \
-    and a (to be vectorised )Side band interface Debug_Hart_Ifc that \
+    The Module Exposes a Ifc_riscvDebug013 Type Interface which in turn houses \
+    an Axi4 / Axi4-Lite Master , an AXI4/ Axi4-Lite interface onto the system bus \
+    a IFC_DM_DTM receiver interface from the Debug Transport Module \
+    and a (to be vectorised) Side band interface Debug_Hart_Ifc that \
     enables the debug module To Halt , Resume ,  and direct the core to \
     execute the program buffer "*)
   (*synthesize*)
@@ -202,7 +202,7 @@ package riscvDebug013Pbuf;
     Reg#(Bit#(32)) sbData2 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
     Reg#(Bit#(32)) sbData3 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
 
-		Reg#(Bit#(TLog#(TDiv#(DXLEN,8)))) rg_lower_addr_bits <- mkReg(0);	//Store lower address bits
+    Reg#(Bit#(TLog#(TDiv#(DXLEN,8)))) rg_lower_addr_bits <- mkReg(0);  //Store lower address bits
     //      System Bus Slave Registers
     
     // data0 - 11   DM 'h04-'h0f
@@ -448,10 +448,10 @@ package riscvDebug013Pbuf;
     `elsif CORE_AXI4Lite
       if (response.rresp==AXI4_LITE_OKAY) begin
     `endif
-				Bit#(TAdd#(TLog#(TDiv#(DXLEN,8)),3)) lv_shift = {rg_lower_addr_bits, 3'd0};
+        Bit#(TAdd#(TLog#(TDiv#(DXLEN,8)),3)) lv_shift = {rg_lower_addr_bits, 3'd0};
         Bit#(D_AXI_BUS_WIDTH) resp= response.rdata >> lv_shift;
         sbData0<=resp[31:0] ;
-				if(valueOf(DXLEN)==64)
+        if(valueOf(DXLEN)==64)
           sbData1<=resp[63:32] ;
         if(`VERBOSITY > 1) begin
           $display($time, " DEBUG:Memory Access response- Response :%h Shift: %d Shifted_resp: %h",response.rdata,lv_shift,resp);
@@ -556,6 +556,7 @@ package riscvDebug013Pbuf;
             ('h4)                      :  lv_response_data = 'hffdff06f; // j pc -4
             ('h8)                      :  lv_response_data = 'h0000006f; // self-loop
             ('hC)                      :  lv_response_data = 'h0000006f; // self-loop
+            // older version:
             //('h0)                      :  lv_response_data = 'h0000100f; // 100f fence.i
             //('h4)                      :  lv_response_data = 'h00000013; // nop
             //('h8)                      :  lv_response_data = 'hffdff06f; // j pc -4
@@ -745,8 +746,6 @@ endrule
     endrule
     //
 
-    
-
     // HART Interface , Vector of hart interfaces 
     // Hard Setup for only one hart right now
     Vector#(HartCount,Debug_Hart_Ifc) hart_interface_vector;
@@ -851,7 +850,7 @@ endrule
       interface putCommand = interface Put
         method Action put(Bit#(41) request_data) if (!isValid(dmi_response));
         
-          // The DMI Requests are Recieved here
+          // The DMI Requests are Received here
           Bit#(2)  dmi_op   = request_data[1:0];
           Bit#(32) dmi_data = request_data[33:2];
           Bit#(7) dmi_addr = request_data[40:34];
