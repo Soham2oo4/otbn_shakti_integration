@@ -43,9 +43,11 @@ package bram;
 
   `include "Logger.bsv"
   export Ifc_bram_axi4 (..);
-  export Ifc_bram_axi4lite (..);
   export mkbram_axi4;
-  export mkbram_axi4lite;
+  `ifndef iclass
+    export Ifc_bram_axi4lite (..);
+    export mkbram_axi4lite;
+  `endif
 
   interface UserInterface#(numeric type addr_width,  numeric type data_width, numeric type index_size);
     method Action read_request (Bit#(addr_width) addr);
@@ -70,7 +72,7 @@ package bram;
     Integer byte_offset = valueOf(TLog#(TDiv#(data_width, 8)));
 
     `ifdef fesvr_sim
-      BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size,offset)),Bit#(data_width), bytes) mainmem <- mkBRAMCore2BE(valueOf(TExp#(TSub#(index_size,offset))),False);
+      BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))),Bit#(data_width), TDiv#(data_width, 8)) dmemMSB <- mkBRAMCore2BE(valueOf(TExp#(TSub#(index_size, TLog#(TDiv#(data_width, 8))))),False);
       Reg#(Bit#(1)) rg_initialized <- mkReg(0);
     `else
       BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))), Bit#(data_width),
@@ -86,10 +88,10 @@ package bram;
       rule rl_initialize(rg_initialized == 0);
         Bit#(TDiv#(data_width, 8)) lv_strb = '1;
         Bit#(TSub#(index_size, offset)) lv_index = '0;
-        Bit#(data_width) lv_data = zeroExtend(32'h0000006f); // self-loop (jal)
+        Bit#(data_width) lv_data = 'h0000006f; // self-loop (jal)
 
         // initialize bram
-        mainmem.b.put(lv_strb, lv_index, lv_data);
+        dmemMSB.b.put(lv_strb, lv_index, lv_data);
         rg_initialized <= 1;
       endrule
     `endif
@@ -225,6 +227,7 @@ package bram;
     interface slave = s_xactor.axi_side;
   endmodule
 
+`ifndef iclass
   interface Ifc_bram_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width,
                                                                            numeric type index_size);
     interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
@@ -269,6 +272,7 @@ package bram;
     endrule
     interface slave = s_xactor.axi_side;
   endmodule
+`endif
 
 //  interface Ifc_bram_TLU#(numeric type a, numeric type w, numeric type z, numeric type index_size);
 //    interface Ifc_fabric_side_slave_link_lite#(a, w, z) read_slave;
