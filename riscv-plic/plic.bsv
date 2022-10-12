@@ -1,4 +1,6 @@
 /*
+see LICENSE.iitm
+
 Author: Neel Gala, neelgala@incoresemi.com
 Created on: Saturday 25 April 2020 08:58:16 AM IST
 
@@ -27,8 +29,13 @@ function Bit#(m) reSize (Bit#(n) din) provisos( Add#(m,n,mn) );
 endfunction:reSize
 
 function Bit#(2) strb2size_2(Bit#(n) strb)
-  provisos(Add#(a__, n, 8));
-  Bit#(8) _t = zeroExtend(strb);
+  `ifndef iclass
+    provisos(Add#(a__, n, 8));
+    Bit#(8) _t = zeroExtend(strb);
+  `else
+    provisos(Add#(a__, n, 16));
+    Bit#(16) _t = zeroExtend(strb);
+  `endif
   Bool isSz4 = ((_t>>3)&_t) != 0;
   Bool isSz2 = ((_t>>1)&_t) != 0;
   if (&_t == 1) return 3;
@@ -49,11 +56,19 @@ function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr,
     Add#(a__, os, a),
     Mul#(TDiv#(n, 8), 8, n), // bus-side data-width should be multiples of 8
     Mul#(TDiv#(m, 8), 8, m), // register data-width should be multiples of 8
-    Add#(n, b__, 64), // bus side data should be <= 64
+    `ifndef iclass
+      Add#(n, b__, 64), // bus side data should be <= 64
+    `else
+      Add#(n, b__, 128),
+    `endif
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
-    Add#(d__, TDiv#(n, 8), 8)
+    `ifndef iclass
+      Add#(d__, TDiv#(n, 8), 8)
+    `else
+      Add#(d__, TDiv#(n, 8), 16)
+    `endif
   );
   let mi = valueOf(m);
   let ni = valueOf(n);
@@ -93,12 +108,19 @@ function ActionValue#(Tuple2#(Bool,Bit#(m))) fn_adjust_write(Bit#(a) addr,
     Add#(a__, os, a),
     Mul#(TDiv#(n, 8), 8, n), // bus-side data-width should be multiples of 8
     Mul#(TDiv#(m, 8), 8, m), // register data-width should be multiples of 8
-    Add#(n, b__, 64), // bus side data should be <= 64
+    `ifndef iclass
+      Add#(n, b__, 64), // bus side data should be <= 64
+    `else
+      Add#(n, b__, 128),
+    `endif
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
-    Add#(d__, TDiv#(n, 8), 8),
-
+    `ifndef iclass
+      Add#(d__, TDiv#(n, 8), 8),
+    `else
+      Add#(d__, TDiv#(n, 8), 16),
+    `endif
     Add#(TSub#(2, TLog#(TDiv#(n, 8))), e__, os)
   ) = actionvalue
       
@@ -167,9 +189,17 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Add#(8, b__, dw),         // data atleast 8 bits
     Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
     Add#(c__, 2, aw),
-    Add#(dw, d__, 64),
+    `ifndef iclass
+      Add#(dw, d__, 64),
+    `else
+      Add#(dw, d__, 128),
+    `endif
     Add#(TExp#(TLog#(dw)),0,dw),
-    Add#(e__, TDiv#(dw, 8), 8),
+    `ifndef iclass
+      Add#(e__, TDiv#(dw, 8), 8),
+    `else
+      Add#(e__, TDiv#(dw, 8), 16),
+    `endif
     Add#(f__, lg_priority, 32),
     Bits#(UInt#(TLog#(nsources)), lg_nsources),
     Add#(g__, 1, lg_priority)
@@ -439,9 +469,17 @@ endmodule:mkplic
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
         Add#(c__, 2, aw),
-        Add#(dw, d__, 64),
+        `ifndef iclass
+          Add#(dw, d__, 64),
+        `else
+          Add#(dw, d__, 128),
+        `endif
         Add#(TExp#(TLog#(dw)),0,dw),
-        Add#(e__, TDiv#(dw, 8), 8),
+        `ifndef iclass
+          Add#(e__, TDiv#(dw, 8), 8),
+        `else
+          Add#(e__, TDiv#(dw, 8), 16),
+        `endif
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
         Add#(g__, 1, lg_priority)
@@ -504,9 +542,17 @@ endmodule:mkplic
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
         Add#(c__, 2, aw),
-        Add#(dw, d__, 64),
+        `ifndef iclass
+          Add#(dw, d__, 64),
+        `else
+          Add#(dw, d__, 128),
+        `endif
         Add#(TExp#(TLog#(dw)),0,dw),
-        Add#(e__, TDiv#(dw, 8), 8),
+        `ifndef iclass
+          Add#(e__, TDiv#(dw, 8), 8),
+        `else
+          Add#(e__, TDiv#(dw, 8), 16),
+        `endif
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
         Add#(g__, 1, lg_priority)

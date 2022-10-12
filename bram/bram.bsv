@@ -1,25 +1,6 @@
 /*
-Copyright (c) 2018, IIT Madras All rights reserved.
+see LICENSE.iitm
 
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions
-  and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of
-  conditions and the following disclaimer in the documentation and/or other materials provided
- with the distribution.
-* Neither the name of IIT Madras  nor the names of its contributors may be used to endorse or
-  promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
 
 Author: Neel Gala
@@ -43,9 +24,11 @@ package bram;
 
   `include "Logger.bsv"
   export Ifc_bram_axi4 (..);
-  export Ifc_bram_axi4lite (..);
   export mkbram_axi4;
-  export mkbram_axi4lite;
+  `ifndef iclass
+    export Ifc_bram_axi4lite (..);
+    export mkbram_axi4lite;
+  `endif
 
   interface UserInterface#(numeric type addr_width,  numeric type data_width, numeric type index_size);
     method Action read_request (Bit#(addr_width) addr);
@@ -55,31 +38,51 @@ package bram;
     method ActionValue#(Bool) write_response;
   endinterface
 
-  // to make is synthesizable replace addr_width with Physical Address width
+  // to make it synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
-  module mkbram#(parameter Integer slave_base, parameter String readfile,
+  `ifdef fesvr_sim
+    module mkbram#(parameter Integer slave_base, parameter String modulename )
+  `else
+    module mkbram#(parameter Integer slave_base, parameter String readfile,
                                                 parameter String modulename )
+  `endif
       (UserInterface#(addr_width, data_width, index_size))
       provisos(
         Mul#(TDiv#(data_width, TDiv#(data_width, 8)), TDiv#(data_width, 8),data_width)  );
 
     Integer byte_offset = valueOf(TLog#(TDiv#(data_width, 8)));
-  	// we create 2 32-bit BRAMs since the xilinx tool is easily able to map them to BRAM32BE cells
-  	// which makes it easy to use data2mem for updating the bit file.
 
-    BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))), Bit#(data_width),
+    `ifdef fesvr_sim
+      BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))),Bit#(data_width), TDiv#(data_width, 8)) dmemMSB <- mkBRAMCore2BE(valueOf(TExp#(TSub#(index_size, TLog#(TDiv#(data_width, 8))))),False);
+      Reg#(Bit#(1)) rg_initialized <- mkReg(0);
+    `else
+      BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))), Bit#(data_width),
                                                                     TDiv#(data_width,8)) dmemMSB <-
           mkBRAMCore2BELoad(valueOf(TExp#(TSub#(index_size, TLog#(TDiv#(data_width, 8))))), False,
                             readfile, False);
+    `endif
 
     Reg#(Bool) read_request_sent[2] <-mkCRegA(2,False);
+
+
+    `ifdef fesvr_sim
+      rule rl_initialize(rg_initialized == 0);
+        Bit#(TDiv#(data_width, 8)) lv_strb = '1;
+        Bit#(TSub#(index_size, offset)) lv_index = '0;
+        Bit#(data_width) lv_data = 'h0000006f; // self-loop (jal)
+
+        // initialize bram
+        dmemMSB.b.put(lv_strb, lv_index, lv_data);
+        rg_initialized <= 1;
+      endrule
+    `endif
 
     // A write request to memory. Single cycle operation.
     // This model assumes that the master sends the data strb aligned for the data_width bytes.
     // Eg. : is size is HWord at address 0x2 then the wstrb for 64-bit data_width is: 'b00001100
     // And the data on the write channel is assumed to be duplicated.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),
-                                                                  Bit#(TDiv#(data_width, 8))) req);
+                                                                  Bit#(TDiv#(data_width, 8))) req) `ifdef fesvr_sim if(rg_initialized == 1) `endif ;
       let {addr, data, strb}=req;
 			Bit#(TSub#(index_size,TLog#(TDiv#(data_width, 8)))) index_address=
 			                          (addr - fromInteger(slave_base))[valueOf(index_size)-1:byte_offset];
@@ -88,7 +91,7 @@ package bram;
  Data: %h wrstrb: %h", addr, index_address, data, strb))
   	endmethod
 
-    // The write response will always be an error.
+    // successful write
     method ActionValue#(Bool) write_response;
       return False;
     endmethod
@@ -117,13 +120,21 @@ package bram;
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  module mkbram_axi4#( parameter Integer slave_base, parameter String readfile,
+  `ifdef fesvr_sim
+    module mkbram_axi4#( parameter Integer slave_base, parameter String modulename )
+  `else
+    module mkbram_axi4#( parameter Integer slave_base, parameter String readfile,
         parameter String modulename )
+  `endif
         (Ifc_bram_axi4#(addr_width, data_width, user_width, index_size))
       provisos(
         Mul#(TDiv#(data_width, TDiv#(data_width, 8)), TDiv#(data_width, 8),data_width)  );
-    UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, readfile,
+    `ifdef fesvr_sim
+      UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, modulename);
+    `else
+      UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, readfile,
         modulename);
+    `endif
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
     Reg#(Mem_State) read_state <-mkRegA(Idle);
@@ -197,6 +208,7 @@ package bram;
     interface slave = s_xactor.axi_side;
   endmodule
 
+`ifndef iclass
   interface Ifc_bram_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width,
                                                                            numeric type index_size);
     interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
@@ -241,6 +253,7 @@ package bram;
     endrule
     interface slave = s_xactor.axi_side;
   endmodule
+`endif
 
 //  interface Ifc_bram_TLU#(numeric type a, numeric type w, numeric type z, numeric type index_size);
 //    interface Ifc_fabric_side_slave_link_lite#(a, w, z) read_slave;

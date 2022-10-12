@@ -1,3 +1,4 @@
+// see LICENSE.iitm
 // Copyright (c) 2020 InCore Semiconductors Pvt. Ltd. see LICENSE.incore for more details on licensing terms
 /*
 Author: Neel Gala, neelgala@incoresemi.com
@@ -38,6 +39,7 @@ interface Ifc_hart_side#(numeric type ncomponents);
   method Bit#(ncomponents) mv_hartmask;
   method Bit#(ncomponents) mv_hartreset;
   method Bit#(ncomponents) mv_harthaltreq;
+  method Bit#(ncomponents) mv_resetack;
   method Action ma_havereset (Bit#(ncomponents) resetack);
   method Action ma_debugenable (Bit#(ncomponents) _debugenable);
   method Bit#(1) mv_hasel;

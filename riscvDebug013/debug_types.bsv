@@ -1,3 +1,5 @@
+// see LICENSE.iitm
+
 package debug_types;
 
   import GetPut :: *;
@@ -7,10 +9,10 @@ package debug_types;
   // Limit What is Exported !
 
   // Constants
-	typedef enum {    Abst_NoError = 3'b000        , Abst_Busy = 3'b001,
-			          		Abst_NotSupported = 3'b010   , Abst_Exception = 3'b011,
-			          		Abst_WrongState = 3'b100     , Abst_Bus       = 3'b101,
-                    Abst_Other = 3'b111 }	Abst_ErrorTypes deriving(Bits,Eq,FShow);
+  typedef enum {    Abst_NoError = 3'b000        , Abst_Busy = 3'b001,
+                    Abst_NotSupported = 3'b010   , Abst_Exception = 3'b011,
+                    Abst_WrongState = 3'b100     , Abst_Bus       = 3'b101,
+                    Abst_Other = 3'b111 }  Abst_ErrorTypes deriving(Bits,Eq,FShow);
 
   typedef enum {  SbNoError = 3'b000        , SbTimeOut = 3'b001,
                     SbBadAddress = 3'b010     , SbAlign = 3'b011,
@@ -50,6 +52,39 @@ package debug_types;
   typedef 7'h3f SBDATA3;
   typedef 7'h40 HALTSUM0;
 
+  /*- Debug Slave Memory Map (if enabled) 
+    IO Class Slave :: DO NOT CACHE ACCESSES TO THIS DEVICE !
+    Offset :: Contents
+      0x0     Fence 
+      0x4     Halted Loop - nop
+      0x8     Halted Loop - Ebreak
+      0xC     Program Buffer 0
+      0x10    Program Buffer F
+      0x4c    Ebreak
+      0x50    Abstract Data 0 ( Not Required but here for the time being till fleshed out )
+      0x7C    Abstract Data C ( Not Required but here for the time being till fleshed out )
+    0x80-0x9F Shakti Read GPR ROM.
+    0xA0-0xBF Shakti Read FPR ROM.
+    0xC0-0xDF Shakti Read CSR ROM.
+  */
+  typedef 8'h10 DTVEC_PROG_BUF_OFFSET ;
+  typedef 8'h50 DTVEC_ABST_MEM_OFFSET ;
+  typedef 8'h80 DTVEC_PROG_BUF_EXCEPTION;
+  typedef 8'h90 DTVEC_PROG_BUF_EBREAK;
+  //typedef 8'h80 END_OF_DEBUG_MEM_OFFSET; // For Now No Abstract Traps
+
+  typedef enum {
+    QA_PBuf_Disable = 'b0000,
+    QA_Halt         = 'b0001,
+    QA_wait_halted  = 'b0010, 
+    PBuf_Trap       = 'b0011,
+    PBuf_wait_Trap  = 'b0100,
+    PBuf_wait_Exit  = 'b0101,
+    PBUf_handle_Exit= 'b0110,
+    QA_Resume       = 'b0111,
+    QA_wait_Resume  = 'b1000
+  } QA_PBuf_State deriving(Bits, Eq, FShow);
+ 
   // Abst Reg Map
   typedef 14  AbstractAddrWidth;  // Limited Extended abstract reg space
 
@@ -70,7 +105,10 @@ package debug_types;
   `else 
     typedef 32  DXLEN;
   `endif
-  //typedef 64  DXLEN;
+  `ifdef iclass
+    `define CORE_AXI4
+    typedef 128 D_AXI_BUS_WIDTH;
+  `endif
   typedef 32  DPADDR;
   typedef 1   HartCount;
   typedef 1   AxiID;
@@ -89,7 +127,7 @@ package debug_types;
 
   // Interface
     //Interface between Debug Module and DTM (eg. JtagDTM)
-	interface Ifc_DM_DTM;
+  interface Ifc_DM_DTM;
     interface Put#(Bit#(41)) putCommand;// 7 (ABITS) + 32 + 2
     interface Get#(Bit#(34)) getResponse;
     interface Reset dmactive_reset;
@@ -101,6 +139,10 @@ package debug_types;
     method Action  abstractReadResponse(Bit#(DXLEN) abstractResponse);  
     (*always_enabled,always_ready*)
     method Bit#(1) haltRequest();
+    `ifdef iclass
+      (*always_enabled,always_ready*)
+      method Bit#(1) halt_to_program_buffer();
+    `endif
     (*always_enabled,always_ready*)
     method Bit#(1) resumeRequest();
     (*always_enabled,always_ready*)
@@ -109,29 +151,54 @@ package debug_types;
     method Action  set_have_reset(Bit#(1) have_reset);
     (*always_enabled,always_ready*)
     method Action  set_halted(Bit#(1) halted);
+    `ifdef iclass
+      (*always_enabled,always_ready*)
+      method Action  receive_pbuf_ack(Bit#(1) ack);
+    `endif
     (*always_enabled,always_ready*)
     method Action  set_unavailable(Bit#(1) unavailable);  
     (*always_enabled,always_ready*)
     method Bit#(1) dm_active;
-    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires fo the multi hart case 
+    // method Bit#(5) Hartsel; Information to abstract bus to reduce wires for the multi hart case 
   endinterface
     
-	// Interface between Debug Module and SOC
-  interface Ifc_riscvDebug013;
-    interface Ifc_DM_DTM dtm;
-    interface Debug_Hart_Ifc hart;
-  `ifdef CORE_AXI4
-    interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
-  `elsif CORE_AXI4Lite
-    interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+  `ifndef iclass
+    // Interface between Debug Module and SOC
+    interface Ifc_riscvDebug013;
+      interface Ifc_DM_DTM dtm;
+      interface Debug_Hart_Ifc hart;
+    `ifdef CORE_AXI4
+      interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+    `elsif CORE_AXI4Lite
+      interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+    `endif
+      method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
+      interface Reset dmactive_reset;
+    endinterface
+
+  `else
+    interface Ifc_riscvDebug013;
+      interface Ifc_DM_DTM dtm;
+      interface Debug_Hart_Ifc hart;
+    `ifdef CORE_AXI4
+      interface AXI4_Master_IFC#(DPADDR, D_AXI_BUS_WIDTH, `USERSPACE ) debug_master;
+      interface AXI4_Slave_IFC#(DPADDR,D_AXI_BUS_WIDTH , `USERSPACE ) debug_slave;
+    `elsif CORE_AXI4Lite
+      interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+      interface AXI4_Lite_Slave_IFC#(DPADDR, DXLEN, 0 ) debug_slave;
+    `endif
+      method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
+      interface Reset dmactive_reset;
+    endinterface
   `endif
-    method Bit#(1) getNDMReset();              // Reset Everything apart from DM & DTM -Active HIGH
-    interface Reset dmactive_reset;
-  endinterface
 
   interface Hart_Debug_Ifc;
     method Action   abstractOperation( AbstractRegOp cmd);
     method ActionValue#(Bit#(DXLEN)) abstractReadResponse;
+    `ifdef iclass
+      (*always_enabled,always_ready*)
+      method Action   halt_to_program_buffer(Bit#(1) debug_interrupt);
+    `endif
     (*always_enabled,always_ready*)
     method Action   haltRequest(Bit#(1) halt_request);
     (*always_enabled,always_ready*)
@@ -144,13 +211,17 @@ package debug_types;
     method Bit#(1)  has_reset;
     (*always_enabled,always_ready*)
     method Bit#(1)  is_halted;
+    `ifdef iclass
+      (*always_enabled,always_ready*)
+      method Bit#(1)  get_pbuf_ack;
+    `endif
     (*always_enabled,always_ready*)
     method Bit#(1)  is_unavailable;
   endinterface
 
-  // Thses rules can fire iff the hart is available where capture that on the debug module side
-  // Every interface pairing is a seperate rule to prevent any implict conditions blocking others
-  // Abstract Interface has implict conditions , abstract operations are guarded.
+  // These rules can fire iff the hart is available (where capture that on the debug module side)
+  // Every interface pairing is a separate rule to prevent any implicit conditions blocking others
+  // Abstract Interface has implicit conditions , abstract operations are guarded.
   instance Connectable #(Hart_Debug_Ifc,Debug_Hart_Ifc);
     module mkConnection #(Hart_Debug_Ifc hart,Debug_Hart_Ifc debug_module)(Empty);
       
@@ -178,15 +249,31 @@ package debug_types;
           hart.resumeRequest(0);
       endrule
 
+      `ifdef iclass
+        rule connect_trap_program_buffer;
+          if(debug_module.dm_active == 1)
+            hart.halt_to_program_buffer(debug_module.halt_to_program_buffer());
+          else
+            hart.halt_to_program_buffer(0);
+        endrule
+      `endif
+
       rule connect_hart_reset;
         if(debug_module.dm_active == 1)
           hart.hartReset(debug_module.hart_reset());
         else 
           hart.hartReset(0);
       endrule
+
       rule connect_halted;
         debug_module.set_halted(hart.is_halted());
       endrule
+
+      `ifdef iclass
+        rule connect_progbuf_ack;
+          debug_module.receive_pbuf_ack(hart.get_pbuf_ack());
+        endrule
+      `endif
 
       rule connect_available;
         debug_module.set_unavailable(hart.is_unavailable());
@@ -208,7 +295,7 @@ package debug_types;
   // be supported differently across read, write, and halt status.
 
   // Target Specific config Defaults for shakti E-Class
-  // If Guaranteed non interfereing debug is wanted then add write bit based error
+  // If Guaranteed non interfering debug is wanted then add write bit based error
   function Bit#(3) fn_abstract_reg_op_permitted(  Bit#(AbstractAddrWidth) address,
                                                           Bit#(1) halted,
                                                           Bit#(1) abst_ar_write,
@@ -219,19 +306,27 @@ package debug_types;
               // Access of 32 to DXLEN bit widths are permitted
     Bit#(1) lv_bad_register = 0;    // Register Does not Exist
     Bit#(1) lv_bad_state = 0;   // Hart not in required State
-    Bit#(1) lv_bad_size = 0;       // Bad Access Size , essentiall DXLEN Filter
+    Bit#(1) lv_bad_size = 0;       // Bad Access Size , essential DXLEN Filter
 
-    // Fliter
+    // Filter
     if((address >= `FIVO(Abst_reg_address_CSR0)) && (address < `FIVO(Abst_reg_address_GPR0)))begin
-      if(address != 14'h07b0)                                     // discriminate basis csr existing
-        lv_bad_register = 0;
-      else
-        lv_bad_register = 0;
+      `ifndef iclass
+        if(address != 14'h07b0)                                     // discriminate basis: csr existing
+          lv_bad_register = 0;
+        else
+          lv_bad_register = 0;
+      `else
+        lv_bad_register = 1;
+      `endif
     end
     else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < `FIVO(Abst_reg_address_FPR0)))
       lv_bad_register = 0;
-    else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
+    else if((address >= `FIVO(Abst_reg_address_FPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
+      `ifndef iclass
       lv_bad_register = 0;                                                       //No Floating Point
+      `else
+      lv_bad_register = 1;                                                       //No Floating Point
+      `endif
     else 
       lv_bad_register = 0;//just for testing              //No Implementation Reserved states Mapped 
     
@@ -241,7 +336,7 @@ package debug_types;
         lv_bad_state = 0;
       else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < `FIVO(Abst_reg_address_FPR0)))
         lv_bad_state = 0;
-      else if((address >= `FIVO(Abst_reg_address_GPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
+      else if((address >= `FIVO(Abst_reg_address_FPR0)) && (address < (`FIVO(Abst_reg_address_FPR0)+32)))
         lv_bad_state = 0;
       else
         lv_bad_state = 0;

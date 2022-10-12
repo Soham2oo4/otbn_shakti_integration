@@ -1,28 +1,8 @@
 /* 
-Copyright (c) 2018, IIT Madras All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions
-  and the following disclaimer.  
-* Redistributions in binary form must reproduce the above copyright notice, this list of 
-  conditions and the following disclaimer in the documentation and/or other materials provided 
- with the distribution.  
-* Neither the name of IIT Madras  nor the names of its contributors may be used to endorse or 
-  promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+see LICENSE.iitm
 --------------------------------------------------------------------------------------------------
 
-Atuhor: Aditya Mathur, Neel Gala
+Author: Aditya Mathur, Neel Gala
 */
 package clint;
 
@@ -37,11 +17,14 @@ package clint;
   import device_common::*;
   import GetPut::*;
   import Assert::*;
+  `include "Logger.bsv"
 
-  export Ifc_clint_axi4lite   (..);
   export Ifc_clint_axi4       (..);
   export mkclint_axi4;
-  export mkclint_axi4lite;
+  `ifndef iclass
+    export Ifc_clint_axi4lite   (..);
+    export mkclint_axi4lite;
+  `endif
 
 	interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type msip_size,
       numeric type tick_count);//giving msipsize as a parameter 
@@ -65,11 +48,19 @@ package clint;
 
 	module mkclint(User_ifc#(addr_width,data_width,msip_size, tick_count))
 		provisos(
-    Add#(b__, data_width, 64),
-    Add#(d__, TDiv#(data_width, 8), 8),
-    Mul#(msip_size, a__, 64),
-    Add#(e__, msip_size, data_width),
-    Mul#(data_width, c__, 64),
+    `ifndef iclass
+      Add#(b__, data_width, 64),
+      Add#(d__, TDiv#(data_width, 8), 8),
+      Mul#(msip_size, a__, 64),
+      Add#(e__, msip_size, data_width),
+      Mul#(data_width, c__, 64),
+    `else
+      Add#(b__, data_width, 128),
+      Add#(d__, TDiv#(data_width, 8), 16),
+      Mul#(msip_size, a__, 128),
+      Add#(e__, msip_size, data_width),
+      Mul#(data_width, c__, 128),
+    `endif
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
@@ -85,6 +76,10 @@ package clint;
 		Reg#(Bit#(64)) rgmtimecmp<-mkRegA('hFFFFFFFFFFFFFFFF);
 		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
 		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkRegA(0);
+
+                rule rl_display_status;
+                  `logLevel( clint, 2, $format("CLINT: msip %h mtip %h rgmtime %h rgmtimecmp %h csr_mtimecmp %h rg_tick %h # wr_mtimecmp_written %h", msip, mtip, rgmtime, rgmtimecmp, csr_mtimecmp, rg_tick, wr_mtimecmp_written))
+                endrule
 
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			mtip<=pack(rgmtime>=rgmtimecmp);
@@ -104,13 +99,17 @@ package clint;
 
 			Bit#(data_width) data=0;
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
-      Bit#(64) temp=0;
+      `ifndef iclass
+        Bit#(64) temp=0;
+      `else
+        Bit#(128) temp=0;
+      `endif
 			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
       else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
-        temp=csr_mtimecmp;
+        temp=zeroExtend(csr_mtimecmp);
       else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
-        temp=rgmtime;
+        temp=zeroExtend(rgmtime);
 		  else
 				success=False;	
 
@@ -131,8 +130,13 @@ package clint;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize
         size);
         Bool success=True;
-        Bit#(64) temp =0;
-        Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+        `ifndef iclass
+          Bit#(64) temp = 0;
+          Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+        `else
+          Bit#(128) temp = 0;
+          Bit#(128) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+        `endif
         data=case (size)
           Byte: duplicate(data[7:0]);
           HWord: duplicate(data[15:0]);
@@ -141,12 +145,20 @@ package clint;
         endcase;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
-        Bit#(64) datamask=duplicate(data)&mask;
+        `ifndef iclass
+          Bit#(64) datamask=duplicate(data)&mask;
+        `else
+          Bit#(128) datamask=duplicate(data)&mask;
+        `endif
         let notmask=~mask;
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
-          csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+          `ifndef iclass
+            csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+          `else
+            csr_mtimecmp <= truncate((zeroExtend(csr_mtimecmp) & notmask) | datamask);
+          `endif
         end
 		    else
 		  		success=False;	
@@ -169,6 +181,7 @@ package clint;
     endinterface;
 	endmodule:mkclint
 
+  `ifndef iclass
 	 interface Ifc_clint_axi4lite#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
@@ -212,6 +225,7 @@ package clint;
     interface sb_clint_mtip=clint.sb_clint_mtip;
     interface sb_clint_mtime=clint.sb_clint_mtime;
 	 endmodule:mkclint_axi4lite
+  `endif
 
 	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
@@ -224,14 +238,24 @@ package clint;
 
 	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,data_width,user_width,msip_size,tick_count))
 		provisos(
-        Add#(b__, data_width, 64),
-        Add#(d__, TDiv#(data_width, 8), 8),
-        Mul#(msip_size, a__, 64),
+        `ifndef iclass
+          Add#(b__, data_width, 64),
+          Add#(d__, TDiv#(data_width, 8), 8),
+          Mul#(msip_size, a__, 64),
+        `else
+          Add#(b__, data_width, 128),
+          Add#(d__, TDiv#(data_width, 8), 16),
+          Mul#(msip_size, a__, 128),
+        `endif
         Add#(e__, msip_size, data_width),
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    Mul#(data_width, c__, 64)
+    `ifndef iclass
+      Mul#(data_width, c__, 64)
+    `else
+      Mul#(data_width, c__, 128)
+    `endif
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
 	 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();

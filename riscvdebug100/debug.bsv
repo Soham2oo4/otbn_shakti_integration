@@ -1,8 +1,13 @@
+// see LICENSE.iitm
 // Copyright (c) 2020 InCore Semiconductors Pvt. Ltd. see LICENSE.incore for more details on licensing terms
 /*
 Author: Neel Gala, neelgala@incoresemi.com
 Created on: Saturday 17 April 2021 05:26:57 PM
 
+Details: RISC-V Debug Module (debug spec, version 1.0)
+         - Abstract gpr access
+         - Program buffer and system bus based memory access
+         - Program buffer based access for other registers
 */
 package debug;
 
@@ -81,6 +86,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   
   Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
   Vector#(29,Bit#(32)) vrom;
+`ifndef iclass
   vrom[0] = 'h00c0006f;
   vrom[1] = 'h0600006f;
   vrom[2] = 'h0380006f;
@@ -110,6 +116,38 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[26] = 'h10802423;
   vrom[27] = 'h7b202473;
   vrom[28] = 'h7b200073;
+
+`else
+  vrom[0] = 'h00c0006f;   // 0x800 (j _entry @ 0x80c) : entry
+  vrom[1] = 'h0500006f;   // 0x804 (j _resume @ 0x854) : resume
+  vrom[2] = 'h0300006f;   // 0x808 (j _exception @ 0x838) : exception
+  vrom[3] = 'h7b241073;   // 0x80c : _entry
+  vrom[4] = 'hf1402473;   // 0x810 : entry_loop
+  vrom[5] = 'h10802023;   // 0x814
+  vrom[6] = 'h40044403;   // 0x818
+  vrom[7] = 'h00147413;   // 0x81c
+  vrom[8] = 'h02041263;   // 0x820 (bnez s0, going @ 0x844)
+  vrom[9] = 'hf1402473;   // 0x824
+  vrom[10] = 'h40044403;  // 0x828
+  vrom[11] = 'h00247413;  // 0x82c
+  vrom[12] = 'h02041263;  // 0x830 (bnez s0, _resume @ 0x854)
+  vrom[13] = 'hfddff06f;  // 0x834 (j entry_loop @ 0x810) : _exception
+  vrom[14] = 'h7b202473;  // 0x838
+  vrom[15] = 'h10002623;  // 0x83c
+  vrom[16] = 'h00100073;  // 0x840 (ebreak)
+  vrom[17] = 'hf1402473;  // 0x844 : going
+  vrom[18] = 'h10802223;  // 0x848
+  vrom[19] = 'h7b202473;  // 0x84c
+  vrom[20] = 'h30000067;  // 0x850 (jr whereto @ 0x300)
+  vrom[21] = 'hf1402473;  // 0x854 : _resume
+  vrom[22] = 'h10802423;  // 0x858
+  vrom[23] = 'h7b202473;  // 0x85c
+  vrom[24] = 'h7b200073;  // 0x860 (dret)
+  vrom[25] = 'h00000013;  // 0x864
+  vrom[26] = 'h00000013;  // 0x868
+  vrom[27] = 'h00000013;  // 0x86c
+  vrom[28] = 'h00000013;  // 0x870
+`endif
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
   for (Integer i = 0; i<nAbstractInstr; i = i + 1) begin
@@ -492,6 +530,11 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       cmderr <= cmderr & ~(wr_cmderr_wrval);
   endrule: rl_set_cmderr
 
+  rule rl_display_command_status;
+    `logLevel( debug, 1, $format("DEBUG: rl_display_command: cmdtype %h wr_cmdtype_wren %h wr_cmdtype_wrval %h control %h wr_control_wren %h wr_control_wrval %h", cmdtype, wr_cmdtype_wren, wr_cmdtype_wrval, control, wr_control_wren, wr_control_wrval))
+    `logLevel( debug, 1, $format("DEBUG: hahavereset %b", hahavereset[1]))
+  endrule
+
   /*doc:rule: */
   rule rl_set_busy;
     if (wr_cmdtype_wren)
@@ -512,7 +555,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       wr_errexception <= True;
       `logLevel( debug, 0, $format("DEBUG: Abstract cmd faced exception"))
     end
+
+    `logLevel( debug, 1, $format("DEBUG: rl_set_busy: busy %b hartsello %h wr_cmdtype_wren %b wr_harthalting_wren %b wr_harthalting_id %b v_flags.go %b", busy, hartsello, wr_cmdtype_wren, wr_harthalting_wren, wr_harthalting_id[hartsello], v_flags[hartsello].go))
   endrule: rl_set_busy
+
+  /*doc:rule: */
+  rule rl_display_abstract;
+    `logLevel( debug, 1, $format("DEBUG: abstract[1] %h abstract[0] %h # data[1] %h data[0] %h", v_abstract_reg[1], v_abstract_reg[0], v_data_reg[1], v_data_reg[0]))
+  endrule: rl_display_abstract
 
   /*doc:rule: */
   rule rl_upd_flags;
@@ -527,6 +577,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       else
         v_flags[i].resume <= haresumereq[i];
     end
+
+    `logLevel( debug, 1, $format("DEBUG: rl_upd_flags: lv_go %b haresumereq %b, v_flags.go %b, v_flags.resume %b", lv_go, haresumereq[0], v_flags[0].go, v_flags[0].resume))
   endrule:rl_upd_flags
 
   /*doc:rule: */
@@ -566,6 +618,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         allresumeack <= &(haresumeack | ~lv_finalhamask);
       end
     end
+
+    `logLevel( debug, 1, $format("DEBUG: rl_drive_dmstatus: dmstatus_prev %h # lv_anynonexistent %b lv_allnonexistent %b wr_debug_enable %b # hahalted %b haresumeack %b hahavereset %b lv_finalhamask %b", dmstatus, lv_anynonexistent, lv_allnonexistent, wr_debug_enable, hahalted, haresumeack, hahavereset[1], lv_finalhamask))
   endrule:rl_drive_dmstatus
   // ------------------------------------------------------------
 
@@ -704,6 +758,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Bit#(12) offset = truncate(req.araddr);
     Bit#(`debug_bus_sz) data = 0;
     Bool succ = True;
+    `logLevel( debug, 0, $format("DEBUG: Addresses: ebreak %h whereto %h abstract %h progbuf %h flags %h data %h rombase %h", `IMPEBREAK , `WHERETO , `ABSTRACT , `PROGBUF ,  `FLAGS , `DATA , `ROMBASE ))
     if (offset == `IMPEBREAK) begin // reading implicit ebreak
       data = cfg.implicitebreak==1? duplicate(`EBREAK) : duplicate(`NOP) ;
     end
@@ -716,8 +771,13 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       Bit#(1) index = truncate((offset - `ABSTRACT)>>2);
       `logLevel( debug, 0, $format("DEBUG: Abstract offset:%h Abstract:%h index:%d",offset,
       `ABSTRACT, index))
+    `ifndef iclass
       data = duplicate(v_abstract_reg[index]);
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)",v_abstract_reg[index]))
+    `else
+      data = {v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1], v_abstract_reg[0]};
+      `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h) DASM(0x%h)",v_abstract_reg[1], v_abstract_reg[0]))
+    `endif
     end
     else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) && req.arsize==0 
           && offset < 'h800) begin// TODO extend this for multicore
@@ -731,19 +791,32 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         data[63:32] = v_data_reg[index+1];
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
-      Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
-      data = duplicate(v_progbuf_reg[index]);
-      if (req.arsize==3)
-        data[63:32] = v_progbuf_reg[index+1];
+      Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
+      `ifndef iclass
+        data = duplicate(v_progbuf_reg[index]);
+        if (req.arsize==3)
+          data[63:32] = v_progbuf_reg[index+1];
+      `else
+        // Note: 128-bit bus width for i-class
+        // TODO: non-power-of-2
+        data = {v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]};
+      `endif
       `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)",v_progbuf_reg[index]))
     end
-    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) && req.arsize == 2) begin
+    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) `ifndef iclass && req.arsize == 2 `endif ) begin
       Bit#(5) index = truncate((offset - `ROMBASE)>>2);
-      data = duplicate(vrom[index]);
+      `ifndef iclass
+        data = duplicate(vrom[index]);
+      `else
+        // Note: 128-bit bus width for i-class
+        // TODO: non-power-of-2
+        data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
+      `endif
       `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)",vrom[index]))
     end
-    else 
+    else begin
       succ = False;
+    end
 	 	AXI4_Rd_Data#(`debug_bus_sz,0) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
           rdata: data, ruser: 0};
 	 	slave_xactor.i_rd_data.enq(r);
@@ -784,17 +857,24 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
       v_data_reg[index] <= updateDataWithMask(v_data_reg[index],truncate(wreq.wdata),truncate(wreq.wstrb));
-      if (req.awsize==3)
-        v_data_reg[index+1] <= updateDataWithMask(v_data_reg[index+1],truncateLSB(wreq.wdata),truncateLSB(wreq.wstrb));
+      if (req.awsize==3) begin  // for 8-byte write (double), extract the next word
+        wreq.wdata = wreq.wdata >> 32;
+        wreq.wstrb = wreq.wstrb >> 4;
+        v_data_reg[index+1] <= updateDataWithMask(v_data_reg[index+1],truncate(wreq.wdata),truncate(wreq.wstrb));
+      end
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`PROGBUF)>>2);
       v_progbuf_reg[index] <= updateDataWithMask(v_progbuf_reg[index],truncate(wreq.wdata),truncate(wreq.wstrb));
-      if (req.awsize==3)
-        v_progbuf_reg[index+1] <= updateDataWithMask(v_progbuf_reg[index+1],truncateLSB(wreq.wdata),truncateLSB(wreq.wstrb));
+      if (req.awsize==3) begin // 8-byte write
+        wreq.wdata = wreq.wdata >> 32;
+        wreq.wstrb = wreq.wstrb >> 4;
+        v_progbuf_reg[index+1] <= updateDataWithMask(v_progbuf_reg[index+1],truncate(wreq.wdata),truncate(wreq.wstrb));
+      end
     end
-    else 
+    else begin
       succ = False;
+    end
 	 	let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR,bid:req.awid, buser: req.awuser};
 	 	slave_xactor.i_wr_resp.enq(r);
   endrule
@@ -811,6 +891,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         // Catch Busy/Access Violations
         Bit#(32) dmi_response_data = 0;
         Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
+
+        `logLevel( debug, 1, $format("DEBUG: DTM: In putCommand %h op %d data %h addr %h", req, dmi_op, dmi_data, dmi_addr))
+
         if (dmi_op == 2)begin // write operation
           `logLevel( debug, 0, $format("DEBUG: DMI Write@%h %h:",dmi_addr, dmi_data))
           case(dmi_addr)
@@ -842,9 +925,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                   command <= dmi_data;
                 end
               end
+
+              `logLevel( debug, 1, $format("DEBUG: Writing into Abstract Command: data %h cmderr %b busy %b", dmi_data, cmderr, busy))
             end
             `Abstractauto : begin
               wr_errbusy <= (cmderr == 0 && busy == 1);
+              if (cmderr == 0 && busy == 0) begin
+                abstractauto <= dmi_data;
+              end
             end
             `Confstrptr0, `Confstrptr1, `Confstrptr2, 
             `Confstrptr3, `Nextdm, `Haltsum2, `Haltsum3 : begin end
@@ -879,29 +967,32 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
             default: begin // either data, progbuf or unknown
               if (dmi_addr >= `Data0 && dmi_addr <= (`Data0 + fromInteger(v_nabstractdata)) 
                                     && v_nabstractdata>0) begin
-                if(busy == 0)
-                  v_data_reg[dmi_addr-`Data0] <= dmi_data;
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecdata[dmi_addr-`Data0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
-              end
+                if(busy == 0) begin
+                  v_data_reg[dmi_addr-`Data0] <= dmi_data;
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecdata[dmi_addr-`Data0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
+              end // abstract data
               else if (dmi_addr >= `Progbuf0 && dmi_addr <= (`Progbuf0 + fromInteger(v_nprogbuf)) 
                                             && v_nprogbuf > 0) begin
-                v_progbuf_reg[dmi_addr-`Progbuf0] <= dmi_data;
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
-              end
+                if(busy == 0) begin
+                  v_progbuf_reg[dmi_addr-`Progbuf0] <= dmi_data;
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
+              end // progbuf
               else 
                 dmi_response_status = 2;
             end
@@ -955,25 +1046,29 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                                     && v_nabstractdata>0) begin
                 dmi_response_data = v_data_reg[dmi_addr-`Data0];
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecdata[dmi_addr-`Data0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
-              end
+                if(busy == 0) begin
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecdata[dmi_addr-`Data0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
+              end // abstract data
               else if (dmi_addr >= `Progbuf0 && dmi_addr <= (`Progbuf0 + fromInteger(v_nprogbuf)) 
                                             && v_nprogbuf > 0) begin
                 dmi_response_data = v_progbuf_reg[dmi_addr-`Progbuf0];
                 wr_errbusy <= (cmderr == 0 && busy == 1);
-                // the following logic is meant to trigger command again when autoexec bits are set.
-                if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
-                  wr_cmdtype_wren <= True;
-                  wr_control_wren <= True;
-                  wr_cmdtype_wrval <= cmdtype;
-                  wr_control_wrval <= control;
-                end
+                if(busy == 0) begin
+                  // the following logic is meant to trigger command again when autoexec bits are set.
+                  if (autoexecprogbuf[dmi_addr-`Progbuf0]==1)begin
+                    wr_cmdtype_wren <= True;
+                    wr_control_wren <= True;
+                    wr_cmdtype_wrval <= cmdtype;
+                    wr_control_wrval <= control;
+                  end
+                end // !busy
               end
               else 
                 dmi_response_status = 2;
@@ -987,6 +1082,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     interface getResponse = interface Get
       method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
         dmi_response <= tagged Invalid;
+        `logLevel( debug, 1, $format("DEBUG: DTM: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]))
         return validValue(dmi_response);
       endmethod
     endinterface;
@@ -995,6 +1091,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     method mv_hartmask = lv_finalhamask;
     method mv_harthaltreq = hahaltreq;
     method mv_hartreset = haresetreq;
+    method mv_resetack = wr_ackhavereset_wren ? 'b1 : 'b0;
     method mv_hasel = hasel;
     method mv_hartsel = zeroExtend(hartsello);
     method Action ma_havereset(Bit#(ncomponents) resetack);
