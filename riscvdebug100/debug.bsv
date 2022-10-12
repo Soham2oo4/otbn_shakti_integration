@@ -149,7 +149,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     v_abstract_reg[i] <- mkReg(`NOP, reset_by dm_reset);
   end
   
-  AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor(reset_by dm_reset);
+  AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
   AXI4_Master_Xactor_IFC#(`paddr, `debug_bus_sz, 0) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
 
   function Bit#(32) genLoads(AccessReg cntrl);
@@ -526,10 +526,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   endrule: rl_set_cmderr
 
   rule rl_display_command_status;
-    if (`VERBOSITY > 1) begin
-      $display($time," DEBUG: rl_display_command: cmdtype %h wr_cmdtype_wren %h wr_cmdtype_wrval %h control %h wr_control_wren %h wr_control_wrval %h", cmdtype, wr_cmdtype_wren, wr_cmdtype_wrval, control, wr_control_wren, wr_control_wrval);
-      $display($time," DEBUG: hahavereset %b", hahavereset[1]);
-    end
+    `logLevel( debug, 1, $format("DEBUG: rl_display_command: cmdtype %h wr_cmdtype_wren %h wr_cmdtype_wrval %h control %h wr_control_wren %h wr_control_wrval %h", cmdtype, wr_cmdtype_wren, wr_cmdtype_wrval, control, wr_control_wren, wr_control_wrval))
+    `logLevel( debug, 1, $format("DEBUG: hahavereset %b", hahavereset[1]))
   endrule
 
   /*doc:rule: */
@@ -553,16 +551,12 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       `logLevel( debug, 0, $format("DEBUG: Abstract cmd faced exception"))
     end
 
-    if (`VERBOSITY > 1) begin
-      $display($time," DEBUG: rl_set_busy: busy %b hartsello %h wr_cmdtype_wren %b wr_harthalting_wren %b wr_harthalting_id %b v_flags.go %b", busy, hartsello, wr_cmdtype_wren, wr_harthalting_wren, wr_harthalting_id[hartsello], v_flags[hartsello].go);
-    end
+    `logLevel( debug, 1, $format("DEBUG: rl_set_busy: busy %b hartsello %h wr_cmdtype_wren %b wr_harthalting_wren %b wr_harthalting_id %b v_flags.go %b", busy, hartsello, wr_cmdtype_wren, wr_harthalting_wren, wr_harthalting_id[hartsello], v_flags[hartsello].go))
   endrule: rl_set_busy
 
   /*doc:rule: */
   rule rl_display_abstract;
-    if (`VERBOSITY > 1) begin
-      $display($time," DEBUG: abstract[1] %h abstract[0] %h # data[1] %h data[0] %h", v_abstract_reg[1], v_abstract_reg[0], v_data_reg[1], v_data_reg[0]);
-    end
+    `logLevel( debug, 1, $format("DEBUG: abstract[1] %h abstract[0] %h # data[1] %h data[0] %h", v_abstract_reg[1], v_abstract_reg[0], v_data_reg[1], v_data_reg[0]))
   endrule: rl_display_abstract
 
   /*doc:rule: */
@@ -578,8 +572,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       else
         v_flags[i].resume <= haresumereq[i];
     end
-    if (`VERBOSITY > 1) begin
-      $display($time," DEBUG: rl_upd_flags: lv_go %b haresumereq %b, v_flags.go %b, v_flags.resume %b", lv_go, haresumereq[0], v_flags[0].go, v_flags[0].resume);
+
+    `logLevel( debug, 1, $format("DEBUG: rl_upd_flags: lv_go %b haresumereq %b, v_flags.go %b, v_flags.resume %b", lv_go, haresumereq[0], v_flags[0].go, v_flags[0].resume))
     end
   endrule:rl_upd_flags
 
@@ -620,9 +614,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         allresumeack <= &(haresumeack | ~lv_finalhamask);
       end
     end
-    if (`VERBOSITY > 1) begin
-      $display($time," DEBUG: rl_drive_dmstatus: dmstatus_prev %h # lv_anynonexistent %b lv_allnonexistent %b wr_debug_enable %b # hahalted %b haresumeack %b hahavereset %b lv_finalhamask %b", dmstatus, lv_anynonexistent, lv_allnonexistent, wr_debug_enable, hahalted, haresumeack, hahavereset[1], lv_finalhamask);
-    end
+
+    `logLevel( debug, 1, $format("DEBUG: rl_drive_dmstatus: dmstatus_prev %h # lv_anynonexistent %b lv_allnonexistent %b wr_debug_enable %b # hahalted %b haresumeack %b hahavereset %b lv_finalhamask %b", dmstatus, lv_anynonexistent, lv_allnonexistent, wr_debug_enable, hahalted, haresumeack, hahavereset[1], lv_finalhamask))
   endrule:rl_drive_dmstatus
   // ------------------------------------------------------------
 
@@ -800,7 +793,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         if (req.arsize==3)
           data[63:32] = v_progbuf_reg[index+1];
       `else
-        // Note: only supports 128-bit bus width
+        // Note: 128-bit bus width for i-class
         // TODO: non-power-of-2
         data = {v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]};
       `endif
@@ -811,11 +804,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       `ifndef iclass
         data = duplicate(vrom[index]);
       `else
-        // Note: only supports 128-bit bus width
+        // Note: 128-bit bus width for i-class
         // TODO: non-power-of-2
         data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
       `endif
       `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)",vrom[index]))
+    end
+    else begin
+      succ = False;
     end
 	 	AXI4_Rd_Data#(`debug_bus_sz,0) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
           rdata: data, ruser: 0};
@@ -872,8 +868,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         v_progbuf_reg[index+1] <= updateDataWithMask(v_progbuf_reg[index+1],truncate(wreq.wdata),truncate(wreq.wstrb));
       end
     end
-    else 
+    else begin
       succ = False;
+    end
 	 	let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR,bid:req.awid, buser: req.awuser};
 	 	slave_xactor.i_wr_resp.enq(r);
   endrule
@@ -890,9 +887,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         // Catch Busy/Access Violations
         Bit#(32) dmi_response_data = 0;
         Bit#(2)  dmi_response_status = 0; // dmi_response_status 0=> ok , 2=> operation failed
-        if (`VERBOSITY > 1) begin
-          $display($time, " DEBUG: DTM: In putCommand %h op %d data %h addr %h", req, dmi_op, dmi_data, dmi_addr);
-        end
+
+        `logLevel( debug, 1, $format("DEBUG: DTM: In putCommand %h op %d data %h addr %h", req, dmi_op, dmi_data, dmi_addr))
+
         if (dmi_op == 2)begin // write operation
           `logLevel( debug, 0, $format("DEBUG: DMI Write@%h %h:",dmi_addr, dmi_data))
           case(dmi_addr)
@@ -924,9 +921,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                   command <= dmi_data;
                 end
               end
-              if (`VERBOSITY > 1) begin
-                $display($time," DEBUG: Writing into Abstract Command: data %h cmderr %b busy %b", dmi_data, cmderr, busy);
-              end
+
+              `logLevel( debug, 1, $format("DEBUG: Writing into Abstract Command: data %h cmderr %b busy %b", dmi_data, cmderr, busy))
             end
             `Abstractauto : begin
               wr_errbusy <= (cmderr == 0 && busy == 1);
@@ -1082,8 +1078,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     interface getResponse = interface Get
       method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
         dmi_response <= tagged Invalid;
-        if (`VERBOSITY > 1) begin
-          $display($time, " DEBUG: DTM: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]);
+        `logLevel( debug, 1, $format("DEBUG: DTM: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]))
         end
         return validValue(dmi_response);
       endmethod
