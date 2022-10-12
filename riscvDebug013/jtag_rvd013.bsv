@@ -1,3 +1,5 @@
+// see LICENSE.iitm
+
 package jtag_rvd013;
   import Vector::*;
   import FIFOF::*;
@@ -145,3 +147,4 @@ package jtag_rvd013;
   endmodule
 
 endpackage
+

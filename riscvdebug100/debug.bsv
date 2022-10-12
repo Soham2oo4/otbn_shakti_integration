@@ -1,8 +1,13 @@
+// see LICENSE.iitm
 // Copyright (c) 2020 InCore Semiconductors Pvt. Ltd. see LICENSE.incore for more details on licensing terms
 /*
 Author: Neel Gala, neelgala@incoresemi.com
 Created on: Saturday 17 April 2021 05:26:57 PM
 
+Details: RISC-V Debug Module (debug spec, version 1.0)
+         - Abstract gpr access
+         - Program buffer and system bus based memory access
+         - Program buffer based access for other registers
 */
 package debug;
 
@@ -1091,8 +1096,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     method mv_hartsel = zeroExtend(hartsello);
     method Action ma_havereset(Bit#(ncomponents) resetack);
       hahavereset[0] <= hahavereset[0] | resetack;
-      //if (resetack != 0)
-      `logLevel( debug, 0, $format("DEBUG: Resetack:%h",resetack))
+      if (resetack != 0)
+        `logLevel( debug, 0, $format("DEBUG: Resetack:%h",resetack))
     endmethod
     method Action ma_debugenable (Bit#(ncomponents) _debugenable);
       wr_debug_enable <= _debugenable;

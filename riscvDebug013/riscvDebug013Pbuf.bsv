@@ -1,32 +1,14 @@
 /*
-Copyright (c) 2018, IIT Madras All rights reserved.
+see LICENSE.iitm
 
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions
-  and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of
-  conditions and the following disclaimer in the documentation and/or other materials provided
- with the distribution.
-* Neither the name of IIT Madras  nor the names of its contributors may be used to endorse or
-  promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
---------------------------------------------------------------------------------------------------
-Author: P.George , N.Gala
-Email id: command.paul@gmail.com
---------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+Author: Paul George, Neel Gala, Sujay Pandit, Nitya Ranganathan
+Email id: command.paul@gmail.com, neelgala@gmail.com, contact.sujaypandit@gmail.com, nitya.ranganathan@gmail.com
+Details: RISC-V Debug Module
+         - Conforms to Riscv-Debug spec 0.13 commit cb64db0407b5e6f755ab3c1549e0e1acf4ea5f6d
+         - Present implementation limited to one hart
+-----------------------------------------------------------------------------------------------------------------
 */
-// Conforms to Riscv-Debug spec 0.13 commit cb64db0407b5e6f755ab3c1549e0e1acf4ea5f6d
-// Present implementation limited to one Hart
 
 package riscvDebug013Pbuf;
   `define CORE_AXI4
@@ -40,15 +22,16 @@ package riscvDebug013Pbuf;
   import ConcatReg::*;
   import ConfigReg::*;
   import DReg::*;
-`ifdef CORE_AXI4
-  import AXI4_Types::*;
-`elsif CORE_AXI4Lite
-  import AXI4_Lite_Types::*;
-`endif
+  `ifdef CORE_AXI4
+    import AXI4_Types::*;
+  `elsif CORE_AXI4Lite
+    import AXI4_Lite_Types::*;
+  `endif
   import debug_types::*;
 
   `define FIVO(x) fromInteger(valueOf(x))
   `define DebugBase   'h0000_0000
+
   // TODO: Add abst_cmderr setting when encountering exceptions in debug mode.
   (* doc = " Module: This Module implements the RISC-V Debug Spec 0.13 \
     The Module Exposes a Ifc_riscvDebug013 Type Interface which intern houses \
