@@ -39,10 +39,12 @@ package clint;
   import Assert::*;
   `include "Logger.bsv"
 
-  export Ifc_clint_axi4lite   (..);
   export Ifc_clint_axi4       (..);
   export mkclint_axi4;
-  export mkclint_axi4lite;
+  `ifndef iclass
+    export Ifc_clint_axi4lite   (..);
+    export mkclint_axi4lite;
+  `endif
 
 	interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type msip_size,
       numeric type tick_count);//giving msipsize as a parameter 
@@ -172,7 +174,11 @@ package clint;
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
-          csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+          `ifndef iclass
+            csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+          `else
+            csr_mtimecmp <= truncate((zeroExtend(csr_mtimecmp) & notmask) | datamask);
+          `endif
         end
 		    else
 		  		success=False;	
@@ -195,6 +201,7 @@ package clint;
     endinterface;
 	endmodule:mkclint
 
+  `ifndef iclass
 	 interface Ifc_clint_axi4lite#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
@@ -238,6 +245,7 @@ package clint;
     interface sb_clint_mtip=clint.sb_clint_mtip;
     interface sb_clint_mtime=clint.sb_clint_mtime;
 	 endmodule:mkclint_axi4lite
+  `endif
 
 	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);

@@ -574,7 +574,6 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     end
 
     `logLevel( debug, 1, $format("DEBUG: rl_upd_flags: lv_go %b haresumereq %b, v_flags.go %b, v_flags.resume %b", lv_go, haresumereq[0], v_flags[0].go, v_flags[0].resume))
-    end
   endrule:rl_upd_flags
 
   /*doc:rule: */
@@ -1079,7 +1078,6 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       method ActionValue#(Bit#(34)) get() if (isValid(dmi_response));
         dmi_response <= tagged Invalid;
         `logLevel( debug, 1, $format("DEBUG: DTM: DMI valid getResponse status: %d : data:%h", validValue(dmi_response)[1:0], validValue(dmi_response)[33:2]))
-        end
         return validValue(dmi_response);
       endmethod
     endinterface;
