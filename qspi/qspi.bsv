@@ -131,8 +131,8 @@ package qspi;
 						DataWrite_phase=6, 
 						Idle=7} Phase deriving (Bits,Eq,FShow);
 
-	module mkqspi_controller(Ifc_qspi_controller#(addr_width, data_width, user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
+	module mkqspi_controller#(Bit#(32) start_mm_addr,Bit#(32) end_mm_addr)(Ifc_qspi_controller#(addr_width, data_width, user_width))
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 	
 	/*************** List of implementation defined Registers *****************/
 	Reg#(bit) rg_clk <-mkRegA(1);
@@ -473,7 +473,7 @@ package qspi;
 		let arsize = axir.burst_size;
         Bool request_ready = True;
         `ifdef verbose $display($time,"\tReceived AXI read request to Address: %h Size: %h",araddr,arsize); `endif
-		if((araddr[27:0]>=`STARTMM && araddr[27:0]<=`ENDMM) && araddr[31]==1'b1)begin // memory mapped space
+		if(zeroExtend(araddr)>=start_mm_addr && zeroExtend(araddr)<=end_mm_addr)begin // memory mapped space
             
             wr_read_request_from_AXI<=True;   //Could this lead to some error? Need to think about this, without fail
             AXI4_Lite_Resp axi4_rresp = AXI4_LITE_OKAY;
@@ -484,7 +484,7 @@ package qspi;
 
             //It is forbidden to access the flash bank area before the SPI is properly configured -- fmode is '11??
             //If not sending a SLVERR now if the mode is not memory mapped and if an access is made outside allowed
-            if(ccr_fmode!='b11 || araddr[27:0] > address_limit) begin
+            if(ccr_fmode != 2'b11 || araddr[27:0] > address_limit) begin
                 `ifdef verbose $display("Sending Slave Error ccr_fmode: %h mm_address: %h address_limit: %h dcr_fsize: %h",ccr_fmode,mm_address,address_limit, dcr_fsize); `endif
                 axi4_rresp = AXI4_LITE_SLVERR;
 //              let r = AXI4_Lite_Rd_Data {rresp: axi4_rresp, rdata: 0 , ruser: 0};
@@ -1481,10 +1481,10 @@ interface Ifc_qspi_axi4lite#(numeric type addr_width,
 endinterface
 
 //(*synthesize*)	
-module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_width,
+module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr)(Ifc_qspi_axi4lite#(addr_width,
 														 data_width,
 														 user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
@@ -1494,7 +1494,7 @@ module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_
 	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
 	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
  	
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr,end_mm_addr,clocked_by slow_clk, reset_by slow_rst);
     (*preempts="rl_write_request, rl_read_request"*)	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
@@ -1574,10 +1574,10 @@ interface Ifc_qspi_axi4#(numeric type addr_width,
 	method Bit#(6) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
 endinterface
 
-module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
+module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr)(Ifc_qspi_axi4#(addr_width,
 														 data_width,
 														 user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
@@ -1590,7 +1590,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
 	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
  	
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by slow_clk, reset_by slow_rst);
 	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);

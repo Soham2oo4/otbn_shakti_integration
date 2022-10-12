@@ -41,21 +41,26 @@ package err_slave;
 	import AXI4_Lite_Types:: *;
 	import AXI4_Lite_Fabric:: *;
   import Semi_FIFOF::*;
+
+  export Ifc_err_slave_axi4 (..);
+  export Ifc_err_slave_axi4lite (..);
+  export mkerr_slave_axi4;
+  export mkerr_slave_axi4lite;
   
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  interface Ifc_err_slave_axi4#(numeric type awidth, numeric type dwidth, numeric type uwidth);
-    interface AXI4_Slave_IFC#(awidth, dwidth, uwidth) slave;
+  interface Ifc_err_slave_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
+    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
   endinterface
 
-  module mkerr_slave_axi4(Ifc_err_slave_axi4#(awidth, dwidth, uwidth));
-	  AXI4_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Mem_State) read_state <- mkRegA(Idle);
-    Reg#(Mem_State) write_state <- mkRegA(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter <- mkRegA(0);
-	  Reg#(Bit#(8)) rg_read_length <- mkRegA(0);
-    Reg#(Bit#(4)) rg_rd_id <- mkRegA(0);
-	  Reg#(AXI4_Wr_Resp	#(uwidth)) rg_write_response <- mkRegA(?);
+  module mkerr_slave_axi4(Ifc_err_slave_axi4#(addr_width, data_width, user_width));
+	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+    Reg#(Mem_State) read_state <- mkReg(Idle);
+    Reg#(Mem_State) write_state <- mkReg(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter <- mkReg(0);
+	  Reg#(Bit#(8)) rg_read_length <- mkReg(0);
+    Reg#(Bit#(4)) rg_rd_id <- mkReg(0);
+	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <- mkReg(?);
     rule receive_read_request(read_state == Idle);
       let ar <- pop_o(s_xactor.o_rd_addr);
       read_state <= Burst;
@@ -97,12 +102,12 @@ package err_slave;
     interface slave = s_xactor.axi_side;
   endmodule
   
-  interface Ifc_err_slave_axi4lite#(numeric type awidth, numeric type dwidth, numeric type uwidth);
-    interface AXI4_Lite_Slave_IFC#(awidth, dwidth, uwidth) slave;
+  interface Ifc_err_slave_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
+    interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
   endinterface
   
-  module mkerr_slave_axi4lite(Ifc_err_slave_axi4lite#(awidth, dwidth, uwidth));
-	  AXI4_Lite_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
+  module mkerr_slave_axi4lite(Ifc_err_slave_axi4lite#(addr_width, data_width, user_width));
+	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     rule receive_read_request;
       let ar<-pop_o(s_xactor.o_rd_addr);
       AXI4_Lite_Rd_Data#(data_width, user_width) r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_DECERR, rdata:0 , 

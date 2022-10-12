@@ -37,8 +37,8 @@ package iqc;
   module mkiqc(Bit#(a) cycles, Ifc_iqc#(n) ifc);
     let val_n= valueOf(n);
 
-    Vector#(n, Reg#(Bit#(a))) rg_qual_counter <- replicateM(mkReg(0));
-    Vector#(n, Reg#(Bit#(1))) rg_qualified_signal <- replicateM(mkReg(0));
+    Vector#(n, Reg#(Bit#(a))) rg_qual_counter <- replicateM(mkRegA(0));
+    Vector#(n, Reg#(Bit#(1))) rg_qualified_signal <- replicateM(mkRegA(0));
     Wire#(Bit#(n)) wr_input <-mkWire();
 
     for(Integer i=0; i<val_n; i=i+1) begin

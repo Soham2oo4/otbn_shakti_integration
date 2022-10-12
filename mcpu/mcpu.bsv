@@ -417,23 +417,29 @@ package mcpu;
 
   rule send_read_response_from_memory_to_mem_stage_8(ff_req.first==DATA_MODE_8_READ); 
     let response =proc_master.put_resp(); 
-      ff_req.deq();
-      let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:duplicate(response.data[7:0]),
-      rlast:False, ruser: 0, rid: ff_id.first };
-      //checking last word for burst_transfers
-      if(ff_last.first)
-      begin
-        r.rlast=True;
-        ff_id.deq; //id remains same through out burst
-      end
-      r.rid=ff_id.first;
-      ff_last.deq;
+		ff_req.deq();
+    let r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata:duplicate(response.data[7:0]),
+    rlast:True, ruser: 0, rid: ff_id.first };
+   	if(response.berr==1'b1)
+		r.rresp = AXI4_SLVERR;
+		ff_address.deq();
+		s_xactor.i_rd_data.enq(r);
+    
+	          //checking last word for burst_transfers
+          if(ff_last.first)
+          begin
+            r.rlast=True;
+            ff_id.deq;
+          end
+          r.rid=ff_id.first;
+          ff_last.deq;
 
-      if(response.berr==1'b1)
-      r.rresp = AXI4_SLVERR;
-      ff_address.deq();
-      s_xactor.i_rd_data.enq(r);
-      `logLevel( mcpu, 1, $format("MCPU:Data received %h with id ",response.data,fshow(ff_id.first)))
+
+    `ifdef verbose
+    if (response.berr==1'b1)
+		 $display("MCPU:SLV_ERR");`endif
+		`ifdef verbose $display("Data received %h with id %h to mem_stage",response.data,ff_id.first());`endif
+		ff_id.deq();
 	endrule
                 
       

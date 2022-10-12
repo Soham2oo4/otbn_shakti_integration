@@ -21,6 +21,47 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
+
+schema-start
+module:
+    type: string
+    regex: ^pwm$
+type:
+    type: string
+    regex: ^device$
+clusters:
+    type: list
+    schema:
+        type: string
+roles:
+    type: dict
+    schema:
+        master:
+            type: list
+        slave:
+            type: list
+mmap:
+    type: dict
+    schema:
+        fixed:
+            type: boolean
+        base:
+            type: integer
+        size:
+            type: integer
+            default: 16
+            readonly: True
+parameters:
+    type: dict
+    schema:
+        pwmwidth:
+            type: integer
+            min: 8
+        clock:
+            type: integer
+            max: 1
+schema-end
+--------------------------------------------------------------------------------------------------
 */
 
 package pwm_template;
@@ -28,7 +69,6 @@ package pwm_template;
 	import pwm::*;
 	(*synthesize*)
 	module mkdummy#(Clock ext_clock, Reset ext_reset)(Empty);
-		Ifc_pwm_axi4lite#(32,32,0,32) pmw <- mkpwm_axi4lite(ext_clock,ext_reset);
-		Ifc_pwm_axi4#(32,32,0,16) pwm1 <- mkpwm_axi4(ext_clock,ext_reset);
+		Ifc_pwm_axi4lite#(32,32,0,32,2) pmw <- mkpwm_axi4lite(ext_clock,ext_reset);
 	endmodule
 endpackage

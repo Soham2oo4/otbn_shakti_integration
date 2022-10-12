@@ -2,32 +2,29 @@
 
 #define SPI_CR1 	 0x00020000
 #define SPI_CR2 	 0x00020004
-#define SPI_SR       0x00020008
+#define SPI_SR      	 0x00020008
 #define SPI_DR1  	 0x0002000C
 #define SPI_DR2  	 0x00020010
 #define SPI_DR3  	 0x00020014
 #define SPI_DR4		 0x00020018
 #define SPI_DR5		 0x0002001C
-#define SPI_CRCPR    0x00020020
-#define SPI_RXCRCR   0x00020024
-#define SPI_TXCRCR   0x00020028
 
 // defining SPI_CR1 register
 
-#define SPI_CPHA				(1 << 0)
-#define SPI_CPOL				(1 << 1)
-#define SPI_MSTR				(1 << 2)
-#define SPI_BR(x)				(x << 3)
-#define SPI_SPE  				(1 << 6)
-#define SPI_LSBFIRST			(1 << 7)
-#define SPI_SSI 				(1 << 8)
-#define SPI_SSM					(1 << 9)
-#define SPI_RXONLY				(1 << 10)
-#define SPI_CRCL				(1 << 11)
-#define SPI_CCRCNEXT			(1 << 12)
-#define SPI_CRCEN				(1 << 13)
-#define SPI_BIDIOE				(1 << 14)
-#define SPI_BIDIMODE			(1 << 15)
+#define SPI_CPHA		(1 << 0)
+#define SPI_CPOL		(1 << 1)
+#define SPI_MSTR		(1 << 2)
+#define SPI_BR(x)		(x << 3)
+#define SPI_SPE  		(1 << 6)
+#define SPI_LSBFIRST		(1 << 7)
+#define SPI_SSI 		(1 << 8)
+#define SPI_SSM			(1 << 9)
+#define SPI_RXONLY		(1 << 10)
+#define SPI_CRCL		(1 << 11)
+#define SPI_CCRCNEXT		(1 << 12)
+#define SPI_CRCEN		(1 << 13)
+#define SPI_BIDIOE		(1 << 14)
+#define SPI_BIDIMODE		(1 << 15)
 #define SPI_TOTAL_BITS_TX(x)  	(x << 16)
 #define SPI_TOTAL_BITS_RX(x)  	(x << 24)
 
@@ -50,13 +47,13 @@
 
 //defining SR register
 
-#define SPI_FTLVL(x)	(x << 11)
-#define SPI_FRLVL(x)	(x << 9)
+#define SPI_FTLVL(x)		(x << 11)
+#define SPI_FRLVL(x)		(x << 9)
 #define SPI_FRE			(1 << 8)
 #define SPI_OVR			(1 << 6)
 #define SPI_MODF		(1 << 5)
 #define SPI_CRCERR		(1 << 4)
-#define TXE				(1 << 1)
+#define TXE			(1 << 1)
 #define RXNE			(1 << 0)
 
 //pointers to register
@@ -147,7 +144,7 @@ void sram_cmd_addr_data(int command, int addr, int data,int burst){
 	set_spi(spi_dr1, cmd_addr);
 	set_spi(spi_dr2, data);
 	set_spi(spi_dr5, 0);
-	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(32+burst)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(32+burst*8)|SPI_TOTAL_BITS_RX(0)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	waitfor(20);
 	spi_notbusy();
 }
@@ -164,7 +161,7 @@ int sram_cmd_to_read(int command, int addr,int burst){
 	set_spi(spi_dr2, 0);
 	set_spi(spi_dr5, 0);
 	spi_tx_rx_start();
-	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(burst)|SPI_SPE|SPI_CPHA|SPI_CPOL));
+	set_spi(spi_cr1, (SPI_BR(7)|SPI_TOTAL_BITS_TX(40)|SPI_TOTAL_BITS_RX(burst*8)|SPI_SPE|SPI_CPHA|SPI_CPOL));
 	waitfor(20);
 	if(spi_rxne_enable()) {
 		dr[4] = *spi_dr5;
@@ -173,8 +170,8 @@ int sram_cmd_to_read(int command, int addr,int burst){
 		dr[1] = *spi_dr2;
 		dr[0] = *spi_dr1;
 	}
-	for(int j=1; j<(burst/32)+1;j++){
-		int m =4-burst/32+j;
+	for(int j=1; j<(burst/4)+1;j++){
+		int m =4-burst/4+j;
 		for(int k=25;k>0;k=k-8){
 			printf("Reading Value %x \n",bitExtracted(dr[m],8,k));
 			}
@@ -197,8 +194,19 @@ int sram_cmd_read(int command){
 	if(spi_rxne_enable()) {
 		dr5 = *spi_dr5;
 	}
-  	return dr5;
-}   
+  	if(dr5 & 0x80){ 
+		printf("Page Mode \n");
+				}
+	else if (dr5 & 0x40){
+		printf("Sequential Mode \n");
+				}
+	else {
+			printf("Byte Mode \n");
+				}
+	return dr5;
+}
+
+   
 int sram_read_mode(){
 	int mode = sram_cmd_read(0x05000000);
 	return mode;	
