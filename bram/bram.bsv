@@ -68,7 +68,7 @@ package bram;
     `ifdef fesvr_sim
       rule rl_initialize(rg_initialized == 0);
         Bit#(TDiv#(data_width, 8)) lv_strb = '1;
-        Bit#(TSub#(index_size, offset)) lv_index = '0;
+        Bit#(TSub#(index_size, byte_offset)) lv_index = '0;
         Bit#(data_width) lv_data = 'h0000006f; // self-loop (jal)
 
         // initialize bram
