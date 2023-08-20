@@ -1,6 +1,7 @@
 
 import ConcatReg ::*;
  import RegFile :: * ;     
+ import BUtils::*;
 
   typedef enum{
 	NIL,EXCEPTION,
@@ -73,47 +74,55 @@ typedef enum{
 typedef struct{
 	I_TYPE i_type;
 	Bit#(4) cause;
-	Bit#(32) tval;
+	Bit#(64) tval;
 	PRIV_T  priv;
-	Bit#(32) iaddr;
-	Bit#(2) iretire;				//sijump// If an interrupt occurs, all the stages of pipeline (say five) 
-	Bit#(1) ilastsize;					// that are doing some work will finish theirs and then only the Interrupt Service Routine starts.ADDR
+	Bit#(64) iaddr;
+	Bit#(2) iretire;				
+	Bit#(1) ilastsize;			
         Bit#(1) qual;
-										// But, for an exception, all pipeline stages are flushed
-										// Retirement of an instruction means that all stages of the instruction are over
+					
 }Hart_to_encoder_interface deriving(Bits,Eq);
   
-  interface IFC_trace_engine;            
-     method ActionValue#(Bool) write_req (Bit#(32) addr,Bit#(32) data);
-     method ActionValue#(Tuple2#(Bool,Bit#(32))) read_req(Bit#(32) addr);         	      
+  interface IFC_trace_engine#(numeric type addr_width, numeric type data_width);            
+     method ActionValue#(Bool) write_req (Bit#(addr_width) addr,Bit#(data_width) data);
+     method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr);         	      
    endinterface 
+   
 
-module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,Bit#(32) iaddr, Bit#(2) iretire, Bit#(1) ilastsize , IFC_trace_engine  axi_ifc);
+module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize, IFC_trace_engine#(addr_width,data_width)  axi_ifc)
+provisos(Add#(a__, 16, data_width),
+          Mul#(16, b__, data_width)
+      );
+ 
+         
             
-        Reg#(Bit#(1)) rg_Active <- mkRegA(0);
-	Reg#(Bit#(1)) rg_teEnable <- mkRegA(0);
-	Reg#(Bit#(1)) rg_iTracing <- mkRegA(0);
-	Reg#(Bit#(2)) rg_ResyncMode	<- mkRegA(0);
-	Reg#(Bit#(4)) rg_ResyncMax	<- mkRegA(0);
-	Reg#(Bit#(1)) rg_comp_ext	<- mkRegA(0);
-        Reg#(Bit#(10)) rg_trace_control = concatReg6(rg_comp_ext,rg_ResyncMax,rg_ResyncMode,rg_iTracing,rg_teEnable,rg_Active);
+        Reg#(Bit#(1))  rg_Active <- mkRegA(0);
+	Reg#(Bit#(1))  rg_teEnable <- mkRegA(0);
+	Reg#(Bit#(1))  rg_iTracing <- mkRegA(0);
+	Reg#(Bit#(2))  rg_ResyncMode	<- mkRegA(0);
+	Reg#(Bit#(4))  rg_ResyncMax	<- mkRegA(0);
+	Reg#(Bit#(1))  rg_comp_ext	<- mkRegA(0);
+        Reg#(Bit#(16)) rg_trace_control = concatReg7(readOnlyReg(6'd0),rg_comp_ext,rg_ResyncMax,rg_ResyncMode,rg_iTracing,rg_teEnable,rg_Active);
  	
 	Reg#(Hart_to_encoder_interface) rg_prev <- mkRegU; 
         Reg#(Hart_to_encoder_interface) rg_curr <- mkRegU;
         Reg#(Hart_to_encoder_interface) rg_next <- mkRegU;
     
         
-        Reg#(Bit#(5)) rg_branches <- mkRegA(0); 
+        Reg#(Bit#(5))  rg_branches <- mkRegA(0); 
         Reg#(Bit#(32)) rg_branch_map <- mkRegA(0); 
-        Reg#(Bit#(10)) rg_prev_trace_control	<- mkRegA(0);
-        Reg#(Bit#(9)) rg_resync_count <- mkRegA(0); 
-        Reg#(Bit#(1)) rg_reported <- mkRegA(0); 
-                Reg#(Bit#(512)) rg_packet <- mkRegA(0); 
+        Reg#(Bit#(16)) rg_prev_trace_control	<- mkRegA(0);
+        Reg#(Bit#(9))  rg_resync_count <- mkRegA(0); 
+        Reg#(Bit#(1))  rg_reported <- mkRegA(0); 
+        Reg#(Bit#(512))rg_packet <- mkRegA(0); 
          
-         Reg#(Bit#(1)) rg_pac_gen <- mkRegA(0);
-         Reg#(Bit#(31)) rg_test_count <- mkRegA(0); 
-         Reg#(Bit#(32)) rg_iaddr_last_reported <- mkReg(0); 
-         
+        Reg#(Bit#(1))  rg_pac_gen <- mkRegA(0);
+        Reg#(Bit#(31)) rg_test_count <- mkRegA(0); 
+        Reg#(Bit#(64)) rg_iaddr_last_reported <- mkReg(0); 
+        Reg#(Bit#(1))  rg_resync_br_prev_val_sel <- mkRegA(0);
+        Reg#(Bit#(1))  rg_notify <- mkRegA(0);
+        Reg#(Bit#(1))  rg_updiscon <- mkRegA(0);
+        Reg#(Bit#(1))  rg_irreport <- mkRegA(0);
                  
            
               function Bool is_exceptions(Hart_to_encoder_interface ifc);	// Checks whether the given instruction description is an exception or interrupt
@@ -125,9 +134,9 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
 		endfunction
                       
                                    
-                function Bit#(31) address_handler_nc(Hart_to_encoder_interface ifc,ADDRESS_T t);	// Function to return full of differential address if compressed instruction are not allowed
-			if(t==FULL) return ifc.iaddr[31:1];
-			else return ifc.iaddr[31:1]-rg_iaddr_last_reported[31:1];
+                function Bit#(63) address_handler_nc(Hart_to_encoder_interface ifc,ADDRESS_T t);	// Function to return full of differential address if compressed instruction are not allowed
+			if(t==FULL) return (ifc.iaddr[63 :1]);
+			else return (ifc.iaddr [63 :1]) - (rg_iaddr_last_reported[63 :1]);
 		endfunction                   
                                    
              
@@ -139,6 +148,7 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
                 rg_prev <= rg_curr ;   
                 rg_curr <= rg_next ;     
                 rg_next <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize,    rg_iTracing }); end
+                  // $display("%d,%d,%d,%d,%h,%d,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize, rg_iTracing);end
                // rg_next <=  unpack({ rg_iTracing, ilastsize,iretire, iaddr , priv , tval , cause, itype   }); end
                 //                                                
                else begin  
@@ -167,30 +177,15 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
      rule encode(rg_Active == 1 && rg_curr.qual ==1 ) ;  // for refrence check page 69 of riscv trace spec
            
             //$display("inside encode \n" );
-           // $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
-          //  $display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
-           // $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
-           // $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
-           // $display(" rg_next.iadd %h  \n" , rg_next.iaddr);
-           // $display(" rg_branches \n" , rg_branches);
+             /* $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
+              $display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
+              $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
+              $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
+              $display(" rg_branches \n" , rg_branches); */
+            //  $display(" rg_next.iadd %h  \n" , rg_next.iaddr);
           //  $display(" rg_branch_map \n" , rg_branch_map);
              
-               
-                       
-         let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
-         let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5  
-         let lv_ppccd =  rg_curr.priv != rg_prev.priv;  
-         let lv_ppccd_br = rg_next.priv !=rg_curr.priv; 
-         let lv_is_branch=pack(rg_curr.i_type ==  NON_TAKEN_BRANCH);
-         let lv_notify =  rg_curr.iaddr[31];
-         let lv_updiscon =pack((is_updiscons(rg_prev))&&(is_exceptions(rg_curr)||(rg_curr.priv!=rg_prev.priv)))^rg_curr.iaddr[31];
-         let lv_irreport =pack(rg_prev.i_type==RETURN || rg_prev.i_type==EXCEPTION_OR_INTERRUPT_RETURN);
-	 let lv_addr_full = (rg_comp_ext== 0 ) ? zeroExtend(address_handler_nc(rg_curr,FULL)[30:1]) : address_handler_nc(rg_curr,FULL);
-	 let lv_addr_diff_case_1 = (rg_comp_ext== 0 ) ? zeroExtend(address_handler_nc(rg_curr,DIFFERENTIAL)[30:1]) : address_handler_nc(rg_curr,DIFFERENTIAL);
-	 let lv_addr_diff_case_2 = (rg_comp_ext== 0 ) ? zeroExtend(address_handler_nc(rg_prev,DIFFERENTIAL)[30:1]) : address_handler_nc(rg_prev,DIFFERENTIAL);
-	 
-	  
-	  SYNC_T lv_format = START; //SYNC_T sf   ,QUAL_STATUS_T qual,Bit#(1) thaddr,Bit#(1) en
+          SYNC_T lv_format = START; //SYNC_T sf   ,QUAL_STATUS_T qual,Bit#(1) thaddr,Bit#(1) en
          QUAL_STATUS_T  lv_qual = NO_CHANGE;
          Bit#(1) lv_thaddr =  0 ;
          Bit#(1) lv_en  = 0 ;
@@ -198,18 +193,20 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
          Bit#(1) lv_pac_gen = 0 ;  
          Bit#(1) lv_which_packet  = 0;
          Bit#(1) lv_address_updiscon  = 0;
-         Bit#(1) lv_sel_diff_addr  = 0;
-	  
-             
-        if(lv_branch)begin  
-                rg_branches <= rg_branches + 1;   
-                 lv_pac_gen = 0;            
-                   if (/*rg_curr.i_type ==  NON_TAKEN_BRANCH*/ lv_is_branch == 1) begin  
-                      rg_branch_map <= rg_branch_map | 1 << rg_branches; end
-                       
-               end   
-               
-           else if(is_exceptions(rg_prev)) begin                      
+         Bit#(1) lv_resync_br_prev_val_sel = 0;  
+            
+                              
+         let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
+         let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5
+         let lv_branch_prev = rg_prev.i_type == NON_TAKEN_BRANCH || rg_prev.i_type == TAKEN_BRANCH;   
+         let lv_ppccd =  rg_curr.priv != rg_prev.priv;  
+         let lv_ppccd_br = rg_next.priv !=rg_curr.priv; 
+         let lv_is_branch=pack(rg_curr.i_type ==  NON_TAKEN_BRANCH);
+         let lv_resync_count_max = rg_resync_count == lv_resyncmax;                          
+          
+         
+           
+               if(is_exceptions(rg_prev)) begin                      
                     if (is_exceptions(rg_curr)&& rg_curr.iretire == 0) begin  
                             rg_reported <= 1;  
         		    lv_pac_gen = 1; 
@@ -245,6 +242,11 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
                           lv_format= START ; 
                             lv_qual = NO_CHANGE;
                             lv_which_packet = 1;
+                            if (rg_resync_br_prev_val_sel == 1 ) begin
+                             rg_resync_br_prev_val_sel <=0;   
+                             lv_resync_br_prev_val_sel = 1;
+                             end 
+                            
                            end                         
               else if (is_updiscons(rg_prev)) begin                            
                       if (is_exceptions(rg_curr) && rg_curr.iretire == 0  ) begin                     
@@ -258,16 +260,17 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
                          else begin 
                            lv_pac_gen = 1; 
                             lv_with_address=1;  
-                            lv_which_packet = 0; 
-                            lv_sel_diff_addr = 1 ; 
+                            lv_which_packet = 0;  
                             //$display("case 1");  // addr will be jump addr because we are checking previous address                         
                           end  
                          end                  
-                else if ((rg_resync_count == lv_resyncmax && rg_branches !=0  ) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr) ) ) ) begin                                  
+                else if ((lv_resync_count_max && (rg_branches !=0/*|| (rg_branches ==0 && lv_branch)*/)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr) ) ) ) begin                                  
 		           lv_pac_gen = 1;
 		           lv_with_address=1;
 		           lv_which_packet = 0;
-		           //$display("case 2");   // here it has some twist     // got it its happening because of rg_branch update delay            
+		           lv_resync_br_prev_val_sel= 1;
+		           rg_resync_br_prev_val_sel <= 1; 
+		          // $display("case 2");   // here it has some twist     // got it its happening because of rg_branch update delay            
                           end 
                 else if  ( (is_exceptions(rg_next) && rg_next.iretire == 0 )|| lv_ppccd_br ) begin
                           lv_pac_gen = 1;                     
@@ -281,28 +284,48 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
          		lv_which_packet = 0;    // no addr so dont care                                          
                       end   
                       
+                      
+                      
+         let lv_addr_diff_handler_input= (lv_resync_br_prev_val_sel == 1 ) ? rg_prev : rg_curr;
+         let lv_address_handler_nc_full = address_handler_nc(lv_addr_diff_handler_input,FULL);
+         let lv_address_handler_nc_diff = address_handler_nc(lv_addr_diff_handler_input,DIFFERENTIAL); 
+         let lv_addr_full = (rg_comp_ext== 0 ) ? zeroExtend(lv_address_handler_nc_full[62:1]) : lv_address_handler_nc_full;
+	 let lv_addr_diff_case_1 = (rg_comp_ext== 0) ? zeroExtend(lv_address_handler_nc_diff[62:1]): lv_address_handler_nc_diff; 
+	 
+	 let lv_notify = lv_address_handler_nc_diff[62] ;            
+         let lv_updiscon =pack((is_updiscons(rg_prev))&&(is_exceptions(rg_next)||(rg_curr.priv!=rg_prev.priv)|| lv_resync_count_max ))^ lv_notify;
+         let lv_irreport = lv_updiscon ;               
+                      
           if (lv_pac_gen == 1) begin 
                      
                       if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
-                           rg_resync_count<=0; end 
-                           else begin rg_resync_count <= rg_resync_count+1; end 
-                           // $display("resync count %d", rg_resync_count);                             
-		  if (lv_which_packet == 1 ) begin 
+                           rg_resync_count<=0; 
+                              rg_iaddr_last_reported<=lv_addr_diff_handler_input.iaddr; end 
+                           else begin rg_resync_count <= rg_resync_count+1;  
+                           // $display("resync count %d", rg_resync_count);    
+                              end
+                  
+            // it is correct address lenght is the issue // check it  add address parameters                                       
+		  if (lv_which_packet == 1 ) begin  
 			 
 			case(lv_format)
 				START: begin
 					  rg_packet <= extend({lv_addr_full,pack(rg_curr.priv),lv_is_branch,pack(lv_format),2'b11});
 					   //$display("%d",rg_test_count +3," rg_packet:- %h", rg_packet);
-					   $display("%d,%d,%h,%d,--,--,--,--,0,--,--,--,--,--,--,--,--,%d,--,--,--,--,--,--,--,--",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,pack(rg_curr.priv));
+					   $display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,((lv_is_branch ==1) || !lv_branch),pack(rg_curr.priv));
 					   //$display("%d",rg_test_count +3," format3, subformat 0 ");
 					     rg_test_count <= rg_test_count + 1;
-					     rg_iaddr_last_reported<=rg_curr.iaddr;
+					    
 				end
 			
 				TRAP: begin  
 			 rg_packet <= extend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.cause),pack(rg_curr.priv),lv_is_branch,pack(lv_format),2'b11}); 
-			                    $display("%d",rg_test_count+3," format3,, subformat 1 ");
-			                   // $display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,);
+			                    //$display("%d",rg_test_count+3," format3,, subformat 1 ");
+			                    if (lv_thaddr ==1)begin
+			                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,(lv_is_branch ==1 || !lv_branch) ,pack(rg_prev.cause),pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.priv),lv_thaddr);end 			                 
+			                    else  begin 
+			                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,(lv_is_branch ==1 || !lv_branch) ,pack(rg_prev.cause),pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.priv),lv_thaddr,pack(rg_curr.tval)); end  
+			                      
 			                    rg_test_count <= rg_test_count + 1;
 				end	
 				CONTEXT: begin	
@@ -314,7 +337,7 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
 				SUPPORT: begin
 					rg_packet <= extend({pack(lv_qual),1'b0,rg_teEnable,pack(lv_format),2'b11});
 					 $display("%d",rg_test_count+3," format3, , subformat 3 ");
-					// $display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,);
+					//$display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,);
 					 rg_test_count <= rg_test_count + 1;
 				end
 		
@@ -324,51 +347,40 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
                             //  $display("rg_branches           %d" ,rg_branches );
                             //  $display("rg_branch_map %d" ,rg_branch_map );                                 
 			if(lv_with_address ==1) begin   
-			    rg_iaddr_last_reported<=rg_curr.iaddr;
-			   if ( rg_branches != 0 ) begin // Create branch packet WITH address 
+			    rg_iaddr_last_reported<=lv_addr_diff_handler_input.iaddr;
+			   if (rg_branches !=0 ) begin // Create branch packet WITH address 
 			         //$display("%d",rg_test_count+3," format1, Create branch packet WITH address");
 			          rg_test_count <= rg_test_count + 1;
 			          rg_branches <=0;
          		          rg_branch_map <=0;
 				if(rg_branches[4]==1) begin	
-						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map,rg_branches,2'b1});
-						if (lv_sel_diff_addr == 1)begin  	
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_1,rg_branches,rg_branch_map,lv_irreport,lv_notify,lv_updiscon);end 
-						else begin  	
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_2,rg_branches,rg_branch_map,lv_irreport,lv_notify,lv_updiscon);end
+						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map,rg_branches,2'b1});	
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches,rg_branch_map,lv_irreport,lv_notify,lv_updiscon);
 				  end
 				  else if(rg_branches[3]==1) begin
-						//rg_packet <=  extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[14:0],rg_branches[3:0],2'b1});
-						if (lv_sel_diff_addr == 1)begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_1,rg_branches[3:0],rg_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);end 
-						else begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_2,rg_branches[3:0],rg_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);end
+						//rg_packet <=  extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[14:0],rg_branches[3:0],2'b1});						
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[3:0],rg_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
 				  end
 				  else if(rg_branches[2]==1) begin
-						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[6:0],rg_branches[2:0],2'b1});
-						if (lv_sel_diff_addr == 1)begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_1,rg_branches[2:0],rg_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);end 
-						else begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_2,rg_branches[2:0],rg_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);end
+						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[6:0],rg_branches[2:0],2'b1});						
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[2:0],rg_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
 				  end	
 				  else if(rg_branches[1]==1) begin
-					 	//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[2:0],rg_branches[1:0],2'b1});
-					 	if (lv_sel_diff_addr == 1)begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_1,rg_branches[1:0],rg_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);end 
-						else begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_2,rg_branches[1:0],rg_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);end
+					 	//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[2:0],rg_branches[1:0],2'b1}); 
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[1:0],rg_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
 				  end
 				  else begin
 						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[0],rg_branches[0],2'b1});
-						if (lv_sel_diff_addr == 1)begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_1,rg_branches[0],rg_branch_map[0],lv_irreport,lv_notify,lv_updiscon);end 
-						else begin 
-						$display("%d,--,%h,--,%d,%d,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b1,lv_addr_diff_case_2,rg_branches[0],rg_branch_map[0],lv_irreport,lv_notify,lv_updiscon);end
+						//if (lv_sel_diff_addr == 1)begin 
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[0],rg_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
+						//end 
+						//else begin 
+						//$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_2,rg_branches[0],rg_branch_map[0],lv_irreport,lv_notify,lv_updiscon);end
 				  end
 		         	end
 		              else begin  // Address, without a branch-map	
 		                  	//rg_packet <=extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,2'b10});
-		                  	        $display("%d,--,%h,--,--,--,--,--,--,--,--,--,--,%d,--,%d,--,--,--,--,--,--,%d,--,--,--",2'b10,lv_addr_diff_case_2,lv_irreport,lv_notify,lv_updiscon); 
+		                  	        $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff_case_1,lv_irreport,lv_notify,lv_updiscon); 
 		                  	 //$display("%d",rg_test_count+3," format2,Address, without a branch-map");
 		                  	 rg_test_count <= rg_test_count + 1;
 		              end 
@@ -378,32 +390,39 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
 				    rg_test_count <= rg_test_count + 1;
 				    rg_branches <=0;
          		           rg_branch_map <=0;
-				if(rg_branches[4]==1)	begin rg_packet <=  extend({2'b1,rg_branches,rg_branches});
-				    $display("%d,--,--,--,%d,%d,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--",2'b1,rg_branches,rg_branch_map);
+				/*if(rg_branches[4]==1)	begin rg_packet <=  extend({2'b1,rg_branches,rg_branches});
+				    $display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches,rg_branch_map);
 				 end 
 				else if(rg_branches[3]==1)begin	rg_packet <=  extend({2'b1,rg_branches[3:0],rg_branch_map[14:0]});
-				 $display("%d,--,--,--,%d,%d,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--",2'b1,rg_branches[3:0],rg_branch_map[14:0]);
+				 $display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches[3:0],rg_branch_map[14:0]);
 				 end 
 				else if(rg_branches[2]==1)begin	rg_packet <=  extend({2'b1,rg_branches[2:0],rg_branch_map[6:0]});
-				 $display("%d,--,--,--,%d,%d,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--",2'b1,rg_branches[2:0],rg_branch_map[6:0]);
+				 $display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches[2:0],rg_branch_map[6:0]);
 				 end
 				else if(rg_branches[1]==1)begin	rg_packet <=  extend({2'b1,rg_branches[1:0],rg_branch_map[2:0]});
-				 $display("%d,--,--,--,%d,%d,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--",2'b1,rg_branches[1:0],rg_branch_map[2:0]);
+				 $display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches[1:0],rg_branch_map[2:0]);
 				 end 
 				else begin 	rg_packet <=  extend({2'b1,rg_branches[0],rg_branch_map[0]});
-				$display("%d,--,--,--,%d,%d,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--",2'b1,rg_branches[0],rg_branch_map[0]);
-				end
+				$display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches[0],rg_branch_map[0]);
+				end*/
+				$display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branch_map);
 			end
 	              end 
 	             
-	             end 
+	             end
+	             else if(lv_branch )begin  
+                rg_branches <= rg_branches + 1;   
+                 lv_pac_gen = 0;            
+                   if (/*rg_curr.i_type ==  NON_TAKEN_BRANCH*/ lv_is_branch == 1) begin  
+                      rg_branch_map <= rg_branch_map | 1 << rg_branches; end
+                       
+               end     
                       
-                      // now figure out problem   
-                      // first check python code                                          
+                                                            
      endrule 
-    
+     
     // to do add resynccount
-    method ActionValue#(Bool) write_req (Bit#(32) addr,Bit#(32) data);
+    method ActionValue#(Bool) write_req (Bit#(addr_width) addr,Bit#(data_width) data);
         Bool success = True;    
       
         if(addr[7:0] =='h00) begin                             
@@ -414,12 +433,12 @@ module mktrace_engine(Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,
         	 return success;
      endmethod 
      
-     method ActionValue#(Tuple2#(Bool,Bit#(32))) read_req(Bit#(32) addr);       
+     method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr);       
       Bool success = True;
-      Bit#(32) result = 0;
+      Bit#(data_width) result = 0;
       
         if(addr[7:0] =='h00) begin                             
-        	result = zeroExtend(rg_trace_control) ; end        
+        	result = duplicate(rg_trace_control) ; end        
         else  begin                             
         	 Bool success = False  ; end 
         	 
@@ -433,22 +452,30 @@ endmodule
                      
           Reg#(Bit#(32)) rg_state <- mkReg(0);
           Reg#(Bit#(14)) count <- mkReg(0);
-          RegFile#(Bit#(14),Bit#(4)) registers_itype <- mkRegFileLoad("itype_Input.txt",0,10017);
+         /* RegFile#(Bit#(14),Bit#(4)) registers_itype <- mkRegFileLoad("itype_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(4)) registers_cause <- mkRegFileLoad("cause_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(32)) registers_tval <- mkRegFileLoad("tval_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(3)) registers_priv <- mkRegFileLoad("priv_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(32)) registers_iaddr <- mkRegFileLoad("iaddr_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(2)) registers_iretire <- mkRegFileLoad("iretire_Input.txt",0,10017);
-          RegFile#(Bit#(14),Bit#(1)) registers_ilast <- mkRegFileLoad("ilast_Input.txt",0,10017); 
+          RegFile#(Bit#(14),Bit#(1)) registers_ilast <- mkRegFileLoad("ilast_Input.txt",0,10017); */
           
-           IFC_trace_engine trace <- mktrace_engine(
-           registers_itype.sub(count),
-           registers_cause.sub(count),
-           registers_tval.sub(count),
-           registers_priv.sub(count),
-           registers_iaddr.sub(count),
-           registers_iretire.sub(count),
-           registers_ilast.sub(count));
+          RegFile#(Bit#(14),Bit#(64)) registers_ingress <- mkRegFileLoad("Input.txt",0,10029);
+          //Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,Bit#(32) iaddr, Bit#(2) iretire, Bit#(1) ilastsize 
+          
+           IFC_trace_engine#(32,32) trace <- mktrace_engine(
+           registers_ingress.sub(count)[63:60],
+           registers_ingress.sub(count)[59:56],
+           zeroExtend(registers_ingress.sub(count)[55:52]),
+           //registers_ingress.sub(count)[51:48],
+             registers_ingress.sub(count)[50:48],
+             {32'h0,registers_ingress.sub(count)[47:16]},
+           //registers_ingress.sub(count)[15:12],
+           //registers_ingress.sub(count)[11:8],
+           //registers_ingress.sub(count)[7:4],
+             registers_ingress.sub(count)[5:4],
+           //registers_ingress.sub(count)[3:0]
+             registers_ingress.sub(count)[0]);
                
             rule step1(rg_state == 0);
                  let resp  <- trace.write_req(32'h0000_0000 ,32'h0000_021f);
@@ -466,7 +493,7 @@ endmodule
             
             rule step3(rg_state == 2);
                  //let data= registers.sub(count);
-                  if(count ==10016)
+                  if(count ==10029)
                   $finish(0);
                     //$display("count = %d \n", count+2 );
                    // registers_itype.sub(count);
@@ -483,7 +510,7 @@ endmodule
                     //registers_iaddr.sub(count); 
                     //registers_iretire.sub(count); 
                     //registers_ilast.sub(count);   
-               //  $display("--------------------------------------------------------------");
+               //  $display("_______________________________");
                  //$display("\n"); 
                  //rg_state <= 2 ;
                  count<= count + 1; 
@@ -497,7 +524,7 @@ endmodule
 		 $display("Output Value = %h",cordic_user.mv_read_req(64'h0000_0000_0000_0018));
 		 fxptWrite(10,cordic_user.mv_read_req(64'h0000_0000_0000_0018));
                  $display("\n"); 
-                 $display("--------------------------------------------------------------");
+                 $display("_______________________________");
                 if (count == 63)        
                     $finish();
                  else rg_state <= 0 ;    
