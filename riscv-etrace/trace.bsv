@@ -70,6 +70,10 @@ typedef enum{
 	NO_COMP
 }LSB_WIDTH_T deriving(Bits,Eq);*/
 
+typedef enum{
+	IPREV,
+	ICURR
+}IEXCEPTION deriving(Bits,Eq);
 
 typedef struct{
 	I_TYPE i_type;
@@ -176,14 +180,16 @@ provisos(Add#(a__, 16, data_width),
             
      rule encode(rg_Active == 1 && rg_curr.qual ==1 ) ;  // for refrence check page 69 of riscv trace spec
            
-            //$display("inside encode \n" );
-             /* $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
-              $display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
+            //$display("inside encode \n" );            
+             /* $display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
+              $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
               $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
+              $display(" rg_prev.i_type %h  \n" , rg_prev.i_type);
+              $display(" rg_curr.cause %h  \n" , rg_curr.cause);
+              $display(" rg_prev.cause %h  \n" , rg_prev.cause);
               $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
-              $display(" rg_branches \n" , rg_branches); */
-            //  $display(" rg_next.iadd %h  \n" , rg_next.iaddr);
-          //  $display(" rg_branch_map \n" , rg_branch_map);
+              $display(" rg_branches \n" , rg_branches);  
+            $display(" rg_branch_map \n" , rg_branch_map);*/
              
           SYNC_T lv_format = START; //SYNC_T sf   ,QUAL_STATUS_T qual,Bit#(1) thaddr,Bit#(1) en
          QUAL_STATUS_T  lv_qual = NO_CHANGE;
@@ -194,17 +200,21 @@ provisos(Add#(a__, 16, data_width),
          Bit#(1) lv_which_packet  = 0;
          Bit#(1) lv_address_updiscon  = 0;
          Bit#(1) lv_resync_br_prev_val_sel = 0;  
-            
+         Bit#(1) lv_rst_branch_vars = 0 ; // remove it     
+         Bit#(1) lv_br_pac = 1 ; 
+         let lv_iexception = IPREV ;  
                               
          let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
          let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5
-         let lv_branch_prev = rg_prev.i_type == NON_TAKEN_BRANCH || rg_prev.i_type == TAKEN_BRANCH;   
+           
          let lv_ppccd =  rg_curr.priv != rg_prev.priv;  
          let lv_ppccd_br = rg_next.priv !=rg_curr.priv; 
-         let lv_is_branch=pack(rg_curr.i_type ==  NON_TAKEN_BRANCH);
-         let lv_resync_count_max = rg_resync_count == lv_resyncmax;                          
-          
+         let lv_is_branch=rg_curr.i_type ==  TAKEN_BRANCH;
          
+         let lv_resync_count_max = rg_resync_count == lv_resyncmax;  
+         let lv_fast_branch_check = (lv_branch)? rg_branches +1 : rg_branches;  
+         let lv_fast_branch_map = (!lv_is_branch && lv_branch)? rg_branch_map | 1 << rg_branches : rg_branch_map; 
+              
            
                if(is_exceptions(rg_prev)) begin                      
                     if (is_exceptions(rg_curr)&& rg_curr.iretire == 0) begin  
@@ -214,6 +224,7 @@ provisos(Add#(a__, 16, data_width),
                             lv_qual = NO_CHANGE;
                             lv_thaddr= 0 ; 
                             lv_which_packet = 1;  
+                            lv_iexception = IPREV;
                           end
                             
                        else begin
@@ -232,21 +243,22 @@ provisos(Add#(a__, 16, data_width),
                             lv_qual = NO_CHANGE ; 
                             lv_thaddr= 1; 
                             lv_which_packet = 1; 
+                            lv_iexception = IPREV;
                              end        
                           end                                
                         end
                         
-             else if ( lv_ppccd || rg_resync_count > lv_resyncmax || (rg_curr.qual == 1  && rg_prev.qual ==0)  ) begin                    
+             else if (lv_ppccd || rg_resync_count > lv_resyncmax || (rg_curr.qual == 1  && rg_prev.qual ==0)) begin                    
           
                           lv_pac_gen = 1;
                           lv_format= START ; 
                             lv_qual = NO_CHANGE;
                             lv_which_packet = 1;
-                            if (rg_resync_br_prev_val_sel == 1 ) begin
-                             rg_resync_br_prev_val_sel <=0;   
-                             lv_resync_br_prev_val_sel = 1;
-                             end 
-                            
+                            //if (rg_resync_br_prev_val_sel == 1 ) begin
+                            // rg_resync_br_prev_val_sel <=0;   
+                            // lv_resync_br_prev_val_sel = 1;
+                           //  end 
+                                     
                            end                         
               else if (is_updiscons(rg_prev)) begin                            
                       if (is_exceptions(rg_curr) && rg_curr.iretire == 0  ) begin                     
@@ -256,6 +268,7 @@ provisos(Add#(a__, 16, data_width),
                              lv_qual = NO_CHANGE ;
                              lv_thaddr= 0 ; 
                              lv_which_packet = 1; 
+                             lv_iexception = ICURR;
                             end
                          else begin 
                            lv_pac_gen = 1; 
@@ -264,21 +277,21 @@ provisos(Add#(a__, 16, data_width),
                             //$display("case 1");  // addr will be jump addr because we are checking previous address                         
                           end  
                          end                  
-                else if ((lv_resync_count_max && (rg_branches !=0/*|| (rg_branches ==0 && lv_branch)*/)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr) ) ) ) begin                                  
+                else if ((lv_resync_count_max && (lv_fast_branch_check !=0/*|| (rg_branches ==0 && lv_branch)*/)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr)))) begin                                  
 		           lv_pac_gen = 1;
 		           lv_with_address=1;
 		           lv_which_packet = 0;
-		           lv_resync_br_prev_val_sel= 1;
-		           rg_resync_br_prev_val_sel <= 1; 
+		           //lv_resync_br_prev_val_sel= 1;                     // corner case happening because of branch map update delay
+		           //rg_resync_br_prev_val_sel <= 1; 
 		          // $display("case 2");   // here it has some twist     // got it its happening because of rg_branch update delay            
                           end 
-                else if  ( (is_exceptions(rg_next) && rg_next.iretire == 0 )|| lv_ppccd_br ) begin
+                else if  ((is_exceptions(rg_next) && rg_next.iretire == 0)|| lv_ppccd_br) begin
                           lv_pac_gen = 1;                     
                          lv_with_address=1; 
                          lv_which_packet = 0;
                         // $display("case 3"); // t
                          end                                                     
-                   else if  ( rg_branches == 31 ) begin   
+                   else if (rg_branches == 31 ) begin   
          		lv_pac_gen = 1;
          		lv_with_address=0; 
          		lv_which_packet = 0;    // no addr so dont care                                          
@@ -286,16 +299,20 @@ provisos(Add#(a__, 16, data_width),
                       
                       
                       
-         let lv_addr_diff_handler_input= (lv_resync_br_prev_val_sel == 1 ) ? rg_prev : rg_curr;
+         let lv_addr_diff_handler_input= (lv_resync_br_prev_val_sel == 1 ) ? rg_prev : rg_curr;  // remove this if 
          let lv_address_handler_nc_full = address_handler_nc(lv_addr_diff_handler_input,FULL);
          let lv_address_handler_nc_diff = address_handler_nc(lv_addr_diff_handler_input,DIFFERENTIAL); 
          let lv_addr_full = (rg_comp_ext== 0 ) ? zeroExtend(lv_address_handler_nc_full[62:1]) : lv_address_handler_nc_full;
-	 let lv_addr_diff_case_1 = (rg_comp_ext== 0) ? zeroExtend(lv_address_handler_nc_diff[62:1]): lv_address_handler_nc_diff; 
+	 let lv_addr_diff = (rg_comp_ext== 0) ? zeroExtend(lv_address_handler_nc_diff[62:1]): lv_address_handler_nc_diff; 
+	 
+	 let lv_branch_2 = lv_addr_diff_handler_input.i_type == NON_TAKEN_BRANCH || lv_addr_diff_handler_input.i_type == TAKEN_BRANCH; 
+	 let lv_is_branch_2=lv_addr_diff_handler_input.i_type ==  TAKEN_BRANCH;
 	 
 	 let lv_notify = lv_address_handler_nc_diff[62] ;            
          let lv_updiscon =pack((is_updiscons(rg_prev))&&(is_exceptions(rg_next)||(rg_curr.priv!=rg_prev.priv)|| lv_resync_count_max ))^ lv_notify;
          let lv_irreport = lv_updiscon ;               
-                      
+         
+                        
           if (lv_pac_gen == 1) begin 
                      
                       if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
@@ -307,39 +324,56 @@ provisos(Add#(a__, 16, data_width),
                   
             // it is correct address lenght is the issue // check it  add address parameters                                       
 		  if (lv_which_packet == 1 ) begin  
-			 
+		                
+		               if(lv_branch_2 )begin
+				       if(lv_is_branch_2)begin  
+                                           lv_br_pac  = 0;end  
+                                      else begin    
+                                            lv_br_pac = 1 ;                                                                                         
+                                         end 
+                                      end
+                                     
+                                 //if(lv_branch && !lv_is_branch )begin                                                  
+                                 //       rg_branches <= rg_branches + 1;
+                                 //       rg_branch_map <= rg_branch_map | 1 << rg_branches; end
+                                            
+                                         
+                                         		   
 			case(lv_format)
-				START: begin
-					  rg_packet <= extend({lv_addr_full,pack(rg_curr.priv),lv_is_branch,pack(lv_format),2'b11});
+				START: begin				    				              
+					  rg_packet <= extend({lv_addr_full,pack(rg_curr.priv),lv_br_pac,pack(lv_format),2'b11});
 					   //$display("%d",rg_test_count +3," rg_packet:- %h", rg_packet);
-					   $display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,((lv_is_branch ==1) || !lv_branch),pack(rg_curr.priv));
+					   $display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac,pack(rg_curr.priv));
 					   //$display("%d",rg_test_count +3," format3, subformat 0 ");
-					     rg_test_count <= rg_test_count + 1;
-					    
-				end
+					     rg_test_count <= rg_test_count + 1;					    
+				       end
 			
 				TRAP: begin  
-			 rg_packet <= extend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.cause),pack(rg_curr.priv),lv_is_branch,pack(lv_format),2'b11}); 
+			 rg_packet <= extend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.cause),pack(rg_curr.priv),lv_br_pac,pack(lv_format),2'b11}); 
+			 
 			                    //$display("%d",rg_test_count+3," format3,, subformat 1 ");
-			                    if (lv_thaddr ==1)begin
-			                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,(lv_is_branch ==1 || !lv_branch) ,pack(rg_prev.cause),pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.priv),lv_thaddr);end 			                 
+			                let lv_iexception_reg = (lv_iexception == IPREV)? rg_prev : rg_curr;       
+			                    if (lv_iexception_reg.i_type==INTERRUPT)begin
+			                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b1,pack(rg_curr.priv),lv_thaddr);end 			                 
 			                    else  begin 
-			                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,(lv_is_branch ==1 || !lv_branch) ,pack(rg_prev.cause),pack(rg_curr.i_type==INTERRUPT),pack(rg_curr.priv),lv_thaddr,pack(rg_curr.tval)); end  
+			                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b0,pack(rg_curr.priv),lv_thaddr,pack(rg_curr.tval)); end  
 			                      
 			                    rg_test_count <= rg_test_count + 1;
-				end	
+				         end
+					
 				CONTEXT: begin	
 					rg_packet <= extend({pack(rg_curr.priv),pack(lv_format),2'b11});
 					 $display("%d",rg_test_count+3," format3, , subformat 2 ");
 					 //$display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,);
 					 rg_test_count <= rg_test_count + 1;
-				end
+				          end
+				
 				SUPPORT: begin
 					rg_packet <= extend({pack(lv_qual),1'b0,rg_teEnable,pack(lv_format),2'b11});
 					 $display("%d",rg_test_count+3," format3, , subformat 3 ");
 					//$display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,);
 					 rg_test_count <= rg_test_count + 1;
-				end
+				         end
 		
 			endcase
 		       end 
@@ -348,39 +382,40 @@ provisos(Add#(a__, 16, data_width),
                             //  $display("rg_branch_map %d" ,rg_branch_map );                                 
 			if(lv_with_address ==1) begin   
 			    rg_iaddr_last_reported<=lv_addr_diff_handler_input.iaddr;
-			   if (rg_branches !=0 ) begin // Create branch packet WITH address 
+			   if (lv_fast_branch_check !=0 ) begin // Create branch packet WITH address 
 			         //$display("%d",rg_test_count+3," format1, Create branch packet WITH address");
 			          rg_test_count <= rg_test_count + 1;
 			          rg_branches <=0;
          		          rg_branch_map <=0;
-				if(rg_branches[4]==1) begin	
+         		          lv_rst_branch_vars = 1;   // try to remove this logic
+				if(lv_fast_branch_check[4]==1) begin	
 						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map,rg_branches,2'b1});	
-						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches,rg_branch_map,lv_irreport,lv_notify,lv_updiscon);
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branch_check,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
 				  end
-				  else if(rg_branches[3]==1) begin
+				  else if(lv_fast_branch_check[3]==1) begin
 						//rg_packet <=  extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[14:0],rg_branches[3:0],2'b1});						
-						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[3:0],rg_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branch_check[3:0],lv_fast_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
 				  end
-				  else if(rg_branches[2]==1) begin
+				  else if(lv_fast_branch_check[2]==1) begin
 						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[6:0],rg_branches[2:0],2'b1});						
-						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[2:0],rg_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branch_check[2:0],lv_fast_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
 				  end	
-				  else if(rg_branches[1]==1) begin
+				  else if(lv_fast_branch_check[1]==1) begin
 					 	//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[2:0],rg_branches[1:0],2'b1}); 
-						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[1:0],rg_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branch_check[1:0],lv_fast_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
 				  end
 				  else begin
 						//rg_packet <= extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,rg_branch_map[0],rg_branches[0],2'b1});
 						//if (lv_sel_diff_addr == 1)begin 
-						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_1,rg_branches[0],rg_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
-						//end 
+						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branch_check[0],lv_fast_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
+					//end 
 						//else begin 
 						//$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff_case_2,rg_branches[0],rg_branch_map[0],lv_irreport,lv_notify,lv_updiscon);end
 				  end
 		         	end
 		              else begin  // Address, without a branch-map	
 		                  	//rg_packet <=extend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,2'b10});
-		                  	        $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff_case_1,lv_irreport,lv_notify,lv_updiscon); 
+		                  	        $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff,lv_irreport,lv_notify,lv_updiscon); 
 		                  	 //$display("%d",rg_test_count+3," format2,Address, without a branch-map");
 		                  	 rg_test_count <= rg_test_count + 1;
 		              end 
@@ -390,6 +425,7 @@ provisos(Add#(a__, 16, data_width),
 				    rg_test_count <= rg_test_count + 1;
 				    rg_branches <=0;
          		           rg_branch_map <=0;
+         		           lv_rst_branch_vars = 1;
 				/*if(rg_branches[4]==1)	begin rg_packet <=  extend({2'b1,rg_branches,rg_branches});
 				    $display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches,rg_branch_map);
 				 end 
@@ -405,19 +441,18 @@ provisos(Add#(a__, 16, data_width),
 				else begin 	rg_packet <=  extend({2'b1,rg_branches[0],rg_branch_map[0]});
 				$display("%d,_,_,_,%d,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branches[0],rg_branch_map[0]);
 				end*/
-				$display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,rg_branch_map);
+				$display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,lv_fast_branch_map);
 			end
 	              end 
 	             
-	             end
-	             else if(lv_branch )begin  
-                rg_branches <= rg_branches + 1;   
-                 lv_pac_gen = 0;            
-                   if (/*rg_curr.i_type ==  NON_TAKEN_BRANCH*/ lv_is_branch == 1) begin  
+	             end 
+                   else if(lv_branch )begin  
+                     rg_branches <= rg_branches + 1;       // branch update delay causeing issue
+                   //lv_pac_gen = 0;            
+                   if (!lv_is_branch) begin  
                       rg_branch_map <= rg_branch_map | 1 << rg_branches; end
                        
-               end     
-                      
+               end        
                                                             
      endrule 
      
@@ -428,7 +463,7 @@ provisos(Add#(a__, 16, data_width),
         if(addr[7:0] =='h00) begin                             
         	rg_trace_control <= truncate(data)  ; end  	       
         else  begin                             
-        	 Bool success = False  ; end 
+        	  success = False  ; end 
         	 
         	 return success;
      endmethod 
@@ -440,7 +475,7 @@ provisos(Add#(a__, 16, data_width),
         if(addr[7:0] =='h00) begin                             
         	result = duplicate(rg_trace_control) ; end        
         else  begin                             
-        	 Bool success = False  ; end 
+        	 success = False  ; end 
         	 
         	return tuple2(success, result);     
      endmethod 
@@ -451,7 +486,7 @@ endmodule
    module tbmktrace();      
                      
           Reg#(Bit#(32)) rg_state <- mkReg(0);
-          Reg#(Bit#(14)) count <- mkReg(0);
+          Reg#(Bit#(64)) count <- mkReg(0);
          /* RegFile#(Bit#(14),Bit#(4)) registers_itype <- mkRegFileLoad("itype_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(4)) registers_cause <- mkRegFileLoad("cause_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(32)) registers_tval <- mkRegFileLoad("tval_Input.txt",0,10017);
@@ -460,7 +495,7 @@ endmodule
           RegFile#(Bit#(14),Bit#(2)) registers_iretire <- mkRegFileLoad("iretire_Input.txt",0,10017);
           RegFile#(Bit#(14),Bit#(1)) registers_ilast <- mkRegFileLoad("ilast_Input.txt",0,10017); */
           
-          RegFile#(Bit#(14),Bit#(64)) registers_ingress <- mkRegFileLoad("Input.txt",0,10029);
+          RegFile#(Bit#(64),Bit#(64)) registers_ingress <- mkRegFileLoad("Input.txt",0,41455);    // +1
           //Bit#(4) itype ,Bit#(4) cause, Bit#(32) tval, Bit#(3) priv,Bit#(32) iaddr, Bit#(2) iretire, Bit#(1) ilastsize 
           
            IFC_trace_engine#(32,32) trace <- mktrace_engine(
@@ -493,7 +528,7 @@ endmodule
             
             rule step3(rg_state == 2);
                  //let data= registers.sub(count);
-                  if(count ==10029)
+                  if(count ==41455)   // +1
                   $finish(0);
                     //$display("count = %d \n", count+2 );
                    // registers_itype.sub(count);
