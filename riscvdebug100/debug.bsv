@@ -374,7 +374,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(1)) sbautoincrement <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) sbreadondata <- mkReg(0, reset_by dm_reset);
 `ifdef iclass
-  Reg#(Bit#(3)) sberr <- mkReg(1, reset_by dm_reset);
+  Reg#(Bit#(3)) sberr <- mkReg(7, reset_by dm_reset); // not supported
 `else
   Reg#(Bit#(3)) sberr <- mkReg(0, reset_by dm_reset);
 `endif
