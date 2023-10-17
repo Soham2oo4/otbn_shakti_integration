@@ -373,7 +373,11 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(3)) sbaccess <- mkReg(2, reset_by dm_reset);
   Reg#(Bit#(1)) sbautoincrement <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) sbreadondata <- mkReg(0, reset_by dm_reset);
+`ifdef iclass
+  Reg#(Bit#(3)) sberr <- mkReg(1, reset_by dm_reset);
+`else
   Reg#(Bit#(3)) sberr <- mkReg(0, reset_by dm_reset);
+`endif
   Reg#(Bit#(7)) sbasize = readOnlyReg(`paddr);
   Reg#(Bit#(1)) sbaccess128 = readOnlyReg(pack(`debug_bus_sz >= 128));
   Reg#(Bit#(1)) sbaccess64 = readOnlyReg(pack(`debug_bus_sz >= 64));
