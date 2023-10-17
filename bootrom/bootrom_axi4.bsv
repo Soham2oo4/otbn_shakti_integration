@@ -163,9 +163,16 @@ package bootrom_axi4;
     rule read_response;
       let {err, data0}<-dut.read_response;
       let transfer_size=rg_read_packet.arsize;
-      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+
+      Bit#(data_width) data_extracted = zeroExtend (data0) >> (rg_read_packet.araddr[6:0] << 3);
+      data_extracted = (transfer_size == 'h0) ? data_extracted & 'hff
+                                              : ((transfer_size == 'h1) ? data_extracted & 'hffff
+                                                                        : ( ((transfer_size == 'h2) ? data_extracted & 'hffffffff
+                                                                                                    : ((transfer_size == 'h3) ? data_extracted & 'hffffffffffffffff : data_extracted) ) ) );
+
+      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data_extracted, 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
-      `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
+      `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data_extracted))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;
