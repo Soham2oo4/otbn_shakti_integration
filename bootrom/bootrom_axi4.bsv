@@ -106,7 +106,7 @@ package bootrom_axi4;
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
     AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
+    Reg#(Bit#(`axi4_id_bits)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
     Reg#(Mem_State) write_state <-mkReg(Idle);
     Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
