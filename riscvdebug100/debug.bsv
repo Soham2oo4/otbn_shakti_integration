@@ -776,7 +776,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       data = duplicate({fn_j_imm(_off),12'h6f});
       `logLevel( debug, 0, $format("DEBUG: Reading WHERETO:DASM(0x%h)",data[31:0]))
     end
-    else if (offset >= `ABSTRACT && offset < `PROGBUF && req.arsize==2) begin // read abstract command registers
+    else if (offset >= `ABSTRACT && offset < `PROGBUF `ifndef iclass && req.arsize==2 `endif ) begin // read abstract command registers
       Bit#(1) index = truncate((offset - `ABSTRACT)>>2);
       `logLevel( debug, 0, $format("DEBUG: Abstract offset:%h Abstract:%h index:%d",offset,
       `ABSTRACT, index))
@@ -784,6 +784,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       data = duplicate(v_abstract_reg[index]);
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)",v_abstract_reg[index]))
     `else
+      // Note: 128-bit bus width for i-class
       data = {v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1], v_abstract_reg[0]};
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h) DASM(0x%h)",v_abstract_reg[1], v_abstract_reg[0]))
     `endif
