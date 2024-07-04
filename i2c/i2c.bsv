@@ -124,7 +124,7 @@ function Reg#(t) conditionalWrite(Reg#(t) r, Bool a);
 endfunction
 // ================================================
 // Interface Declarations
-   (*always_enabled, always_ready*)
+//   (*always_enabled, always_ready*)
    interface I2C_out;
        method Bit#(1) scl_out;
        method Action scl_in(Bit#(1) in);
@@ -847,18 +847,20 @@ endfunction
                 Add#(b__, 32, data_width),
                 Mul#(16, c__, data_width),
                 Mul#(8, d__, data_width),
-                Mul#(32, e__, data_width)
+                Mul#(32, e__, data_width),
+                 Add#(f__, 1, data_width)
                );
 		  Clock core_clock<-exposeCurrentClock;
   		Reset core_reset<-exposeCurrentReset;
-		  Bool sync_required=(core_clock!=i2c_clock);
+  		Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+ 	     GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock,clocked_by i2c_clock ,reset_by i2c_reset);
       AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <-
                                                                         mkAXI4_Lite_Slave_Xactor();
 
       Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(
-                                                                              clocked_by i2c_clock,
+                                                                              clocked_by i2c_gated_clk.new_clk,
                                                                                reset_by i2c_reset);
-      if(!sync_required)begin
+     /* if(!sync_required)begin
         rule read_request;
           let rd_req <- pop_o(s_xactor.o_rd_addr);
           let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
@@ -875,7 +877,7 @@ endfunction
           s_xactor.i_wr_resp.enq(lv_resp);
          endrule
       end
-      else begin
+      else begin*/
         SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width, user_width)) ff_rd_request <-
                                                                       mkSyncFIFOFromCC(3, i2c_clock);
         SyncFIFOIfc#(Tuple2#(AXI4_Lite_Wr_Addr#(addr_width, user_width),
@@ -886,6 +888,9 @@ endfunction
         SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width)) ff_wr_response <-
                                                               mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
 
+            rule clock_en;    
+	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
+	       endrule
         rule read_request;
           let rd_req <- pop_o(s_xactor.o_rd_addr);
           ff_rd_request.enq(rd_req);
@@ -894,7 +899,17 @@ endfunction
         rule send_rd_to_i2c;
           let rd_req = ff_rd_request.first;
           ff_rd_request.deq;
-          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+             let err = True; 
+             Bit#(data_width) rdata = 0;  
+                    
+          if(rd_req.araddr == `I2C_Clk_En && rd_req.arsize == 0) begin 
+		           err = False; 
+		           rdata = duplicate({7'b0,rg_clk_en});  
+		 end
+		 else  
+		      begin  
+             {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+                     end          
           let lv_resp= AXI4_Lite_Rd_Data {rresp:err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY,
         	                                                      rdata: rdata, ruser: ?}; //TODO user?
           ff_rd_response.enq(lv_resp);
@@ -914,7 +929,16 @@ endfunction
         rule send_wr_to_i2c;
           let wr_req = tpl_1(ff_wr_request.first);
           let wr_data = tpl_2(ff_wr_request.first);
-          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+           let err = True; 
+             
+          if(wr_req.awaddr == `I2C_Clk_En && wr_req.awsize == 0) begin 
+		           err = False; 
+		        rg_clk_en <=  truncate(wr_data.wdata);    
+		 end
+		 else  
+		      begin   
+            err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+             end 
           let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
           ff_wr_response.enq(lv_resp);
         endrule
@@ -923,7 +947,7 @@ endfunction
            ff_wr_response.deq;
            s_xactor.i_wr_resp.enq(ff_wr_response.first);
          endrule
-       end
+//       end
        interface slave = s_xactor.axi_side;
        interface io = i2c_user.io;
        method isint()=i2c_user.isint;

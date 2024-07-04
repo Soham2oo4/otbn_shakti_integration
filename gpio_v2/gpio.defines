@@ -14,3 +14,4 @@
     `define input_qual		'h28
 `endif
 `define intr_config		'h30
+`define GPIO_Clk_en		'h40

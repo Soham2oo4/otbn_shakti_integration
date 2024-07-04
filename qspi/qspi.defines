@@ -14,3 +14,6 @@
 `define PSMAR	'h28
 `define PIR		'h2c
 `define LPTR	'h30
+`define Qspi_Clk_En	'h38
+`define STARTMM 'h0000000
+`define ENDMM	'hFFFFFFF

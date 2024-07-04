@@ -57,6 +57,7 @@ import AXI4_Lite_Types::*;
 import AXI4_Fabric::*;
 import Semi_FIFOF::*;
 import SpecialFIFOs::*;
+import Clocks::*;
 import ConcatReg::*;
 import ConfigReg::*;
 import BUtils::*;
@@ -64,6 +65,7 @@ import device_common::*;
 
 `define Burst_length_bits 8
 `define byte_offset 2
+`define DMA_Clk_En 	'hf8
 
   // project files to be imported/included
   `include "common_params.bsv"
@@ -491,7 +493,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			let actual_data= responseDataFs[chanNum].first;
 			Bit#(`Burst_length_bits) lv_burst_len= lv_dma_ccr[31:32-`Burst_length_bits];
 		//	Bit#(6) x = {3'b0,lv_data.addr[2:0]}<<3;
-			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:lv_tsize==2?'hf:'hff;
+			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:'hf;
 			if(lv_tsize!=3 && lv_burst_type!=0)begin			// 8-byte write and burst mode is not FIXED;
 				//actual_data=actual_data<<(x);
 				write_strobe=write_strobe<<(lv_data.addr[`byte_offset:0]);
@@ -1107,15 +1109,19 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 					Add#(16, i__, config_data_width),
 					Add#(12, l__, config_data_width)	//for numChannels=3
 );
-		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
+		GatedClockIfc dma_clk_gated <- mkGatedClockFromCC(False);
+		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA(/*clocked_by dma_clk_gated.new_clk*/);
 		AXI4_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+		Reg#(bit) rg_clk_en <- mkRegA(0);
 
 		Reg#(Bool) rg_is_rdburst[2] <- mkCRegA(2,False);
 		Reg#(Bit#(4)) rg_arid[2] <- mkCRegA(2,?);
+		Reg#(Bool) rg_is_rdclk_en[2] <- mkCRegA(2,False);
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		
 		Reg#(Bool) rg_is_wrburst[2] <- mkCRegA(2,False);
 		Reg#(Bit#(4)) rg_awid[2] <- mkCRegA(2,?);
+		Reg#(Bool) rg_is_wrclk_en[2] <- mkCRegA(2,False);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
 //	method Action read_req(Bit#(addr_width) addr, AccessSize size);
@@ -1123,12 +1129,18 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 //	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
 //	method Bool write_resp;
 
+	rule clock_en;    
+	       dma_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	endrule
 		rule read_req(rg_is_rdburst[0]==False);
       let req <- pop_o(s_xactor.o_rd_addr);
 			if(req.arlen!=0)
 				rg_is_rdburst[0]<= True;
 			else begin
 				rg_is_rdburst[0]<= False;
+			if (req.araddr == `DMA_Clk_En && req.arsize == 0)
+		        	rg_is_rdclk_en[0]<= True;  	         
+      			else 
       	dma.read_req(req.araddr, unpack(truncate(req.arsize)), unpack(req.arprot[0]));
       	rg_arid[0]<= req.arid;
 				rg_rdburst_count<= req.arlen;
@@ -1136,9 +1148,16 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		endrule
 
 		rule read_resp(!rg_is_rdburst[1]);
+		Bool succ = False;
+		Bit#(config_data_width) data = 0 ; 
+		if(rg_is_rdclk_en[1]) begin
+			succ = True;
+			data = duplicate({7'b0,rg_clk_en});
+			rg_is_rdclk_en[1] <= False;
+		end
+		else
       let {succ,data}<- dma.read_resp;
-      let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],
-														rlast: True, rdata: data, ruser: ?};
+      		let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],rlast: True, rdata: data, ruser: ?};
       s_xactor.i_rd_data.enq(r);
 		endrule
 	
@@ -1166,6 +1185,9 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
         rg_is_wrburst[0]<= True;
 		  else begin
 				rg_is_wrburst[0]<= False;
+			if (aw.awaddr == `DMA_Clk_En && aw.awsize == 0)
+				rg_is_wrclk_en[0] <= True;
+			else
       	dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)),unpack(aw.awprot[0]));
 				rg_awid[0]<= aw.awid;
 				rg_wrburst_count<= aw.awlen;
@@ -1173,7 +1195,11 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		endrule
 
 		rule write_resp(!rg_is_wrburst[1]);
-      let succ<- dma.write_resp;
+		Bool succ = True;
+		if (rg_is_wrclk_en[1])
+			succ = True;
+		else
+      			succ<- dma.write_resp;
       let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: 0 , bid:rg_awid[1]};
       s_xactor.i_wr_resp.enq (r);
 		endrule

@@ -660,7 +660,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       0: begin writedata = duplicate(sbdata0[7:0]); writestrb = 'b1<<shamt; end
       1: begin writedata = duplicate(sbdata0[15:0]); writestrb = 'b11 << shamt; end
       2: begin writedata = duplicate(sbdata0); writestrb = 'b1111 << shamt ; end
+      `ifdef rv64 
       3: begin writedata = duplicate({sbdata1,sbdata0}); writestrb = 'b11111111 << shamt; end
+      `endif
     endcase
 
     if (lv_err == SbSuccess) begin
@@ -797,15 +799,19 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
       data = duplicate(v_data_reg[index]);
+      `ifdef RV64
       if (req.arsize==3)
         data[63:32] = v_data_reg[index+1];
+      `endif
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
       `ifndef iclass
         data = duplicate(v_progbuf_reg[index]);
+        `ifdef RV64
         if (req.arsize==3)
           data[63:32] = v_progbuf_reg[index+1];
+        `endif
       `else
         // Note: 128-bit bus width for i-class
         // TODO: non-power-of-2

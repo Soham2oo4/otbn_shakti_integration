@@ -66,6 +66,7 @@ package gpio;
 	import BUtils				::*;	
 	import ConfigReg			::*;
   import GetPut     ::*;
+  import Clocks::*;
 	/*===== Project Imports ===== */
 	import Semi_FIFOF        :: *;
 	import AXI4_Lite_Types   :: *;
@@ -87,7 +88,7 @@ package gpio;
 
  	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
 	 interface GPIO#(numeric type ionum);
-		(*always_ready,always_enabled*)
+//		(*always_ready,always_enabled*)
 		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 		method Vector#(ionum,Bit#(1))   gpio_out;
 		method Vector#(ionum,Bit#(1))   gpio_out_en;
@@ -284,17 +285,33 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
-        		Add#(c__, ionum, 64)
+        		Add#(c__, ionum, 64),
+        		Add#(d__, 1, data_width),
+        		Mul#(8, e__, data_width)
 			);
 
-		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio;
+		GatedClockIfc gpio_clk_gated <- mkGatedClockFromCC(False);
+		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio(clocked_by gpio_clk_gated.new_clk);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
+		Reg#(bit) rg_clk_en <- mkRegA(0);
+		
+		
+	rule clock_en;    
+	       gpio_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	endrule
 
 	/*doc:rule: This rule fires whenever write request from core of the AXI4lite is raised.  Configures the internal registers of GPIO through AXI4.*/
 	rule write_request;
+			Bool succ = False;
 			let addreq <- pop_o (s_xactor.o_wr_addr);
 			let datareq  <- pop_o (s_xactor.o_wr_data);
+       		if (addreq.awaddr == `GPIO_Clk_en && addreq.awsize == 0) begin 
+       		    rg_clk_en <= truncate(datareq.wdata); 
+       		     succ = True;
+       		 end 
+       		 else begin 
 			let succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+		end
 		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
 		  s_xactor.i_wr_resp.enq (ls);			
 		endrule
@@ -302,7 +319,15 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 	/*doc:rule: This rule fires whenever read request from core of the AXI4lite is raised.  Reads the internal registers of GPIO through AXI4 and the returns the value to AXI4lite interface along with response status.*/
 	rule read_request;
 			let req <- pop_o(s_xactor.o_rd_addr);
+			Bool succ = False;
+		        Bit#(data_width) data = 0 ; 
+	       if (req.araddr == `GPIO_Clk_en && req.arsize == 0) begin 
+		           succ = True; 
+		           data = duplicate({7'b0,rg_clk_en});  	         
+	         end 
+	          else begin
 			let {succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
+		end
 			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
 	  		s_xactor.i_rd_data.enq(resp);
