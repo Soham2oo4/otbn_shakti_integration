@@ -305,7 +305,7 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 			Bool succ = False;
 			let addreq <- pop_o (s_xactor.o_wr_addr);
 			let datareq  <- pop_o (s_xactor.o_wr_data);
-       		if (addreq.awaddr == `GPIO_Clk_en && addreq.awsize == 0) begin 
+       		if (addreq.awaddr[6:0] == `GPIO_Clk_en && addreq.awsize == 0) begin 
        		    rg_clk_en <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 
@@ -321,7 +321,7 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 			let req <- pop_o(s_xactor.o_rd_addr);
 			Bool succ = False;
 		        Bit#(data_width) data = 0 ; 
-	       if (req.araddr == `GPIO_Clk_en && req.arsize == 0) begin 
+	       if (req.araddr[6:0] == `GPIO_Clk_en && req.arsize == 0) begin 
 		           succ = True; 
 		           data = duplicate({7'b0,rg_clk_en});  	         
 	         end 

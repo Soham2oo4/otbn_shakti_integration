@@ -1015,7 +1015,7 @@ endmodule : mk_sspi
 		        Bool succ = False;
 		        Bit#(data_width) data = 0 ; 
 	  		let req <- pop_o (s_xactor.o_rd_addr);
-	       if (req.araddr == `SPI_Clk_En && req.arsize == 0) begin 
+	       if (req.araddr[7:0] == `SPI_Clk_En && req.arsize == 0) begin 
 		           succ = True; 
 		           data = duplicate({7'b0,rg_clk_en});  	         
 	         end 
@@ -1031,7 +1031,7 @@ endmodule : mk_sspi
      	        Bool succ = False;
        		let addreq <- pop_o(s_xactor.o_wr_addr);
        		let datareq <- pop_o(s_xactor.o_wr_data);
-       		if (addreq.awaddr == `SPI_Clk_En && addreq.awsize == 0) begin 
+       		if (addreq.awaddr[7:0] == `SPI_Clk_En && addreq.awsize == 0) begin 
        		    rg_clk_en <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 

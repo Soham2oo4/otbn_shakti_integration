@@ -902,7 +902,7 @@ endfunction
              let err = True; 
              Bit#(data_width) rdata = 0;  
                     
-          if(rd_req.araddr == `I2C_Clk_En && rd_req.arsize == 0) begin 
+             if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
 		           err = False; 
 		           rdata = duplicate({7'b0,rg_clk_en});  
 		 end
@@ -931,7 +931,7 @@ endfunction
           let wr_data = tpl_2(ff_wr_request.first);
            let err = True; 
              
-          if(wr_req.awaddr == `I2C_Clk_En && wr_req.awsize == 0) begin 
+           if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
 		           err = False; 
 		        rg_clk_en <=  truncate(wr_data.wdata);    
 		 end

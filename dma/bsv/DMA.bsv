@@ -1138,7 +1138,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				rg_is_rdburst[0]<= True;
 			else begin
 				rg_is_rdburst[0]<= False;
-			if (req.araddr == `DMA_Clk_En && req.arsize == 0)
+			if (req.araddr[7:0] == `DMA_Clk_En && req.arsize == 0)
 		        	rg_is_rdclk_en[0]<= True;  	         
       			else 
       	dma.read_req(req.araddr, unpack(truncate(req.arsize)), unpack(req.arprot[0]));
@@ -1185,7 +1185,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
         rg_is_wrburst[0]<= True;
 		  else begin
 				rg_is_wrburst[0]<= False;
-			if (aw.awaddr == `DMA_Clk_En && aw.awsize == 0)
+			if (aw.awaddr[7:0] == `DMA_Clk_En && aw.awsize == 0)
 				rg_is_wrclk_en[0] <= True;
 			else
       	dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)),unpack(aw.awprot[0]));

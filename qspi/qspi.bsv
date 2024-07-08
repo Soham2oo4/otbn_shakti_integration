@@ -1613,7 +1613,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 	rule rl_write_req_send_to_controller; // this rule is running at slow_clk (i.e less than or equal to 166MHz)
 		let w = fromMaybe(?, ff_wr_req.first);
 		ff_wr_req.deq;
-		if(w.addr == `Qspi_Clk_En && w.burst_size == 0) begin 
+		if(w.addr[7:0] == `Qspi_Clk_En && w.burst_size == 0) begin 
 		   rg_clk_en <= truncate(w.wdata); 
 		   let clk_gate_w_resp = tagged Valid(AXI4_LITE_OKAY);
 		   ff_sync_wr_resp.enq(fromMaybe(?, clk_gate_w_resp));
@@ -1652,7 +1652,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4#(addr_width,
 	rule rl_read_request_send_to_controller;// this rule is running at slow_clk (i.e less than or equal to 166MHz)
 		let r = fromMaybe(?, ff_rd_req.first);
 		ff_rd_req.deq;
-		 if(r.addr == `Qspi_Clk_En && r.burst_size == 0) begin
+		 if(r.addr[7:0] == `Qspi_Clk_En && r.burst_size == 0) begin
 	         let clk_gate_r_resp = tagged Valid Rd_resp{
 														rsp 	: AXI4_LITE_OKAY,
 														rdata	: duplicate({7'b0,rg_clk_en})};	        
