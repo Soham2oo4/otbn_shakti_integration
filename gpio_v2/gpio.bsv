@@ -88,7 +88,6 @@ package gpio;
 
  	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
 	 interface GPIO#(numeric type ionum);
-//		(*always_ready,always_enabled*)
 		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 		method Vector#(ionum,Bit#(1))   gpio_out;
 		method Vector#(ionum,Bit#(1))   gpio_out_en;
@@ -96,8 +95,9 @@ package gpio;
  	/*doc: interface: interface for GPIO axi user interface module. */
 	 interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
 //    (*always_ready,always_enabled*)
-	/*doc : subifc : subinterface which uses get method to pass interrupt to plic */
-	interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+	// /*doc : subifc : subinterface which uses get method to pass interrupt to plic */
+	// interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+	method Bit#(1) interrupt;
  	/*doc : subifc : subinterface which uses GPIO interface for configuring the GPIO and updates the values */
 	 interface GPIO#(ionum) io;
 		/*doc : method : method to receive write requests from AXI */
@@ -211,6 +211,9 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] == `intr_config && addr[6:0] < (`intr_config + 8))
 				for(Integer i=0; i<vionum; i=i+1)
 					rg_interrupt_config[i] <= datamask[i];
+			else if( addr[6:0] == `intr_status_reg && addr[6:0] < (`intr_status_reg + 8))
+				for(Integer i=0;i<vionum;i=i+1)
+						toplic[i] <= toplic[i]^datamask[i];
 			else
 				success=False;
 			return success;	
@@ -240,6 +243,9 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] == `intr_config && addr[6:0] < (`intr_config + 8))
 				for(Integer i=0;i<vionum;i=i+1)
 					temp[i] = rg_interrupt_config[i];
+			else if( addr[6:0] == `intr_status_reg && addr[6:0] < (`intr_status_reg + 8))
+				for(Integer i=0;i<vionum;i=i+1)
+						temp[i] = toplic[i];
 			else
 				success=False;
 
@@ -258,15 +264,19 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			return tuple2(success,data);
 		endmethod
 
-		/*doc : interface : interface to interrupt the PLIC gateway with GPIO port interrupt. has method which returns action value of returning the interrupt value of vecton of length ionum. */
-		interface sb_gpio_to_plic = interface Get
-      method ActionValue#(Vector#(ionum ,Bit#(1))) get;
-        Vector#(ionum,Bit#(1)) temp=readVReg(toplic);
-
-        return temp;
-      endmethod
-    endinterface;
-
+	// 	/*doc : interface : interface to interrupt the PLIC gateway with GPIO port interrupt. has method which returns action value of returning the interrupt value of vecton of length ionum. */
+	// 	interface sb_gpio_to_plic = interface Get
+    //   method ActionValue#(Vector#(ionum ,Bit#(1))) get;
+    //     Vector#(ionum,Bit#(1)) temp=readVReg(toplic);
+    //     return temp;
+    //   endmethod
+    // endinterface;
+	method Bit#(1) interrupt;
+		Bit #(1) intr = 0;
+		for(Integer i=0;i<vionum;i=i+1)
+			intr = intr | toplic[i];
+		return intr;
+	endmethod
 	endmodule:mkgpio
 
 		/*doc : interface : GPIO axi4lite interface using AXI4lite . */
@@ -274,10 +284,11 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 		/*doc : subifc : subinterface for AXI4lite slave interface. */
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width,user_width) slave;
 //    (*always_ready,always_enabled*)
-		/*doc : subifc : subinterface for getting interrupt to PLIC. */
-		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+		// /*doc : subifc : subinterface for getting interrupt to PLIC. */
+		// interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
 		/*doc : subifc : subinterface configure and control GPIO.. */
     	interface GPIO#(ionum) io;
+		method Bit#(1) interrupt;
 	endinterface
 
 /*doc:module: gpio AXI4lite module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4lite interface of core. */
@@ -289,7 +300,7 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
         		Add#(d__, 1, data_width),
         		Mul#(8, e__, data_width)
 			);
-
+			
 		GatedClockIfc gpio_clk_gated <- mkGatedClockFromCC(False);
 		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio(clocked_by gpio_clk_gated.new_clk);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
@@ -303,13 +314,14 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 	/*doc:rule: This rule fires whenever write request from core of the AXI4lite is raised.  Configures the internal registers of GPIO through AXI4.*/
 	rule write_request;
 			Bool succ = False;
-			let addreq <- pop_o (s_xactor.o_wr_addr);
-			let datareq  <- pop_o (s_xactor.o_wr_data);
+       		let addreq <- pop_o(s_xactor.o_wr_addr);
+       		let datareq <- pop_o(s_xactor.o_wr_data);
        		if (addreq.awaddr[6:0] == `GPIO_Clk_en && addreq.awsize == 0) begin 
        		    rg_clk_en <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 
        		 else begin 
+			
 			let succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
 		end
 		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
@@ -333,7 +345,8 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 	  		s_xactor.i_rd_data.enq(resp);
 		endrule
 	 	interface slave = s_xactor.axi_side;
-    interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
+    // interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
+	method interrupt = gpio.interrupt;
     interface io = gpio.io;
 	endmodule:mkgpio_axi4lite
 
@@ -342,8 +355,9 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 		interface Ifc_gpio_axi4#(numeric type addr_width, numeric type data_width,numeric type user_width, numeric type ionum);
 			/*doc : subifc : subinterface for AXI4 slave interface. */
 			interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
-		/*doc : subifc : subinterface for getting interrupt to PLIC. */
-		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+		// /*doc : subifc : subinterface for getting interrupt to PLIC. */
+		// interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+		method Bit#(1) interrupt;
 		/*doc : subifc : subinterface configure and control GPIO.. */
 		interface GPIO#(ionum) io;
 	endinterface
@@ -419,7 +433,8 @@ module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
 
 		endrule
 	 	interface slave = s_xactor.axi_side;
-    interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
+    // interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
+	method interrupt = gpio.interrupt;
     interface io = gpio.io;
 	endmodule:mkgpio_axi4
 endpackage:gpio
