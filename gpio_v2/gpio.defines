@@ -5,14 +5,21 @@
 // 0x8: U R R R
 
 // Memory Map
-`define dir_reg 		'h0
-`define dataout_reg 	'h8
-`define set_data		'h10
-`define clear_data		'h18
-`define toggle_data		'h20
+`define dir_reg1 		'h00
+`define dir_reg2 		'h04
+`define dataout_reg1 	'h08
+`define dataout_reg2 	'h0C
+`define set_data1		'h10
+`define set_data2		'h14
+`define clear_data1		'h18
+`define clear_data2		'h1C
+`define toggle_data1    'h20
+`define toggle_data2	'h24
 `ifdef IQC
     `define input_qual		'h28
 `endif
-`define intr_config		'h30
-`define GPIO_Clk_en		'h38
-`define intr_status_reg 'h40
+`define intr_config1	 'h30
+`define intr_config2	 'h34
+`define GPIO_Clk_en		 'h38
+`define intr_status_reg1 'h40
+`define intr_status_reg2 'h44

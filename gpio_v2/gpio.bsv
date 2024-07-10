@@ -186,34 +186,58 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 	    Bit#(64) datamask=zeroExtend(data)&mask;
 
 
-			if( addr[6:0]>=`dir_reg && addr[6:0]<`dataout_reg )
-				for(Integer i=0;i<vionum ;i=i+1)
+			if( addr[6:0]>=`dir_reg1 && addr[6:0]<`dir_reg2 )
+				for(Integer i=0;i<32 ;i=i+1)
 					direction_reg[i]<=unpack(datamask[i]);
-			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< `set_data )
-				for(Integer i=0;i<vionum ;i=i+1)
+			else if( addr[6:0]>=`dir_reg2 && addr[6:0]<`dataout_reg1 )
+			    for(Integer i=32;i<vionum ;i=i+1)
+				    direction_reg[i]<=unpack(datamask[i-32]);
+			else if(addr[6:0]>=`dataout_reg1  && addr[6:0]< `dataout_reg2 )
+				for(Integer i=0;i<32 ;i=i+1)
 					dataout_register[i]<=datamask[i];
-			else if( addr[6:0] >= `set_data && addr[6:0] < `clear_data)
-				for(Integer i=0;i<vionum; i=i+1) begin
+			else if(addr[6:0]>=`dataout_reg2  && addr[6:0]< `set_data1 )
+				for(Integer i=32;i<vionum ;i=i+1)
+					dataout_register[i]<=datamask[i-32];
+			else if( addr[6:0] >= `set_data1 && addr[6:0] < `set_data2)
+				for(Integer i=0;i<32; i=i+1) begin
 					dataout_register[i] <= dataout_register[i] | datamask[i];
 				end
-			else if( addr[6:0] >= `clear_data && addr[6:0] < `toggle_data)
-				for(Integer i=0;i<vionum; i=i+1) begin
+			else if( addr[6:0] >= `set_data2 && addr[6:0] < `clear_data1)
+				for(Integer i=32;i<vionum; i=i+1) begin
+					dataout_register[i] <= dataout_register[i] | datamask[i-32];
+				end
+			else if( addr[6:0] >= `clear_data1 && addr[6:0] < `clear_data2)
+				for(Integer i=0;i<32; i=i+1) begin
 					dataout_register[i] <= dataout_register[i] & ~datamask[i];
 				end
-			else if( addr[6:0] >= `toggle_data && addr[6:0] < (`toggle_data + 8))
-				for(Integer i=0;i<vionum; i=i+1) begin
+			else if( addr[6:0] >= `clear_data2 && addr[6:0] < `toggle_data1)
+				for(Integer i=32;i<vionum; i=i+1) begin
+					dataout_register[i] <= dataout_register[i] & ~datamask[i-32];
+				end
+			else if( addr[6:0] >= `toggle_data1 && addr[6:0] < (`toggle_data2))
+				for(Integer i=0;i<32; i=i+1) begin
 					dataout_register[i] <= dataout_register[i] ^ datamask[i];
+				end
+			else if( addr[6:0] >= `toggle_data2 && addr[6:0] < (`toggle_data2 + 4))
+				for(Integer i=32;i<vionum; i=i+1) begin
+					dataout_register[i] <= dataout_register[i] ^ datamask[i-32];
 				end
 		`ifdef IQC
 			else if( addr[6:0] == `input_qual && size == Byte)
 				rg_qual_cycles <= truncate(data);
 		`endif
-			else if( addr[6:0] == `intr_config && addr[6:0] < (`intr_config + 8))
-				for(Integer i=0; i<vionum; i=i+1)
+			else if( addr[6:0] == `intr_config1 && addr[6:0] < (`intr_config2))
+				for(Integer i=0; i<32; i=i+1)
 					rg_interrupt_config[i] <= datamask[i];
-			else if( addr[6:0] == `intr_status_reg && addr[6:0] < (`intr_status_reg + 8))
-				for(Integer i=0;i<vionum;i=i+1)
+			else if( addr[6:0] == `intr_config2 && addr[6:0] < (`intr_config2 + 4))
+				for(Integer i=32; i<vionum; i=i+1)
+					rg_interrupt_config[i] <= datamask[i-32];
+			else if( addr[6:0] == `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
+				for(Integer i=0;i<32;i=i+1)
 						toplic[i] <= toplic[i]^datamask[i];
+			else if( addr[6:0] == `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
+				for(Integer i=32;i<vionum;i=i+1)
+						toplic[i] <= toplic[i]^datamask[i-32];
 			else
 				success=False;
 			return success;	
@@ -228,24 +252,34 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;//generating the shift amount
 			Bit#(64) temp =0;//parameterised
 			
-			if( addr[6:0]>=`dir_reg && addr[6:0]<`dataout_reg ) begin
-				for(Integer i=0;i<vionum ;i=i+1)
+			if( addr[6:0]>=`dir_reg1 && addr[6:0]<`dir_reg2 )
+				for(Integer i=0;i<32 ;i=i+1)
 					temp[i]=pack(direction_reg[i]);
-			end
-			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< `set_data) begin
-				for(Integer i=0;i<vionum ;i=i+1)
+			else if( addr[6:0]>=`dir_reg2 && addr[6:0]<`dataout_reg1 )
+			    for(Integer i=32;i<vionum ;i=i+1)
+					temp[i-32]=pack(direction_reg[i]);
+			else if(addr[6:0]>=`dataout_reg1  && addr[6:0]< `dataout_reg2 )
+				for(Integer i=0;i<32 ;i=i+1)
 					temp[i]=datain_register[i];
-			end
+			else if(addr[6:0]>=`dataout_reg2  && addr[6:0]< `set_data1 )
+				for(Integer i=32;i<vionum ;i=i+1)
+					temp[i-32]=datain_register[i];
 		`ifdef IQC
 			else if( addr[6:0] == `input_qual && size == Byte)
 				temp = zeroExtend(rg_qual_cycles);
 		`endif
-			else if( addr[6:0] == `intr_config && addr[6:0] < (`intr_config + 8))
-				for(Integer i=0;i<vionum;i=i+1)
+			else if( addr[6:0] == `intr_config1 && addr[6:0] < (`intr_config2))
+				for(Integer i=0; i<32; i=i+1)
 					temp[i] = rg_interrupt_config[i];
-			else if( addr[6:0] == `intr_status_reg && addr[6:0] < (`intr_status_reg + 8))
-				for(Integer i=0;i<vionum;i=i+1)
+			else if( addr[6:0] == `intr_config2 && addr[6:0] < (`intr_config2 + 4))
+				for(Integer i=32; i<vionum; i=i+1)
+					temp[i-32] = rg_interrupt_config[i];
+			else if( addr[6:0] == `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
+				for(Integer i=0;i<32;i=i+1)
 						temp[i] = toplic[i];
+			else if( addr[6:0] == `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
+				for(Integer i=32;i<vionum;i=i+1)
+						temp[i-32] = toplic[i];
 			else
 				success=False;
 
@@ -272,9 +306,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
     //   endmethod
     // endinterface;
 	method Bit#(1) interrupt;
-		Bit #(1) intr = 0;
-		for(Integer i=0;i<vionum;i=i+1)
-			intr = intr | toplic[i];
+		Bit #(1) intr = |toplic;
 		return intr;
 	endmethod
 	endmodule:mkgpio
