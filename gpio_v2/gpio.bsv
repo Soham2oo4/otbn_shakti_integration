@@ -306,7 +306,9 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
     //   endmethod
     // endinterface;
 	method Bit#(1) interrupt;
-		Bit #(1) intr = |toplic;
+		Bit #(1) intr = 0;
+		for(Integer i=0;i<vionum;i=i+1)
+			intr = intr | toplic[i];
 		return intr;
 	endmethod
 	endmodule:mkgpio
