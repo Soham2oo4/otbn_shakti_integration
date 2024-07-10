@@ -853,7 +853,7 @@ endfunction
 		  Clock core_clock<-exposeCurrentClock;
   		Reset core_reset<-exposeCurrentReset;
   		Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
- 	     GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock,clocked_by i2c_clock ,reset_by i2c_reset);
+ 	     GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
       AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <-
                                                                         mkAXI4_Lite_Slave_Xactor();
 
@@ -894,6 +894,7 @@ endfunction
         rule read_request;
           let rd_req <- pop_o(s_xactor.o_rd_addr);
           ff_rd_request.enq(rd_req);
+          $display("i2c readreq ",fshow(rd_req));
         endrule
 
         rule send_rd_to_i2c;
@@ -901,6 +902,7 @@ endfunction
           ff_rd_request.deq;
              let err = True; 
              Bit#(data_width) rdata = 0;  
+             $display("i2c readreq ",fshow(rd_req));
                     
              if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
 		           err = False; 
@@ -924,23 +926,29 @@ endfunction
           let wr_req <- pop_o(s_xactor.o_wr_addr);
           let wr_data <- pop_o(s_xactor.o_wr_data);
           ff_wr_request.enq(tuple2(wr_req, wr_data));
+          $display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
         endrule
 
         rule send_wr_to_i2c;
           let wr_req = tpl_1(ff_wr_request.first);
           let wr_data = tpl_2(ff_wr_request.first);
+          $display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
            let err = True; 
              
            if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
-		           err = False; 
-		        rg_clk_en <=  truncate(wr_data.wdata);    
-		 end
-		 else  
-		      begin   
-            err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
-             end 
-          let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
-          ff_wr_response.enq(lv_resp);
+		          err = False; 
+		          rg_clk_en <=  truncate(wr_data.wdata);
+              $display("response from rg_clk_en - %d",err); 
+		        end
+		        else  
+		            begin
+                
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                  $display("response from i2c - %d",err);
+                end 
+            let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
+            ff_wr_response.enq(lv_resp);
+            ff_wr_request.deq;
         endrule
 
          rule send_wr_resp;
