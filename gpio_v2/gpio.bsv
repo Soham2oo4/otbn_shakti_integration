@@ -357,7 +357,7 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
        		 end 
        		 else begin 
 			
-			let succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+			succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
 		end
 		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
 		  s_xactor.i_wr_resp.enq (ls);			
@@ -373,7 +373,7 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 		           data = duplicate({7'b0,rg_clk_en});  	         
 	         end 
 	          else begin
-			let {succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
+			{succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
 		end
 			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
