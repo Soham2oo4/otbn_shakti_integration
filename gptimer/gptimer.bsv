@@ -15,7 +15,7 @@ package gptimer;
 	`include "gptimer.defines"	
 
 	interface Ifc_gptimer_io;
-		(*always_ready,always_enabled*)
+		//(*always_ready,always_enabled*)
 		method Action input_signal(Bit#(1) signal_in);
 		method Bit#(1) timer_out;
 	endinterface
@@ -64,8 +64,8 @@ package gptimer;
 	    Reset overall_reset <- mkResetEither(bus_reset,control_reset.new_rst);
 
 	    // Select between bus clock or external clock 
-	    MuxClkIfc clock_selection <- mkUngatedClockMux(ext_clock,bus_clock);
-	    Reset async_reset <- mkAsyncResetFromCR(0,clock_selection.clock_out);
+	    MuxClkIfc clock_selection <- mkClockMux(ext_clock,bus_clock);
+	    Reset async_reset <- mkAsyncResetFromCR(2,clock_selection.clock_out);
 	    rule select_busclk_extclk;
 	      clock_selection.select(rg_clk_src==1);
 	    endrule
@@ -85,7 +85,7 @@ package gptimer;
 	    Ifc_clock_divider#(16) clk_divider <- mkclock_divider(clocked_by clock_selection.clock_out, 
 	                                         reset_by async_reset);
 	    let downclock = clk_divider.slowclock; 
-	    Reset downreset <- mkAsyncReset(0,overall_reset,downclock);
+	    Reset downreset <- mkAsyncReset(2,overall_reset,downclock);
 	    rule generate_slow_clock;
 	      clk_divider.divisor(clock_divisor_sync);
 	    endrule
@@ -122,21 +122,16 @@ package gptimer;
 
 		// ================================================ //
 
-		ReadOnly#(bit) sync_gpt_enable                 <- mkNullCrossingWire(bus_clock,gpt_enable);
-		ReadOnly#(bit) sync_count_reset                <- mkNullCrossingWire(bus_clock,count_reset);
-		ReadOnly#(bit) sync_continuous_count           <- mkNullCrossingWire(bus_clock,continuous_count);
-		ReadOnly#(Bit#(2)) sync_gpt_mode               <- mkNullCrossingWire(bus_clock,gpt_mode);
-		ReadOnly#(bit) sync_pwm_fall_intr_en		       <- mkNullCrossingWire(bus_clock,pwm_fall_intr_en);
-		ReadOnly#(bit) sync_pwm_rise_intr_en		       <- mkNullCrossingWire(bus_clock,pwm_rise_intr_en);
-		ReadOnly#(bit) sync_cntr_overflow_intr_en 	   <- mkNullCrossingWire(bus_clock,cntr_overflow_intr_en);
-		ReadOnly#(bit) sync_cntr_underflow_intr_en	   <- mkNullCrossingWire(bus_clock,cntr_underflow_intr_en);
+		Reg#(Bit#(9)) sync_control                        <- mkSyncReg(0,downclock,downreset,bus_clock);
 
 		Reg#(Bit#(gptimer_width)) rg_sync_counter		     <- mkSyncReg(0,downclock,downreset,bus_clock);
 		Reg#(Bit#(gptimer_width)) rg_sync_repeated_count <- mkSyncReg(0,downclock,downreset,bus_clock);
 		Reg#(Bit#(gptimer_width)) rg_period 			       <- mkSyncReg(0,bus_clock,bus_reset,downclock);
 		Reg#(Bit#(gptimer_width)) rg_duty_cycle 		     <- mkSyncReg(0,bus_clock,bus_reset,downclock);
-		ReadOnly#(Bit#(gptimer_width)) sync_duty_cycle   <- mkNullCrossingWire(bus_clock,rg_duty_cycle);
-		ReadOnly#(Bit#(gptimer_width)) sync_period	     <- mkNullCrossingWire(bus_clock,rg_period);
+
+                Reg#(Bit#(gptimer_width))sync_period 		  <- mkSyncReg(0,downclock,downreset,bus_clock); //new 
+		Reg#(Bit#(gptimer_width)) sync_duty_cycle 	  <- mkSyncReg(0,downclock,downreset,bus_clock);  //new
+
 
 
 		(*conflict_free = "rl_pwm_operation,rl_up_counter"*)
@@ -151,6 +146,18 @@ package gptimer;
     (* descending_urgency = "rl_counter_reset, rl_down_counter" *)
     (* descending_urgency = "rl_counter_reset, rl_up_down_counter" *)
 
+             rule rl1_update_reg_dclk_to_sclk; // new
+                 sync_period <= rg_period; 
+              endrule		
+
+	     rule rl2_update_reg_dclk_to_sclk; // new 
+                 sync_duty_cycle <= rg_duty_cycle; 
+               endrule
+
+	     rule rl3_update_reg_dclk_to_sclk; // new 	 
+		  sync_control <= { cntr_underflow_intr_en, cntr_overflow_intr_en, pwm_rise_intr_en , pwm_fall_intr_en, continuous_count, count_reset, gpt_mode, gpt_enable};
+              endrule
+
 		rule rl_update_interrupts;
 			pwm_rise_intr <= rg_pwm_rise_intr.read;
 			pwm_fall_intr <= rg_pwm_fall_intr.read;
@@ -160,6 +167,9 @@ package gptimer;
 
 		rule rl_update_counter;
 			rg_sync_counter <= rg_counter;
+    endrule
+
+    rule rl_update_repeated_count;
 			rg_sync_repeated_count <= rg_repeated_count;
 		endrule
 	
@@ -175,7 +185,7 @@ package gptimer;
 			rg_interrupt.send(0);
 		endrule
 	
-    rule rl_reset_counter_reset(sync_count_reset == 1);
+    rule rl_reset_counter_reset(sync_control[3] == 1);
       count_reset <= 0;
     endrule
 	
@@ -305,8 +315,8 @@ package gptimer;
 			Bool success = True;
 			Bit#(data_width) data = 0;
       if(addr[7:0] == `GPTimer_ctrl && size == 1) begin
-        Bit#(16) lv_control = {capture_input,cntr_underflow_intr,cntr_overflow_intr,pwm_rise_intr,pwm_fall_intr,sync_cntr_underflow_intr_en,sync_cntr_overflow_intr_en,
-                              sync_pwm_rise_intr_en,sync_pwm_fall_intr_en,sync_continuous_count,sync_count_reset,gpt_output_en,sync_gpt_mode,gpt_reset,sync_gpt_enable};
+        Bit#(16) lv_control = {capture_input,cntr_underflow_intr,cntr_overflow_intr,pwm_rise_intr,pwm_fall_intr,sync_control[8],sync_control[7],
+                              sync_control[6],sync_control[5],sync_control[4],sync_control[3],gpt_output_en,sync_control[2:1],gpt_reset,sync_control[0] };
         data = duplicate(lv_control);
       end
 			else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
@@ -336,7 +346,7 @@ package gptimer;
 			`else
 				let temp = signal_in;
 			`endif
-				if(temp == capture_input && rg_prev_input != temp && sync_gpt_enable == 1)
+				if(temp == capture_input && rg_prev_input != temp && sync_control[0] == 1)
 					rg_input_capture <= rg_sync_counter;
 				rg_prev_input <= temp;
 			endmethod
@@ -361,23 +371,54 @@ package gptimer;
 							 Mul#(e__,32,data_width),
 							 Mul#(f__,gptimer_width,data_width),
 							 Add#(g__,4,data_width),
-							 Mul#(4,h__,data_width)
-							);
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(ext_clock, ext_reset);
+							 Mul#(4,h__,data_width),
+							 Add#(i__, 1, data_width),
+							  Mul#(8, j__, data_width)
+		 );
+		 GatedClockIfc gpt_clk_gated <- mkGatedClockFromCC(False); 
+		GatedClockIfc gpt_ext_clk_gated <- mkGatedClock(False,ext_clock);					
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk,gpt_ext_clk_gated.new_clk, ext_reset);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
+		Reg#(bit) rg_clk_en <- mkRegA(0);
+		
+		rule ext_clock_en;    
+	          gpt_ext_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	        endrule
+	        
+	         rule clock_en;    
+	          gpt_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	        endrule
 
 		rule read_request;
 	  		let req <- pop_o (s_xactor.o_rd_addr);
-      		let {succ,data} <- gptimer.read_req(req.araddr,unpack(truncate(req.arsize)));
+	  		Bool succ = False;
+		        Bit#(data_width) data = 0 ; 
+		   if (req.araddr[6:0] == `GPT_Ext_Clk_en && req.arsize == 0) begin 
+		           succ = True; 
+		           data = duplicate({7'b0,rg_clk_en});  	         
+	         end 
+	         else begin
+			{succ,data} <- gptimer.read_req(req.araddr,unpack(truncate(req.arsize)));
+		end    
 	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
 	  		s_xactor.i_rd_data.enq(resp);
      	endrule
 
      	rule write_request;
+     	            Bool succ = False; 
        		let addreq <- pop_o(s_xactor.o_wr_addr);
        		let datareq <- pop_o(s_xactor.o_wr_data);
-       		let succ <- gptimer.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+       		      		
+       		if (addreq.awaddr[6:0] == `GPT_Ext_Clk_en && addreq.awsize == 0) begin 
+       		    rg_clk_en <= truncate(datareq.wdata); 
+       		     succ = True;
+       		 end 
+       		 else begin 
+			
+		      succ <- gptimer.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+		end
+       		
        		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
        		s_xactor.i_wr_resp.enq(resp);
      	endrule
