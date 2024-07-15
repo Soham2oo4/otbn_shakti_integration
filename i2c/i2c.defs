@@ -51,5 +51,6 @@ This file defines the functions and the types required to implement I2C routines
 `define     S3             8'h28
 `define     Time           8'h30
 `define     SCL            8'h38
-`define     I2C_Clk_En     8'h40
-
+`define     Length_reg     8'h40
+`define     FIFO_Status    8'h48
+`define	    I2C_Clk_En	   8'h50
