@@ -295,6 +295,9 @@ package i2c;
     Reg#(Bit#(1)) rx_fifo_to_reg <- mkReg(0);      // Set to 1 when RX FIFO is being read
     Reg#(Bool) rx_fifo_deq <- mkReg(False);        // If 1, the rx_fifo is dequed
 
+    // REPSTART programmer
+    Reg#(I2C_RegWidth) repstart_prog <- mkReg(0);   // for automating the repstart functionality
+
     // Introduces a delay before storing SDA Data
     rule rl_delay_sda;
       for (Integer i = 1; i < `sda_delay; i = i + 1) begin
@@ -328,6 +331,7 @@ package i2c;
           Bit#(8) c4 = zeroExtend(c2);
           return tuple2(False,duplicate({c3, c4}));
         end
+        `REPSTART_reg    : return tuple2(False,duplicate(repstart_prog));
         default          : return tuple2(True,0);
       endcase
     endfunction
@@ -413,6 +417,11 @@ package i2c;
         end
 
         `Time   : i2ctime._write(truncate(value));
+
+        `REPSTART_reg : begin
+          repstart_prog <= truncate(value); 
+          `logLevel(i2c,2,$format("Repeated start written")) 
+        end
         default : err = True;
       endcase
       return err;
@@ -728,21 +737,44 @@ package i2c;
 
         if(i2ctimeout <= i2ctime[13:0] )        // 14 as enable int 15 as int
         begin                                   //Reset state
-          mTransFSM <= End; 
+          // mTransFSM <= End; 
           i2ctime[15] <=1;
           s3 <= 'h0C;
         end
-        else
-          st_toggle <= False;
+        // else
+        //   st_toggle <= False;
 
         if(length_reg == 0)                   // Checks if length register is 0
           controlReg <= 8'b11000011;          // PIN + ESO + STO + ACK
+        else if(length_reg == repstart_prog) begin
+          dataBit <= 9;
+          // st_toggle <= True;
+          // mTransFSM <= RTSTA;
+          dOutEn <= True;
+          cOutEn <=True;
+          `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
+          controlReg <= 8'hc5 | 8'b01000101;       //TODO 45h Check this out
+          val_SDA <= 1;
+          sendInd <= 2;
+          repstart_prog <= 0;
+        end
         else begin
           if(length_reg == 1 && operation == Read)      // Sets ack to 0 if the last byte is going to be read
             ack <= 0;
           if(operation == Write && tx_fifo.deqReady || operation == Read && rx_fifo.enqReady) 
             pin <= 1;                         // Checks if FIFO is empty/full and sets pin accordingly
         end
+
+        // next state
+        if (i2ctimeout <= i2ctime[13:0])
+          mTransFSM <= End;
+        else if (length_reg == repstart_prog) begin
+          mTransFSM <= RTSTA;
+          st_toggle <= True;
+        end
+        else
+          st_toggle <= False;
+
       end
       else begin
         `logLevel(i2c, 2, $format("Interupt Is Served. Along with pin & control reg - %d & operation - %d ", controlReg,operation))
