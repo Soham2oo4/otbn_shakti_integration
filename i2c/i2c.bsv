@@ -1049,7 +1049,8 @@ package i2c;
       Add#(b__, 32, data_width),
       Mul#(16, c__, data_width),
       Mul#(8, d__, data_width),
-      Mul#(32, e__, data_width)
+      Mul#(32, e__, data_width),
+      Add#(f__, 1, data_width)
     );
     Clock core_clock<-exposeCurrentClock;
     Reset core_reset<-exposeCurrentReset;
@@ -1097,7 +1098,6 @@ package i2c;
         let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:wr_data.wid};
         s_xactor.i_wr_resp.enq(lv_resp);
       endrule
-    end
 
     interface slave = s_xactor.axi_side;
     interface io = i2c_user.io;
