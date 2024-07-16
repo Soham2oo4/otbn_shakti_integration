@@ -127,7 +127,7 @@ package i2c;
 
   // ================================================
   // Interface Declarations
-  (*always_enabled, always_ready*)
+  //(*always_enabled, always_ready*)
   interface I2C_out;
     method Bit#(1) scl_out;
     method Action scl_in(Bit#(1) in);
@@ -143,7 +143,7 @@ package i2c;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
     interface I2C_out io;
     
-    (* always_enabled, always_ready *)
+    //(* always_enabled, always_ready *)
     method Bit#(1) isint();
     method Bit#(1) timerint();
     method Bit#(1) isber();
@@ -987,7 +987,8 @@ package i2c;
       Add#(b__, 32, data_width),
       Mul#(16, c__, data_width),
       Mul#(8, d__, data_width),
-      Mul#(32, e__, data_width)
+      Mul#(32, e__, data_width),
+      Add#(f__, 1, data_width)
     );
     Clock core_clock<-exposeCurrentClock;
     Reset core_reset<-exposeCurrentReset;
