@@ -991,14 +991,25 @@ package i2c;
     );
     Clock core_clock<-exposeCurrentClock;
     Reset core_reset<-exposeCurrentReset;
-    Bool sync_required=(core_clock!=i2c_clock);
     AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Lite_Slave_Xactor();
+    Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
+    Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
+                                                                               reset_by i2c_reset);
 
-    Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_clock, reset_by i2c_reset);
-    if(!sync_required)begin
       rule read_request;
         let rd_req <- pop_o(s_xactor.o_rd_addr);
-        let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+        let err = True; 
+        Bit#(data_width) rdata = 0;  
+        $display("i2c readreq ",fshow(rd_req));
+                    
+        if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
+		      err = False; 
+		      rdata = duplicate({7'b0,rg_clk_en});  
+	      end
+	      else  begin  
+             {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+        end   
         let lv_resp= AXI4_Lite_Rd_Data {rresp: err? AXI4_LITE_SLVERR : AXI4_LITE_OKAY, rdata: rdata, ruser: ?}; //TODO user?
         s_xactor.i_rd_data.enq(lv_resp);
       endrule
@@ -1006,59 +1017,22 @@ package i2c;
       rule write_request;
         let wr_req <- pop_o(s_xactor.o_wr_addr);
         let wr_data <- pop_o(s_xactor.o_wr_data);
-        let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+        $display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
+        let err = True; 
+             
+        if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
+          err = False; 
+          rg_clk_en <=  truncate(wr_data.wdata);
+          $display("response from rg_clk_en - %d",err); 
+        end
+        else  
+        begin
+             err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                  $display("response from i2c - %d",err);
+        end 
         let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
         s_xactor.i_wr_resp.enq(lv_resp);
       endrule
-    end
-    else begin
-      SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width, user_width)) ff_rd_request <- mkSyncFIFOFromCC(3, i2c_clock);
-      SyncFIFOIfc#(Tuple2#(AXI4_Lite_Wr_Addr#(addr_width, user_width),
-                  AXI4_Lite_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3, i2c_clock);
-
-      SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width, user_width)) ff_rd_response <-
-                                                            mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
-      SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width)) ff_wr_response <-
-                                                            mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
-
-      rule read_request;
-        let rd_req <- pop_o(s_xactor.o_rd_addr);
-        ff_rd_request.enq(rd_req);
-      endrule
-
-      rule send_rd_to_i2c;
-        let rd_req = ff_rd_request.first;
-        ff_rd_request.deq;
-        let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
-        let lv_resp= AXI4_Lite_Rd_Data {rresp:err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY,
-                                                              rdata: rdata, ruser: ?}; //TODO user?
-        ff_rd_response.enq(lv_resp);
-      endrule
-
-      rule send_read_response;
-        ff_rd_response.deq;
-        s_xactor.i_rd_data.enq(ff_rd_response.first);
-      endrule
-
-      rule write_request;
-        let wr_req <- pop_o(s_xactor.o_wr_addr);
-        let wr_data <- pop_o(s_xactor.o_wr_data);
-        ff_wr_request.enq(tuple2(wr_req, wr_data));
-      endrule
-
-      rule send_wr_to_i2c;
-        let wr_req = tpl_1(ff_wr_request.first);
-        let wr_data = tpl_2(ff_wr_request.first);
-        let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
-        let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
-        ff_wr_response.enq(lv_resp);
-      endrule
-
-      rule send_wr_resp;
-        ff_wr_response.deq;
-        s_xactor.i_wr_resp.enq(ff_wr_response.first);
-      endrule
-    end
 
     interface slave = s_xactor.axi_side;
     interface io = i2c_user.io;
