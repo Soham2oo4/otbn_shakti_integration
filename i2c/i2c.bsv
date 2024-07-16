@@ -675,7 +675,7 @@ package i2c;
         I2C_RegWidth temp = tx_fifo.first[0];
         dataBit <= dataBit - 1;
         val_SDA <= temp[dataBit-2];
-        `logLevel( i2c, 2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit-1,tx_fifo.bit_transmit(dataBit-1)))
+        `logLevel( i2c, 2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit-1,temp[dataBit-1]))
         
         if(temp[0] == 0)
           operation <= Write;
@@ -694,7 +694,7 @@ package i2c;
 
     // This rule checks for the I2C acknowledgement bit
     rule check_Ack(ackCond && pwsclCond);  //Should Fire When SCL is high  //~shouldn't it be pwsclcond or sclsync
-      `logLevel( i2c, 2, $format("Value : %d ,Condition : ",line_SDA,line_SDA!=0 ))
+      `logLevel( i2c, 2, $format("Value : %d ,Condition : ",val_SDA,val_SDA!=0 ))
       dataBit <= 9;
       i2ctimeout <= 1;
       if(val_SDA_in != 0 && val_SCL == 1 ) begin //Line SCL is actually high
@@ -797,7 +797,7 @@ package i2c;
         else if(s3 == 'h0A) begin
           mTransFSM <= SendAddr;
           dOutEn <= True;
-          `logLevel( i2c, 2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , tx_fifo.bit_transmit(dataBit - 1)))
+          `logLevel( i2c, 2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , temp[dataBit - 1]))
           dataBit <= dataBit - 1;
           val_SDA <= temp[dataBit - 2];
         end
@@ -805,7 +805,7 @@ package i2c;
         else if(operation == Write) begin
           mTransFSM <= SendData;
           dOutEn <= True;
-          `logLevel( i2c, 2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , tx_fifo.bit_transmit(dataBit - 1)))
+          `logLevel( i2c, 2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , temp[dataBit - 1]))
           dataBit <= dataBit - 1;
           val_SDA <= temp[dataBit - 2];
         end
@@ -1097,7 +1097,7 @@ package i2c;
         let rd_req <- pop_o(s_xactor.o_rd_addr);
         let err = True; 
         Bit#(data_width) rdata = 0;  
-        //$display("i2c readreq ",fshow(rd_req));
+        $display("i2c readreq ",fshow(rd_req));
                     
         if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
 		err = False; 
@@ -1114,18 +1114,18 @@ package i2c;
       rule write_request;
         let wr_req <- pop_o(s_xactor.o_wr_addr);
         let wr_data <- pop_o(s_xactor.o_wr_data);
-        //$display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
+        $display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
         let err = True; 
              
         if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
 		  err = False; 
 		  rg_clk_en <=  truncate(wr_data.wdata);
-              //$display("response from rg_clk_en - %d",err); 
+              $display("response from rg_clk_en - %d",err); 
 	end
 	else  
 	begin
              err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
-                  //$display("response from i2c - %d",err);
+                  $display("response from i2c - %d",err);
         end 
         let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:wr_data.wid};
         s_xactor.i_wr_resp.enq(lv_resp);
