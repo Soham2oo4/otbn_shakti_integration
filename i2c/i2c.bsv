@@ -997,6 +997,10 @@ package i2c;
     GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
     Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
                                                                                reset_by i2c_reset);
+                                                                               
+    	rule clock_en;    
+	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
+	endrule
 
       rule read_request;
         let rd_req <- pop_o(s_xactor.o_rd_addr);
@@ -1067,7 +1071,11 @@ package i2c;
 
     Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
                                                                                reset_by i2c_reset);
-    
+                                                                               
+       rule clock_en;    
+	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
+	endrule
+	    
       rule read_request;
         let rd_req <- pop_o(s_xactor.o_rd_addr);
         let err = True; 
