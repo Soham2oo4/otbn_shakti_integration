@@ -380,14 +380,16 @@ package gptimer;
 		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk,gpt_ext_clk_gated.new_clk, ext_reset);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		Reg#(bit) rg_clk_en <- mkRegA(0);
+		Wire#(AXI4_Lite_Wr_Addr #(addr_width, user_width)) addreq <- mkWire;
+		Wire#(AXI4_Lite_Wr_Data #(data_width)) datareq <- mkWire;
 		
 		rule ext_clock_en;    
 	          gpt_ext_clk_gated.setGateCond(unpack(rg_clk_en));	         
-	        endrule
+	    endrule
 	        
-	         rule clock_en;    
+		rule clock_en;    
 	          gpt_clk_gated.setGateCond(unpack(rg_clk_en));	         
-	        endrule
+	    endrule
 
 		rule read_request;
 	  		let req <- pop_o (s_xactor.o_rd_addr);
@@ -405,23 +407,25 @@ package gptimer;
 	  		s_xactor.i_rd_data.enq(resp);
      	endrule
 
-     	rule write_request;
-     	            Bool succ = False; 
-       		let addreq <- pop_o(s_xactor.o_wr_addr);
-       		let datareq <- pop_o(s_xactor.o_wr_data);
-       		      		
-       		if (addreq.awaddr[6:0] == `GPT_Ext_Clk_en && addreq.awsize == 0) begin 
-       		    rg_clk_en <= truncate(datareq.wdata); 
-       		     succ = True;
-       		 end 
-       		 else begin 
-			
-		      succ <- gptimer.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
-		end
-       		
-       		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
-       		s_xactor.i_wr_resp.enq(resp);
+     	rule write_request_start;
+       		let addreq_temp <- pop_o(s_xactor.o_wr_addr);
+       		let datareq_temp <- pop_o(s_xactor.o_wr_data);
+			addreq <= addreq_temp;
+			datareq <= datareq_temp;
      	endrule
+
+
+		rule write_clk_en(addreq.awaddr[6:0] == `GPT_Ext_Clk_en && addreq.awsize == 0);
+			rg_clk_en <= truncate(datareq.wdata);
+			let resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_OKAY, buser: ?};
+       		s_xactor.i_wr_resp.enq(resp);
+		endrule
+
+		rule write_gpt(addreq.awaddr[6:0] != `GPT_Ext_Clk_en);
+			let succ <- gptimer.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+			let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+       		s_xactor.i_wr_resp.enq(resp);
+		endrule
 
      	interface io = gptimer.io;
      	interface slave = s_xactor.axi_side;
