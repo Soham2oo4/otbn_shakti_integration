@@ -178,9 +178,24 @@ interface Ifc_sspi_io;
  		method Action miso_in(bit val);
 		method bit miso_out;
 		//ncs input output
-		method bit ncs_outen;
- 		method bit ncs_out;
-		method Action ncs_in(bit val);
+		//Multiple Slave for SPI
+		method bit ncs_outen0;
+ 		method bit ncs_out0;
+		method Action ncs_in0(bit val);
+		
+		method bit ncs_outen1;
+ 		method bit ncs_out1;
+		method Action ncs_in1(bit val);
+		
+		method bit ncs_outen2;
+ 		method bit ncs_out2;
+		method Action ncs_in2(bit val);
+		
+		method bit ncs_outen3;
+ 		method bit ncs_out3;
+		method Action ncs_in3(bit val);
+		
+		
 endinterface
 
 // sspi axi interface which has write and read methods to receive write and read requests. It also the above sspi_io interface
@@ -207,13 +222,13 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 					 Mul#( 4, f__, data_width),
 					 Add#(16, g__, data_width)
 					);
-
+	Reg#(Bit#(2)) rg_slave_select	<- mkRegA(0); 
 	/* doc : reg : holds the MOSI pin's output enable. If set, output is transmitted through this pin else input is read from this pin */
 	Reg#(bit) rg_mosi_output_enable <- mkRegA(1);
 	/* doc : reg : holds the MISO pin's output enable. If set, output is transmitted through this pin else input is read from this pin */
 	Reg#(bit) rg_miso_output_enable <- mkRegA(0);
 	/* doc : reg : holds the NCS pin's output enable. If set, the controller generates the ncs else ncs is expected from the spi device */
-	Reg#(bit) rg_ncs_output_enable  <- mkRegA(1);
+	Reg#(bit) rg_ncs_output_enable  <- mkRegA(0);
 	/* doc : reg : holds the SCLK pin's output enable. If set, the controller generates the sclk else sclk is expected from the spi device */
 	Reg#(bit) rg_sclk_output_enable <- mkRegA(1);
 	/* doc : reg : holds the total number of bits to be transmitted in a spi transaction */
@@ -229,7 +244,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	//unused register
 	Reg#(bit) rg_master_mode		<- mkRegA(1);
 	//doc : reg : concatenates all the communication control fields described before for AXI read and write to the memory map register
-	Reg#(Bit#(32)) rg_comm_ctrl = concatReg12(readOnlyReg(6'd0),rg_mosi_output_enable,rg_miso_output_enable,rg_ncs_output_enable,rg_sclk_output_enable,
+	Reg#(Bit#(32)) rg_comm_ctrl = concatReg13(readOnlyReg(4'd0),rg_slave_select,rg_mosi_output_enable,rg_miso_output_enable,rg_ncs_output_enable,rg_sclk_output_enable,
 												rg_total_bit_rx,rg_total_bit_tx,rg_comm_mode,readOnlyReg(1'd0),rg_lsbfirst,rg_spi_en,rg_master_mode);
 
 	/* doc : reg : holds the hold delay */
@@ -393,7 +408,10 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	/* doc : Wire : holds the input qualified (output from IQC module) sclk value in slave mode */
 	Wire#(bit) wr_sclk_qual <- mkWire();
 	/* doc : Wire : holds the input qualified (output from IQC module) ncs value in slave mode */
-	Wire#(bit) wr_ncs_qual  <- mkWire();
+	Wire#(bit) wr_ncs_qual0  <- mkWire();
+	Wire#(bit) wr_ncs_qual1  <- mkWire();
+	Wire#(bit) wr_ncs_qual2  <- mkWire();
+	Wire#(bit) wr_ncs_qual3  <- mkWire();
 	/* doc : Wire : holds the input qualified (output from IQC module) spi input value in slave mode */
 	Wire#(bit) wr_spi_in_qual <- mkWire();
 
@@ -543,7 +561,16 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	/*doc:rule : This rule fires when ncs is input. When rg_spi_en is set, wr_ncs_qual value is assigned to rg_ncs register */
 	rule rl_chip_select_control_slave_mode(rg_ncs_output_enable == 0);
 		if(rg_spi_en == 1) begin
-			rg_ncs <= wr_ncs_qual;
+		       
+	     Bit#(1)  lv_ncs_qual=case (rg_slave_select)
+              0 : wr_ncs_qual0;
+              1 : wr_ncs_qual1;
+              2 : wr_ncs_qual2;
+	      3 : wr_ncs_qual3;
+                default: wr_ncs_qual0; 
+		endcase; 
+  
+			rg_ncs <= lv_ncs_qual;
 			if(rg_ncs == 1) begin
 			  rg_busy <= 1;
 			  //if(rg_clk_phase == 0)
@@ -961,21 +988,114 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			return rg_transmit_data;
 		endmethod
 		//ncs input output
-		method bit ncs_outen;
+		//Multiple slaves of SPI (4)
+		
+		method bit ncs_outen0;
+		if(rg_slave_select == 0)  
 			return rg_ncs_output_enable;
+		else
+		        return 0;   
 		endmethod
- 		method bit ncs_out;
+		
+		method bit ncs_out0;
+		if(rg_slave_select == 0)
  			return rg_ncs;
+ 		else
+		        return 1;
  		endmethod
-		method Action ncs_in(bit val);
+ 		
+ 		method Action ncs_in0(bit val);
+ 		//if((rg_slave_select == 0)) begin
 		if(rg_ncs_output_enable == 0) begin
 		`ifdef IQC
 			let temp <- sspi_ncs_qual.qualify(val);
-			wr_ncs_qual <= temp;
+			wr_ncs_qual0 <= temp;
 		`else
-			wr_ncs_qual <= val;
+			wr_ncs_qual0 <= val;
 		`endif
 		end
+		//end
+		endmethod
+ 		
+		method bit ncs_outen1;
+		if(rg_slave_select == 1)
+			return rg_ncs_output_enable;
+		else
+		        return 0;
+		endmethod
+		
+		method bit ncs_out1;
+		if(rg_slave_select == 1)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+		
+		method Action ncs_in1(bit val);
+		//if(rg_slave_select == 1) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual1 <= temp;
+		`else
+			wr_ncs_qual1 <= val;
+		`endif
+		end
+		//end
+		endmethod
+		
+		method bit ncs_outen2;
+		if(rg_slave_select == 2)
+			return rg_ncs_output_enable;
+		else
+		        return 0;
+		endmethod
+		
+		method bit ncs_out2;
+		if(rg_slave_select == 2)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+ 		
+ 		method Action ncs_in2(bit val);
+ 		//if(rg_slave_select == 2) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual2 <= temp;
+		`else
+			wr_ncs_qual2 <= val;
+		`endif
+		end
+		//end
+		endmethod
+		
+		method bit ncs_outen3;
+		if(rg_slave_select == 3)
+			return rg_ncs_output_enable;
+		else
+		        return 0;
+		endmethod
+		
+		method bit ncs_out3;
+		if(rg_slave_select == 3)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+ 		
+ 		method Action ncs_in3(bit val);
+ 		//if(rg_slave_select == 3) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual3 <= temp;
+		`else
+			wr_ncs_qual3 <= val;
+		`endif
+		end
+		//end
 		endmethod
 	endinterface;
 	method mv_sb_sspi_interrupt = ((wr_rx_over_run_intr & rg_rx_over_run_err_intr_en) | (wr_rx_fifo_full_intr & rg_rx_fifo_full_intr_en) | (wr_rx_fifo_half_intr & rg_rx_fifo_half_intr_en) | (wr_rx_fifo_quad_intr & rg_rx_fifo_quad_intr_en) | 
