@@ -64,14 +64,14 @@ package TCM;
 		BRAM_PORT#(Bit#(TSub#(index_size,TLog#(TDiv#(data_width,8)))),Bit#(row_width)) data_mem[v_num_ver_banks][v_num_hor_banks];
 		for(Integer i=0;i<v_num_ver_banks;i=i+1) begin
 			Bit#(32) ver_char = fromInteger(i);
-			String mem_file_name_1 = stringCons(bitsToDigit(ver_char[2:0]),"code.mem");
-			String mem_file_name_2 = stringCons(bitsToDigit(ver_char[5:3]),mem_file_name_1);
-			String mem_file_name_3 = stringCons(bitsToDigit(ver_char[8:6]),mem_file_name_2);
+			String mem_file_name_1 = stringCons(bitsToHexDigit(ver_char[3:0]),"code.mem");
+			String mem_file_name_2 = stringCons(bitsToHexDigit(ver_char[7:4]),mem_file_name_1);
+			String mem_file_name_3 = stringCons(bitsToHexDigit(ver_char[11:8]),mem_file_name_2);
 			for(Integer j=0; j<v_num_hor_banks; j=j+1) begin
 				Bit#(32) hor_char = fromInteger(j);	
-				String mem_file_name_4 = stringCons(bitsToDigit(hor_char[2:0]),mem_file_name_3);
-				String mem_file_name_5 = stringCons(bitsToDigit(hor_char[5:3]),mem_file_name_4);
-				String mem_file_name_6 = stringCons(bitsToDigit(hor_char[8:6]),mem_file_name_5);
+				String mem_file_name_4 = stringCons(bitsToHexDigit(hor_char[3:0]),mem_file_name_3);
+				String mem_file_name_5 = stringCons(bitsToHexDigit(hor_char[7:4]),mem_file_name_4);
+				String mem_file_name_6 = stringCons(bitsToHexDigit(hor_char[11:8]),mem_file_name_5);
 				data_mem[i][j] <- mkBRAMCore1Load(valueOf(TExp#(TSub#(index_size,TLog#(TDiv#(data_width,8))))),False,mem_file_name_6,False);
 			end
 		end
