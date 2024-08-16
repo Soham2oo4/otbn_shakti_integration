@@ -149,6 +149,11 @@ provisos(Add#(a__, 16, data_width),
         Reg#(Bit#(2))  rg_size <- mkRegA(0);
         Reg#(Bit#(addr_width))  rg_address <- mkRegA('h90000000);
         
+        Wire#(Hart_to_encoder_interface) wr_trace_in    <- mkDWire(unpack(0));
+        Wire#(Bit#(1))                   wr_compress_en <- mkDWire(0);
+        
+        Reg#(Bit#(1))  rg_last_was_updiscon <- mkRegA(0);
+        
         AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
         
        
@@ -165,7 +170,15 @@ provisos(Add#(a__, 16, data_width),
 			 return (ifc.i_type==UNINFERABLE_JUMP || ifc.i_type==UNINFERABLE_CALL || ifc.i_type==UNINFERABLE_TAIL_CALL || ifc.i_type==OTHER_UNINFERABLE_JUMP || ifc.i_type==RETURN || ifc.i_type==EXCEPTION_OR_INTERRUPT_RETURN);
 		endfunction
                       
-      rule extracompress (rg_enque_sink_buff[0]== 1) ; 
+      rule extra_compress_&_sinkenq  (rg_enque_sink_buff[0]== 1) ;
+       
+       if(rg_packet[7:0] = 2'b10)begin  
+          rg_last_was_updiscon <= 1;  
+         end
+         else begin
+            rg_last_was_updiscon <= 0;
+           end    
+        
        rg_enque_sink_buff[0]<=0 ;
        let lv_comp_var = rg_packet[255:248];
        Vector#(32, Bit#(8)) lv_payload = newVector();
@@ -501,11 +514,12 @@ lv_payload[0]=rg_packet[87:80];
        //$display("lv_payload = %h ", lv_payload);
        
       endrule      
-      ///-----------
+  
       
-      rule trace_dma_write(trace_sink_buffer.deqReadyN(10) &&  rg_waiting_resp == 0);
+      rule trace_dma_write(trace_sink_buffer.deqReadyN(1) &&  rg_waiting_resp == 0);
       // $display("dma rule firing");
       //  $display("general first 64bits = %h", {trace_sink_buffer.first[7],trace_sink_buffer.first[6],trace_sink_buffer.first[5],trace_sink_buffer.first[4],trace_sink_buffer.first[3],trace_sink_buffer.first[2],trace_sink_buffer.first[1],trace_sink_buffer.first[0]} );
+      
        
       Bit#(data_width) writedata=0;
       Bit#(TDiv#(data_width,8)) writestrb = 0;
@@ -513,30 +527,30 @@ lv_payload[0]=rg_packet[87:80];
       Bit#(2) wrsize=0;  
      
        
-      if (trace_sink_buffer.deqReadyN(8)) begin
-                      writestrb = 'b11111111 << shamt;
+      if (trace_sink_buffer.deqReadyN(8) && rg_address[2:0] == 0) begin
+                      writestrb = 'b11111111;
                       wrsize = 3;                    
-                      writedata  = duplicate({trace_sink_buffer.first[7],trace_sink_buffer.first[6],trace_sink_buffer.first[5],trace_sink_buffer.first[4],trace_sink_buffer.first[3],trace_sink_buffer.first[2],trace_sink_buffer.first[1],trace_sink_buffer.first[0]});       
-                      //$display("inside 64 bit= %h",writedata );               
+                      writedata  = duplicate({trace_sink_buffer.first[0],trace_sink_buffer.first[1],trace_sink_buffer.first[2],trace_sink_buffer.first[3],trace_sink_buffer.first[4],trace_sink_buffer.first[5],trace_sink_buffer.first[6],trace_sink_buffer.first[7]});       
+                     //$display("inside 64 bit= %h strob:- %b",writedata,writestrb);               
                     end                     
-       /*else if (trace_sink_buffer.deqReadyN(4)) begin
+       else if (trace_sink_buffer.deqReadyN(4) && rg_address[1:0] == 0) begin
                       writestrb = 'b1111 << shamt ;
                       wrsize = 2;  
-                      writedata = duplicate({trace_sink_buffer.first[7],trace_sink_buffer.first[6],trace_sink_buffer.first[5],trace_sink_buffer.first[4]});
-                      //$display("inside 32 bit= %h",writedata ); 
+                      writedata = duplicate({trace_sink_buffer.first[4],trace_sink_buffer.first[5],trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
+                      //$display("inside 32 bit= %h strob:- %b",writedata,writestrb); 
                     end 
-       else if (trace_sink_buffer.deqReadyN(2)) begin
+       else if (trace_sink_buffer.deqReadyN(2) && rg_address[0] == 0) begin
                       writestrb = 'b11 << shamt;
                       wrsize = 1;  
-                      writedata = duplicate({trace_sink_buffer.first[7],trace_sink_buffer.first[6]});
-                      //$display("inside 16 bit= %h",writedata ); 
+                      writedata = duplicate({trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
+                      //$display("inside 16 bit= %h strob:- %b",writedata,writestrb); 
                     end
         else if (trace_sink_buffer.deqReadyN(1)) begin
-                      writestrb = 'b1<<shamt;
+                      writestrb = 'b1 << shamt;
                       wrsize = 0; 
                       writedata = duplicate(trace_sink_buffer.first[7]);
-                      //$display("inside 8 bit= %h",writedata ); 
-                    end */
+                      //$display("inside 8 bit= %h strob:- %b",writedata,writestrb); 
+                    end 
                      rg_waiting_resp <= 1; 
                      rg_size<=wrsize[1:0]; 
       
@@ -548,7 +562,7 @@ lv_payload[0]=rg_packet[87:80];
                                       awburst : 0,
                                       awid    : 0, 
                                       awprot  :'d3 };
-                                      
+       //$display("bro i did ma work written into mem :-ct:- %d",trace_sink_buffer.count);                                  
       AXI4_Wr_Data#(data_width) wr_data_request = AXI4_Wr_Data{ 
                                                   wdata: writedata, 
                                                   wstrb: writestrb, 
@@ -582,21 +596,20 @@ lv_payload[0]=rg_packet[87:80];
                      rg_address <= rg_address + zeroExtend(offset);                                  
                      trace_sink_buffer.deq(unpack(zeroExtend(offset)));                                 
                  end               
-            endrule          
-                      
-     
-       method Action trace_interface(Bit#(4) itype ,Bit#(4) cause,Bit#(64) tval,Bit#(3) priv,Bit#(64) iaddr,Bit#(2) iretire,Bit#(1) ilastsize) if(rg_Active == 1);
-           //  wr_ingress_in_ready <= 1; 
-                   // $display("trace_interface_firing");
-                    Bit#(1) lv_filter = 0;  
-                      if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
-                          lv_filter = 1 ;                      
-                      end 
+            endrule   
+            
+            
+            rule compress( wr_compress_en == 1 || rg_Active == 0  ) ; 
+            
+             // $display("rule compress fired");
+            
+              //  wr_ingress_in_ready <= 1; 
+                   // $display("trace_interface_firing");          
                         
              if(rg_teEnable == 1 ) begin    
                 rg_prev <=  rg_curr ;   
                 rg_curr <=  rg_next ;     
-                rg_next <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) }); end
+                rg_next <=  wr_trace_in ;  end    
                  // $display("%d,%d,%d,%d,%h,%d,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize, rg_iTracing);end
                // rg_next <=  unpack({ rg_iTracing, ilastsize,iretire, iaddr , priv , tval , cause, itype   }); end
                 //                                                
@@ -605,10 +618,7 @@ lv_payload[0]=rg_packet[87:80];
                   rg_curr <= unpack(0);     
                   rg_next <= unpack(0);
                 end 
-                   
-                //$display(" rg_prev_instr \n" , rg_prev_instr);
-                //$display(" rg_curr_instr \n" , rg_curr_instr);
-                //$display(" rg_next_instr \n" , rg_next_instr); 
+                  
                                                
                 rg_prev_trace_control <= rg_trace_control; 
              
@@ -620,6 +630,7 @@ lv_payload[0]=rg_packet[87:80];
 		 Bit#(1) lv_with_address = 0 ; //rg_pac_gen
 		 Bit#(1) lv_pac_gen = 0 ;  
 		 Bit#(1) lv_which_packet  = 0;
+		 Bit#(2) lv_qual_status  = 0;
 			                      
 		 let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
 		 let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5           
@@ -642,18 +653,26 @@ lv_payload[0]=rg_packet[87:80];
 		 //$display("rg_trace_control %h \n", rg_trace_control);
                  //$display("rg_prev_trace_control %h \n", rg_prev_trace_control);
              
-              if (rg_prev_trace_control != rg_trace_control ) begin
-                    lv_pac_gen = 1; 
-                    lv_format= SUPPORT;
-                  
-                    lv_which_packet = 1;  
-                   
+              if (rg_prev_trace_control != rg_trace_control) begin                     
+                  if (rg_last_was_updiscon == 1 ) begin   
+                      lv_pac_gen = 1; 
+                      lv_format= SUPPORT;                  
+                      lv_which_packet = 1; 
+                   end                     
+                    else begin
+                      lv_pac_gen = 1;
+		      lv_with_address=1;
+		      lv_which_packet = 0;
+                      re_suport_gen <=1;                    
+                    end  
+                     
+                   lv_qual_status = { rg_last_was_updiscon,rg_prev_trace_control[1]};    
+            
                  /*$display("format 3,subformat 3 \n");
                  $display("rg_trace_control %h \n", rg_trace_control);
                  $display("rg_prev_trace_control %h \n", rg_prev_trace_control);
                  $display("lv_pac_gen %h \n", lv_pac_gen); 
                  $display("lv_format %h \n", lv_format); 
-                 $display("lv_qual %h \n", lv_qual); 
                  $display("lv_which_packet %h \n", lv_which_packet);*/
                 end
                                           
@@ -744,7 +763,7 @@ lv_payload[0]=rg_packet[87:80];
           if (lv_pac_gen == 1) begin 
                     
                     rg_enque_sink_buff[1] <= 1;
-                                          
+                                           
                       if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
                            rg_resync_count<=0; 
                               rg_iaddr_last_reported<=rg_curr.iaddr; end 
@@ -861,6 +880,21 @@ lv_payload[0]=rg_packet[87:80];
                    if (!lv_is_branch) begin  
                       rg_branch_map <= rg_branch_map | 1 << rg_branches; end                                             
                end                  
+            
+            
+            endrule 
+                   
+                      
+     
+       method Action trace_interface(Bit#(4) itype ,Bit#(4) cause,Bit#(64) tval,Bit#(3) priv,Bit#(64) iaddr,Bit#(2) iretire,Bit#(1) ilastsize) if(rg_Active == 1);
+        Bit#(1) lv_filter = 0;  
+                      if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
+                          lv_filter = 1 ;                      
+                      end
+            //$display("trace_interface fired");
+           wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) }); 
+           wr_compress_en <= 1; 
+         
      endmethod 
      
  
