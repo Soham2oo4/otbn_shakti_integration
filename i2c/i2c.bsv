@@ -981,7 +981,7 @@ package i2c;
     method Bit#(1) isber();
   endinterface
 
-  module mki2c_axi4lite#(Clock i2c_clock, Reset i2c_reset `ifdef testmode , Bool test_mode, Clock test_clk `endif)(Ifc_i2c_axi4lite#(addr_width, data_width, user_width))
+  module mki2c_axi4lite#(Clock i2c_clock, Reset i2c_reset `ifdef testmode , Bool test_mode, Clock test_clk `endif )(Ifc_i2c_axi4lite#(addr_width, data_width, user_width))
     provisos(
       Add#(a__, 8, addr_width),
       Add#(b__, 32, data_width),
