@@ -1111,7 +1111,7 @@ endmodule : mk_sspi
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 	endinterface
 
-	module mksspi_axi4lite(Ifc_sspi_axi4lite#(addr_width,data_width,user_width))
+	module mksspi_axi4lite `ifdef testmode #(Bool test_mode, Clock test_clk) `endif (Ifc_sspi_axi4lite#(addr_width,data_width,user_width))
 			provisos(Add#(a__, 32, data_width),
 					 Add#(b__,  4, data_width),
 					 Mul#(32, c__, data_width),

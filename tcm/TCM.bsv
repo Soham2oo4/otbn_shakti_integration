@@ -32,7 +32,7 @@ package TCM;
 		method Tuple2#(Bool,Bit#(data_width)) read_response;
 	endinterface : Ifc_TCM
 
-	module mkTCM#(parameter String modulename, Integer base_address, Bool test_mode) (Ifc_TCM#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size))
+	module mkTCM#(parameter String modulename, Integer base_address `ifdef testmode , Bool test_mode `endif ) (Ifc_TCM#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size))
 								provisos(Add#(a__,index_size,addr_width),
 												 `ifdef ecctcm Add#(2,TLog#(data_width),ecc_width), `else Add#(0,0,ecc_width), `endif
 												 Add#(ecc_width,data_width,encoded_data_width),
@@ -247,7 +247,7 @@ package TCM;
 
 	typedef enum {Idle, Burst} Transfer_State deriving(Eq, Bits, FShow);
 
-	module mkTCM_axi4#(String modulename, Integer base_address, Bool test_mode)(Ifc_TCM_axi4#(addr_width,data_width,user_width,num_ver_banks,num_hor_banks,index_size))
+	module mkTCM_axi4#(String modulename, Integer base_address `ifdef testmode , Bool test_mode `endif )(Ifc_TCM_axi4#(addr_width,data_width,user_width,num_ver_banks,num_hor_banks,index_size))
 								provisos(Add#(a__,index_size,addr_width),
 												 Add#(f_,TLog#(TDiv#(data_width,8)),addr_width),
 												 Add#(g_,TMul#(2,TLog#(TDiv#(data_width,8))),data_width),
@@ -260,7 +260,7 @@ package TCM;
 												`endif
 												);
 
-		Ifc_TCM#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size) tcm <- mkTCM(modulename, base_address, test_mode);
+		Ifc_TCM#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size) tcm <- mkTCM(modulename, base_address `ifdef testmode, test_mode `endif );
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor;
 
 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_write_burst_address <- mkRegA(?);
@@ -338,7 +338,7 @@ package TCM;
     interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 	endinterface : Ifc_TCM_axi4lite
 
-	module mkTCM_axi4lite#(String modulename, Integer base_address, Bool test_mode)(Ifc_TCM_axi4lite#(addr_width,data_width,user_width,num_ver_banks,num_hor_banks,index_size))
+	module mkTCM_axi4lite#(String modulename, Integer base_address `ifdef testmode , Bool test_mode `endif )(Ifc_TCM_axi4lite#(addr_width,data_width,user_width,num_ver_banks,num_hor_banks,index_size))
 								provisos(Add#(a__,index_size,addr_width),
 												 Add#(f_,TLog#(TDiv#(data_width,8)),addr_width),
 												 Add#(g_,TMul#(2,TLog#(TDiv#(data_width,8))),data_width),
@@ -351,7 +351,7 @@ package TCM;
 												`endif
 												);
 
-		Ifc_TCM#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size) tcm <- mkTCM(modulename, base_address, test_mode);
+		Ifc_TCM#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size) tcm <- mkTCM(modulename, base_address `ifdef testmode , test_mode `endif );
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Lite_Slave_Xactor;
 
 		rule rl_write_request;
