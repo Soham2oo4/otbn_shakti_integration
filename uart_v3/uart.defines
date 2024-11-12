@@ -64,3 +64,4 @@
                             // Bit 6: RX FIFO Clear 
                             // Bit 5: TX FIFO Clear
                             // Bit 4:0 : 32 Bit Threshold Value (00000-11111)
+`define UART_Clk_en 'h24

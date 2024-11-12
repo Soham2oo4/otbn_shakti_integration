@@ -103,7 +103,7 @@ typedef enum {
 ////////////////////////////////////////////////////////////////////////////////
 /// Interfaces
 ////////////////////////////////////////////////////////////////////////////////
-(* always_ready, always_enabled *)
+// (* always_ready, always_enabled *)
 /* Contains the definitions of all physical pins expected from our implementation */
 interface RS232;
    // Inputs
@@ -520,7 +520,8 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    ////////////////////////////////////////////////////////////////////////////////
    /// Baud Clock Enable
    ////////////////////////////////////////////////////////////////////////////////
-   (* no_implicit_conditions, fire_when_enabled *)
+   // (* no_implicit_conditions, fire_when_enabled *)
+   (* fire_when_enabled *)
 	 (* conflict_free = "receive_buffer_shift, receive_wait_for_start_bit" *)
    /* Enables the clock of the baud generator */
    rule baud_generator_clock_enable;
