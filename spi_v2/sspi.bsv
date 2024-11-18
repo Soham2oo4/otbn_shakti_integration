@@ -408,10 +408,10 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	/* doc : Wire : holds the input qualified (output from IQC module) sclk value in slave mode */
 	Wire#(bit) wr_sclk_qual <- mkWire();
 	/* doc : Wire : holds the input qualified (output from IQC module) ncs value in slave mode */
-	Wire#(bit) wr_ncs_qual0  <- mkWire();
-	Wire#(bit) wr_ncs_qual1  <- mkWire();
-	Wire#(bit) wr_ncs_qual2  <- mkWire();
-	Wire#(bit) wr_ncs_qual3  <- mkWire();
+	Wire#(bit) wr_ncs_qual0  <- mkDWire();
+	Wire#(bit) wr_ncs_qual1  <- mkDWire();
+	Wire#(bit) wr_ncs_qual2  <- mkDWire();
+	Wire#(bit) wr_ncs_qual3  <- mkDWire();
 	/* doc : Wire : holds the input qualified (output from IQC module) spi input value in slave mode */
 	Wire#(bit) wr_spi_in_qual <- mkWire();
 
