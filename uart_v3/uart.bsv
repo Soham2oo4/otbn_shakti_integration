@@ -285,6 +285,9 @@ package uart;
       method    Bit#(1)     out2();
                 return uart.rs232.out2();
       endmethod
+	  method Bit#(2) dma_ready;
+		return uart.rs232.dma_ready;
+	endmethod
     endinterface
 		method Bit#(1) interrupt;
 		/* If Modem Status Interrupt is enabled and either DCTS,DDSR,DDCD,and TERI are enabled send interrupt */
@@ -309,7 +312,7 @@ package uart;
   endinterface
 
 	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate,
-                          parameter Bit#(2) stopbits, parameter Bit#(2) parity)
+                          parameter Bit#(2) stopbits, parameter Bit#(2) parity `ifdef testmode ,Bool test_mode, Clock test_clk `endif )
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
     provisos(Mul#(32, a__, data_width),

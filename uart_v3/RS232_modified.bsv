@@ -130,6 +130,8 @@ interface RS232;
    method    Bit#(1)     out1();   
    (* prefix = "", result = "OUT2" *)
    method    Bit#(1)     out2();
+   (* prefix = "", result = "DMA_RDY" *)
+   method Bit#(2) dma_ready;
 endinterface
 /* Contains the definitions of all methods for the workin of a Baud genarator. */
 interface BaudGenerator;
@@ -491,7 +493,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    ////////////////////////////////////////////////////////////////////////////////
    /// Transmit UART
    ////////////////////////////////////////////////////////////////////////////////
-   FIFOLevelIfc#(Bit#(32), d)                 fifoXmit              <- mkGFIFOLevel(True, False, True);
+   FIFOCountIfc#(Bit#(32), d)                 fifoXmit              <- mkGFIFOCount(True, False, True);
 
    Vector#(32, Reg#(Bit#(1)))                 vrXmitBuffer          <- replicateM(mkRegU);
 
@@ -890,7 +892,10 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       method out1    = ~modemctrl[2];
       /* Outputs OUT2 value from Control Register */
       method out2    = ~modemctrl[1];
-      
+      method Bit#(2) dma_ready;
+         return {pack(fifoRecv.count >= 2), pack(fifoXmit.count <= 14)};
+         //return {pack(fifoRecv.notEmpty), pack(fifoXmit.notFull)};
+      endmethod
    endinterface
    /* If this method is called then the data from Receiver FIFO is returned. Thus,it is expected that the receiver FIFO as 
    data by the time it is called(i.e., all the receiver rules are executed.) */

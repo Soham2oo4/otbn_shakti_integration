@@ -50,6 +50,7 @@ package qspi;
 		/*(* always_ready, result="io_enable" *)*/ 	method Bit#(4) io_enable;
 		/*(* always_ready, always_enabled *)   	*/	method Action io_i ((* port="io_i" *) Bit#(4) io_in);    // in
 		/*(* always_ready, result="ncs_o" *) 		*/	method bit ncs_o;
+		/*(* always_ready, result="dma_rdy" *) 		*/	method Bit#(2) dma_ready;
     endinterface
 
     interface Ifc_qspi_controller#(numeric type addr_width,
@@ -61,6 +62,7 @@ package qspi;
 		  method Action rd_req(Maybe#(Read_req#(addr_width)) req);
 		  method Maybe#(Rd_resp#(data_width)) rd_resp;
 		  method Bit#(1) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
+		  method Bit#(2) dma_ready;
     `ifdef simulate
 	  	method Phase curphase;
     `endif
@@ -1448,6 +1450,9 @@ package qspi;
 	    	rg_input<=io_in;
     	endmethod
         method bit ncs_o = ncs;
+		method Bit#(2) dma_ready;
+			return {pack(fifo.count >= 2), pack(fifo.count <= 14)};
+		endmethod
     endinterface
 
 	method Action write_req(Maybe#(Write_req#(addr_width, data_width)) wr_req);
