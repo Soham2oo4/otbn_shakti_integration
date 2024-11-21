@@ -5,11 +5,11 @@
 import MIMO_MODIFY::*;
  import DefaultValue::*;
  import Vector :: * ;
- import AXI4_Lite_Types   :: *;
- import AXI4_Lite_Fabric  :: *;
- import AXI4_Types::*;
- import AXI4_Fabric::*;
- import Semi_FIFOF::*;
+//  import AXI4_Lite_Types   :: *;
+//  import AXI4_Lite_Fabric  :: *;
+//  import AXI4_Types::*;
+//  import AXI4_Fabric::*;
+//  import Semi_FIFOF::*;
 
   typedef enum{
 	NIL,EXCEPTION,
@@ -50,12 +50,12 @@ typedef enum{
    	SUPPORT
 }SYNC_T deriving(Bits,Eq); 
 
-/*typedef enum{
+typedef enum{
     NO_CHANGE,
     ENDED_REP, 
     TRACE_LOST,
     ENDED_NTR 
-}QUAL_STATUS_T deriving(Bits,Eq);*/  //not needed for nows
+}QUAL_STATUS_T deriving(Bits,Eq);  //not needed for nows
 
 typedef enum{
 	U,
@@ -100,7 +100,7 @@ typedef struct{
      method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr ); 
      method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
      //method Bit#(1) trace_interrupt;    
-     interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;   	      
+    //  interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;   	      
    endinterface 
    
 
@@ -128,7 +128,8 @@ provisos(Add#(a__, 16, data_width),
         Reg#(Hart_to_encoder_interface) rg_curr <- mkRegA(unpack(0));
         Reg#(Hart_to_encoder_interface) rg_next <- mkRegA(unpack(0));
     
-        
+        Reg#(Bit#(1)) re_support_gen <- mkRegA(0);
+
         Reg#(Bit#(5))  rg_branches <- mkRegA(0); 
         Reg#(Bit#(31)) rg_branch_map <- mkRegA(0); 
         Reg#(Bit#(16)) rg_prev_trace_control	<- mkRegA(0);
@@ -154,7 +155,7 @@ provisos(Add#(a__, 16, data_width),
         
         Reg#(Bit#(1))  rg_last_was_updiscon <- mkRegA(0);
         
-        AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
+        // AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
         
        
 	  MIMOConfiguration cfg = defaultValue;
@@ -171,8 +172,9 @@ provisos(Add#(a__, 16, data_width),
 		endfunction
                       
       rule extra_compress_&_sinkenq  (rg_enque_sink_buff[0]== 1) ;
-       
-       if(rg_packet[7:0] = 2'b10)begin  
+      rule extra_compress_sinkenq  (rg_enque_sink_buff[0]== 1) ;
+
+       if(rg_packet[7:0] == 2'b10)begin  
           rg_last_was_updiscon <= 1;  
          end
          else begin
@@ -601,16 +603,16 @@ lv_payload[0]=rg_packet[87:80];
             
             rule compress( wr_compress_en == 1 || rg_Active == 0  ) ; 
             
-             // $display("rule compress fired");
+             //$display("rule compress fired");
             
               //  wr_ingress_in_ready <= 1; 
-                   // $display("trace_interface_firing");          
+                  // $display("trace_interface_firing");          
                         
              if(rg_teEnable == 1 ) begin    
                 rg_prev <=  rg_curr ;   
                 rg_curr <=  rg_next ;     
-                rg_next <=  wr_trace_in ;  end    
-                 // $display("%d,%d,%d,%d,%h,%d,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize, rg_iTracing);end
+                rg_next <=  wr_trace_in ; end    
+               // $display("%d,%d,%d,%d,%h,%d,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize, rg_iTracing);end
                // rg_next <=  unpack({ rg_iTracing, ilastsize,iretire, iaddr , priv , tval , cause, itype   }); end
                 //                                                
                else begin  
@@ -630,7 +632,7 @@ lv_payload[0]=rg_packet[87:80];
 		 Bit#(1) lv_with_address = 0 ; //rg_pac_gen
 		 Bit#(1) lv_pac_gen = 0 ;  
 		 Bit#(1) lv_which_packet  = 0;
-		 Bit#(2) lv_qual_status  = 0;
+		 let lv_qual_status  = NO_CHANGE;
 			                      
 		 let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
 		 let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5           
@@ -651,247 +653,255 @@ lv_payload[0]=rg_packet[87:80];
 		 let lv_irreport = lv_updiscon ; 
 		 
 		 //$display("rg_trace_control %h \n", rg_trace_control);
-                 //$display("rg_prev_trace_control %h \n", rg_prev_trace_control);
-             
-              if (rg_prev_trace_control != rg_trace_control) begin                     
-                  if (rg_last_was_updiscon == 1 ) begin   
-                      lv_pac_gen = 1; 
-                      lv_format= SUPPORT;                  
-                      lv_which_packet = 1; 
-                   end                     
-                    else begin
-                      lv_pac_gen = 1;
+			 //$display("rg_prev_trace_control %h \n", rg_prev_trace_control);
+		if(re_support_gen==1) begin
+		lv_pac_gen=1;
+		lv_format=SUPPORT;
+		lv_which_packet=1;
+		lv_qual_status=ENDED_REP;
+		re_support_gen<=1'b0;      
+		end
+
+		else if (rg_prev_trace_control != rg_trace_control) begin                     
+		if (rg_prev_trace_control[1]==1'b0 || rg_last_was_updiscon == 1'b1 ) begin   
+		  lv_pac_gen = 1; 
+		  lv_format= SUPPORT;                  
+		  lv_which_packet = 1;
+		  lv_qual_status=(rg_prev_trace_control[1]==1'b0)?NO_CHANGE:ENDED_NTR; 
+		end                     
+		else begin
+		  lv_pac_gen = 1;
+		  lv_with_address=1;
+		  lv_which_packet = 0;
+                  re_support_gen <=1;                    
+        end  
+                     
+      //   lv_qual_status = { rg_last_was_updiscon,rg_prev_trace_control[1]};    /**/
+            
+      //   $display("format 3,subformat 3 \n");
+        /*$display("rg_trace_control %h \n", rg_trace_control);
+        $display("rg_prev_trace_control %h \n", rg_prev_trace_control);
+        $display("lv_pac_gen %h \n", lv_pac_gen); 
+        $display("lv_format %h \n", lv_format); 
+        $display("lv_which_packet %h \n", lv_which_packet);*/
+      end
+
+      // else if ( re_support_gen == 1'b1 ) begin
+      //     lv_
+                                          
+      else if ( rg_curr.qual == 1 && rg_teEnable==1 ) begin 
+      /*  $display("inside encode \n" );            
+        $display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
+        $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
+        $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
+        $display(" rg_prev.i_type %h  \n" , rg_prev.i_type);
+        $display(" rg_curr.cause %h  \n" , rg_curr.cause);
+        $display(" rg_prev.cause %h  \n" , rg_prev.cause);
+        $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
+        $display(" rg_branches \n" , rg_branches);  
+        $display(" rg_branch_map \n" , rg_branch_map);*/
+                      
+                      
+        if(is_exceptions(rg_prev)) begin                      
+          if (is_exceptions(rg_curr)&& rg_curr.iretire == 0) begin  
+            rg_reported <= 1;  
+        		lv_pac_gen = 1; 
+            lv_format= TRAP;
+            lv_thaddr= 0 ; 
+            lv_which_packet = 1;  
+            lv_iexception = IPREV;
+          end
+                            
+          else begin
+            if (rg_reported == 1) begin 
+              rg_reported <= 0; 
+              lv_pac_gen = 1;
+              lv_format= START ;
+              lv_which_packet = 1;
+            end 
+                              
+            else begin
+              lv_pac_gen = 1;
+              lv_format= TRAP ;
+              lv_thaddr= 1; 
+              lv_which_packet = 1; 
+              lv_iexception = IPREV;
+            end        
+          end                                
+        end
+                        
+        else if (lv_ppccd || rg_resync_count > lv_resyncmax || ((rg_curr.qual == 1  && rg_prev.qual ==0) && (rg_iaddr_last_reported != rg_curr.iaddr))  ) begin                    
+          
+          lv_pac_gen = 1;
+          lv_format= START ;
+          lv_which_packet = 1;                                                                 
+        end
+                                                    
+        else if (is_updiscons(rg_prev)) begin                            
+          if (is_exceptions(rg_curr) && rg_curr.iretire == 0  ) begin                     
+            rg_reported <= 1;
+            lv_pac_gen = 1;
+            lv_format= TRAP ; 
+            lv_thaddr= 0 ; 
+            lv_which_packet = 1; 
+            lv_iexception = ICURR;
+          end
+          else begin 
+            lv_pac_gen = 1; 
+            lv_with_address=1;  
+            lv_which_packet = 0;                                       
+          end  
+        end                  
+        
+        else if ((lv_resync_count_max && (lv_fast_branches !=0)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr)))) begin                                  
+		      lv_pac_gen = 1;
 		      lv_with_address=1;
 		      lv_which_packet = 0;
-                      re_suport_gen <=1;                    
-                    end  
-                     
-                   lv_qual_status = { rg_last_was_updiscon,rg_prev_trace_control[1]};    
-            
-                 /*$display("format 3,subformat 3 \n");
-                 $display("rg_trace_control %h \n", rg_trace_control);
-                 $display("rg_prev_trace_control %h \n", rg_prev_trace_control);
-                 $display("lv_pac_gen %h \n", lv_pac_gen); 
-                 $display("lv_format %h \n", lv_format); 
-                 $display("lv_which_packet %h \n", lv_which_packet);*/
-                end
-                                          
-           else if ( rg_curr.qual == 1) begin 
-            //$display("inside encode \n" );            
-              /*$display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
-              $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
-              $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
-              $display(" rg_prev.i_type %h  \n" , rg_prev.i_type);
-              $display(" rg_curr.cause %h  \n" , rg_curr.cause);
-              $display(" rg_prev.cause %h  \n" , rg_prev.cause);
-              $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
-              $display(" rg_branches \n" , rg_branches);  
-              $display(" rg_branch_map \n" , rg_branch_map);*/
-                      
-                      
-               if(is_exceptions(rg_prev)) begin                      
-                    if (is_exceptions(rg_curr)&& rg_curr.iretire == 0) begin  
-                            rg_reported <= 1;  
-        		    lv_pac_gen = 1; 
-                            lv_format= TRAP;
-                            lv_thaddr= 0 ; 
-                            lv_which_packet = 1;  
-                            lv_iexception = IPREV;
-                          end
-                            
-                       else begin
-                                                
-                          if (rg_reported == 1) begin 
-                              rg_reported <= 0; 
-                              lv_pac_gen = 1;
-                              lv_format= START ;
-                            lv_which_packet = 1;
-                            end 
-                              
-                          else begin
-                             lv_pac_gen = 1;
-                              lv_format= TRAP ;
-                            lv_thaddr= 1; 
-                            lv_which_packet = 1; 
-                            lv_iexception = IPREV;
-                             end        
-                          end                                
-                        end
-                        
-             else if (lv_ppccd || rg_resync_count > lv_resyncmax || ((rg_curr.qual == 1  && rg_prev.qual ==0) && (rg_iaddr_last_reported != rg_curr.iaddr))  ) begin                    
-          
-                          lv_pac_gen = 1;
-                          lv_format= START ;
-                            lv_which_packet = 1;                                                                 
-                           end
-                                                    
-              else if (is_updiscons(rg_prev)) begin                            
-                      if (is_exceptions(rg_curr) && rg_curr.iretire == 0  ) begin                     
-                            rg_reported <= 1;
-                              lv_pac_gen = 1;
-                              lv_format= TRAP ; 
-                             lv_thaddr= 0 ; 
-                             lv_which_packet = 1; 
-                             lv_iexception = ICURR;
-                            end
-                         else begin 
-                           lv_pac_gen = 1; 
-                            lv_with_address=1;  
-                            lv_which_packet = 0;                                       
-                          end  
-                         end                  
-                else if ((lv_resync_count_max && (lv_fast_branches !=0)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr)))) begin                                  
-		           lv_pac_gen = 1;
-		           lv_with_address=1;
-		           lv_which_packet = 0;
 		                     
-                          end 
-                else if  ((is_exceptions(rg_next) && rg_next.iretire == 0)|| lv_ppccd_br) begin
-                          lv_pac_gen = 1;                     
-                         lv_with_address=1; 
-                         lv_which_packet = 0;
+        end 
+        else if  ((is_exceptions(rg_next) && rg_next.iretire == 0)|| lv_ppccd_br) begin
+          lv_pac_gen = 1;                     
+          lv_with_address=1; 
+          lv_which_packet = 0;
                         
-                         end                                                     
-                   else if (lv_fast_branches == 31 ) begin   
-         		lv_pac_gen = 1;
-         		lv_with_address=0; 
-         		lv_which_packet = 0;                                              
-                      end   
-                      end 
+        end                                                     
+        else if (lv_fast_branches == 31 ) begin   
+         	lv_pac_gen = 1;
+         	lv_with_address=0; 
+         	lv_which_packet = 0;                                              
+        end   
+      end 
                       
                                       
-          if (lv_pac_gen == 1) begin 
+        if (lv_pac_gen == 1) begin 
                     
-                    rg_enque_sink_buff[1] <= 1;
+          rg_enque_sink_buff[1] <= 1;
                                            
-                      if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
-                           rg_resync_count<=0; 
-                              rg_iaddr_last_reported<=rg_curr.iaddr; end 
-                           else begin rg_resync_count <= rg_resync_count+1; 
-                            //$display("resync count %d", rg_resync_count);    
-                              end                           
+          if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
+            rg_resync_count<=0; 
+            rg_iaddr_last_reported<=rg_curr.iaddr; 
+          end 
+          else begin rg_resync_count <= rg_resync_count+1; 
+            //$display("resync count %d", rg_resync_count);    
+          end                           
                                            
-		  if (lv_which_packet == 1 ) begin  
-		        
-                      Bit#(1) lv_br_pac = (lv_branch && lv_is_branch)? 0 : 1;                                      
-                                         		   
-			case(lv_format)
-				START: begin				    				              
-					   rg_packet <= signExtend({lv_addr_full,32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
-					   //$display("%d",rg_test_count +3," rg_packet:- %h", rg_packet);
-					   //$display("%d",rg_test_count," format3, subformat 0 ");
-					   //$display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac,pack(rg_curr.priv));					   
-					     rg_test_count <= rg_test_count + 1;					    
-				       end
-			
-				TRAP: begin  
-			 
-			 
-			                  // $display("%d",rg_test_count," format3,, subformat 1 ");
-			                let lv_iexception_reg = (lv_iexception == IPREV)? rg_prev : rg_curr;       
-			                    if (lv_iexception_reg.i_type==INTERRUPT)begin
-			                  // $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b1,pack(rg_curr.priv)[1:0],lv_thaddr);
-			    rg_packet <= signExtend({lv_addr_full,lv_thaddr,1'b1,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
-			     
-			     end 		                 
-			                    else  begin 
-			                 //$display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b0,pack(rg_curr.priv)[1:0],lv_thaddr,pack(rg_curr.tval));
-			    rg_packet <= signExtend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,1'b0,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
-			   
-			                      end  
-			                      
-			                    rg_test_count <= rg_test_count + 1;
-				         end
-					
-				CONTEXT: begin	 // unusable right now
-					rg_packet <= signExtend({pack(rg_curr.priv)[1:0],pack(lv_format),2'b11});
-					//  $display("%d",rg_test_count+3," format3, , subformat 2 ");
-					//$display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch,);
-					  rg_test_count <= rg_test_count + 1;
-				          end
-				
-				SUPPORT: begin
-					rg_packet <= signExtend({1'b0,pack(rg_curr.qual),1'b0,rg_teEnable,pack(lv_format),2'b11});
-					//$display("%d",rg_test_count," format3, , subformat 3 ");
-					//$display("%d,%d,_,_,_,_,_,_,_,_,%d,%d,_,_,_,_,%d,_,%d,_,_,_,_,_,_,_",2'b11,pack(lv_format),rg_teEnable,1'b0,1'b0,pack(rg_curr.qual));
-					 rg_test_count <= rg_test_count + 1;
-				         end
-		
-			endcase
-		       end 
-		   else   begin                                
-                             // $display("rg_branches           %d" ,rg_branches );
-                              //$display("rg_branch_map %d" ,rg_branch_map );                                 
-			if(lv_with_address ==1) begin   
-			    rg_iaddr_last_reported<=rg_curr.iaddr;
-			   if (lv_fast_branches !=0 ) begin // Create branch packet WITH address 
-			        //$display("%d",rg_test_count," format1, Create branch packet WITH address");
-			          rg_test_count <= rg_test_count + 1;
-			          rg_branches <=0;
-         		          rg_branch_map <=0;         	
-				if(lv_fast_branches[4]==1) begin	
-						rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map,lv_fast_branches,2'b1});	
-						//$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
-				  end
-				  else if(lv_fast_branches[3]==1) begin
-						rg_packet <=  signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[14:0],lv_fast_branches,2'b1});						
-						//$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[3:0],lv_fast_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
-				  end
-				  else if(lv_fast_branches[2]==1) begin
-						rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[6:0],lv_fast_branches,2'b1});						
-					       //$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[2:0],lv_fast_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
-				  end	
-				  else if(lv_fast_branches[1]==1) begin
-					 	rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[2:0],lv_fast_branches,2'b1}); 
-					//$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[1:0],lv_fast_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
-				  end
-				  else begin
-						rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[0],lv_fast_branches,2'b1}); 
-						//$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[0],lv_fast_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
-						
-					 /*for (Integer i = 0; i<5; i = i + 1) begin	  
-					if(lv_fast_branches[i]==1) begin	
-						rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[(ei-1):0],lv_fast_branches,2'b1});	
-						$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
-					
-					end*/
-				  end
-		         	end
-		              else begin  // Address, without a branch-map
-		                //  $display("%d",rg_test_count," format2, Create address packet");	
-		                  	rg_packet <=signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,2'b10});
-		                      // $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff,lv_irreport,lv_notify,lv_updiscon); 		                  	
-		                  	 rg_test_count <= rg_test_count + 1;
-		              end 
+          if (lv_which_packet == 1 ) begin  
+                
+            Bit#(1) lv_br_pac = (lv_branch && lv_is_branch)? 0 : 1;                                      
+                                                  
+            case(lv_format)
+              START: begin				    				              
+                  rg_packet <= signExtend({lv_addr_full,32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
+                  //$display("%d",rg_test_count +3," rg_packet:- %h", rg_packet);
+                  //$display("%d",rg_test_count," format3, subformat 0 ");
+                  $display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac,pack(rg_curr.priv));					   
+                    rg_test_count <= rg_test_count + 1;					    
+              end
+            
+              TRAP: begin  
+                  // $display("%d",rg_test_count," format3,, subformat 1 ");
+                  let lv_iexception_reg = (lv_iexception == IPREV)? rg_prev : rg_curr;       
+                  if (lv_iexception_reg.i_type==INTERRUPT)begin
+                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b1,pack(rg_curr.priv)[1:0],lv_thaddr);
+                    rg_packet <= signExtend({lv_addr_full,lv_thaddr,1'b1,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
+                  end 		                 
+                  else  begin 
+                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b0,pack(rg_curr.priv)[1:0],lv_thaddr,pack(rg_curr.tval));
+                    rg_packet <= signExtend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,1'b0,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
+                  end  
+                  rg_test_count <= rg_test_count + 1;
+              end
+                
+              CONTEXT: begin	 // unusable right now
+                rg_packet <= signExtend({pack(rg_curr.priv)[1:0],pack(lv_format),2'b11});
+                //  $display("%d",rg_test_count+3," format3, , subformat 2 ");
+                $display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch);
+                  rg_test_count <= rg_test_count + 1;
+              end
+              
+              SUPPORT: begin
+                rg_packet <= signExtend({1'b0,pack(lv_qual_status),1'b0,rg_teEnable,pack(lv_format),2'b11});
+                //$display("%d",rg_test_count," format3, , subformat 3 ");
+                $display("%d,%d,_,_,_,_,_,_,_,_,%d,%d,_,_,_,_,%d,_,%d,_,_,_,_,_,_,_",2'b11,pack(lv_format),rg_teEnable,1'b0,1'b0,pack(lv_qual_status));//pack(rg_curr.qual));
+                rg_test_count <= rg_test_count + 1;
+              end
+      
+            endcase
+          end 
+          else   begin                                
+                                // $display("rg_branches           %d" ,rg_branches );
+                                  //$display("rg_branch_map %d" ,rg_branch_map );                                 
+            if(lv_with_address ==1) begin   
+              rg_iaddr_last_reported<=rg_curr.iaddr;
+              if (lv_fast_branches !=0 ) begin // Create branch packet WITH address 
+                //$display("%d",rg_test_count," format1, Create branch packet WITH address");
+                rg_test_count <= rg_test_count + 1;
+                rg_branches <=0;
+                rg_branch_map <=0;         	
+                if(lv_fast_branches[4]==1) begin	
+                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map,lv_fast_branches,2'b1});	
+                $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
+                end
+                else if(lv_fast_branches[3]==1) begin
+                  rg_packet <=  signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[14:0],lv_fast_branches,2'b1});						
+                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[3:0],lv_fast_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
+                end
+                else if(lv_fast_branches[2]==1) begin
+                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[6:0],lv_fast_branches,2'b1});						
+                      $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[2:0],lv_fast_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
+                end	
+                else if(lv_fast_branches[1]==1) begin
+                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[2:0],lv_fast_branches,2'b1}); 
+                $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[1:0],lv_fast_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
+                end
+                else begin
+                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[0],lv_fast_branches,2'b1}); 
+                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[0],lv_fast_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
+                  
+                /*for (Integer i = 0; i<5; i = i + 1) begin	  
+                if(lv_fast_branches[i]==1) begin	
+                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[(ei-1):0],lv_fast_branches,2'b1});	
+                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
+                
+                end*/
+                end
+		          end
+              else begin  // Address, without a branch-map
+                //  $display("%d",rg_test_count," format2, Create address packet");	
+                rg_packet <=signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,2'b10});
+                $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff,lv_irreport,lv_notify,lv_updiscon); 		                  	
+                rg_test_count <= rg_test_count + 1;
+              end 
 		        end  	 
-			else begin //Create branch packet WITHOUT address
-				//$display("%d",rg_test_count," format1, Create branch packet WITHOUT address");
-				    rg_test_count <= rg_test_count + 1;
-				    rg_branches <=0;
-         		           rg_branch_map <=0;
-				rg_packet <=  signExtend({lv_fast_branch_map,5'b0,2'b1});
-				//$display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,lv_fast_branch_map);
-			end
-	              end 
+        
+            else begin //Create branch packet WITHOUT address
+              //$display("%d",rg_test_count," format1, Create branch packet WITHOUT address");
+                  rg_test_count <= rg_test_count + 1;
+                  rg_branches <=0;
+                  rg_branch_map <=0;
+                  rg_packet <=  signExtend({lv_fast_branch_map,5'b0,2'b1});
+              $display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,lv_fast_branch_map);
+            end
+	        end 
 	              	               	              	
-	         end 
-                   else if(lv_branch && rg_curr.qual == 1 )begin   
-                     rg_branches <= rg_branches + 1;               
-                   if (!lv_is_branch) begin  
-                      rg_branch_map <= rg_branch_map | 1 << rg_branches; end                                             
-               end                  
+	      end 
+        else if(lv_branch && rg_curr.qual == 1 )begin   
+          rg_branches <= rg_branches + 1;               
+          if (!lv_is_branch) begin  
+            rg_branch_map <= rg_branch_map | 1 << rg_branches; 
+          end                                             
+        end                  
             
-            
-            endrule 
+      endrule 
                    
                       
      
        method Action trace_interface(Bit#(4) itype ,Bit#(4) cause,Bit#(64) tval,Bit#(3) priv,Bit#(64) iaddr,Bit#(2) iretire,Bit#(1) ilastsize) if(rg_Active == 1);
-        Bit#(1) lv_filter = 0;  
-                      if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
-                          lv_filter = 1 ;                      
-                      end
-            //$display("trace_interface fired");
+        Bit#(1) lv_filter = 1;  
+                     // if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
+                     //     lv_filter = 1 ;                      
+                    //  end
+          //$display("trace_interface fired");
            wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) }); 
            wr_compress_en <= 1; 
          
@@ -924,146 +934,146 @@ lv_payload[0]=rg_packet[87:80];
      
      //method trace_interrupt = (trace_sink_buffer.deqReadyN(4))? 1 : 0;
      
-     interface master= master_xactor.axi_side;
+    //  interface master= master_xactor.axi_side;
   
 
 endmodule
 
 
-interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
-		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
-		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-		//method Bit#(1) trace_interrupt;
-	endinterface
+// interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
+// 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
+// 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+// 		//method Bit#(1) trace_interrupt;
+// 	endinterface
 
-	module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,data_width,user_width))
-			provisos(Add#(a__, 32, data_width),
-					 Add#(b__,  4, data_width),
-					 Mul#(32, c__, data_width),
-					 Mul#( 8, d__, data_width),
-					 Mul#(16, e__, data_width),
-					 Mul#( 4, f__, data_width),
-					 Add#(16, g__, data_width),
-					 Mul#(64, h__, data_width),
-					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
-					 Add#(j__, 4, addr_width)
+// 	module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,data_width,user_width))
+// 			provisos(Add#(a__, 32, data_width),
+// 					 Add#(b__,  4, data_width),
+// 					 Mul#(32, c__, data_width),
+// 					 Mul#( 8, d__, data_width),
+// 					 Mul#(16, e__, data_width),
+// 					 Mul#( 4, f__, data_width),
+// 					 Add#(16, g__, data_width),
+// 					 Mul#(64, h__, data_width),
+// 					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
+// 					 Add#(j__, 4, addr_width)
 
-					);
-		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
-		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
+// 					);
+// 		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
+// 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
-		rule read_request;
-	  		let req <- pop_o (s_xactor.o_rd_addr);
-      		let {succ,data} <- trace.read_req(req.araddr);
-	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
-                                    rdata:data, ruser: ?};
-	  		s_xactor.i_rd_data.enq(resp);
-     	endrule
+// 		rule read_request;
+// 	  		let req <- pop_o (s_xactor.o_rd_addr);
+//       		let {succ,data} <- trace.read_req(req.araddr);
+// 	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+//                                     rdata:data, ruser: ?};
+// 	  		s_xactor.i_rd_data.enq(resp);
+//      	endrule
 
-     	rule write_request;
-       		let addreq <- pop_o(s_xactor.o_wr_addr);
-       		let datareq <- pop_o(s_xactor.o_wr_data);
-       		let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
-       		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
-       		s_xactor.i_wr_resp.enq(resp);
-     	endrule
+//      	rule write_request;
+//        		let addreq <- pop_o(s_xactor.o_wr_addr);
+//        		let datareq <- pop_o(s_xactor.o_wr_data);
+//        		let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
+//        		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+//        		s_xactor.i_wr_resp.enq(resp);
+//      	endrule
 		
-     	interface slave = s_xactor.axi_side;
-     	          method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-                    trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize);    
-                   endmethod
-                  // method trace_interrupt = trace.trace_interrupt;
-	endmodule
+//      	interface slave = s_xactor.axi_side;
+//      	          method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+//                     trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize);    
+//                    endmethod
+//                   // method trace_interrupt = trace.trace_interrupt;
+// 	endmodule
 
-	//axi4
-	interface Ifc_trace_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
-	        interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
-		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-		//method Bit#(1) trace_interrupt;
-	endinterface
-	module mktrace_axi4(Ifc_trace_axi4#(addr_width,data_width,user_width))
-			provisos(Add#(a__, 32, data_width),
-					 Add#(b__,  4, data_width),
-					 Mul#(32, c__, data_width),
-					 Mul#( 8, d__, data_width),
-					 Mul#(16, e__, data_width),
-					 Mul#( 4, f__, data_width),
-					 Add#(16, g__, data_width),
-					 Mul#(64, h__, data_width),
-					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
-					 Add#(j__, 4, addr_width)
-					);
-		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
-		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
-		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
+// 	//axi4
+// 	interface Ifc_trace_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
+// 	        interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+// 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
+// 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+// 		//method Bit#(1) trace_interrupt;
+// 	endinterface
+// 	module mktrace_axi4(Ifc_trace_axi4#(addr_width,data_width,user_width))
+// 			provisos(Add#(a__, 32, data_width),
+// 					 Add#(b__,  4, data_width),
+// 					 Mul#(32, c__, data_width),
+// 					 Mul#( 8, d__, data_width),
+// 					 Mul#(16, e__, data_width),
+// 					 Mul#( 4, f__, data_width),
+// 					 Add#(16, g__, data_width),
+// 					 Mul#(64, h__, data_width),
+// 					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
+// 					 Add#(j__, 4, addr_width)
+// 					);
+// 		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
+// 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
+// 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+// 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+// 		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+//  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
-		rule read_request(rg_rdburst_count==0);
-			let req<-pop_o(s_xactor.o_rd_addr);
-			let {succ,data}<-trace.read_req(req.araddr);
-			rg_rdpacket<=req;	
+// 		rule read_request(rg_rdburst_count==0);
+// 			let req<-pop_o(s_xactor.o_rd_addr);
+// 			let {succ,data}<-trace.read_req(req.araddr);
+// 			rg_rdpacket<=req;	
 
-			if(req.arlen!=0)
-				rg_rdburst_count<=1;
-			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:req.arid,rlast:(req.arlen==0),rdata:data, ruser: ?};
-			s_xactor.i_rd_data.enq(resp);
-		endrule
+// 			if(req.arlen!=0)
+// 				rg_rdburst_count<=1;
+// 			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:req.arid,rlast:(req.arlen==0),rdata:data, ruser: ?};
+// 			s_xactor.i_rd_data.enq(resp);
+// 		endrule
 		
-		rule read_burst(rg_rdburst_count!=0);
-			let rd_req=rg_rdpacket;
-			let {succ,data}<-trace.read_req(rd_req.araddr);
-			succ=False;
-			if(rg_rdburst_count==rd_req.arlen)
-				rg_rdburst_count<=0;
-			else
-				rg_rdburst_count<=rg_rdburst_count+1;
-			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:rd_req.arid,rlast:(rd_req.arlen==0),rdata:data, ruser: ?};
-			s_xactor.i_rd_data.enq(resp);
-		endrule
+// 		rule read_burst(rg_rdburst_count!=0);
+// 			let rd_req=rg_rdpacket;
+// 			let {succ,data}<-trace.read_req(rd_req.araddr);
+// 			succ=False;
+// 			if(rg_rdburst_count==rd_req.arlen)
+// 				rg_rdburst_count<=0;
+// 			else
+// 				rg_rdburst_count<=rg_rdburst_count+1;
+// 			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:rd_req.arid,rlast:(rd_req.arlen==0),rdata:data, ruser: ?};
+// 			s_xactor.i_rd_data.enq(resp);
+// 		endrule
 
-		rule write_request(rg_wrburst_count==0);
-			let addreq <- pop_o(s_xactor.o_wr_addr);
-	        let datareq <- pop_o(s_xactor.o_wr_data);
-	        rg_wrpacket<=addreq;
-	        let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
-	        if(addreq.awlen!=0)
-	        	rg_wrburst_count<=1;
+// 		rule write_request(rg_wrburst_count==0);
+// 			let addreq <- pop_o(s_xactor.o_wr_addr);
+// 	        let datareq <- pop_o(s_xactor.o_wr_data);
+// 	        rg_wrpacket<=addreq;
+// 	        let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
+// 	        if(addreq.awlen!=0)
+// 	        	rg_wrburst_count<=1;
 	        
-	        let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
-	        if(datareq.wlast)
-	        	s_xactor.i_wr_resp.enq(resp);
-		endrule
+// 	        let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
+// 	        if(datareq.wlast)
+// 	        	s_xactor.i_wr_resp.enq(resp);
+// 		endrule
 		
-		rule write_burst(rg_wrburst_count!=0);
-			let addreq=rg_wrpacket;
-	        let datareq <- pop_o(s_xactor.o_wr_data);
-	 		Bool succ=False;
-			let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
-			if(datareq.wlast)begin
-	      		s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
-	      		rg_wrburst_count<=0;
-	      	end
-		endrule
-		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-                       trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize); 
-                 endmethod
-                 interface master= trace.master;
-		interface slave = s_xactor.axi_side;
-		//method trace_interrupt = trace.trace_interrupt;
-	endmodule
+// 		rule write_burst(rg_wrburst_count!=0);
+// 			let addreq=rg_wrpacket;
+// 	        let datareq <- pop_o(s_xactor.o_wr_data);
+// 	 		Bool succ=False;
+// 			let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
+// 			if(datareq.wlast)begin
+// 	      		s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
+// 	      		rg_wrburst_count<=0;
+// 	      	end
+// 		endrule
+// 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+//                        trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize); 
+//                  endmethod
+//                  interface master= trace.master;
+// 		interface slave = s_xactor.axi_side;
+// 		//method trace_interrupt = trace.trace_interrupt;
+// 	endmodule
 
 
-  /* module tbmktrace();      
+  module tbmktrace();      
                      
           Reg#(Bit#(32)) rg_state <- mkReg(0);
           Reg#(Bit#(64)) count <- mkReg(0);
           
-          RegFile#(Bit#(64),Bit#(64)) registers_ingress <- mkRegFileLoad("Input.txt",0,33399238);    // +6
+          RegFile#(Bit#(64),Bit#(64)) registers_ingress <- mkRegFileLoad("input.txt",0,2269627);    // +6
           
            IFC_trace_engine#(32,64,0) trace <- mktrace_engine();
            
@@ -1075,7 +1085,7 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
             endrule
             
             rule step2(rg_state == 1);
-                 let {resp,data}  <- trace.read_req(32'h0000_0000,2'h2);
+                 let {resp,data}  <- trace.read_req(32'h0000_0000);//,2'h2);
                  $display("config read= %h", data); 
                  $display("\n");
                  rg_state <= 2 ; 
@@ -1084,10 +1094,10 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
              
             rule step3(rg_state == 2);
                  //let data= registers.sub(count);
-                  if(count == 33399238) begin    // +1
+                  if(count == 2269627) begin    // +1
                   $finish(0); end
                   
-                   if(count == 33399233) begin
+                   if(count == 2269624) begin
                   let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021d);
                   end
                       
@@ -1095,7 +1105,7 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
                 //$display("buffer_status= %d", buffer_status);
                       
                      
-                     let {resp_1,data}  <- trace.read_req(32'h0000_0010,2'h3);
+                     let {resp_1,data}  <- trace.read_req(32'h0000_0010);//,2'h3);
                      if (resp_1)begin 
                      $display("%h", data);end  
                     
@@ -1103,7 +1113,7 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
                  count<= count + 1;
             endrule
       
-          rule step4 (count <= 33399238) ;          
+          rule step4 (count <= 2269627) ;          
            trace.trace_interface(
            registers_ingress.sub(count)[63:60],
            registers_ingress.sub(count)[59:56],
@@ -1119,8 +1129,12 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
              registers_ingress.sub(count)[0] );
              endrule 
 
-          endmodule*/
+          endmodule
   
 
+// Created re_support_gen RegA
+// Erased second argument in read_req() calls 
+// Added if statement for re_suppport_packet
+// Added rg_teEnable == 1 ocndition with rg_curr.qual == 1
  
- 
+
