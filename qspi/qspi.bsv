@@ -1587,13 +1587,16 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_m
 	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
-  SyncFIFOIfc#(AXI4_Lite_Resp) 	ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);
-	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
+        SyncFIFOIfc#(AXI4_Lite_Resp) 	                        ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);
+        
+	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	        ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
 	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
-	Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);
- 	GatedClockIfc qspi_gated_clk <- mkGatedClock(False,slow_clk,clocked_by slow_clk ,reset_by slow_rst);
+	
+	Reg#(bit) rg_clk_en <- mkRegA(0);
+ 	GatedClockIfc qspi_gated_clk <- mkGatedClock(False,slow_clk);
  	
 	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by qspi_gated_clk.new_clk, reset_by slow_rst);
+	  
 	  rule clock_en;    
 	       qspi_gated_clk.setGateCond(unpack(rg_clk_en));	         
 	endrule
@@ -1601,26 +1604,26 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_m
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
    		let w  <- pop_o (s_xactor.o_wr_data);
-		ff_wr_req.enq(tagged Valid (Write_req {
-								  addr : truncate(aw.awaddr),
+   		
+   		if(aw.awaddr[7:0] == `Qspi_Clk_En && aw.awsize == 0) begin 
+		   rg_clk_en <= truncate(w.wdata); 
+		  let b = AXI4_Wr_Resp {bresp : AXI4_OKAY, buser : 0, bid : aw.awid};
+	              s_xactor.i_wr_resp.enq (b);
+		   $display($stime(),"QSPI: Sending gated clk Write response");
+		 end  		
+   		else begin  
+		   ff_wr_req.enq(tagged Valid (Write_req {           addr : truncate(aw.awaddr),
 								  burst_size : aw.awsize,
 								  wdata : truncate(w.wdata) }));
 		rg_req_en <= 1;
-		rg_wid <= aw.awid;
+		rg_wid <= aw.awid; end 
 	    $display($stime(),"QSPI: qspi received write request awaddr %h", aw.awaddr);
 	endrule
 
 	rule rl_write_req_send_to_controller; // this rule is running at slow_clk (i.e less than or equal to 166MHz)
 		let w = fromMaybe(?, ff_wr_req.first);
-		ff_wr_req.deq;
-		if(w.addr[7:0] == `Qspi_Clk_En && w.burst_size == 0) begin 
-		   rg_clk_en <= truncate(w.wdata); 
-		   let clk_gate_w_resp = tagged Valid(AXI4_LITE_OKAY);
-		   ff_sync_wr_resp.enq(fromMaybe(?, clk_gate_w_resp));
-		 end
-		 else  
-		    begin    
-		 qspi.write_req(ff_wr_req.first); end 
+		ff_wr_req.deq;  
+		 qspi.write_req(ff_wr_req.first);
 	endrule
 
 	rule rl_write_response(isValid(qspi.write_resp)); // this rule is running at slow_clk (i.e less than or equal to 166MHz)
@@ -1641,27 +1644,26 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_m
 
 	rule rl_read_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let ar<- pop_o(s_xactor.o_rd_addr);
+		
+		if(ar.araddr[7:0] == `Qspi_Clk_En && ar.arsize == 0) begin
+	      let rsp = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: duplicate(rg_clk_en) , ruser: 0, rid: ar.arid, rlast: True};
+	             s_xactor.i_rd_data.enq(rsp);    
+		   $display($stime(),"QSPI: qspi sent read request"); end 
+	      else begin 	   
+		
 		ff_rd_req.enq(tagged Valid (Read_req{
 									addr : truncate(ar.araddr),
 									burst_size : ar.arsize}));
 		rg_req_en <= 1;
-		rg_rid <= ar.arid;
+		rg_rid <= ar.arid;  end 
 		$display($stime(),"QSPI: qspi received read request");
 	endrule
 
 	rule rl_read_request_send_to_controller;// this rule is running at slow_clk (i.e less than or equal to 166MHz)
 		let r = fromMaybe(?, ff_rd_req.first);
 		ff_rd_req.deq;
-		 if(r.addr[7:0] == `Qspi_Clk_En && r.burst_size == 0) begin
-	         let clk_gate_r_resp = tagged Valid Rd_resp{
-														rsp 	: AXI4_LITE_OKAY,
-														rdata	: duplicate({7'b0,rg_clk_en})};	        
-		   ff_sync_rd_resp.enq(fromMaybe(?, clk_gate_r_resp));
-		   $display($stime(),"QSPI: qspi sent read request"); end 
-		else  
-		   begin 
 		$display($stime(),"QSPI: qspi sent read request");
-		qspi.rd_req(ff_rd_req.first); end 
+		qspi.rd_req(ff_rd_req.first);  
 	endrule
 
 	rule rl_read_response(isValid(qspi.rd_resp));// this rule is running at slow_clk (i.e less than or equal to 166MHz)
