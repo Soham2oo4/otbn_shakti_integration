@@ -228,16 +228,16 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] == `input_qual && size == Byte)
 				rg_qual_cycles <= truncate(data);
 		`endif
-			else if( addr[6:0] == `intr_config1 && addr[6:0] < (`intr_config2))
+			else if( addr[6:0] >= `intr_config1 && addr[6:0] < (`intr_config2))
 				for(Integer i=0; i<iocount; i=i+1)
 					rg_interrupt_config[i] <= datamask[i];
-			else if( addr[6:0] == `intr_config2 && addr[6:0] < (`intr_config2 + 4))
+			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
 				for(Integer i=iocount; i<vionum; i=i+1)
 					rg_interrupt_config[i] <= datamask[i-iocount];
-			else if( addr[6:0] == `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
+			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
 				for(Integer i=0;i<iocount;i=i+1)
 						toplic[i] <= toplic[i]^datamask[i];
-			else if( addr[6:0] == `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
+			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
 						toplic[i] <= toplic[i]^datamask[i-iocount];
 			else
@@ -270,16 +270,16 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] == `input_qual && size == Byte)
 				temp = zeroExtend(rg_qual_cycles);
 		`endif
-			else if( addr[6:0] == `intr_config1 && addr[6:0] < (`intr_config2))
+			else if( addr[6:0] >= `intr_config1 && addr[6:0] < (`intr_config2))
 				for(Integer i=0; i<iocount; i=i+1)
 					temp[i] = rg_interrupt_config[i];
-			else if( addr[6:0] == `intr_config2 && addr[6:0] < (`intr_config2 + 4))
+			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
 				for(Integer i=iocount; i<vionum; i=i+1)
 					temp[i-iocount] = rg_interrupt_config[i];
-			else if( addr[6:0] == `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
+			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
 				for(Integer i=0;i<iocount;i=i+1)
 						temp[i] = toplic[i];
-			else if( addr[6:0] == `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
+			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
 						temp[i-iocount] = toplic[i];
 			else
