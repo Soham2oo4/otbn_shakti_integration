@@ -326,7 +326,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 	endinterface
 
 /*doc:module: gpio AXI4lite module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4lite interface of core. */
-module mkgpio_axi4lite `ifdef testmode #(Bool test_mode, Clock test_clk) `endif (Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
+module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),

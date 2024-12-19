@@ -312,7 +312,7 @@ package uart;
   endinterface
 
 	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate,
-                          parameter Bit#(2) stopbits, parameter Bit#(2) parity `ifdef testmode ,Bool test_mode, Clock test_clk `endif )
+                          parameter Bit#(2) stopbits, parameter Bit#(2) parity `ifdef testmode ,Bool test_mode `endif )
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
     provisos(Mul#(32, a__, data_width),
