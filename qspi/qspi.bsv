@@ -1499,7 +1499,7 @@ interface Ifc_qspi_axi4lite#(numeric type addr_width,
 endinterface
 
 //(*synthesize*)	
-module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr)(Ifc_qspi_axi4lite#(addr_width,
+module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr `ifdef testmode ,Bool test_mode `endif )(Ifc_qspi_axi4lite#(addr_width,
 														 data_width,
 														 user_width))
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
@@ -1592,7 +1592,7 @@ interface Ifc_qspi_axi4#(numeric type addr_width,
 	method Bit#(1) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
 endinterface
 
-module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr)(Ifc_qspi_axi4#(addr_width,
+module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr `ifdef testmode ,Bool test_mode `endif )(Ifc_qspi_axi4#(addr_width,
 														 data_width,
 														 user_width))
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
