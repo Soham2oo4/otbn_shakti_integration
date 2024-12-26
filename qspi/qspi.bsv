@@ -43,7 +43,7 @@ package qspi;
 			Bit#(dwidth) rdata;
 	} Rd_resp#(numeric type dwidth) deriving (Bits, Eq);
 
-//    (*always_ready, always_enabled*)
+    (*always_ready, always_enabled*)
     interface QSPI_out;
     /*(* always_ready, result="clk_o" *) 		*/	method bit clk_o;
 		/*(* always_ready, result="io_o" *) 		*/	method Bit#(4) io_o;
@@ -131,8 +131,8 @@ package qspi;
 						DataWrite_phase=6, 
 						Idle=7} Phase deriving (Bits,Eq,FShow);
 
-	module mkqspi_controller(Ifc_qspi_controller#(addr_width, data_width, user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
+	module mkqspi_controller#(Bit#(32) start_mm_addr,Bit#(32) end_mm_addr)(Ifc_qspi_controller#(addr_width, data_width, user_width))
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 	
 	/*************** List of implementation defined Registers *****************/
 	Reg#(bit) rg_clk <-mkRegA(1);
@@ -367,7 +367,7 @@ package qspi;
 			count_val=8;
 		end
 		if(next_phase==Address_phase)begin
-			count_val=(ccr_fmode=='b11)?32:(case(ccr_adsize)	0:8;	1:16;	2:24;	3:32; endcase);
+			count_val=/*(ccr_fmode=='b11)?32:*/(case(ccr_adsize)	0:8;	1:16;	2:24;	3:32; endcase);
 		end
 		if(next_phase==AlternateByte_phase)begin
 			count_val=(case(ccr_absize)	0:8;	1:16;	2:24;	3:32; endcase);
@@ -473,18 +473,27 @@ package qspi;
 		let arsize = axir.burst_size;
         Bool request_ready = True;
         `ifdef verbose $display($time,"\tReceived AXI read request to Address: %h Size: %h",araddr,arsize); `endif
-		if((araddr[27:0]>=`STARTMM && araddr[27:0]<=`ENDMM) && araddr[31]==1'b1)begin // memory mapped space
+		if(zeroExtend(araddr)>=start_mm_addr && zeroExtend(araddr)<=end_mm_addr)begin // memory mapped space
             
             wr_read_request_from_AXI<=True;   //Could this lead to some error? Need to think about this, without fail
             AXI4_Lite_Resp axi4_rresp = AXI4_LITE_OKAY;
-			mm_address<=truncate(araddr);
-            Bit#(4) data_length = arsize==0?1:arsize==1?2:arsize==2?4:8; 
+            
+               Bit#(28) new_addr = arsize==0?{araddr[27:2],~araddr[1:0]}:
+                                 arsize==1?{araddr[27:2],~araddr[1],araddr[0]}:
+                                 truncate(araddr);
+			mm_address<=new_addr;
+            
+             Bit#(4) data_length = arsize==0?1:
+                                   arsize==1?2:
+                                   arsize==2?4:
+                                   8;
+             
 			mm_data_length<= zeroExtend(data_length);
             Bit#(28) address_limit = 1 << dcr_fsize;
 
             //It is forbidden to access the flash bank area before the SPI is properly configured -- fmode is '11??
             //If not sending a SLVERR now if the mode is not memory mapped and if an access is made outside allowed
-            if(ccr_fmode!='b11 || araddr[27:0] > address_limit) begin
+            if(ccr_fmode != 2'b11 || araddr[27:0] > address_limit) begin
                 `ifdef verbose $display("Sending Slave Error ccr_fmode: %h mm_address: %h address_limit: %h dcr_fsize: %h",ccr_fmode,mm_address,address_limit, dcr_fsize); `endif
                 axi4_rresp = AXI4_LITE_SLVERR;
 //              let r = AXI4_Lite_Rd_Data {rresp: axi4_rresp, rdata: 0 , ruser: 0};
@@ -501,7 +510,7 @@ package qspi;
             end
             else if(sr_busy==1 ||thres) begin //Bus is busy with Memory mapped maybe?
                 `ifdef verbose $display($time,"sr_busy: %d, thres: %d rg_prev_addr: %h araddr: %h fifo_count: %d", sr_busy, thres, rg_prev_addr, araddr, fifo.count); `endif
-                Bit#(28) eff_addr = rg_prev_addr + zeroExtend(data_length);
+                Bit#(28) eff_addr = rg_prev_addr + truncate(mm_data_length);
                 if((eff_addr!= truncate(araddr)) || pack(fifo.count)==0 || ccr_dummy_bit==1'b1) begin
                     `ifdef verbose  $display($time,"Not Equal eff_addr: %h mm_address : %h araddr: %h rg_prev_addr: %h data_length : %h sum : %h fifo.count: %h ccr_dummy_bit: %h",eff_addr,mm_address,araddr,rg_prev_addr,data_length,rg_prev_addr+zeroExtend(data_length),pack(fifo.count),ccr_dummy_bit); `endif
                     sr_busy<=0;
@@ -515,27 +524,27 @@ package qspi;
                 end
                 else if(!first_read) begin
                     request_ready = True;
-                    rg_prev_addr <= truncate(araddr);
+                    rg_prev_addr <= truncate(araddr);               
                     Bit#(32) reg1 = 0;
             	    if(arsize==0) begin // 8 bits
 				    	if(fifo.deqReadyN(1))begin
 				    		let temp=fifo.first[0];
 				    		reg1=duplicate(temp);
-				    		fifo.deq(1);
+				    		fifo.deq(1); 
 				    	end
 				    end
 				    else if(arsize==1) begin // 16 bits
 				    	if(fifo.deqReadyN(2)) begin
 				    		let temp={fifo.first[0],fifo.first[1]};
 				    		reg1=duplicate(temp);
-				    		fifo.deq(2);
+				    		fifo.deq(2); 
 				    	end
 				    end
 				    else if(arsize==2) begin // 32 bits
 				    	if(fifo.deqReadyN(4)) begin
 				    		let temp={fifo.first[0],fifo.first[1],fifo.first[2],fifo.first[3]};
 				    		reg1=duplicate(temp);
-				    		fifo.deq(4);
+				    		fifo.deq(4); 
 							`ifdef verbose $display($time," Memory maqpped requset arrived for %d and value %d  \n",araddr,temp);
 				    	end
 				    end
@@ -632,7 +641,8 @@ package qspi;
 		end
 		else begin
 			let half_clock_value=cr_prescaler>>1;
-			if(cr_prescaler[0]==0)begin // odd division
+			//if(cr_prescaler[0]==0)begin // odd division   og
+                          if(cr_prescaler[0]==1)begin // odd division
 				if(rg_clk_counter<=half_clock_value)
 					rg_clk<=0;
 				else
@@ -1233,7 +1243,7 @@ package qspi;
 				end
 			end
 			else if(ccr_dmode==3) begin // quad line mode	
-                if(count_byte==data_length && ccr_ddrm==1 && count_bits[0]=='b1) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
+                if(count_byte==data_length1 && ccr_ddrm==1 && count_bits[0]=='b1) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
                     ncs<=1;
 				if(rg_count_bits[0]=='b1)begin // multiple of eight bits have been read.
 					`ifdef verbose1 $display("Enquing FIFO"); `endif
@@ -1270,11 +1280,19 @@ package qspi;
 						end
 					end
 					else if(ccr_fmode=='b11)begin// memory mapped mode
-    				    if(first_read) begin
+    				    if(first_read) begin 
+    				    
+    				   let data =case (data_length1)
+				      1 : duplicate(data_reg[7:0]);
+				      2 : duplicate(data_reg[15:0]);
+				      4 : duplicate(data_reg[31:0]);
+					default: data_reg; 
+					endcase;
+    				    
                             `ifdef verbose $display("Sending response back to the proc data_reg: %h",data_reg); `endif
 							wr_rd_resp <= tagged Valid Rd_resp{
 														rsp 	: AXI4_LITE_OKAY,
-														rdata	: duplicate(data_reg)};
+														rdata	: duplicate(data)};
 //                            let r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata: duplicate(data_reg) , ruser: 0};
 //    				        s_xactor.i_rd_data.enq(r);
                             first_read <= False;
@@ -1481,10 +1499,10 @@ interface Ifc_qspi_axi4lite#(numeric type addr_width,
 endinterface
 
 //(*synthesize*)	
-module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_width,
+module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr)(Ifc_qspi_axi4lite#(addr_width,
 														 data_width,
 														 user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width));
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
@@ -1494,7 +1512,7 @@ module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst)(Ifc_qspi_axi4lite#(addr_
 	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
 	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
  	
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by slow_clk, reset_by slow_rst);
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr,end_mm_addr,clocked_by slow_clk, reset_by slow_rst);
     (*preempts="rl_write_request, rl_read_request"*)	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
@@ -1574,11 +1592,10 @@ interface Ifc_qspi_axi4#(numeric type addr_width,
 	method Bit#(1) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
 endinterface
 
-module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_mode, Clock test_clk `endif )(Ifc_qspi_axi4#(addr_width,
+module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr `ifdef testmode , Bool test_mode `endif )(Ifc_qspi_axi4#(addr_width,
 														 data_width,
 														 user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32),Add#(d__, 1, data_width),Mul#(8, e__, data_width)
-);
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
@@ -1591,15 +1608,8 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_m
         
 	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	        ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
 	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
-	
-	Reg#(bit) rg_clk_en <- mkRegA(0);
- 	GatedClockIfc qspi_gated_clk <- mkGatedClock(False,slow_clk);
  	
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(clocked_by qspi_gated_clk.new_clk, reset_by slow_rst);
-	  
-	  rule clock_en;    
-	       qspi_gated_clk.setGateCond(unpack(rg_clk_en));	         
-	endrule
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by slow_clk, reset_by slow_rst);
 	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
@@ -1621,9 +1631,9 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_m
 	endrule
 
 	rule rl_write_req_send_to_controller; // this rule is running at slow_clk (i.e less than or equal to 166MHz)
-		let w = fromMaybe(?, ff_wr_req.first);
-		ff_wr_req.deq;  
-		 qspi.write_req(ff_wr_req.first);
+		let w = ff_wr_req.first;
+		ff_wr_req.deq;
+		qspi.write_req(w);
 	endrule
 
 	rule rl_write_response(isValid(qspi.write_resp)); // this rule is running at slow_clk (i.e less than or equal to 166MHz)
@@ -1660,10 +1670,10 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst `ifdef testmode , Bool test_m
 	endrule
 
 	rule rl_read_request_send_to_controller;// this rule is running at slow_clk (i.e less than or equal to 166MHz)
-		let r = fromMaybe(?, ff_rd_req.first);
+		let r = ff_rd_req.first;
 		ff_rd_req.deq;
 		$display($stime(),"QSPI: qspi sent read request");
-		qspi.rd_req(ff_rd_req.first);  
+		qspi.rd_req(r);
 	endrule
 
 	rule rl_read_response(isValid(qspi.rd_resp));// this rule is running at slow_clk (i.e less than or equal to 166MHz)

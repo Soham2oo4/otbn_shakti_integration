@@ -65,9 +65,9 @@ package uart;
 																									AccessSize size);
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-		(*always_ready, always_enabled*)
+//		(*always_ready, always_enabled*)
     interface RS232 io;
-		(*always_ready, always_enabled*)
+//		(*always_ready, always_enabled*)
 	  method Bit#(1) interrupt;
 	endinterface
 
@@ -83,7 +83,9 @@ package uart;
 							Add#(i__, 9, data_width),
               Add#(2, e__, depth),
               Add#(j__, TLog#(TAdd#(depth, 1)), 8),
-              Add#(k__, TLog#(TAdd#(depth, 1)), data_width));
+              Add#(k__, TLog#(TAdd#(depth, 1)), data_width),
+			  Add#(l__, 1, data_width)
+);
 
 		Reg#(Bit#(16)) baud_value <- mkRegA(baudrate);
     	Reg#(Bit#(16)) rg_delay_control <- mkRegA(0);
@@ -283,6 +285,9 @@ package uart;
       method    Bit#(1)     out2();
                 return uart.rs232.out2();
       endmethod
+	  method Bit#(2) dma_ready;
+		return uart.rs232.dma_ready;
+	endmethod
     endinterface
 		method Bit#(1) interrupt;
 		/* If Modem Status Interrupt is enabled and either DCTS,DDSR,DDCD,and TERI are enabled send interrupt */
@@ -300,14 +305,14 @@ package uart;
                                numeric type user_width, 
                                numeric type depth);
 		(*prefix=""*) interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave; 
-		(*always_ready, always_enabled*)
+//		(*always_ready, always_enabled*)
 	  (*prefix=""*) interface RS232 io;
-		(*always_ready, always_enabled*)
+//		(*always_ready, always_enabled*)
 		(*prefix=""*) method Bit#(1) interrupt;
   endinterface
 
 	module mkuart_axi4lite#(Clock uart_clock, Reset uart_reset, parameter Bit#(16) baudrate,
-                          parameter Bit#(2) stopbits, parameter Bit#(2) parity)
+                          parameter Bit#(2) stopbits, parameter Bit#(2) parity `ifdef testmode ,Bool test_mode `endif )
 																			(Ifc_uart_axi4lite#(addr_width,data_width,user_width, depth))
 	// same provisos for the uart
     provisos(Mul#(32, a__, data_width),
@@ -320,23 +325,42 @@ package uart;
 							Add#(i__, 9, data_width),
               Add#(2, e__, depth),
               Add#(j__, TLog#(TAdd#(depth, 1)), 8),
-              Add#(k__, TLog#(TAdd#(depth, 1)), data_width));
+              Add#(k__, TLog#(TAdd#(depth, 1)), data_width),
+			  Add#(l__, 1, data_width)
+);
 
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
-		Bool sync_required=(core_clock!=uart_clock);
+		// Bool sync_required=(core_clock!=uart_clock);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
-		if(!sync_required)begin // If uart is clocked by core-clock.
-			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
+		GatedClockIfc uart_clk_gated <- mkGatedClockFromCC(False);
+`ifdef slowclk
+if(!sync_required)begin // If uart is clocked by core-clock.
+`endif
+			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
                                                                     reset_by uart_reset, baudrate,
                                                                     stopbits, parity);
+			Reg#(bit) rg_clk_en <- mkRegA(0);
+		
+		
+	rule clock_en;    
+		uart_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	endrule
 			//capturing the read requests
 			rule capture_read_request;
-				let rd_req <- pop_o (s_xactor.o_rd_addr);
-				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(rd_req.arsize));
-				let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
-      	                                                      rdata: rdata, ruser: ?}; //TODO user?
-				s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+				let req <- pop_o(s_xactor.o_rd_addr);
+			Bool succ = False;
+		        Bit#(data_width) data = 0 ; 
+	       if (req.araddr[6:0] == `UART_Clk_en && req.arsize == 0) begin 
+		           succ = True; 
+		           data = duplicate({7'b0,rg_clk_en});  	         
+	         end 
+	          else begin
+			{data, succ}<- user_ifc.read_req(req.araddr,unpack(truncate(req.arsize)));
+			end
+			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+                                    rdata:data, ruser: ?};
+	  		s_xactor.i_rd_data.enq(resp);
 			endrule              
 			(*conflict_free = "io_dcd,capture_write_request"*)
 			(*conflict_free = "io_ri,capture_write_request"*)
@@ -349,16 +373,24 @@ package uart;
 			(*conflict_free = "io_cts,user_ifc_rl_loopback"*)
 			// capturing write requests
 			rule capture_write_request;
-				let wr_req  <- pop_o(s_xactor.o_wr_addr);
-				let wr_data <- pop_o(s_xactor.o_wr_data);
-				let succ <- user_ifc.write_req(wr_req.awaddr,wr_data.wdata,unpack(wr_req.awsize));
-      		let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
-      		s_xactor.i_wr_resp.enq(lv_resp);//enqueuing the write response
+				Bool succ = False;
+       		let addreq <- pop_o(s_xactor.o_wr_addr);
+       		let datareq <- pop_o(s_xactor.o_wr_data);
+       		if (addreq.awaddr[6:0] == `UART_Clk_en && addreq.awsize == 0) begin 
+       		    rg_clk_en <= truncate(datareq.wdata); 
+       		     succ = True;
+       		 end 
+       		 else begin 
+				succ <- user_ifc.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+			end
+		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
+		  s_xactor.i_wr_resp.enq (ls);	
 			endrule
 			interface slave = s_xactor.axi_side;
 			interface io= user_ifc.io;
 			method interrupt= user_ifc.interrupt;
-		end
+`ifdef slowclk
+                end
 		else begin // if core clock and uart_clock is different.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate,
@@ -416,6 +448,7 @@ package uart;
 			interface io= user_ifc.io;
 			method interrupt= user_ifc.interrupt;
 		end
+`endif
 	endmodule:mkuart_axi4lite
 
 
@@ -425,9 +458,9 @@ package uart;
                            numeric type user_width, 
                            numeric type depth);
 		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
-		(*always_ready, always_enabled*)
+		// (*always_ready, always_enabled*)
 		(*prefix=""*) interface RS232 io;
-		(*always_ready, always_enabled*)
+		// (*always_ready, always_enabled*)
 		(*prefix=""*) method Bit#(1) interrupt;
  	endinterface
 
@@ -445,7 +478,9 @@ package uart;
 							Add#(i__, 9, data_width),
               Add#(2, e__, depth),
               Add#(j__, TLog#(TAdd#(depth, 1)), 8),
-              Add#(k__, TLog#(TAdd#(depth, 1)), data_width));
+              Add#(k__, TLog#(TAdd#(depth, 1)), data_width),
+			  Add#(l__, 1, data_width)
+);
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);

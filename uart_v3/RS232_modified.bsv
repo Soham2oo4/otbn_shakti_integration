@@ -103,7 +103,7 @@ typedef enum {
 ////////////////////////////////////////////////////////////////////////////////
 /// Interfaces
 ////////////////////////////////////////////////////////////////////////////////
-(* always_ready, always_enabled *)
+// (* always_ready, always_enabled *)
 /* Contains the definitions of all physical pins expected from our implementation */
 interface RS232;
    // Inputs
@@ -130,6 +130,8 @@ interface RS232;
    method    Bit#(1)     out1();   
    (* prefix = "", result = "OUT2" *)
    method    Bit#(1)     out2();
+   (* prefix = "", result = "DMA_RDY" *)
+   method Bit#(2) dma_ready;
 endinterface
 /* Contains the definitions of all methods for the workin of a Baud genarator. */
 interface BaudGenerator;
@@ -491,7 +493,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    ////////////////////////////////////////////////////////////////////////////////
    /// Transmit UART
    ////////////////////////////////////////////////////////////////////////////////
-   FIFOLevelIfc#(Bit#(32), d)                 fifoXmit              <- mkGFIFOLevel(True, False, True);
+   FIFOCountIfc#(Bit#(32), d)                 fifoXmit              <- mkGFIFOCount(True, False, True);
 
    Vector#(32, Reg#(Bit#(1)))                 vrXmitBuffer          <- replicateM(mkRegU);
 
@@ -520,7 +522,8 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    ////////////////////////////////////////////////////////////////////////////////
    /// Baud Clock Enable
    ////////////////////////////////////////////////////////////////////////////////
-   (* no_implicit_conditions, fire_when_enabled *)
+   // (* no_implicit_conditions, fire_when_enabled *)
+   (* fire_when_enabled *)
 	 (* conflict_free = "receive_buffer_shift, receive_wait_for_start_bit" *)
    /* Enables the clock of the baud generator */
    rule baud_generator_clock_enable;
@@ -889,7 +892,10 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       method out1    = ~modemctrl[2];
       /* Outputs OUT2 value from Control Register */
       method out2    = ~modemctrl[1];
-      
+      method Bit#(2) dma_ready;
+         return {pack(fifoRecv.count >= 2), pack(fifoXmit.count <= 14)};
+         //return {pack(fifoRecv.notEmpty), pack(fifoXmit.notFull)};
+      endmethod
    endinterface
    /* If this method is called then the data from Receiver FIFO is returned. Thus,it is expected that the receiver FIFO as 
    data by the time it is called(i.e., all the receiver rules are executed.) */

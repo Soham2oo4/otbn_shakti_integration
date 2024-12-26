@@ -194,7 +194,7 @@ interface Ifc_sspi_io;
 		method bit ncs_outen3;
  		method bit ncs_out3;
 		method Action ncs_in3(bit val);
-		
+		method Bit#(2) dma_ready;
 		
 endinterface
 
@@ -1097,6 +1097,9 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 		end
 		//end
 		endmethod
+		method Bit#(2) dma_ready;
+			return {pack(rx_fifo.count >= 2), pack(tx_fifo.count <= 30)};			
+		endmethod
 	endinterface;
 	method mv_sb_sspi_interrupt = ((wr_rx_over_run_intr & rg_rx_over_run_err_intr_en) | (wr_rx_fifo_full_intr & rg_rx_fifo_full_intr_en) | (wr_rx_fifo_half_intr & rg_rx_fifo_half_intr_en) | (wr_rx_fifo_quad_intr & rg_rx_fifo_quad_intr_en) | 
 								(wr_rx_fifo_empty_intr & rg_rx_fifo_empty_intr_en) | (wr_tx_fifo_full_intr & rg_tx_fifo_full_intr_en) | (wr_tx_fifo_half_intr & rg_tx_fifo_half_intr_en) | (wr_tx_fifo_quad_intr & rg_tx_fifo_quad_intr_en) |
@@ -1111,7 +1114,7 @@ endmodule : mk_sspi
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 	endinterface
 
-	module mksspi_axi4lite `ifdef testmode #(Bool test_mode, Clock test_clk) `endif (Ifc_sspi_axi4lite#(addr_width,data_width,user_width))
+	module mksspi_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_sspi_axi4lite#(addr_width,data_width,user_width))
 			provisos(Add#(a__, 32, data_width),
 					 Add#(b__,  4, data_width),
 					 Mul#(32, c__, data_width),

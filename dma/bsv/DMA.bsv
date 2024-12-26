@@ -150,7 +150,7 @@ endinstance
 module mkDMA( User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) )
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 3),
+	 				Add#(numChannels, 0, 7),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, config_addr_width),
 					Add#(7, j__, addr_width),
@@ -162,7 +162,10 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   				Mul#(32, f__, config_data_width),
 					Add#(28, h__, config_data_width),
 					Add#(16, i__, config_data_width),
-					Add#(12, l__, config_data_width)	//for numChannels=3
+					Add#(12, l__, config_data_width),	//for numChannels=3\
+					Mul#(16, m__, data_width),
+					Mul#(32, n__, data_width),
+					Mul#(8, o__, data_width)
 );
 
 	let val_numChannels= valueOf(numChannels);
@@ -237,7 +240,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	// ongoing transaction on that channel.
 	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cpa <- replicateM(mkConfigRegA(0));	// Local Channel Peripheral Address Register
 	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cma <- replicateM(mkConfigRegA(0));	// Local Channel Memory Address Register
-
+	Vector#(numChannels,Reg#(Bit#(2))) rg_curr_addr <- replicateM(mkConfigRegA(0)); //Change Bit Width to 3 if 64 bit. Todo:Parameterize
 	Reg#(Bit#(`Burst_length_bits)) rg_burst_count <- mkRegA(0);
 	Reg#(Bit#(TLog#(numChannels))) rg_current_trans_chan_id <- mkRegA(0);
 	Reg#(Tuple2#(Bool, Bit#(TLog#(numChannels)))) rg_disable_channel <- mkRegA(tuple2(False, ?));
@@ -306,6 +309,25 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		Bit#(a) lv_to_add= (zeroExtend(bsize)+1) << tsize;
 		Bit#(a) lv_result= {1'b0,addr}+lv_to_add;
 		return truncate(lv_result);
+        endfunction
+
+	//The relevant data is located from the n to 0 bits where n = 8, 16 ,32 ,64  based on the tsize.
+	function Bit#(data_width) fn_modify_data(Bit#(2) tsize, Bit#(data_width) data)
+		 provisos( 
+		Mul#(16, m__, data_width),
+	    Mul#(32, n__, data_width),
+	    Mul#(8, o__, data_width));
+		Bit#(data_width) result;
+		if (tsize==2'b00)
+			result = duplicate(data[7:0]);
+		else if (tsize==2'b01)
+			result = duplicate(data[15:0]);
+		else if (tsize==2'b10)
+			result = duplicate(data[31:0]);
+		else 
+			result = data;
+		
+		return result;
 	endfunction
 
 	// DMA rules //////////////////////////////////////////////////
@@ -409,7 +431,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 															periph_id: lv_periph_id});
 
 			end
-
+		    rg_curr_addr[chanNum] <= lv_araddr[1:0];
 			//TODO If transaction size is not a multiple of specified burst length
 			//let lv_transaction_size= (lv_burst+1) * (1<<lv_arsize)
 			//if(dma_cndtr<lv_transaction_size)
@@ -441,6 +463,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			let lv_dma_ccr= dma_ccr[chanNum];
 			Bit#(2) lv_tsize;
 			Bit#(2) lv_source_size;
+			Bit#(64) curr_addr;
 
 			if(dma_ccr[chanNum][4]==0) begin		//if the source is peripheral
 				lv_tsize= dma_ccr[chanNum][11:10];	//destination's tsize will be that of memory
@@ -451,12 +474,14 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				lv_source_size= dma_ccr[chanNum][11:10];
 			end
 
+			curr_addr = extend(rg_curr_addr[chanNum]);
+
 			// grab the data from the mmu reponse fifo
 			let resp <- pop_o(xactor.o_rd_data);
 			`ifdef verbosity>2 $display("DMA: chan[%d] finish read. Got data: %h",chanNum, resp.rdata); `endif
 
 			// Pass the read data to the write "side" of the dma
-			responseDataFs[chanNum].enq( resp.rdata );
+			responseDataFs[chanNum].enq(resp.rdata >> 8*curr_addr); 
 			rg_finish_read[chanNum][0]<= True;
 		endrule
 
@@ -513,7 +538,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				$display("Performing a single write...");
 			end 
 			`endif
-
+	  actual_data = fn_modify_data(lv_tsize,actual_data);
       rg_write_strobe <= write_strobe; 	//Write strobe needs to be rotated so that burst writes are sent correctly, storing write_strobe in a register.
       rg_tsize <= lv_tsize; 						//Storing rg_tsize in a register.
 			rg_burst_type<= lv_burst_type;		//FIXED or INCR
@@ -687,9 +712,8 @@ endfunction
 
 // This function converts a Vector of (upto 7) Registers to a single Register
 //TODO For now, this function has to be manually changed when num of channels change.
-function Reg#(Bit#(TMul#(3,q))) vectorToRegN(Vector#(3,Reg#(Bit#(q))) inpV);
-	return concatReg3(inpV[2], inpV[1], inpV[0]);
-	//return asReg(zeroExtend(pack(inpV)));
+function Reg#(Bit#(TMul#(7,q))) vectorToRegN(Vector#(7,Reg#(Bit#(q))) inpV);
+	return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);	//return asReg(zeroExtend(pack(inpV)));
 endfunction
 /*function Reg#(Bit#(TMul#(numChannels,q))) vectorToRegN(Vector#(numChannels,Reg#(Bit#(q))) inpV);
 		return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
@@ -785,7 +809,6 @@ endfunction*/
       'd9 : return can_return(dma_cndtr[2], dma_ccr[2][15]);
       'd10 : return can_return(dma_cpar[2], dma_ccr[2][15]);
       'd11 : return can_return(dma_cmar[2], dma_ccr[2][15]);
-/* 
       'd12 : return can_return(dma_ccr[3], dma_ccr[3][15]);
       'd13 : return can_return(dma_cndtr[3], dma_ccr[3][15]);
       'd14 : return can_return(dma_cpar[3], dma_ccr[3][15]);
@@ -804,8 +827,7 @@ endfunction*/
       'd24 : return can_return(dma_ccr[6], dma_ccr[6][15]);
       'd25 : return can_return(dma_cndtr[6], dma_ccr[6][15]);
       'd26 : return can_return(dma_cpar[6], dma_ccr[6][15]);
-      'd27 : return can_return(dma_cmar[6], dma_ccr[6][15]);
-*/ 
+      'd27 : return can_return(dma_cmar[6], dma_ccr[6][15]); 
       'd28 : return can_return(vectorToRegN( dma_isr ), 1'b1);
       'd29 : return can_return(vectorToRegN( dma_ifcr ), 1'b0);
       'd30 : return can_return(vectorToRegN( dma1_cselr ), 1'b1);
@@ -1095,7 +1117,7 @@ endinterface
 module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 3),
+	 				Add#(numChannels, 0, 7),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, config_addr_width),
 					Add#(7, j__, addr_width),
@@ -1107,7 +1129,10 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   				Mul#(32, f__, config_data_width),
 					Add#(28, h__, config_data_width),
 					Add#(16, i__, config_data_width),
-					Add#(12, l__, config_data_width)	//for numChannels=3
+					Add#(12, l__, config_data_width),	//for numChannels=3
+						Mul#(16, m__, data_width),
+						Mul#(32, n__, data_width),
+						Mul#(8, o__, data_width)
 );
 		GatedClockIfc dma_clk_gated <- mkGatedClockFromCC(False);
 		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA(/*clocked_by dma_clk_gated.new_clk*/);
@@ -1156,10 +1181,10 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			rg_is_rdclk_en[1] <= False;
 		end
 		else
-      let {succ,data}<- dma.read_resp;
-      		let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],rlast: True, rdata: data, ruser: ?};
-      s_xactor.i_rd_data.enq(r);
-		endrule
+		let {succ,data}<- dma.read_resp;
+		let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],rlast: True, rdata: data, ruser: ?};
+		s_xactor.i_rd_data.enq(r); 
+	endrule
 	
 		rule burst_read_resp(rg_is_rdburst[1]);
 			Bool lv_rlast;
@@ -1243,7 +1268,7 @@ endinterface
 module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 3),
+	 				Add#(numChannels, 0, 7),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, config_addr_width),
 					Add#(7, j__, addr_width),
@@ -1255,7 +1280,10 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   				Mul#(32, f__, config_data_width),
 					Add#(28, h__, config_data_width),
 					Add#(16, i__, config_data_width),
-					Add#(12, l__, config_data_width)	//for numChannels=3
+					Add#(12, l__, config_data_width),	//for numChannels=3
+						Mul#(16, m__, data_width),
+						Mul#(32, n__, data_width),
+						Mul#(8, o__, data_width)
 );
 		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
 		AXI4_Lite_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();

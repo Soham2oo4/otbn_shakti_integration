@@ -228,16 +228,16 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] == `input_qual && size == Byte)
 				rg_qual_cycles <= truncate(data);
 		`endif
-			else if( addr[6:0] == `intr_config1 && addr[6:0] < (`intr_config2))
+			else if( addr[6:0] >= `intr_config1 && addr[6:0] < (`intr_config2))
 				for(Integer i=0; i<iocount; i=i+1)
 					rg_interrupt_config[i] <= datamask[i];
-			else if( addr[6:0] == `intr_config2 && addr[6:0] < (`intr_config2 + 4))
+			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
 				for(Integer i=iocount; i<vionum; i=i+1)
 					rg_interrupt_config[i] <= datamask[i-iocount];
-			else if( addr[6:0] == `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
+			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
 				for(Integer i=0;i<iocount;i=i+1)
 						toplic[i] <= toplic[i]^datamask[i];
-			else if( addr[6:0] == `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
+			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
 						toplic[i] <= toplic[i]^datamask[i-iocount];
 			else
@@ -270,16 +270,16 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] == `input_qual && size == Byte)
 				temp = zeroExtend(rg_qual_cycles);
 		`endif
-			else if( addr[6:0] == `intr_config1 && addr[6:0] < (`intr_config2))
+			else if( addr[6:0] >= `intr_config1 && addr[6:0] < (`intr_config2))
 				for(Integer i=0; i<iocount; i=i+1)
 					temp[i] = rg_interrupt_config[i];
-			else if( addr[6:0] == `intr_config2 && addr[6:0] < (`intr_config2 + 4))
+			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
 				for(Integer i=iocount; i<vionum; i=i+1)
 					temp[i-iocount] = rg_interrupt_config[i];
-			else if( addr[6:0] == `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
+			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
 				for(Integer i=0;i<iocount;i=i+1)
 						temp[i] = toplic[i];
-			else if( addr[6:0] == `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
+			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
 						temp[i-iocount] = toplic[i];
 			else
@@ -326,7 +326,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 	endinterface
 
 /*doc:module: gpio AXI4lite module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4lite interface of core. */
-module mkgpio_axi4lite `ifdef testmode #(Bool test_mode, Clock test_clk) `endif (Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
+module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
