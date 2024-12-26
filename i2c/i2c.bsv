@@ -52,7 +52,7 @@ package i2c;
   `include "i2c.defs"
   `include "Logger.bsv"
 
-  `define sda_delay 10
+  // `define SDA_delay 10
 
   typedef union tagged {
     void Dead;
@@ -173,9 +173,10 @@ package i2c;
     Reg#(Bit#(1))               val_SCL_in     <-  mkReg(1);
     Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
     Reg#(Bit#(1))               val_SDA_in     <-  mkReg(1);
-    Vector#(`sda_delay, Reg#(Bit#(1)))   val_sda_delay   <- replicateM(mkReg(0));
+    Reg#(Bit#(8))               sda_delay      <- mkReg(10);
+    Vector#(256, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkReg(0));
     Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
-    Vector#(`sda_delay, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
+    Vector#(256, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
     Reg#(Bool)                  cOutEn         <-  mkReg(False);                 // Data out Enable for the SCL Tristate Buffer
 
     Reg#(Bit#(8))               cprescaler     <-  mkReg(0);                    // Prescaler Counter for the Chip clock
@@ -300,12 +301,13 @@ package i2c;
 
     // Introduces a delay before storing SDA Data
     rule rl_delay_sda;
-      for (Integer i = 1; i < `sda_delay; i = i + 1) begin
-        val_sda_delay[i] <= val_sda_delay[i-1];
-        dOutEn_delay[i] <= dOutEn_delay[i-1];
-      end
-      val_sda_delay[0] <= val_SDA;
-      dOutEn_delay[0] <= dOutEn;
+
+      let lv_data_0 = shiftInAt0(readVReg(val_SDA_delay),val_SDA);
+      writeVReg(val_SDA_delay, lv_data_0 )  ;
+
+      let lv_data_1 = shiftInAt0(readVReg(dOutEn_delay),dOutEn);
+      writeVReg(dOutEn_delay, lv_data_1 )  ;
+      
     endrule
 
     /*=====================================================================
@@ -324,6 +326,7 @@ package i2c;
         `Time            : return tuple2(False,duplicate(i2ctime));
         `SCL             : return tuple2(False,duplicate(c_scl));
         `Length_reg      : return tuple2(False,duplicate(length_reg));
+        `SDA_delay      : return tuple2(False,duplicate(sda_delay));
         `FIFO_Status     : begin
           let c1 = pack(rx_fifo.count);
           let c2 = pack(tx_fifo.count);
@@ -422,6 +425,13 @@ package i2c;
           repstart_prog <= truncate(value); 
           `logLevel(i2c,2,$format("Repeated start written")) 
         end
+
+        `SDA_delay: begin
+          intr <= 0;
+          sda_delay <= truncate(value); 
+          `logLevel(i2c,2,$format("SDA delay written")) 
+        end
+
         default : err = True;
       endcase
       return err;
@@ -897,6 +907,10 @@ package i2c;
       end
     endrule
 
+    rule disable_scl_after_nack(dataBit == 9 && mTransFSM == NAck && val_SCL_in == 0);
+      st_toggle <= False; 
+    endrule
+
     // Send a STOP bit signifying no more transaction from this master
     rule send_stop_condition(stopBit && pwesoCond && val_SCL_in == 1); //~ it might be fal edge
       `logLevel( i2c, 2, $format("Sending Stop SDA Value : %b SCL Value : %b", val_SDA._read,val_SCL._read))
@@ -951,13 +965,13 @@ package i2c;
 
       method Bool scl_out_en = cOutEn && eso == 1'b1;
 
-      method Bit#(1) sda_out = val_sda_delay[`sda_delay-1];
+      method Bit#(1) sda_out = val_SDA_delay[sda_delay-1];
 
       method Action sda_in(Bit#(1) in);
         val_SDA_in <= in;
       endmethod
 
-      method Bool sda_out_en  = dOutEn_delay[`sda_delay-1] && eso == 1'b1;
+      method Bool sda_out_en  = dOutEn_delay[sda_delay-1] && eso == 1'b1;
 
       // method Bit#(1) is_int = ~pin & intr & eni;
     endinterface
