@@ -367,8 +367,7 @@ package qspi;
 			count_val=8;
 		end
 		if(next_phase==Address_phase)begin
-			//count_val=(ccr_fmode=='b11)?32:(case(ccr_adsize)	0:8;	1:16;	2:24;	3:32; endcase);
-                	count_val=/*(ccr_fmode=='b11)?32:*/(case(ccr_adsize)	0:8;	1:16;	2:24;	3:32; endcase);
+			count_val=/*(ccr_fmode=='b11)?32:*/(case(ccr_adsize)	0:8;	1:16;	2:24;	3:32; endcase);
 		end
 		if(next_phase==AlternateByte_phase)begin
 			count_val=(case(ccr_absize)	0:8;	1:16;	2:24;	3:32; endcase);
@@ -478,8 +477,17 @@ package qspi;
             
             wr_read_request_from_AXI<=True;   //Could this lead to some error? Need to think about this, without fail
             AXI4_Lite_Resp axi4_rresp = AXI4_LITE_OKAY;
-			mm_address<=truncate(araddr);
-            Bit#(4) data_length = arsize==0?1:arsize==1?2:arsize==2?4:8; 
+            
+               Bit#(28) new_addr = arsize==0?{araddr[27:2],~araddr[1:0]}:
+                                 arsize==1?{araddr[27:2],~araddr[1],araddr[0]}:
+                                 truncate(araddr);
+			mm_address<=new_addr;
+            
+             Bit#(4) data_length = arsize==0?1:
+                                   arsize==1?2:
+                                   arsize==2?4:
+                                   8;
+             
 			mm_data_length<= zeroExtend(data_length);
             Bit#(28) address_limit = 1 << dcr_fsize;
 
@@ -502,7 +510,7 @@ package qspi;
             end
             else if(sr_busy==1 ||thres) begin //Bus is busy with Memory mapped maybe?
                 `ifdef verbose $display($time,"sr_busy: %d, thres: %d rg_prev_addr: %h araddr: %h fifo_count: %d", sr_busy, thres, rg_prev_addr, araddr, fifo.count); `endif
-                Bit#(28) eff_addr = rg_prev_addr + zeroExtend(data_length);
+                Bit#(28) eff_addr = rg_prev_addr + truncate(mm_data_length);
                 if((eff_addr!= truncate(araddr)) || pack(fifo.count)==0 || ccr_dummy_bit==1'b1) begin
                     `ifdef verbose  $display($time,"Not Equal eff_addr: %h mm_address : %h araddr: %h rg_prev_addr: %h data_length : %h sum : %h fifo.count: %h ccr_dummy_bit: %h",eff_addr,mm_address,araddr,rg_prev_addr,data_length,rg_prev_addr+zeroExtend(data_length),pack(fifo.count),ccr_dummy_bit); `endif
                     sr_busy<=0;
@@ -516,27 +524,27 @@ package qspi;
                 end
                 else if(!first_read) begin
                     request_ready = True;
-                    rg_prev_addr <= truncate(araddr);
+                    rg_prev_addr <= truncate(araddr);               
                     Bit#(32) reg1 = 0;
             	    if(arsize==0) begin // 8 bits
 				    	if(fifo.deqReadyN(1))begin
 				    		let temp=fifo.first[0];
 				    		reg1=duplicate(temp);
-				    		fifo.deq(1);
+				    		fifo.deq(1); 
 				    	end
 				    end
 				    else if(arsize==1) begin // 16 bits
 				    	if(fifo.deqReadyN(2)) begin
 				    		let temp={fifo.first[0],fifo.first[1]};
 				    		reg1=duplicate(temp);
-				    		fifo.deq(2);
+				    		fifo.deq(2); 
 				    	end
 				    end
 				    else if(arsize==2) begin // 32 bits
 				    	if(fifo.deqReadyN(4)) begin
 				    		let temp={fifo.first[0],fifo.first[1],fifo.first[2],fifo.first[3]};
 				    		reg1=duplicate(temp);
-				    		fifo.deq(4);
+				    		fifo.deq(4); 
 							`ifdef verbose $display($time," Memory maqpped requset arrived for %d and value %d  \n",araddr,temp);
 				    	end
 				    end
@@ -1272,11 +1280,19 @@ package qspi;
 						end
 					end
 					else if(ccr_fmode=='b11)begin// memory mapped mode
-    				    if(first_read) begin
+    				    if(first_read) begin 
+    				    
+    				   let data =case (data_length1)
+				      1 : duplicate(data_reg[7:0]);
+				      2 : duplicate(data_reg[15:0]);
+				      4 : duplicate(data_reg[31:0]);
+					default: data_reg; 
+					endcase;
+    				    
                             `ifdef verbose $display("Sending response back to the proc data_reg: %h",data_reg); `endif
 							wr_rd_resp <= tagged Valid Rd_resp{
 														rsp 	: AXI4_LITE_OKAY,
-														rdata	: duplicate(data_reg)};
+														rdata	: duplicate(data)};
 //                            let r = AXI4_Lite_Rd_Data {rresp: AXI4_LITE_OKAY, rdata: duplicate(data_reg) , ruser: 0};
 //    				        s_xactor.i_rd_data.enq(r);
                             first_read <= False;
