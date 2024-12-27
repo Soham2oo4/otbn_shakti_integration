@@ -360,6 +360,11 @@ package i2c;
             controlReg <= 8'hc5 | truncate(value);       //TODO 45h Check this out
             val_SDA <= 1;
             sendInd <= 2;
+
+            for (Integer i = 0; i < 256; i = i + 1) begin
+                val_SDA_delay[i] <= 0;
+            end
+            
           end
 
           // Invalid RT Start

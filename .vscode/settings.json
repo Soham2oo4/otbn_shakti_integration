@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "watchdog_driver.h": "c"
+    }
+}
