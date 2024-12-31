@@ -334,11 +334,12 @@ package uart;
 		// Bool sync_required=(core_clock!=uart_clock);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		GatedClockIfc uart_clk_gated <- mkGatedClockFromCC(False);
+		Reset uart_internal_reset <- mkAsyncReset(2,core_reset,uart_clk_gated.new_clk);
 `ifdef slowclk
 if(!sync_required)begin // If uart is clocked by core-clock.
 `endif
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
-                                                                    reset_by uart_reset, baudrate,
+                                                                    reset_by uart_internal_reset, baudrate,
                                                                     stopbits, parity);
 			Reg#(bit) rg_clk_en <- mkRegA(0);
 		

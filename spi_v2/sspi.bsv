@@ -1125,7 +1125,9 @@ endmodule : mk_sspi
 					 Add#(h__, 1, data_width)
 					);
 		GatedClockIfc spi_clk_gated <- mkGatedClockFromCC(False);
-		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(clocked_by spi_clk_gated.new_clk);
+		Reset core_reset<-exposeCurrentReset;
+		Reset spi_internal_reset <- mkAsyncReset(2,core_reset,spi_clk_gated.new_clk);
+		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(clocked_by spi_clk_gated.new_clk, reset_by spi_internal_reset);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		Reg#(bit) rg_clk_en <- mkRegA(0);
 		
