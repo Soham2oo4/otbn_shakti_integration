@@ -43,7 +43,7 @@ package qspi;
 			Bit#(dwidth) rdata;
 	} Rd_resp#(numeric type dwidth) deriving (Bits, Eq);
 
-    (*always_ready, always_enabled*)
+    //(*always_ready, always_enabled*)
     interface QSPI_out;
     /*(* always_ready, result="clk_o" *) 		*/	method bit clk_o;
 		/*(* always_ready, result="io_o" *) 		*/	method Bit#(4) io_o;
@@ -1595,7 +1595,7 @@ endinterface
 module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr `ifdef testmode ,Bool test_mode `endif )(Ifc_qspi_axi4#(addr_width,
 														 data_width,
 														 user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32), Mul#(8, e__, data_width),Add#(d__, 1, data_width));
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
@@ -1603,22 +1603,40 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 
 	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
-	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
-  SyncFIFOIfc#(AXI4_Lite_Resp) 	ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);
-	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	ff_rd_req    		<- mkSyncFIFOFromCC(1, slow_clk);
-	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	    <- mkSyncFIFOToCC(1, slow_clk, slow_rst);
+	
  	
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by slow_clk, reset_by slow_rst);
+        Reg#(bit) rg_clk_en <- mkRegA(0);
+ 	GatedClockIfc   qspi_gated_clk                   <- mkGatedClock(False,slow_clk); 	
+ 	Reset          qspi_gated_clk_rst                   <- mkAsyncReset(2,slow_rst,qspi_gated_clk.new_clk); 
+
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by qspi_gated_clk.new_clk, reset_by qspi_gated_clk_rst );
+	
+	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
+        SyncFIFOIfc#(AXI4_Lite_Resp) 	                        ff_sync_wr_resp 	<- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, qspi_gated_clk_rst );
+	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	        ff_rd_req    		<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
+	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	        <- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, qspi_gated_clk_rst ); 
+	
+        rule clock_en;    
+	       qspi_gated_clk.setGateCond(unpack(rg_clk_en));	         
+	endrule
 	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
    		let w  <- pop_o (s_xactor.o_wr_data);
+
+                 if(aw.awaddr[7:0] == `Qspi_Clk_En && aw.awsize == 0) begin 
+		   rg_clk_en <= truncate(w.wdata); 
+		  let b = AXI4_Wr_Resp {bresp : AXI4_OKAY, buser : 0, bid : aw.awid};
+	              s_xactor.i_wr_resp.enq (b);
+		   $display($stime(),"QSPI: Sending gated clk Write response");
+		 end  		
+   		else begin   
 		ff_wr_req.enq(tagged Valid (Write_req {
 								  addr : truncate(aw.awaddr),
 								  burst_size : aw.awsize,
 								  wdata : truncate(w.wdata) }));
 		rg_req_en <= 1;
-		rg_wid <= aw.awid;
+		rg_wid <= aw.awid; end
 	    $display($stime(),"QSPI: qspi received write request awaddr %h", aw.awaddr);
 	endrule
 
@@ -1646,11 +1664,19 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 
 	rule rl_read_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let ar<- pop_o(s_xactor.o_rd_addr);
+		
+		if(ar.araddr[7:0] == `Qspi_Clk_En && ar.arsize == 0) begin
+	      let rsp = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: duplicate({7'b0,rg_clk_en}) , ruser: 0, rid: ar.arid, rlast: True};
+	             s_xactor.i_rd_data.enq(rsp);    
+		   $display($stime(),"QSPI: qspi sent read request"); 
+              end 
+	      else begin 	   
+		
 		ff_rd_req.enq(tagged Valid (Read_req{
 									addr : truncate(ar.araddr),
 									burst_size : ar.arsize}));
 		rg_req_en <= 1;
-		rg_rid <= ar.arid;
+		rg_rid <= ar.arid; end
 		$display($stime(),"QSPI: qspi received read request");
 	endrule
 
