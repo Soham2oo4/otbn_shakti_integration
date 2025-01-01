@@ -141,10 +141,10 @@ package gptimer;
 				  pwm_rise_intr <= 1;
 				wr_pwm_rise_intr <= 1;
 			end
-			else if(temp_cntr == rg_period -1) begin
-				pwm_fall_intr <= 0;
-				pwm_rise_intr <= 0;
-			end
+//			else if(temp_cntr == rg_period -1) begin
+//				pwm_fall_intr <= 0;
+//				pwm_rise_intr <= 0;
+//			end
 		endrule
 		
 		
@@ -152,7 +152,7 @@ package gptimer;
 		rule rl_up_counter(gpt_mode == 1 && gpt_enable == 1 );
 			if(rg_counter < rg_period - 1) begin
 				rg_counter <= rg_counter + 1;
-				   cntr_overflow_intr <= 0; 
+//				   cntr_overflow_intr <= 0; 
 			end
 			else begin
 				   cntr_overflow_intr <= 1; 
@@ -171,7 +171,7 @@ package gptimer;
 		rule rl_down_counter(gpt_mode == 2 && gpt_enable == 1 );
 			if(rg_counter > 0) begin
 				rg_counter <= rg_counter - 1;
-				cntr_underflow_intr <= 0;
+//				cntr_underflow_intr <= 0;
 				
 			end
 			else begin
@@ -196,7 +196,7 @@ package gptimer;
 			if(rg_count_mode == 1) begin
 				if(rg_counter < rg_period - 1) begin
 					rg_counter <= rg_counter + 1;
-					 cntr_underflow_intr <= 0;
+//					 cntr_underflow_intr <= 0;
 				end
 				else begin
 					rg_count_mode <= 0;
@@ -208,7 +208,7 @@ package gptimer;
 			else begin
 				if(rg_counter > 0) begin
 					rg_counter <= rg_counter - 1;
-				            cntr_overflow_intr <= 0;
+//				            cntr_overflow_intr <= 0;
 				end
 				else begin
                                           wr_cntr_underflow_intr <= 1; 
@@ -228,8 +228,17 @@ package gptimer;
 		
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, Bit#(2) size);
 			Bool success = True;
-			if(addr[7:0] == `GPTimer_ctrl && size == 1)
+			if(addr[7:0] == `GPTimer_ctrl && size == 1) begin
 				rg_control <= truncate(data);
+				if (data[14]==1'b1)
+					cntr_underflow_intr <= 0;
+				if (data[13]==1'b1)
+					cntr_overflow_intr <= 0;
+				if (data[12]==1'b1)
+					pwm_rise_intr <= 0;
+				if (data[11]==1'b1)
+					pwm_fall_intr <= 0;
+			end
 			/*else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
 				rg_clk_divider <= truncate(data);*/
 			else if(addr[7:0] == `GPTimer_compare && size == 2)
@@ -250,8 +259,9 @@ package gptimer;
 		method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr, Bit#(2) size);
 			Bool success = True;
 			Bit#(data_width) data = 0;
-		      if(addr[7:0] == `GPTimer_ctrl && size == 1)
+		      if(addr[7:0] == `GPTimer_ctrl && size == 1) begin
 			    data = duplicate(rg_control);
+			end
 			/*else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
 				data = duplicate(rg_clk_divider);*/
 			else if(addr[7:0] == `GPTimer_counter && size ==2)
