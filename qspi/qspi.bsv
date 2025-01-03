@@ -136,7 +136,9 @@ package qspi;
 	
 	/*************** List of implementation defined Registers *****************/
 	Reg#(bit) rg_clk <-mkRegA(1);
+	Reg#(bit) rg_ddr_clk <- mkRegA(1);
 	Reg#(Bit#(8)) rg_clk_counter<-mkRegA(0);
+    Reg#(Bit#(8)) rg_ddr_counter <-mkRegA(0);
 	MIMOConfiguration cfg=defaultValue;
 	cfg.unguarded=True;
 	MIMO#(4,4,16,Bit#(8)) fifo <-mkMIMO(cfg);
@@ -149,6 +151,7 @@ package qspi;
 	Reg#(Bit#(32)) rg_count_bits <-mkRegA(0); // count bits to be transfered 
 	Reg#(Bit#(32)) rg_count_bytes <-mkRegA(0); // count bytes to be transfered 
 	Reg#(Bool) wr_sdr_clock <-mkDWire(False); // use this to trigger posedge of sclk
+    Wire#(Bool) wr_ddr_clock          <-mkDWire(False);
     Reg#(Bool) wr_sdr_delayed <- mkDWire(False);
 	Reg#(Bool) wr_instruction_written<-mkDRegA(False); // this wire is se when the instruction is written by the AXI Master
 	Reg#(Bool) wr_address_written<-mkDRegA(False); // this wire is set when the address is written by the AXI Master
@@ -286,10 +289,10 @@ package qspi;
 	Reg#(bit) ddr_en	<- mkRegA(0);
 	Reg#(bit) init_mm_xip_delay <- mkRegA(0);
 
-    Bool ddr_clock = ((wr_sdr_clock && !wr_sdr_delayed)||(!wr_sdr_clock && wr_sdr_delayed));
+    Bool ddr_clock = wr_ddr_clock; //((wr_sdr_clock && !wr_sdr_delayed)||(!wr_sdr_clock && wr_ddr_clock));
 //    Bool ddr_clock = (wr_sdr_clock || wr_sdr_delayed);
 	Bool transfer_cond  =  (sr_busy==1 && cr_abort==0 && cr_en==1);
-    Bool clock_cond = ((wr_sdr_clock && ccr_ddrm==0) || (ddr_clock && ccr_ddrm==1)); //##
+    Bool clock_cond = ((wr_sdr_clock && ccr_ddrm==0) || (wr_ddr_clock && ccr_ddrm==1)); //##
     Bool qspi_flush = (cr_abort == 1 || cr_en == 0);
     /*************** End of QSPI defined Registers *****************/
   function Reg#(Bit#(32)) access_register(Bit#(8) address);
@@ -630,6 +633,48 @@ package qspi;
 //    endrule
     
     
+
+
+    /*doc:rule: this rule generates ddr clock/detect the both posedge and negedge of sdr clock*/
+    rule rl_ddr_clk_gen;
+      if(ccr_ddrm == 1) begin
+        if(delay_ncs==1)begin
+          rg_ddr_counter<=0;
+          rg_ddr_clk <= dcr_ckmode;
+        end
+        else begin
+          let half_clock_value=(cr_prescaler>>1);
+          let lv_dummy = (cr_prescaler + half_clock_value)>>1;
+          if(cr_prescaler[0]==0)begin // odd division
+            if(rg_ddr_counter==(half_clock_value)>>1 || rg_ddr_counter==half_clock_value || rg_ddr_counter==lv_dummy || rg_ddr_counter==cr_prescaler)begin
+              rg_ddr_clk<=~rg_ddr_clk;
+            end
+            if(rg_ddr_counter==cr_prescaler)
+              rg_ddr_counter<=0;
+            else
+              rg_ddr_counter<=rg_ddr_counter+1;
+            if(rg_ddr_counter==(half_clock_value)>>1 || rg_ddr_counter==half_clock_value || rg_ddr_counter==lv_dummy || rg_ddr_counter==cr_prescaler)begin
+              wr_ddr_clock<= rg_phase==DataRead_phase?unpack(~rg_ddr_clk):unpack(rg_ddr_clk);
+            end
+          end
+          else begin // even division
+            if(rg_ddr_counter==(half_clock_value)>>1 || rg_ddr_counter==half_clock_value)begin
+              rg_ddr_clk<=~rg_ddr_clk;
+              wr_ddr_clock <= (rg_phase==DataRead_phase) ? unpack(~rg_ddr_clk): unpack(rg_ddr_clk);
+            end
+            if(rg_ddr_counter==half_clock_value) begin
+              rg_ddr_counter<=0;
+            end
+            else if(delay_ncs==0)
+              rg_ddr_counter<=rg_ddr_counter+1;
+          end
+        end
+      end
+    endrule
+
+
+
+    
     /* This rule generates the clk signal. The Prescaler register defines the 
 	division factor wrt to the Global clock. The prescaler will only work when the
 	chip select is low i.e when the operation has been initiated. */
@@ -643,10 +688,16 @@ package qspi;
 			let half_clock_value=cr_prescaler>>1;
 			//if(cr_prescaler[0]==0)begin // odd division   og
                           if(cr_prescaler[0]==1)begin // odd division
+/*
 				if(rg_clk_counter<=half_clock_value)
 					rg_clk<=0;
 				else
 					rg_clk<=1;
+				if(rg_clk_counter==cr_prescaler)
+					rg_clk_counter<=0;
+*/
+				if(rg_clk_counter == half_clock_value || rg_clk_counter==cr_prescaler)
+					rg_clk<=~rg_clk;
 				if(rg_clk_counter==cr_prescaler)
 					rg_clk_counter<=0;
 				else
