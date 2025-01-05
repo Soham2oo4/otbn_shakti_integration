@@ -331,21 +331,18 @@ package uart;
 
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
-		// Bool sync_required=(core_clock!=uart_clock);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
-		GatedClockIfc uart_clk_gated <- mkGatedClockFromCC(False);
-`ifdef slowclk
-if(!sync_required)begin // If uart is clocked by core-clock.
-`endif
-			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
-                                                                    reset_by uart_reset, baudrate,
+		GatedClockIfc   uart_clk_gated                   <- mkGatedClock(False,uart_clock); 	
+		Reset uart_internal_reset <- mkAsyncReset(2,uart_reset,uart_clk_gated.new_clk);
+		UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
+                                                                    reset_by uart_internal_reset, baudrate,
                                                                     stopbits, parity);
-			Reg#(bit) rg_clk_en <- mkRegA(0);
-		
-		
-	rule clock_en;    
-		uart_clk_gated.setGateCond(unpack(rg_clk_en));	         
-	endrule
+		Reg#(bit) rg_clk_en <- mkRegA(0);
+			
+		rule clock_en;    
+			uart_clk_gated.setGateCond(unpack(rg_clk_en));	         
+		endrule
+		`ifdef fast_clk
 			//capturing the read requests
 			rule capture_read_request;
 				let req <- pop_o(s_xactor.o_rd_addr);
@@ -389,66 +386,127 @@ if(!sync_required)begin // If uart is clocked by core-clock.
 			interface slave = s_xactor.axi_side;
 			interface io= user_ifc.io;
 			method interrupt= user_ifc.interrupt;
-`ifdef slowclk
-                end
-		else begin // if core clock and uart_clock is different.
-			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
-                                                                    reset_by uart_reset, baudrate,
-                                                                    stopbits, parity);
-			SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request <- 
-																							mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request <- 
-																							mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width)) ff_wdata_request <- mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response <- 
-																				mkSyncFIFOToCC(3,uart_clock,uart_reset);
-			SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width)) ff_wr_response <- 
-																				mkSyncFIFOToCC(3,uart_clock,uart_reset);
+		`endif
+		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
+		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
+		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
+		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_internal_reset);
+		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_internal_reset);
+		
 			//capturing the read requests
-			rule capture_read_request;
+			rule capture_read_request;   
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
-				ff_rd_request.enq(rd_req);
+				Bool succ = False;
+				Bit#(data_width) rdata = 0 ;
+				if (rd_req.araddr[7:0] == `UART_Clk_en  && rd_req.arsize == 0) begin	 
+					succ = True; 
+					rdata = duplicate({7'b0,rg_clk_en}); 
+					let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+																rdata: rdata, ruser: ?}; //TODO user?
+					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+						end 
+					else begin 
+						ff_rd_request.enq(rd_req); end  //core domain 
 			endrule
 
-			rule perform_read;
-				let rd_req = ff_rd_request.first;
+			rule perform_read; 
+				let rd_req = ff_rd_request.first;   //peripheral domain  
 				ff_rd_request.deq;
-				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(rd_req.arsize));
+				let {rdata,succ} <- user_ifc.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
 				let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
-      	                                                      rdata: rdata, ruser: ?}; //TODO user?
-				ff_rd_response.enq(lv_resp);
+																rdata: rdata, ruser: ?}; //TODO user?
+				ff_rd_response.enq(lv_resp);   //peripheral domain
 			endrule
 
-			rule send_read_response;
-				ff_rd_response.deq;
+			rule send_read_response;  
+				ff_rd_response.deq;    // core domain
 				s_xactor.i_rd_data.enq(ff_rd_response.first);//sending back the response
 			endrule              
-	
+
 			// capturing write requests
-			rule capture_write_request;
+			rule capture_write_request;  // core domain
 				let wr_req  <- pop_o(s_xactor.o_wr_addr);
 				let wr_data <- pop_o(s_xactor.o_wr_data);
+			Bool succ = False;
+			if (wr_req.awaddr[7:0] == `UART_Clk_en && wr_req.awsize == 0) begin 
+				rg_clk_en <= truncate(wr_data.wdata); 
+				succ = True;
+				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+					s_xactor.i_wr_resp.enq(lv_resp);
+				end 
+				else begin 
 				ff_wr_request.enq(wr_req);
-				ff_wdata_request.enq(wr_data);
+				ff_wdata_request.enq(wr_data); end 
 			endrule
 
-			rule perform_write;
+			rule perform_write;   // peripheral domain 
 				let wr_req  = ff_wr_request.first;
 				let wr_data = ff_wdata_request.first;
+				
 				let succ <- user_ifc.write_req(wr_req.awaddr,wr_data.wdata,unpack(wr_req.awsize));
-      		let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
 				ff_wr_response.enq(lv_resp);
+				ff_wr_request.deq;
+				ff_wdata_request.deq;
 			endrule
 
-			rule send_write_response;
+			rule send_write_response; // core domain
 				ff_wr_response.deq;
-      		s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
+				s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
 			endrule
-			interface slave = s_xactor.axi_side;
-			interface io= user_ifc.io;
-			method interrupt= user_ifc.interrupt;
-		end
-`endif
+		
+	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sin <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
+	SyncBitIfc#(Bit#(1)) sync_cts <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
+	SyncBitIfc#(Bit#(1)) sync_dsr <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
+	SyncBitIfc#(Bit#(1)) sync_ri <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
+	SyncBitIfc#(Bit#(1)) sync_dcd <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
+
+	rule syncbits_out; 
+		sync_rts.send(user_ifc.io.rts); 
+		sync_dtr.send(user_ifc.io.dtr); 
+		sync_out1.send(user_ifc.io.out1); 
+		sync_out2.send(user_ifc.io.out2); 
+		sync_dma_ready0.send(user_ifc.io.dma_ready[0]);
+		sync_dma_ready1.send(user_ifc.io.dma_ready[1]); 
+		sync_sout.send(user_ifc.io.sout); 
+		sync_sout_en.send(user_ifc.io.sout_en); 
+		sync_interrupt.send(user_ifc.interrupt); 
+	endrule 
+	
+	rule syncbits_in; 
+		user_ifc.io.sin(sync_sin.read);
+		user_ifc.io.cts(sync_cts.read);
+		user_ifc.io.dsr(sync_dsr.read);
+		user_ifc.io.ri(sync_ri.read);
+		user_ifc.io.dcd(sync_dcd.read);
+	endrule 
+				
+	
+		interface io = interface RS232
+			method rts= sync_rts.read;
+			method dtr= sync_dtr.read;
+			method out1= sync_out1.read;
+			method out2= sync_out2.read;
+			method dma_ready = {sync_dma_ready1.read,sync_dma_ready0.read};
+			method sout= sync_sout.read;
+			method sout_en= sync_sout_en.read;
+			method cts=sync_cts.send;
+			method dsr=sync_dsr.send;
+			method ri=sync_ri.send;
+			method dcd=sync_dcd.send;
+			method sin=sync_sin.send;
+		endinterface;
+		interface slave = s_xactor.axi_side;
+		method interrupt= sync_interrupt.read;
 	endmodule:mkuart_axi4lite
 
 
@@ -669,3 +727,4 @@ if(!sync_required)begin // If uart is clocked by core-clock.
 	endmodule:mkuart_axi4
 	
 endpackage:uart
+

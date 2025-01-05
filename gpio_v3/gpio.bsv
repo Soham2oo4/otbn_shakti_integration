@@ -117,18 +117,22 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			
 	/* doc : vector : holds the GPIO ports direction configuration. If set, the corresponding port is configured as output else input. Vector length is equal to the number of IO ports required.*/
 	Vector#(ionum ,ConfigReg#(Bool)) 	direction_reg		<-replicateM(mkConfigRegA(False));
+	/* doc : vector : holds the GPIO ports interrupt enable. If set, the corresponding port's interrupt is enabled. Vector length is equal to the number of IO ports required.*/
+	Vector#(ionum ,ConfigReg#(Bool)) 	interrupt_enable	<-replicateM(mkConfigRegA(False));
+	
+	Vector#(ionum ,ConfigReg#(Bit#(1))) 	interrupt_status	<-replicateM(mkConfigRegA(0));
 	/* doc : vector : holds the GPIO ports data value. If set, the corresponding port value is 1 else 0. Vector length is equal to the number of IO ports required. */
-	Vector#(ionum ,ConfigReg#(Bit#(1))) dataout_register	<-replicateM(mkConfigRegA(0));	
+	Vector#(ionum ,ConfigReg#(Bit#(1))) 	dataout_register	<-replicateM(mkConfigRegA(0));	
 
 	/* doc : vector : holds the GPIO ports data value when configured as input. If set, the corresponding port value is 1 else 0. Vector length is equal to the number of IO ports required. */
-		Vector#(ionum ,ConfigReg#(Bit#(1))) datain_register		<-replicateM(mkConfigRegA(0));
+	Vector#(ionum ,ConfigReg#(Bit#(1))) 	datain_register		<-replicateM(mkConfigRegA(0));
 //		By default, GPIO sends only active high interrupts to PLIC, if
 //		active_low interrupts are needed set the appropriate bit in
 //		rg_interrupt_config register
 	/* doc : vector : holds the GPIO ports interrupt polarity. If set, the corresponding interrupt port is configured as active low. else if the port is set to 0, the interrupt is configured as active high. By default the interrupts are active high. Vector length is equal to the number of IO ports required. */
-	Vector#(ionum ,ConfigReg#(Bit#(1))) rg_interrupt_config <-replicateM(mkConfigRegA(0));
+	Vector#(ionum ,ConfigReg#(Bit#(1))) 	rg_interrupt_config 	<-replicateM(mkConfigRegA(0));
 	/* doc : vector : holds the GPIO ports data value that is taken to the PLIC as interrupt. If set, the corresponding port's interrupt is taken to PLIC. Vector length is equal to the number of IO ports required. */
-	Vector#(ionum ,ConfigReg#(Bit#(1))) toplic				<-replicateM(mkConfigRegA(0));
+	Vector#(ionum ,ConfigReg#(Bit#(1))) toplic			<-replicateM(mkConfigRegA(0));
 	
 	`ifdef IQC
 		/* doc : reg : holds the number of input qualification cycles needed to filter the unwanted noise glitches. Vector length is equal to the number of IO ports required. The max. number of cycles is 15. */
@@ -141,8 +145,10 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 
 	/*doc:rule: This rule fires always. The plic is given interrupt request whenever GPIO direction register is configured as input and interrupt configuration register is configured for active low(1)/high(0) and the data in register is low/high. */
 	rule capture_interrupt;
-			for(Integer i=0;i<vionum ;i=i+1)
-				toplic[i]<=(!direction_reg[i])?(rg_interrupt_config[i]^datain_register[i]):0;
+			for(Integer i=0;i<vionum ;i=i+1) begin 
+				toplic[i]<=(!direction_reg[i])?(rg_interrupt_config[i]^datain_register[i]):0;				
+				interrupt_status[i] <= (toplic[i] & pack(interrupt_enable[i])) | interrupt_status[i];   
+				 end 
 		endrule
 
  	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
@@ -234,12 +240,19 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
 				for(Integer i=iocount; i<vionum; i=i+1)
 					rg_interrupt_config[i] <= datamask[i-iocount];
+			else if( addr[6:0] >= `intr_enable_reg1 && addr[6:0] < (`intr_enable_reg2))
+				for(Integer i=0;i<iocount;i=i+1)
+						interrupt_enable[i] <= unpack(datamask[i]);
+			else if( addr[6:0] >= `intr_enable_reg2 && addr[6:0] < (`intr_enable_reg2 + 4))
+				for(Integer i=iocount;i<vionum;i=i+1)
+						interrupt_enable[i] <= unpack(datamask[i-iocount]);
 			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
 				for(Integer i=0;i<iocount;i=i+1)
-						toplic[i] <= toplic[i]^datamask[i];
+						interrupt_status[i] <= unpack(datamask[i]);
 			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
-						toplic[i] <= toplic[i]^datamask[i-iocount];
+						interrupt_status[i] <= unpack(datamask[i-iocount]);			
+						
 			else
 				success=False;
 			return success;	
@@ -278,10 +291,16 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 					temp[i-iocount] = rg_interrupt_config[i];
 			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
 				for(Integer i=0;i<iocount;i=i+1)
-						temp[i] = toplic[i];
+						temp[i] = interrupt_status[i];
 			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
-						temp[i-iocount] = toplic[i];
+						temp[i-iocount] = interrupt_status[i];
+			else if( addr[6:0] >= `intr_enable_reg1 && addr[6:0] < (`intr_enable_reg2))
+				for(Integer i=0;i<iocount;i=i+1)
+						temp[i] = pack(interrupt_enable[i]);
+			else if( addr[6:0] >= `intr_enable_reg2 && addr[6:0] < (`intr_enable_reg2 + 4))
+				for(Integer i=iocount;i<vionum;i=i+1)
+						temp[i-iocount] = pack(interrupt_enable[i]);		
 			else
 				success=False;
 
@@ -308,7 +327,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 	method Bit#(1) interrupt;
 		Bit #(1) intr = 0;
 		for(Integer i=0;i<vionum;i=i+1)
-			intr = intr | toplic[i];
+			intr = intr | (toplic[i] & pack(interrupt_enable[i]) );
 		return intr;
 	endmethod
 	endmodule:mkgpio

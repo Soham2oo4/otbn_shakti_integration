@@ -21,38 +21,23 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
-Author Names : Vinod.G, Ayush Mittal
-Email ID : g.vinod1993@gmail.com, 29ayush@gmail.com
-
-This file defines the functions and the types required to implement I2C routines 
 */
-// ================================================
-// Types
 
-// Chip Clock Frequencies -- Assuming 50MHz Processor operating frequencies
-`define CLK3    15
-`define CLK443  9
-`define CLK6    6
-`define CLK8    4
-`define CLK12   2
+package gpio_template;
+	`include "gpio.defines"
+	import gpio::*;
 
-//Bus Clock Frequencies -- Assuming 8MHz Chip Clock Frequency
-`define SCL90   81
-`define SCL45   180
-`define SCL11   692
-`define SCL1    6992
+		(*synthesize*)
+		module mkdummy(Ifc_gpio_axi4lite#(32,32,0,64));
+				let ifc();
+				mkgpio_axi4lite _temp(ifc);
+				return ifc;
+		endmodule
 
-
-`define     S2             8'h00
-`define     Control        8'h08
-`define     S0             8'h10
-`define     Status         8'h18
-`define     S01            8'h20
-`define     S3             8'h28
-`define     Time           8'h30
-`define     SCL            8'h38
-`define     Length_reg     8'h40
-`define     FIFO_Status    8'h48
-`define     REPSTART_reg   8'h50
-`define	    I2C_Clk_En	   8'h58
-`define     SDA_delay      8'h64
+//(*synthesize*)
+//module mkdummy(Ifc_gpio_axi4#(32,32,0,64));
+//		let ifc();
+//		mkgpio_axi4 _temp(ifc);
+//		return ifc;
+//endmodule
+endpackage
