@@ -1681,13 +1681,17 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 	              s_xactor.i_wr_resp.enq (b);
 		   $display($stime(),"QSPI: Sending gated clk Write response");
 		 end  		
-   		else begin   
+   		else if(rg_clk_en == 1) begin   
 		ff_wr_req.enq(tagged Valid (Write_req {
 								  addr : truncate(aw.awaddr),
 								  burst_size : aw.awsize,
 								  wdata : truncate(w.wdata) }));
 		rg_req_en <= 1;
 		rg_wid <= aw.awid; end
+		else begin
+			let b = AXI4_Wr_Resp {bresp : AXI4_SLVERR, buser : 0, bid : aw.awid};
+			s_xactor.i_wr_resp.enq (b);
+		end
 	    $display($stime(),"QSPI: qspi received write request awaddr %h", aw.awaddr);
 	endrule
 
@@ -1721,13 +1725,17 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 	             s_xactor.i_rd_data.enq(rsp);    
 		   $display($stime(),"QSPI: qspi sent read request"); 
               end 
-	      else begin 	   
+	      else if(rg_clk_en == 1) begin 	   
 		
 		ff_rd_req.enq(tagged Valid (Read_req{
 									addr : truncate(ar.araddr),
 									burst_size : ar.arsize}));
 		rg_req_en <= 1;
 		rg_rid <= ar.arid; end
+		else begin
+			let rsp = AXI4_Rd_Data {rresp: AXI4_SLVERR, rdata: duplicate({7'b0,rg_clk_en}) , ruser: 0, rid: ar.arid, rlast: True};
+			s_xactor.i_rd_data.enq(rsp); 
+		end
 		$display($stime(),"QSPI: qspi received read request");
 	endrule
 

@@ -1144,9 +1144,12 @@ endmodule : mk_sspi
 		           succ = True; 
 		           data = duplicate({7'b0,rg_clk_en});  	         
 	         end 
-	          else begin  		
+	          else if(rg_clk_en == 1) begin  		
       		          {succ,data} <- sspi.mav_read_req(req.araddr,unpack(truncate(req.arsize)));
       		     end 
+			else begin
+				succ = False;
+			end
 	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
 	  		s_xactor.i_rd_data.enq(resp);
@@ -1160,9 +1163,12 @@ endmodule : mk_sspi
        		    rg_clk_en <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 
-       		 else begin 
+       		 else if(rg_clk_en == 1) begin 
        		      succ <- sspi.mav_write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
        		     end 
+			else begin
+					succ = False;
+			end
        		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
        		s_xactor.i_wr_resp.enq(resp);
      	endrule
