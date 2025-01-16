@@ -14,7 +14,7 @@
 `define PSMAR	        'h28          // polling status match register
 `define PIR		'h2c          // polling interval register
 `define LPTR	        'h30          // low-power timeout register
-`define Qspi_Clk_En	'h38 
+`define Qspi_Clk_En	'h34 
 
 //`define STARTMM 'h0000000
 //`define ENDMM	'h007FFFF
