@@ -405,8 +405,13 @@ package uart;
 																rdata: rdata, ruser: ?}; //TODO user?
 					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
 						end 
-					else begin 
+					else if(rg_clk_en == 1) begin 
 						ff_rd_request.enq(rd_req); end  //core domain 
+					else begin
+					let lv_resp= AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, 
+																rdata: rdata, ruser: ?}; //TODO user?
+					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+					end
 			endrule
 
 			rule perform_read; 
@@ -434,9 +439,13 @@ package uart;
 				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
 					s_xactor.i_wr_resp.enq(lv_resp);
 				end 
-				else begin 
+				else if(rg_clk_en == 1) begin 
 				ff_wr_request.enq(wr_req);
 				ff_wdata_request.enq(wr_data); end 
+				else begin
+				let lv_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: ?};
+					s_xactor.i_wr_resp.enq(lv_resp);
+				end
 			endrule
 
 			rule perform_write;   // peripheral domain 

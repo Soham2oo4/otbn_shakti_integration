@@ -375,10 +375,12 @@ module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4li
        		    rg_clk_en <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 
-       		 else begin 
-			
-			succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
-		end
+       		else if(rg_clk_en == 1) begin 
+				succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+			end
+			else begin
+				succ = False;
+			end
 		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
 		  s_xactor.i_wr_resp.enq (ls);			
 		endrule
@@ -388,17 +390,20 @@ module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4li
 			let req <- pop_o(s_xactor.o_rd_addr);
 			Bool succ = False;
 		        Bit#(data_width) data = 0 ; 
-	       if (req.araddr[6:0] == `GPIO_Clk_en && req.arsize == 0) begin 
+	        if (req.araddr[6:0] == `GPIO_Clk_en && req.arsize == 0) begin 
 		           succ = True; 
 		           data = duplicate({7'b0,rg_clk_en});  	         
 	         end 
-	          else begin
-			{succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
-		end
+	        else if(rg_clk_en == 1) begin
+				{succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
+			end
+			else begin
+				succ = False;
+			end
 			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
 	  		s_xactor.i_rd_data.enq(resp);
-		endrule
+	endrule
 	 	interface slave = s_xactor.axi_side;
     // interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
 	method interrupt = gpio.interrupt;

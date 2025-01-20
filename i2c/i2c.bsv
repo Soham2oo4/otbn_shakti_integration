@@ -1031,9 +1031,12 @@ package i2c;
 		      err = False; 
 		      rdata = duplicate({7'b0,rg_clk_en});  
 	      end
-	      else  begin  
+	      else if(rg_clk_en == 1) begin  
              {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
-        end   
+        end 
+        else begin
+          err = True;
+        end  
         let lv_resp= AXI4_Lite_Rd_Data {rresp: err? AXI4_LITE_SLVERR : AXI4_LITE_OKAY, rdata: rdata, ruser: ?}; //TODO user?
         s_xactor.i_rd_data.enq(lv_resp);
       endrule
@@ -1049,11 +1052,14 @@ package i2c;
           rg_clk_en <=  truncate(wr_data.wdata);
           $display("response from rg_clk_en - %d",err); 
         end
-        else  
+        else if(rg_clk_en == 1) 
         begin
              err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
                   $display("response from i2c - %d",err);
         end 
+        else begin
+          err = True;
+        end
         let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
         s_xactor.i_wr_resp.enq(lv_resp);
       endrule
