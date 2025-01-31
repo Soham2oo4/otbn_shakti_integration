@@ -346,9 +346,11 @@ package gptimer;
                 Reset downreset                   <- mkAsyncReset(2,bus_reset,downclock);    // div rst 
                 
                           
-		GatedClockIfc  gpt_clk_gated       <- mkGatedClock(False,downclock,clocked_by downclock,reset_by downreset);	
+		GatedClockIfc  gpt_clk_gated       <- mkGatedClock(False,downclock,clocked_by downclock,reset_by downreset);
+		Reset          gpt_clk_gate_rst                   <- mkAsyncReset(2,bus_reset,gpt_clk_gated.new_clk); 
+	
 							
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by bus_reset);		
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by gpt_clk_gate_rst);		
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();		
 		
 		SyncBitIfc#(Bit#(1)) sync_rg_clk_en <- mkSyncBit(bus_clock, bus_reset, downclock); // 
@@ -378,8 +380,8 @@ package gptimer;
   		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
   		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
   		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
-  		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,bus_reset);
-  		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,bus_reset);
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,gpt_clk_gate_rst);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,gpt_clk_gate_rst);
   		
   		//capturing the read requests
   		rule capture_read_request;   

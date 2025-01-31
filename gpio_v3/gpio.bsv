@@ -356,7 +356,8 @@ module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4li
 			);
 		Reset core_reset<-exposeCurrentReset;
 		GatedClockIfc gpio_clk_gated <- mkGatedClockFromCC(False);
-		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio(clocked_by gpio_clk_gated.new_clk);
+		Reset gpio_internal_reset <- mkAsyncReset(2,core_reset,gpio_clk_gated.new_clk);
+		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio(clocked_by gpio_clk_gated.new_clk, reset_by gpio_internal_reset);
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		Reg#(bit) rg_clk_en <- mkRegA(0);
 		

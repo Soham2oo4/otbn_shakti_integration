@@ -1092,9 +1092,11 @@ package i2c;
     Reset core_reset<-exposeCurrentReset;
     Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
  	  GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
+    Reset i2c_internal_reset <- mkAsyncReset(2,core_reset,i2c_gated_clk.new_clk);
     AXI4_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Slave_Xactor();
 
-    Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk);
+    Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
+                                                                               reset_by i2c_internal_reset);
                                                                                
        rule clock_en;    
 	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
