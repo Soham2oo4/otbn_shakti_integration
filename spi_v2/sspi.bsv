@@ -287,10 +287,10 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	Reg#(Bit#(16)) rg_intr_en = concatReg10(readOnlyReg(7'd0),rg_rx_over_run_err_intr_en,rg_rx_fifo_full_intr_en,rg_rx_fifo_half_intr_en,rg_rx_fifo_quad_intr_en,rg_rx_fifo_empty_intr_en,
 											rg_tx_fifo_full_intr_en,rg_tx_fifo_half_intr_en,rg_tx_fifo_quad_intr_en,rg_tx_fifo_empty_intr_en);
 		
-	Vector#(`sclk_delay, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkReg(0));
-	Vector#(`sclk_delay, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkReg(0));
-	Vector#(`mosi_delay, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkReg(0));
-	Vector#(`mosi_delay, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkReg(0));
+	Vector#(`sclk_delay, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkRegA(0));
+	Vector#(`sclk_delay, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkRegA(0));
+	Vector#(`mosi_delay, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkRegA(0));
+	Vector#(`mosi_delay, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkRegA(0));
 
 	/*doc : reg : Overrun bit. This will be set when there is an overrun during receive operation */
 	Reg#(bit) rg_over_run <- mkRegA(0);

@@ -95,15 +95,15 @@ module mkclic(User_ifc#(addr_width,data_width,user_width,number_of_interrupt))
 	//====================control registers=====================//
 
 	//this reg defines the mode, level and priority of the interrupt
-	Vector#(number_of_interrupt,Reg#(Bit#(8)))	clicintctr <- replicateM(mkReg(0));
+	Vector#(number_of_interrupt,Reg#(Bit#(8)))	clicintctr <- replicateM(mkRegA(0));
 	//manipulation of interrupt enable bits will be set by software while the pending bits are set by the io pins
-	Vector#(number_of_interrupt,Reg#(Bit#(1))) clicint_ie <- replicateM(mkReg(0));//interrupt enable 
-	Vector#(number_of_interrupt,Reg#(Bit#(1))) clicint_ip <- replicateM(mkReg(0));//interrupt pending
+	Vector#(number_of_interrupt,Reg#(Bit#(1))) clicint_ie <- replicateM(mkRegA(0));//interrupt enable 
+	Vector#(number_of_interrupt,Reg#(Bit#(1))) clicint_ip <- replicateM(mkRegA(0));//interrupt pending
 
 	//this reg defines the number of bits in clicintctr which are dedicated for modes, levels, priorities
-	Reg#(Bit#(1)) res_cliccfg <- mkReg(0);//reserved bit 7
+	Reg#(Bit#(1)) res_cliccfg <- mkRegA(0);//reserved bit 7
 	res_cliccfg=readOnlyReg(0);
-	Reg#(Bit#(2)) cliccfg_nm <- mkReg(1);// number of bits for mode, the default value is set to 1, meaning machine and user mode are available
+	Reg#(Bit#(2)) cliccfg_nm <- mkRegA(1);// number of bits for mode, the default value is set to 1, meaning machine and user mode are available
 
 //===============================setting for the cliccfg mode support bits============================//
 //`ifdef supervisor 
@@ -113,21 +113,21 @@ module mkclic(User_ifc#(addr_width,data_width,user_width,number_of_interrupt))
 //`endif	
 
 
-	Reg#(Bit#(4)) cliccfg_nl <- mkReg(0);// number of bits for levels and the remaining bit will be treated for defining priority
+	Reg#(Bit#(4)) cliccfg_nl <- mkRegA(0);// number of bits for levels and the remaining bit will be treated for defining priority
 	
 	// this describes interrupt as vectored or not vectored (0 or 1)
 	// if it is 1 then the least significant of clicintctr further controls the vectoring behaviour, 0 means follow default mtvec, 1 means follow new CSR mtvt
-	Reg#(Bit#(1)) cliccfg_vec <- mkReg(0);// this describes whether the interrupt is selectively hardware vectored or not (1 or 0), this acts as the global enable bit for the selective vectoring
+	Reg#(Bit#(1)) cliccfg_vec <- mkRegA(0);// this describes whether the interrupt is selectively hardware vectored or not (1 or 0), this acts as the global enable bit for the selective vectoring
 	Reg#(Bit#(8)) cliccfg = concatReg4(res_cliccfg,cliccfg_nm,cliccfg_nl,cliccfg_vec);
 
-	Reg#(Bit#(8)) int_winner<- mkReg(0);
-	Reg#(Bit#(10)) int_index <- mkReg(0);//for storing the index of the selected interrupt
-	Reg#(Bit#(1)) rg_pending <- mkReg(0);//this register will go via side band indicating that an interrupt is pending
-	Vector#(number_of_interrupt,Reg#(Bit#(1))) clic_hvec <-replicateM(mkReg(0));//hardware vectoring for individual interrupt, if the global vectoring bit in the cliccfg is set
-	Reg#(Bit#(1)) rg_hvec <- mkReg(0);//single bit reg which will be sent out as sideband for hvectoring
+	Reg#(Bit#(8)) int_winner<- mkRegA(0);
+	Reg#(Bit#(10)) int_index <- mkRegA(0);//for storing the index of the selected interrupt
+	Reg#(Bit#(1)) rg_pending <- mkRegA(0);//this register will go via side band indicating that an interrupt is pending
+	Vector#(number_of_interrupt,Reg#(Bit#(1))) clic_hvec <-replicateM(mkRegA(0));//hardware vectoring for individual interrupt, if the global vectoring bit in the cliccfg is set
+	Reg#(Bit#(1)) rg_hvec <- mkRegA(0);//single bit reg which will be sent out as sideband for hvectoring
 	Reg#(Bit#(20)) rg_sb_int = concatReg4(int_index,int_winner,rg_hvec,rg_pending);//sideband for the core
 
-	Reg#(Bool) done <- mkReg(False);//this to avoid conflicts between encoder_out and method write_req
+	Reg#(Bool) done <- mkRegA(False);//this to avoid conflicts between encoder_out and method write_req
 		
 	Integer limit=valueOf(number_of_interrupt);
 	//rule for interrupt selection, vectored or not vectored decision, and giving input to encoder
@@ -352,11 +352,11 @@ module mkclic_axi4(Ifc_clic_axi4#(addr_width,data_width,user_width,number_of_int
 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 	
 
-	 	Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
+	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 	 	rule axi_read_transaction(rg_rdburst_count==0);
 	 		let req <- pop_o(s_xactor.o_rd_addr);

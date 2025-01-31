@@ -45,10 +45,10 @@ package bootrom_axi4;
     Bit#(addr_width) base_address=fromInteger(slave_base);
 
     BRAM_PORT#(Bit#(index_size), Bit#(data_width)) boot <- mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "bootfile", False);
-    Reg#(Bool) read_request_sent <-mkDReg(False);
-    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkReg(tuple2(0,Byte));
+    Reg#(Bool) read_request_sent <-mkDRegA(False);
+    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
     `ifdef fesvr_sim
-      Reg#(Bit#(1)) rg_initialized <- mkReg(0);
+      Reg#(Bit#(1)) rg_initialized <- mkRegA(0);
     `endif
 
     `ifdef fesvr_sim
@@ -106,12 +106,12 @@ package bootrom_axi4;
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
     AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(`axi4_id_bits)) rg_rd_id <-mkReg(0);
-    Reg#(Mem_State) read_state <-mkReg(Idle);
-    Reg#(Mem_State) write_state <-mkReg(Idle);
-    Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-    Reg#(AXI4_Rd_Addr#(addr_width, user_width)) rg_read_packet <-mkReg(?);
-    Reg#(AXI4_Wr_Resp#(user_width)) rg_write_response <-mkReg(?);
+    Reg#(Bit#(`axi4_id_bits)) rg_rd_id <-mkRegA(0);
+    Reg#(Mem_State) read_state <-mkRegA(Idle);
+    Reg#(Mem_State) write_state <-mkRegA(Idle);
+    Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
+    Reg#(AXI4_Rd_Addr#(addr_width, user_width)) rg_read_packet <-mkRegA(?);
+    Reg#(AXI4_Wr_Resp#(user_width)) rg_write_response <-mkRegA(?);
     Integer byte_offset = valueOf(TLog#(TDiv#(data_width, 8)));
 
     // If the request is single then send ERR. If it is a burst write request then change
