@@ -35,7 +35,7 @@ module mkrandom(Ifc_rndseed_io#(addr_width,data_width))
 
 Randomize#(Bit#(data_width)) rnd_seed<- mkGenericRandomizer;
 FIFO#(Bit#(data_width)) fifo <- mkFIFO ;
-Reg#(Bool) begining <- mkRegA(True) ;
+Reg#(Bool) begining <- mkReg(True) ;
 Reg#(Bool) rg_en <- mkRegA(False);
 
 rule strt (begining && rg_en);

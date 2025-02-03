@@ -52,7 +52,7 @@ module mkConstrainedRandomizer#(a min, a max) (Randomize#(a))
 
    Randomize#(a) ifc;
 
-   Reg#(Bool) initialized <- mkRegA(False);
+   Reg#(Bool) initialized <- mkReg(False);
    Wire#(Bit#(sa)) ignore <- mkWire;
 
    if (genC)
