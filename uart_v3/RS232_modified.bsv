@@ -37,7 +37,11 @@ package RS232_modified;
 import Clocks            ::*;
 import GetPut            ::*;
 import Connectable       ::*;
+`ifdef async_rst
+import FIFOLevel_Modified         ::*;
+`else
 import FIFOLevel         ::*;
+`endif
 import Vector            ::*;
 import BUtils            ::*;
 import Counter           ::*;
