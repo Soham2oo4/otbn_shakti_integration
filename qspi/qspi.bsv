@@ -1658,14 +1658,14 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
  	
         Reg#(bit) rg_clk_en <- mkRegA(0);
  	GatedClockIfc   qspi_gated_clk                   <- mkGatedClock(False,slow_clk); 	
- 	Reset          qspi_gated_clk_rst                   <- mkAsyncReset(2,slow_rst,qspi_gated_clk.new_clk); 
+ 	//Reset          qspi_gated_clk_rst                   <- mkAsyncReset(2,slow_rst,qspi_gated_clk.new_clk); 
 
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by qspi_gated_clk.new_clk, reset_by qspi_gated_clk_rst );
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by qspi_gated_clk.new_clk, reset_by slow_rst );
 	
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
-        SyncFIFOIfc#(AXI4_Lite_Resp) 	                        ff_sync_wr_resp 	<- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, qspi_gated_clk_rst );
+        SyncFIFOIfc#(AXI4_Lite_Resp) 	                        ff_sync_wr_resp 	<- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, slow_rst );
 	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	        ff_rd_req    		<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
-	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	        <- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, qspi_gated_clk_rst ); 
+	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	        <- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, slow_rst ); 
 	
         rule clock_en;    
 	       qspi_gated_clk.setGateCond(unpack(rg_clk_en));	         

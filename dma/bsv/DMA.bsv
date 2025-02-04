@@ -56,7 +56,11 @@ import AXI4_Types::*;
 import AXI4_Lite_Types::*;
 import AXI4_Fabric::*;
 import Semi_FIFOF::*;
+`ifdef async_rst
+import SpecialFIFOs_Modified::*;
+`else
 import SpecialFIFOs::*;
+`endif
 import Clocks::*;
 import ConcatReg::*;
 import ConfigReg::*;
