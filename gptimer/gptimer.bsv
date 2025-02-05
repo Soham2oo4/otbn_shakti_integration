@@ -313,7 +313,7 @@ package gptimer;
     	method Bit#(1) sb_interrupt;
 	endinterface
 
-	module mkgptimer_axi4lite#(Clock ext_clock, Reset ext_reset `ifdef testmode , Bool test_mode `endif )(Ifc_gptimer_axi4lite#(addr_width,data_width,user_width,gptimer_width))
+	module mkgptimer_axi4lite#(Clock ext_clock `ifdef testmode , Bool test_mode `endif )(Ifc_gptimer_axi4lite#(addr_width,data_width,user_width,gptimer_width))
 					provisos(Add#(a__,16,data_width),
 							 Add#(b__,32,data_width),
 							 Add#(c__,gptimer_width,data_width),
