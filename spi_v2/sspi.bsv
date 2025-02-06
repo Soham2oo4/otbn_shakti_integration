@@ -1098,7 +1098,7 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 		//end
 		endmethod
 		method Bit#(2) dma_ready;
-			return {pack(rx_fifo.count >= 2), pack(tx_fifo.count <= 30)};			
+			return {pack(rx_fifo.count > 0), pack(tx_fifo.count <= 30)};			
 		endmethod
 	endinterface;
 	method mv_sb_sspi_interrupt = ((wr_rx_over_run_intr & rg_rx_over_run_err_intr_en) | (wr_rx_fifo_full_intr & rg_rx_fifo_full_intr_en) | (wr_rx_fifo_half_intr & rg_rx_fifo_half_intr_en) | (wr_rx_fifo_quad_intr & rg_rx_fifo_quad_intr_en) | 
