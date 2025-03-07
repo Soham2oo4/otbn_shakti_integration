@@ -277,7 +277,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			else if( addr[6:0] >= `lvl_edge_config1 && addr[6:0] < (`lvl_edge_config2))
 				for(Integer i=0; i<iocount; i=i+1)
 					rg_lvl_edge_config[i] <= datamask[i];
-			else if( addr[6:0] >= `lvl_edge_config1 && addr[6:0] < (`lvl_edge_config1 + 4))
+			else if( addr[6:0] >= `lvl_edge_config2 && addr[6:0] < (`lvl_edge_config2 + 4))
 				for(Integer i=iocount; i<vionum; i=i+1)
 					rg_lvl_edge_config[i] <= datamask[i-iocount];		
 						
