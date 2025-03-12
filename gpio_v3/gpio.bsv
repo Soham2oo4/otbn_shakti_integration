@@ -126,11 +126,14 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 
 	/* doc : vector : holds the GPIO ports data value when configured as input. If set, the corresponding port value is 1 else 0. Vector length is equal to the number of IO ports required. */
 	Vector#(ionum ,ConfigReg#(Bit#(1))) 	datain_register		<-replicateM(mkConfigRegA(0));
+	Vector#(ionum ,ConfigReg#(Bit#(1))) 	prev_datain_register		<-replicateM(mkConfigRegA(0));
 //		By default, GPIO sends only active high interrupts to PLIC, if
 //		active_low interrupts are needed set the appropriate bit in
 //		rg_interrupt_config register
 	/* doc : vector : holds the GPIO ports interrupt polarity. If set, the corresponding interrupt port is configured as active low. else if the port is set to 0, the interrupt is configured as active high. By default the interrupts are active high. Vector length is equal to the number of IO ports required. */
 	Vector#(ionum ,ConfigReg#(Bit#(1))) 	rg_interrupt_config 	<-replicateM(mkConfigRegA(0));
+	/* doc : vector : If set, the corresponding interrupt port is configured as edge triggered. else if the port is set to 0, the interrupt is configured as level triggered. By default the interrupts are level triggered. Vector length is equal to the number of IO ports required. */
+	Vector#(ionum ,ConfigReg#(Bit#(1))) 	rg_lvl_edge_config  	<-replicateM(mkConfigRegA(0));
 	/* doc : vector : holds the GPIO ports data value that is taken to the PLIC as interrupt. If set, the corresponding port's interrupt is taken to PLIC. Vector length is equal to the number of IO ports required. */
 	Vector#(ionum ,ConfigReg#(Bit#(1))) toplic			<-replicateM(mkConfigRegA(0));
 	
@@ -143,13 +146,32 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
  		let vionum = valueOf(ionum);
 		let iocount = (vionum<32)?vionum:32;
 
+	rule previous_state_datain;
+		for(Integer i=0;i<vionum ;i=i+1) begin
+			prev_datain_register[i] <= datain_register[i];
+		end
+	endrule
+
 	/*doc:rule: This rule fires always. The plic is given interrupt request whenever GPIO direction register is configured as input and interrupt configuration register is configured for active low(1)/high(0) and the data in register is low/high. */
 	rule capture_interrupt;
-			for(Integer i=0;i<vionum ;i=i+1) begin 
-				toplic[i]<=(!direction_reg[i])?(rg_interrupt_config[i]^datain_register[i]):0;				
+			for(Integer i=0;i<vionum ;i=i+1) begin
+				if(rg_lvl_edge_config[i] == 0) begin  //level triggered
+					toplic[i]<=(!direction_reg[i])?(rg_interrupt_config[i]^datain_register[i]):0;
+				end
+				else if((rg_lvl_edge_config[i] == 1) && (rg_interrupt_config[i] == 0))	begin //falling edge triggered
+					toplic[i]<=(!direction_reg[i])?(~datain_register[i] & prev_datain_register[i]):0;
+				end
+				else if((rg_lvl_edge_config[i] == 1) && (rg_interrupt_config[i] == 1))	begin //rising edge triggered
+					toplic[i]<=(!direction_reg[i])?(datain_register[i] & ~prev_datain_register[i]):0;
+				end	
+				else begin
+					toplic[i]<=0;	
+				end		
 				interrupt_status[i] <= (toplic[i] & pack(interrupt_enable[i])) | interrupt_status[i];   
-				 end 
-		endrule
+			end 
+	endrule
+
+	
 
  	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
 	 interface io = interface GPIO#(ionum)
@@ -251,7 +273,13 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 						interrupt_status[i] <= unpack(datamask[i]);
 			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
-						interrupt_status[i] <= unpack(datamask[i-iocount]);			
+						interrupt_status[i] <= unpack(datamask[i-iocount]);	
+			else if( addr[6:0] >= `lvl_edge_config1 && addr[6:0] < (`lvl_edge_config2))
+				for(Integer i=0; i<iocount; i=i+1)
+					rg_lvl_edge_config[i] <= datamask[i];
+			else if( addr[6:0] >= `lvl_edge_config2 && addr[6:0] < (`lvl_edge_config2 + 4))
+				for(Integer i=iocount; i<vionum; i=i+1)
+					rg_lvl_edge_config[i] <= datamask[i-iocount];		
 						
 			else
 				success=False;
@@ -300,7 +328,13 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 						temp[i] = pack(interrupt_enable[i]);
 			else if( addr[6:0] >= `intr_enable_reg2 && addr[6:0] < (`intr_enable_reg2 + 4))
 				for(Integer i=iocount;i<vionum;i=i+1)
-						temp[i-iocount] = pack(interrupt_enable[i]);		
+						temp[i-iocount] = pack(interrupt_enable[i]);
+			else if( addr[6:0] >= `lvl_edge_config1 && addr[6:0] < (`lvl_edge_config2))
+				for(Integer i=0; i<iocount; i=i+1)
+					temp[i] = rg_lvl_edge_config[i];
+			else if( addr[6:0] >= `lvl_edge_config2 && addr[6:0] < (`lvl_edge_config2 + 4))
+				for(Integer i=iocount; i<vionum; i=i+1)
+					temp[i-iocount] = rg_lvl_edge_config[i];		
 			else
 				success=False;
 

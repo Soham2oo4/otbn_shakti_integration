@@ -897,7 +897,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       /* Outputs OUT2 value from Control Register */
       method out2    = ~modemctrl[1];
       method Bit#(2) dma_ready;
-         return {pack(fifoRecv.count >= 2), pack(fifoXmit.count <= 14)};
+         return {pack(fifoRecv.count > 0), pack(fifoXmit.count <= 14)};
          //return {pack(fifoRecv.notEmpty), pack(fifoXmit.notFull)};
       endmethod
    endinterface

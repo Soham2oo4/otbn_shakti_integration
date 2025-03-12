@@ -15,6 +15,7 @@ package qspi;
 	import ClientServer::*;
 	import MIMO_MODIFY::*;
 	import DefaultValue :: *;
+	import device_common::*;
 //	`include "defined_parameters.bsv"
 	`include "qspi.defines"
 	import ConfigReg::*;
@@ -39,10 +40,22 @@ package qspi;
 	} Read_req#(numeric type awidth) deriving (Bits, Eq);
 
 	typedef struct{
+		Bit#(awidth) addr;
+		Bit#(3)  burst_size;
+		Bit#(8)  burst_len;
+		Bit#(2)  arburst;
+	} Read_req_axi#(numeric type awidth) deriving (Bits, Eq);
+
+	typedef struct{
 			AXI4_Lite_Resp rsp;
 			Bit#(dwidth) rdata;
 	} Rd_resp#(numeric type dwidth) deriving (Bits, Eq);
 
+	typedef struct{
+			AXI4_Lite_Resp rsp;
+			Bit#(dwidth) rdata;
+			Bool last;
+	} Rd_resp_axi#(numeric type dwidth) deriving (Bits, Eq);
     //(*always_ready, always_enabled*)
     interface QSPI_out;
     /*(* always_ready, result="clk_o" *) 		*/	method bit clk_o;
@@ -173,7 +186,7 @@ package qspi;
 	Wire#(Maybe#(AXI4_Lite_Resp)) wr_write_resp 	<- mkDWire(tagged Invalid);
 	Wire#(Maybe#(Read_req#(addr_width)))    	  wr_rd_req 		<- mkDWire(tagged Invalid);
 	Wire#(Maybe#(Rd_resp#(data_width)))   	  wr_rd_resp		<- mkDWire(tagged Invalid);
-	FIFO#(Read_req#(addr_width))				  ff_rd_req			<- mkFIFO();
+	FIFOF#(Read_req#(addr_width))				  ff_rd_req			<- mkFIFOF1();
 	
 	/*************** List of QSPI defined Registers *****************/
 	Reg#(Bit#(1)) sr_busy <-mkConfigRegA(0); // set when the operation is in progress.
@@ -464,17 +477,17 @@ package qspi;
 	/* This rule receives the read request from the AXI and responds with the relevant
 	QSPI register set using the lower 12 bits as address map */
 //    (*descending_urgency="rl_read_request_from_AXI,rl_write_request_from_AXI"*) //experimental
-	rule rl_enq_read_req(isValid(wr_rd_req));
+	/*rule rl_enq_read_req(isValid(wr_rd_req));
 		ff_rd_req.enq(fromMaybe(?, wr_rd_req));
 		$display($stime()," QSPI: i am firing");
-	endrule
+	endrule*/
 	rule rl_read_request_from_AXI(rg_request_ready == True);
 //		let axir<- pop_o(s_xactor.o_rd_addr);
 		let axir = ff_rd_req.first;
 		ff_rd_req.deq;
 		let araddr = axir.addr;
 		let arsize = axir.burst_size;
-        Bool request_ready = True;
+        Bool request_ready = False;
         `ifdef verbose $display($time,"\tReceived AXI read request to Address: %h Size: %h",araddr,arsize); `endif
 		if(zeroExtend(araddr)>=start_mm_addr && zeroExtend(araddr)<=end_mm_addr)begin // memory mapped space
             
@@ -510,6 +523,7 @@ package qspi;
                 sr_busy <= 0;
                 ncs <= 1;     //Just resetting all the parameters, just in case. Should Ask Neel
                 first_read <= True;
+                request_ready = True;
             end
             else if(sr_busy==1 ||thres) begin //Bus is busy with Memory mapped maybe?
                 `ifdef verbose $display($time,"sr_busy: %d, thres: %d rg_prev_addr: %h araddr: %h fifo_count: %d", sr_busy, thres, rg_prev_addr, araddr, fifo.count); `endif
@@ -1526,7 +1540,9 @@ package qspi;
 		return wr_write_resp;
 	endmethod
 	method Action rd_req(Maybe#(Read_req#(addr_width)) req);
-		wr_rd_req <= req;
+		//wr_rd_req <= req;
+		ff_rd_req.enq(fromMaybe(?,req));
+		//$display($stime()," QSPI: i am firing");
 	endmethod
 	method Maybe#(Rd_resp#(data_width)) rd_resp;
 		return wr_rd_resp;
@@ -1651,6 +1667,10 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
 	Reg#(Bit#(4)) rg_wid <- mkRegA(0);
+	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);
+	Reg#(Bit#(8)) rg_rdburst_count_rsp <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);
+	Reg#(Bit#(8)) rg_rsp_burst_len <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);
+	Reg#(Read_req_axi#(addr_width)) rg_rdpacket <- mkRegA(?,clocked_by slow_clk, reset_by slow_rst);
 
 	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
@@ -1664,8 +1684,8 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 	
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
         SyncFIFOIfc#(AXI4_Lite_Resp) 	                        ff_sync_wr_resp 	<- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, slow_rst );
-	SyncFIFOIfc#(Maybe#(Read_req#(addr_width)))	        ff_rd_req    		<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
-	SyncFIFOIfc#(Rd_resp#(data_width))			ff_sync_rd_resp	        <- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, slow_rst ); 
+	SyncFIFOIfc#(Read_req_axi#(addr_width))	        ff_rd_req    		<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
+	SyncFIFOIfc#(Rd_resp_axi#(data_width))			ff_sync_rd_resp	        <- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, slow_rst ); 
 	
         rule clock_en;    
 	       qspi_gated_clk.setGateCond(unpack(rg_clk_en));	         
@@ -1727,9 +1747,11 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
               end 
 	      else if(rg_clk_en == 1) begin 	   
 		
-		ff_rd_req.enq(tagged Valid (Read_req{
+		ff_rd_req.enq(Read_req_axi{
 									addr : truncate(ar.araddr),
-									burst_size : ar.arsize}));
+									burst_size : ar.arsize,
+									burst_len : ar.arlen,
+									arburst : ar.arburst});
 		rg_req_en <= 1;
 		rg_rid <= ar.arid; end
 		else begin
@@ -1739,26 +1761,67 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 		$display($stime(),"QSPI: qspi received read request");
 	endrule
 
-	rule rl_read_request_send_to_controller;// this rule is running at slow_clk (i.e less than or equal to 166MHz)
+	rule rl_read_request_send_to_controller(rg_rdburst_count==0);// this rule is running at slow_clk (i.e less than or equal to 166MHz)
 		let r = ff_rd_req.first;
+        rg_rdpacket <=r; 
+       
+		if(r.burst_len!=0)
+			rg_rdburst_count <=1;
 		ff_rd_req.deq;
-		$display($stime(),"QSPI: qspi sent read request");
-		qspi.rd_req(r);
+		//$display($stime(),"QSPI: qspi sent read request");
+		qspi.rd_req(tagged Valid(Read_req{addr: r.addr, burst_size: r.burst_size}));
+	endrule
+	
+	rule rl_read_request_send_to_controller_burst(rg_rdburst_count!=0);// this rule is running at slow_clk (i.e less than or equal to 166MHz)
+	   let rd_req=rg_rdpacket;
+	   rd_req.addr =  axi4burst_addrgen(rd_req.burst_len, rd_req.burst_size, rd_req.arburst, rd_req.addr);
+
+	   rg_rdpacket.addr <=rd_req.addr;
+	   qspi.rd_req(tagged Valid(Read_req{addr: rd_req.addr, burst_size: rd_req.burst_size}));
+	   if(rg_rdburst_count==rd_req.burst_len)
+		   rg_rdburst_count<=0;
+	   else
+		   rg_rdburst_count<=rg_rdburst_count+1;
+	 
 	endrule
 
-	rule rl_read_response(isValid(qspi.rd_resp));// this rule is running at slow_clk (i.e less than or equal to 166MHz)
-		ff_sync_rd_resp.enq(fromMaybe(?, qspi.rd_resp));
-	endrule
-
+	rule rl_read_response(isValid(qspi.rd_resp) && (rg_rdburst_count_rsp==0));// this rule is running at slow_clk (i.e less than or equal to 166MHz)
+	        if(rg_rdpacket.burst_len!=0)
+			rg_rdburst_count_rsp <=1;
+	   
+		let resp = fromMaybe(?, qspi.rd_resp);
+		ff_sync_rd_resp.enq(Rd_resp_axi{rdata: resp.rdata, rsp: resp.rsp, last: (rg_rdburst_count==0)});
+				
+	endrule 
+	
+	
+	rule rl_read_response_burst(isValid(qspi.rd_resp) && (rg_rdburst_count_rsp!=0));// this rule is running at slow_clk (i.e less than or equal to 166MHz)
+	
+	        Bool lv_rlast = rg_rdburst_count_rsp==rg_rdpacket.burst_len; 
+	          
+		let resp = fromMaybe(?, qspi.rd_resp);
+		ff_sync_rd_resp.enq(Rd_resp_axi{rdata: resp.rdata, rsp: resp.rsp, last: lv_rlast});
+		
+		 if(lv_rlast)
+		   rg_rdburst_count_rsp<=0;
+	   else
+		   rg_rdburst_count_rsp<=rg_rdburst_count_rsp+1;
+		
+	endrule 
+	
+	
 	rule rl_read_response_send_to_host;// this rule is running at fast_clk (i.e 166MHz)
 		let r = ff_sync_rd_resp.first;
 		ff_sync_rd_resp.deq;
+		
+		if(r.last)
 		rg_req_en <= 0;
+		
 		AXI4_Resp resp = AXI4_OKAY;
 		if(r.rsp == AXI4_LITE_SLVERR)
 			resp = AXI4_SLVERR;
 
-		let rsp = AXI4_Rd_Data {rresp: resp, rdata: duplicate(r.rdata) , ruser: 0, rid: rg_rid, rlast: True};
+		let rsp = AXI4_Rd_Data {rresp: resp, rdata: duplicate(r.rdata) , ruser: 0, rid: rg_rid, rlast: r.last};
 		s_xactor.i_rd_data.enq(rsp);
 		$display($stime(),"QSPI: Sending Read Response");
 	endrule

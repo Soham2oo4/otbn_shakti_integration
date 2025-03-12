@@ -25,3 +25,5 @@
 `define intr_status_reg2 'h44
 `define intr_enable_reg1 'h48
 `define intr_enable_reg2 'h4c
+`define lvl_edge_config1 'h50
+`define lvl_edge_config2 'h54
