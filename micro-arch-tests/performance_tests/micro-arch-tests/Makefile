@@ -102,8 +102,8 @@ junk += $(bmarks_riscv_bin) $(bmarks_riscv_hex) $(bmarks_riscv_out)
 .PHONY: init
 init:
 	@echo "Copying executable of C-class"
-	@cp ../../bin/out .
-	@cp ../../bin/boot.* .
+	@cp ../../../bin/out .
+	@cp ../../../bin/boot.* .
 
 all: init riscv
 
