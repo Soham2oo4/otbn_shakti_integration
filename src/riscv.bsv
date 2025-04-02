@@ -167,11 +167,11 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
     Bit#(1) lv_count_muldiv                 = `ifdef muldiv stage3.perfmonitors.mv_count_muldiv `else 0 `endif ;
     Bit#(1) lv_count_rawstalls              = stage3.perfmonitors.mv_count_rawstalls;
     Bit#(1) lv_count_exetalls               = stage3.perfmonitors.mv_count_exestalls;
-    Bit#(1) lv_count_icache_access          = `ifdef icache wr_icache_counters[0] `else 0 `endif ;
-    Bit#(1) lv_count_icache_miss            = `ifdef icache wr_icache_counters[1] `else 0 `endif ;
-    Bit#(1) lv_count_icache_fbhit           = `ifdef icache wr_icache_counters[2] `else 0 `endif ;
+    Bit#(1) lv_count_icache_access          = `ifdef icache wr_icache_counters[4] `else 0 `endif ;
+    Bit#(1) lv_count_icache_miss            = `ifdef icache wr_icache_counters[2] `else 0 `endif ;
+    Bit#(1) lv_count_icache_fbhit           = `ifdef icache wr_icache_counters[0] `else 0 `endif ;
     Bit#(1) lv_count_icache_ncaccess        = `ifdef icache wr_icache_counters[3] `else 0 `endif ;
-    Bit#(1) lv_count_icache_fbrelease       = `ifdef icache wr_icache_counters[4] `else 0 `endif ;
+    Bit#(1) lv_count_icache_fbrelease       = `ifdef icache wr_icache_counters[1] `else 0 `endif ;
     Bit#(1) lv_count_dcache_read_access		  = `ifdef dcache wr_dcache_counters[12] `else 0 `endif ;
     Bit#(1) lv_count_dcache_write_access		= `ifdef dcache wr_dcache_counters[11] `else 0 `endif ;
     Bit#(1) lv_count_dcache_atomic_access		= `ifdef dcache wr_dcache_counters[10] `else 0 `endif ;
