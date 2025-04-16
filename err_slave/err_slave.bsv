@@ -49,12 +49,12 @@ package err_slave;
   
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  interface Ifc_err_slave_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
-    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+  interface Ifc_err_slave_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width);
+    interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
   endinterface
 
-  module mkerr_slave_axi4(Ifc_err_slave_axi4#(addr_width, data_width, user_width));
-	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+  module mkerr_slave_axi4(Ifc_err_slave_axi4#(addr_width, id_width, data_width, user_width));
+	  AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Mem_State) read_state <- mkReg(Idle);
     Reg#(Mem_State) write_state <- mkReg(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter <- mkReg(0);
@@ -62,9 +62,9 @@ package err_slave;
     `ifndef iclass
       Reg#(Bit#(4)) rg_rd_id <- mkReg(0);
     `else
-      Reg#(Bit#(`axi4_id_bits)) rg_rd_id <- mkReg(0);
+      Reg#(Bit#(id_width)) rg_rd_id <- mkReg(0);
     `endif
-	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <- mkReg(?);
+	  Reg#(AXI4_Wr_Resp	#(id_width, user_width)) rg_write_response <- mkReg(?);
     rule receive_read_request(read_state == Idle);
       let ar <- pop_o(s_xactor.o_rd_addr);
       read_state <= Burst;
@@ -74,7 +74,7 @@ package err_slave;
     endrule
 
     rule send_error_response(read_state == Burst);
-      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_DECERR, rdata: 0 , 
+      AXI4_Rd_Data#(id_width, data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_DECERR, rdata: 0 , 
         rlast : rg_readburst_counter == rg_read_length, ruser : 0, rid : rg_rd_id};
       if(rg_readburst_counter == rg_read_length)
         read_state <= Idle;
