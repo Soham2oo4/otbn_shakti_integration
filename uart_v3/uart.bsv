@@ -332,16 +332,22 @@ package uart;
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
-		GatedClockIfc   uart_clk_gated                   <- mkGatedClock(False,uart_clock); 	
-		Reset uart_internal_reset <- mkAsyncReset(2,uart_reset,uart_clk_gated.new_clk);
+		Reset uart_rst                   <- mkAsyncReset(2,core_reset,uart_clock);    // div rst
+		GatedClockIfc   uart_clk_gated                   <- mkGatedClock(False,uart_clock, clocked_by uart_clock, reset_by uart_rst); 	
 		UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
-                                                                    reset_by uart_internal_reset, baudrate,
+                                                                    reset_by uart_rst, baudrate,
                                                                     stopbits, parity);
 		Reg#(bit) rg_clk_en <- mkRegA(0);
+		SyncBitIfc#(bit) sync_rg_clk_en <- mkSyncBit(core_clock, core_reset, uart_clock);
 			
 		rule clock_en;    
-			uart_clk_gated.setGateCond(unpack(rg_clk_en));	         
+			uart_clk_gated.setGateCond(unpack(sync_rg_clk_en.read));	         
 		endrule
+		
+		rule clk_enable_send;
+                	sync_rg_clk_en.send(rg_clk_en); 
+             	endrule
+             	
 		`ifdef fast_clk
 			//capturing the read requests
 			rule capture_read_request;
@@ -390,8 +396,8 @@ package uart;
 		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
 		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
 		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
-		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_internal_reset);
-		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_internal_reset);
+		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_rst);
+		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_rst);
 		
 			//capturing the read requests
 			rule capture_read_request;   
@@ -464,15 +470,15 @@ package uart;
 				s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
 			endrule
 		
-	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(uart_clk_gated.new_clk, uart_internal_reset,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
 	SyncBitIfc#(Bit#(1)) sync_sin <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
 	SyncBitIfc#(Bit#(1)) sync_cts <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
 	SyncBitIfc#(Bit#(1)) sync_dsr <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
