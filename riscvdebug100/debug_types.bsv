@@ -55,8 +55,8 @@ interface Ifc_debug#( numeric type nprogbuf,
     interface AXI4_Slave_IFC#(`paddr, `debug_bus_sz, 0) debug_slave;
     interface AXI4_Master_IFC#(`paddr, `debug_bus_sz, 0) debug_master;
   `else
-    interface AXI4_Slave_IFC#(`paddr, `id_width, `debug_bus_sz, `USERSPACE) debug_slave;
-    interface AXI4_Master_IFC#(`paddr, `id_width, `debug_bus_sz, `USERSPACE) debug_master;
+    interface AXI4_Slave_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) debug_slave;
+    interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) debug_master;
   `endif
   interface Ifc_debug_dtm dtm_access;
   interface Reset ifc_dm_reset;
