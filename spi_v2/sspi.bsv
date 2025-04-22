@@ -127,8 +127,8 @@ import DefaultValue::*;
 `include "sspi.defines"
 `include "Logger.bsv"
 
-`define sclk_delay 3
-`define mosi_delay 2
+// `define sclk_delay 3
+// `define mosi_delay 2
 export Ifc_sspi 			(..);
 export Ifc_sspi_io 			(..);
 export Ifc_sspi_axi4 		(..);
@@ -287,10 +287,13 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	Reg#(Bit#(16)) rg_intr_en = concatReg10(readOnlyReg(7'd0),rg_rx_over_run_err_intr_en,rg_rx_fifo_full_intr_en,rg_rx_fifo_half_intr_en,rg_rx_fifo_quad_intr_en,rg_rx_fifo_empty_intr_en,
 											rg_tx_fifo_full_intr_en,rg_tx_fifo_half_intr_en,rg_tx_fifo_quad_intr_en,rg_tx_fifo_empty_intr_en);
 		
-	Vector#(`sclk_delay, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkReg(0));
-	Vector#(`sclk_delay, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkReg(0));
-	Vector#(`mosi_delay, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkReg(0));
-	Vector#(`mosi_delay, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkReg(0));
+	Reg#(Bit#(4))               sclk_delay      <- mkReg(3);
+    Reg#(Bit#(4))               mosi_delay      <- mkReg(2);
+	Reg#(Bit#(16))              rg_delay = concatReg3(readOnlyReg(8'd0),sclk_delay,mosi_delay);
+	Vector#(8, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkReg(0));
+	Vector#(8, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkReg(0));
+	Vector#(8, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkReg(0));
+	Vector#(8, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkReg(0));
 
 	/*doc : reg : Overrun bit. This will be set when there is an overrun during receive operation */
 	Reg#(bit) rg_over_run <- mkRegA(0);
@@ -464,23 +467,26 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	(*conflict_free = "rl_mi_qualification,rl_receive_state"*)
 	(*conflict_free = "rl_si_qualification,rl_receive_state"*)
 	(*conflict_free = "rl_si_qualification,rl_mi_qualification"*)
+
 	rule rl_delay_sclk;
-        for (Integer i = 1; i<`sclk_delay; i = i + 1) begin
-          val_sclk_delay[i] <= val_sclk_delay[i-1];
-          sclkEn_delay[i] <= sclkEn_delay[i-1];
-        end
-        val_sclk_delay[0] <= rg_sclk;
-        sclkEn_delay[0] <= rg_sclk_output_enable;
-    endrule
+
+		let lv_data_0 = shiftInAt0(readVReg(val_sclk_delay),rg_sclk);
+		writeVReg(val_sclk_delay, lv_data_0 )  ;
+  
+		let lv_data_1 = shiftInAt0(readVReg(sclkEn_delay),rg_sclk_output_enable);
+		writeVReg(sclkEn_delay, lv_data_1 )  ;
+		
+	endrule
 
 	rule rl_delay_mosi;
-        for (Integer i = 1; i<`mosi_delay; i = i + 1) begin
-          val_mosi_delay[i] <= val_mosi_delay[i-1];
-          mosiEn_delay[i] <= mosiEn_delay[i-1];
-        end
-        val_mosi_delay[0] <= rg_transmit_data;
-        mosiEn_delay[0] <= rg_mosi_output_enable;
-    endrule
+
+		let lv_data_0 = shiftInAt0(readVReg(val_mosi_delay),rg_transmit_data);
+		writeVReg(val_mosi_delay, lv_data_0 )  ;
+  
+		let lv_data_1 = shiftInAt0(readVReg(mosiEn_delay),rg_mosi_output_enable);
+		writeVReg(mosiEn_delay, lv_data_1 )  ;
+		
+	endrule
 
 	/*doc:rule: This rule fires during the recieve state and when miso is configure as input. wr_spi_master_in value is read and sent to input qualification control module, if IQC is enabled else wr_spi_master_in value is directly assigned to wr_spi_in_qual  */
 	rule rl_mi_qualification(rg_receive_state == DATA_RECEIVE && rg_miso_output_enable == 0);
@@ -897,6 +903,8 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 		end
 		else if(addr[7:0] == `Interrupt_enable && size == 1)
 			rg_intr_en <= truncate(data);
+		else if(addr[7:0] == `Delay_config && size == 1)
+			rg_delay <= truncate(data);
 		`ifdef IQC
 		else if(addr[7:0] == `Input_qualification && size == 0)
 			rg_qual_cycles <= truncate(data);
@@ -941,6 +949,8 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			data = duplicate(rg_comm_status);
 		else if(addr[7:0] == `Interrupt_enable && size == 1)
 			data = duplicate(rg_intr_en);
+		else if(addr[7:0] == `Delay_config && size == 1)
+			data = duplicate(rg_delay);
 		`ifdef IQC
 		else if(addr[7:0] == `Input_qualification && size == 0)
 			data = zeroExtend(rg_qual_cycles);
@@ -954,20 +964,20 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
  	interface subifc_io = interface Ifc_sspi_io;
 		//mosi input output
 		method bit mosi_outen;
-			return mosiEn_delay[`mosi_delay-1];
+			return mosiEn_delay[mosi_delay-1];
 		endmethod
  		method bit mosi_out;
- 			return val_mosi_delay[`mosi_delay-1];
+ 			return val_mosi_delay[mosi_delay-1];
  		endmethod
 		method Action mosi_in(bit val);
 			wr_spi_slave_in <= val;
 		endmethod
 		//sclk input output
 		method bit sclk_outen;
-			return sclkEn_delay[`sclk_delay-1];
+			return sclkEn_delay[sclk_delay-1];
 		endmethod
  		method bit sclk_out;
- 			return val_sclk_delay[`sclk_delay-1];
+ 			return val_sclk_delay[sclk_delay-1];
  		endmethod
 		method Action sclk_in(bit val);
 		`ifdef IQC

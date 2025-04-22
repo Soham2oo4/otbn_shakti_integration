@@ -11,3 +11,4 @@
     `define Input_qualification		'h1C
 `endif
 `define	SPI_Clk_En     'h20
+`define Delay_config   'h24
