@@ -877,7 +877,8 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       	if(x != ~vrModemBuffer[1])
       	begin
         vrModemBuffer[1] <= ~x;
-      	vrModemBuffer[5] <= 1'b1;
+        if(~vrModemBuffer[1] == 1 && x == 0) //Trailing Edge
+      	     vrModemBuffer[5] <= 1'b1;
       	end
       endmethod
       /* Incase DCD value changes update it to status register and updates the DDCD to 1 */
