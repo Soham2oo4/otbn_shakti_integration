@@ -37,7 +37,7 @@ package wrapper_ftof;
     method Action request(Bit#(TAdd#(expWidthIn, sigWidthIn)) a, Bit#(3) rm);
       ftof.request(1, rm, a);
       rg_output[0] <=  tuple2(ftof.oout,  ftof.oexceptionFlags);
-	  $display($time,"\tFTOF: inp: %x out: %x flag: %b", a, ftof.oout, ftof.oexceptionFlags);
+      `ifdef verbose $display($time,"\tFTOF: inp: %x out: %x flag: %b", a, ftof.oout, ftof.oexceptionFlags); `endif
       rg_valid[0] <=  True;
     endmethod
     
