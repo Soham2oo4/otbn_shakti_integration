@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.2.1] - 2025-04-25
+--------------------
+- Moved the $display line under verbose in the FMA and FTOF wrappers
+
 [4.2.0] - 2025-04-17
 --------------------
 - Icache performance counter ordering fix
