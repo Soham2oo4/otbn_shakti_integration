@@ -35,7 +35,7 @@ package wrapper_fma;
     
     method Action request(Bit#(2) op, Bit#(TAdd#(expWidth, sigWidth)) a, Bit#(TAdd#(expWidth, sigWidth)) b, Bit#(TAdd#(expWidth, sigWidth)) c, Bit#(3) rm);
       fma.request(1, op, rm, a, b, c);
-			// $display("FMA wrapper: a: %x b: %x c: %x op: %b rm: %b res: %x flag: %b", a, b, c, op, rm, fma.oout, fma.oexceptionFlags);
+      `ifdef verbose $display("FMA wrapper: a: %x b: %x c: %x op: %b rm: %b res: %x flag: %b", a, b, c, op, rm, fma.oout, fma.oexceptionFlags); `endif
       rg_inputs[0] <=  tuple2(fma.oout,  fma.oexceptionFlags);
       rg_valid[0] <=  True;
     endmethod
