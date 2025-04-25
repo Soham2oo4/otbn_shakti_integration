@@ -132,7 +132,7 @@ package uart;
       /* Returns the receiver register's data if data is present and DCD, RI , DSR and CTS are active */
 			else if(addr[5:0]==`RxReg) begin
 				Bit#(32) data =0;
-				if(uart.receiver_not_empty && uart.modem_status[3:0] == 4'b1111)
+				if(uart.receiver_not_empty)
 					data<-uart.tx.get; 
 		`logLevel( uart, 1, $format("UART read data: %h %c", data, data))
 		data= data >> (32-rg_charsize);
