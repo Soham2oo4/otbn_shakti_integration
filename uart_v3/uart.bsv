@@ -509,6 +509,7 @@ package uart;
 		sync_interrupt.send(user_ifc.interrupt); 
 	endrule 
 	
+	(*conflict_free = "syncbits_in,perform_write"*)
 	rule syncbits_in; 
 		user_ifc.io.sin(sync_sin.read);
 		user_ifc.io.cts(sync_cts.read);
