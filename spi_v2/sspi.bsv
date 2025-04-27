@@ -290,10 +290,10 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	Reg#(Bit#(4))               sclk_delay      <- mkReg(3);
     Reg#(Bit#(4))               mosi_delay      <- mkReg(2);
 	Reg#(Bit#(16))              rg_delay = concatReg3(readOnlyReg(8'd0),sclk_delay,mosi_delay);
-	Vector#(8, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkReg(0));
-	Vector#(8, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkReg(0));
-	Vector#(8, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkReg(0));
-	Vector#(8, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkReg(0));
+	Vector#(16, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkReg(0));
+	Vector#(16, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkReg(0));
+	Vector#(16, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkReg(0));
+	Vector#(16, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkReg(0));
 
 	/*doc : reg : Overrun bit. This will be set when there is an overrun during receive operation */
 	Reg#(bit) rg_over_run <- mkRegA(0);
