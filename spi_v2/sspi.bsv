@@ -287,8 +287,8 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	Reg#(Bit#(16)) rg_intr_en = concatReg10(readOnlyReg(7'd0),rg_rx_over_run_err_intr_en,rg_rx_fifo_full_intr_en,rg_rx_fifo_half_intr_en,rg_rx_fifo_quad_intr_en,rg_rx_fifo_empty_intr_en,
 											rg_tx_fifo_full_intr_en,rg_tx_fifo_half_intr_en,rg_tx_fifo_quad_intr_en,rg_tx_fifo_empty_intr_en);
 		
-	Reg#(Bit#(4))               sclk_delay      <- mkReg(3);
-    Reg#(Bit#(4))               mosi_delay      <- mkReg(2);
+	Reg#(Bit#(4))               sclk_delay      <- mkReg(1);
+    Reg#(Bit#(4))               mosi_delay      <- mkReg(1);
 	Reg#(Bit#(16))              rg_delay = concatReg3(readOnlyReg(8'd0),sclk_delay,mosi_delay);
 	Vector#(16, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkReg(0));
 	Vector#(16, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkReg(0));
