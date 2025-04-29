@@ -1275,7 +1275,7 @@ package qspi;
 				count_bits=count_bits+1;
 			end
 
-	`logLevel(qspicontrol, 0, $format(" Data read phase data_length %h data_length1 %h", data_length, data_length1);
+	`logLevel(qspicontrol, 0, $format(" Data read phase data_length %h data_length1 %h", data_length, data_length1))
 			/* write the last successfully received byte into the FIFO */
 			if(ccr_dmode==1)begin// single line mode
                 if(count_byte==data_length1 && ccr_ddrm==1 && count_bits[2:0]=='b111) //To make sure that the Flash does not send any data the next half edge since ncs is made 1 after the second edge
