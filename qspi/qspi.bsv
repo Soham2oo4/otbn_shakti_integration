@@ -18,6 +18,7 @@ package qspi;
 	import device_common::*;
 //	`include "defined_parameters.bsv"
 	`include "qspi.defines"
+	`include "Logger.bsv"       // for logging display statements.
 	import ConfigReg::*;
 	import Vector::*;
 	import UniqueWrappers :: * ;
