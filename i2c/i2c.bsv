@@ -52,6 +52,7 @@ package i2c;
   `include "i2c.defs"
   `include "Logger.bsv"
 
+  // `define SDA_delay 10
 
   typedef union tagged {
     void Dead;
@@ -172,10 +173,10 @@ package i2c;
     Reg#(Bit#(1))               val_SCL_in     <-  mkReg(1);
     Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
     Reg#(Bit#(1))               val_SDA_in     <-  mkReg(1);
-    Reg#(Bit#(3))               scl_delay      <- mkReg(1);
-    Vector#(8, Reg#(Bit#(1)))   val_SCL_delay   <- replicateM(mkReg(0));
+    Reg#(Bit#(8))               sda_delay      <- mkReg(10);
+    Vector#(256, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkReg(0));
     Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
-    Vector#(8, Reg#(Bool))      cOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
+    Vector#(256, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
     Reg#(Bool)                  cOutEn         <-  mkReg(False);                 // Data out Enable for the SCL Tristate Buffer
 
     Reg#(Bit#(8))               cprescaler     <-  mkReg(0);                    // Prescaler Counter for the Chip clock
@@ -299,13 +300,13 @@ package i2c;
     Reg#(I2C_RegWidth) repstart_prog <- mkReg(0);   // for automating the repstart functionality
 
     // Introduces a delay before storing SDA Data
-    rule rl_delay_scl;
+    rule rl_delay_sda;
 
-      let lv_data_0 = shiftInAt0(readVReg(val_SCL_delay),val_SCL);
-      writeVReg(val_SCL_delay, lv_data_0 )  ;
+      let lv_data_0 = shiftInAt0(readVReg(val_SDA_delay),val_SDA);
+      writeVReg(val_SDA_delay, lv_data_0 )  ;
 
-      let lv_data_1 = shiftInAt0(readVReg(cOutEn_delay),cOutEn);
-      writeVReg(cOutEn_delay, lv_data_1 )  ;
+      let lv_data_1 = shiftInAt0(readVReg(dOutEn_delay),dOutEn);
+      writeVReg(dOutEn_delay, lv_data_1 )  ;
       
     endrule
 
@@ -325,7 +326,7 @@ package i2c;
         `Time            : return tuple2(False,duplicate(i2ctime));
         `SCL             : return tuple2(False,duplicate(c_scl));
         `Length_reg      : return tuple2(False,duplicate(length_reg));
-        `SCL_delay      : return tuple2(False,duplicate(scl_delay));
+        `SDA_delay      : return tuple2(False,duplicate(sda_delay));
         `FIFO_Status     : begin
           let c1 = pack(rx_fifo.count);
           let c2 = pack(tx_fifo.count);
@@ -359,6 +360,10 @@ package i2c;
             controlReg <= 8'hc5 | truncate(value);       //TODO 45h Check this out
             val_SDA <= 1;
             sendInd <= 2;
+
+            for (Integer i = 0; i < 256; i = i + 1) begin
+                val_SDA_delay[i] <= 0;
+            end
             
           end
 
@@ -426,10 +431,10 @@ package i2c;
           `logLevel(i2c,2,$format("Repeated start written")) 
         end
 
-        `SCL_delay: begin
+        `SDA_delay: begin
           intr <= 0;
-          scl_delay <= truncate(value); 
-          `logLevel(i2c,2,$format("SCL delay written")) 
+          sda_delay <= truncate(value); 
+          `logLevel(i2c,2,$format("SDA delay written")) 
         end
 
         default : err = True;
@@ -957,21 +962,21 @@ package i2c;
     endmethod
 
     interface I2C_out io;
-      method Bit#(1) scl_out = val_SCL_delay[scl_delay-1];
+      method Bit#(1) scl_out = val_SCL;
 
       method Action scl_in(Bit#(1) in);
         val_SCL_in <= in;
       endmethod
 
-      method Bool scl_out_en = cOutEn_delay[scl_delay-1] && eso == 1'b1;
+      method Bool scl_out_en = cOutEn && eso == 1'b1;
 
-      method Bit#(1) sda_out = val_SDA;
+      method Bit#(1) sda_out = val_SDA_delay[sda_delay-1];
 
       method Action sda_in(Bit#(1) in);
         val_SDA_in <= in;
       endmethod
 
-      method Bool sda_out_en  = dOutEn && eso == 1'b1;
+      method Bool sda_out_en  = dOutEn_delay[sda_delay-1] && eso == 1'b1;
 
       // method Bit#(1) is_int = ~pin & intr & eni;
     endinterface
