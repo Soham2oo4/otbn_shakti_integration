@@ -174,9 +174,9 @@ package i2c;
     Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
     Reg#(Bit#(1))               val_SDA_in     <-  mkReg(1);
     Reg#(Bit#(8))               sda_delay      <- mkReg(10);
-    Vector#(256, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkReg(0));
+    Vector#(8, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkReg(0));
     Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
-    Vector#(256, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
+    Vector#(8, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
     Reg#(Bool)                  cOutEn         <-  mkReg(False);                 // Data out Enable for the SCL Tristate Buffer
 
     Reg#(Bit#(8))               cprescaler     <-  mkReg(0);                    // Prescaler Counter for the Chip clock
@@ -659,8 +659,9 @@ package i2c;
         dataBit <= 9;
       end
       else begin
-        val_SDA <= startSig[sendInd];
-        sendInd <= sendInd-1;
+        // val_SDA <= startSig[sendInd];
+        // sendInd <= sendInd-1;
+        val_SDA <= 0;
       end         //TODO check what happens when multiple start has to be send!!!!module
     endrule
 
