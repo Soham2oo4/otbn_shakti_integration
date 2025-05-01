@@ -55,4 +55,4 @@ This file defines the functions and the types required to implement I2C routines
 `define     FIFO_Status    8'h48
 `define     REPSTART_reg   8'h50
 `define	    I2C_Clk_En	   8'h58
-`define     SCL_delay      8'h64
+`define     SDA_delay      8'h64
