@@ -928,8 +928,9 @@ package i2c;
         //Interrupt needs to be sent and final course of action is determined
       end
       else begin
-        val_SDA <= stopSig[sendInd];
-        sendInd <= sendInd - 1;
+        // val_SDA <= stopSig[sendInd];
+        // sendInd <= sendInd - 1;
+        val_SDA <= 1;
       end
     endrule
 
