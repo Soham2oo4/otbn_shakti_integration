@@ -361,7 +361,7 @@ package i2c;
             val_SDA <= 1;
             sendInd <= 2;
 
-            for (Integer i = 0; i < 256; i = i + 1) begin
+            for (Integer i = 0; i < 8; i = i + 1) begin
                 val_SDA_delay[i] <= 0;
             end
             
