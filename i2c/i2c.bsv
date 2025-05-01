@@ -172,7 +172,7 @@ package i2c;
     Reg#(Bit#(1))               val_SCL_in     <-  mkReg(1);
     Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
     Reg#(Bit#(1))               val_SDA_in     <-  mkReg(1);
-    Reg#(Bit#(8))               scl_delay      <- mkReg(1);
+    Reg#(Bit#(3))               scl_delay      <- mkReg(1);
     Vector#(8, Reg#(Bit#(1)))   val_SCL_delay   <- replicateM(mkReg(0));
     Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
     Vector#(8, Reg#(Bool))      cOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
