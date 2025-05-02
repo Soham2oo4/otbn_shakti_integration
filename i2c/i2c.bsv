@@ -770,8 +770,9 @@ package i2c;
           cOutEn <=True;
           `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
           controlReg <= 8'hc5 | 8'b01000101;       //TODO 45h Check this out
-          val_SDA <= 1;
-          sendInd <= 2;
+          // val_SDA <= 1;
+          val_SDA <= 0;
+          // sendInd <= 2;
           repstart_prog <= 0;
         end
         else begin
