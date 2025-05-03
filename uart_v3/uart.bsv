@@ -132,7 +132,7 @@ package uart;
       /* Returns the receiver register's data if data is present and DCD, RI , DSR and CTS are active */
 			else if(addr[5:0]==`RxReg) begin
 				Bit#(32) data =0;
-				if(uart.receiver_not_empty && uart.modem_status[3:0] == 4'b1111)
+				if(uart.receiver_not_empty)
 					data<-uart.tx.get; 
 		`logLevel( uart, 1, $format("UART read data: %h %c", data, data))
 		data= data >> (32-rg_charsize);
@@ -239,7 +239,7 @@ package uart;
 	
 	  interface RS232 io;
       /* Receives data from any other UART compatible device to our UART. */
-      method Action sin(Bit#(1) x);
+      method Action sin(Bit#(1) x) if(rg_modem[0]==1'b0);
       `ifdef IQC
         let lv_qualified_inputs<- iqc.qualify(x);
       `else
@@ -252,38 +252,50 @@ package uart;
       method sout_en= uart.rs232.sout_en;
       /*Clear To Send pin is an input pin which takes in a signal to a modem and decides if it is ready to receive data
       depending upon the same */
-      method    Action      cts(Bit#(1) x);
+      method    Action      cts(Bit#(1) x) if(rg_modem[0]==1'b0);
 		uart.rs232.cts(x);
       endmethod
       /* Data Set Ready pin is an input pin which takes in a signal to a modem and decides if it can expect incoming data
       for reception.  */
-      method    Action     dsr(Bit#(1) x);
+      method    Action     dsr(Bit#(1) x) if(rg_modem[0]==1'b0);
 		uart.rs232.dsr(x);
       endmethod
       /*Ring Indicator pin is an input pin which takes in a signal to a modem and decides if it can expect incoming data
       for reception. */
-      method    Action      ri(Bit#(1) x);
+      method    Action      ri(Bit#(1) x) if(rg_modem[0]==1'b0);
 		uart.rs232.ri(x);
       endmethod
       /*Data Carrier Detect pin is an input pin which takes in a signal to a modem and decides if it can expect incoming 
       data for reception. */
-      method    Action      dcd(Bit#(1) x);
+      method    Action      dcd(Bit#(1) x) if(rg_modem[0]==1'b0);
 		uart.rs232.dcd(x);
       endmethod
       /* Request to Send is an output pin which gives out a signal to a modem to start sending data. */
       method    Bit#(1)     rts();
-		return uart.rs232.rts();
+      		if(rg_modem[0]==1'b0)
+			return uart.rs232.rts();
+		else
+			return 1;
       endmethod
       /* Data Terminal Ready is an output pin which gives out a signal to a modem that it is ready to receive data. */
       method    Bit#(1)     dtr();
+      if(rg_modem[0]==1'b0)
 		return uart.rs232.dtr();
+      else
+		return 1;
       endmethod   
       /* Both OUT1 and OUT2 are ordinary output pins used to store arbitrary outputs. */
       method    Bit#(1)     out1();
+      if(rg_modem[0]==1'b0)
 		return uart.rs232.out1();
+      else
+		return 1;
       endmethod   
       method    Bit#(1)     out2();
+      if(rg_modem[0]==1'b0)
                 return uart.rs232.out2();
+      else
+		return 1;
       endmethod
 	  method Bit#(2) dma_ready;
 		return uart.rs232.dma_ready;
@@ -497,6 +509,7 @@ package uart;
 		sync_interrupt.send(user_ifc.interrupt); 
 	endrule 
 	
+	(*conflict_free = "syncbits_in,perform_write"*)
 	rule syncbits_in; 
 		user_ifc.io.sin(sync_sin.read);
 		user_ifc.io.cts(sync_cts.read);

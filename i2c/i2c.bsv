@@ -173,10 +173,10 @@ package i2c;
     Reg#(Bit#(1))               val_SCL_in     <-  mkReg(1);
     Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
     Reg#(Bit#(1))               val_SDA_in     <-  mkReg(1);
-    Reg#(Bit#(8))               sda_delay      <- mkReg(10);
-    Vector#(256, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkReg(0));
+    Reg#(Bit#(8))               sda_delay      <- mkReg(1);
+    Vector#(8, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkReg(0));
     Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
-    Vector#(256, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
+    Vector#(8, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
     Reg#(Bool)                  cOutEn         <-  mkReg(False);                 // Data out Enable for the SCL Tristate Buffer
 
     Reg#(Bit#(8))               cprescaler     <-  mkReg(0);                    // Prescaler Counter for the Chip clock
@@ -361,7 +361,7 @@ package i2c;
             val_SDA <= 1;
             sendInd <= 2;
 
-            for (Integer i = 0; i < 256; i = i + 1) begin
+            for (Integer i = 0; i < 8; i = i + 1) begin
                 val_SDA_delay[i] <= 0;
             end
             
@@ -659,8 +659,9 @@ package i2c;
         dataBit <= 9;
       end
       else begin
-        val_SDA <= startSig[sendInd];
-        sendInd <= sendInd-1;
+        // val_SDA <= startSig[sendInd];
+        // sendInd <= sendInd-1;
+        val_SDA <= 0;
       end         //TODO check what happens when multiple start has to be send!!!!module
     endrule
 
@@ -769,8 +770,9 @@ package i2c;
           cOutEn <=True;
           `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
           controlReg <= 8'hc5 | 8'b01000101;       //TODO 45h Check this out
-          val_SDA <= 1;
-          sendInd <= 2;
+          // val_SDA <= 1;
+          val_SDA <= 0;
+          // sendInd <= 2;
           repstart_prog <= 0;
         end
         else begin
@@ -927,8 +929,9 @@ package i2c;
         //Interrupt needs to be sent and final course of action is determined
       end
       else begin
-        val_SDA <= stopSig[sendInd];
-        sendInd <= sendInd - 1;
+        // val_SDA <= stopSig[sendInd];
+        // sendInd <= sendInd - 1;
+        val_SDA <= 1;
       end
     endrule
 
