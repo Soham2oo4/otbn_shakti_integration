@@ -517,18 +517,19 @@ endmodule:mkplic
 	endmodule
 
 	interface Ifc_plic_axi4#( numeric type aw,
+                                numeric type iw,
 	                              numeric type dw,
 	                              numeric type uw,
                                 numeric type sources, 
                                 numeric type targets, 
                                 numeric type maxpriority);
-			interface AXI4_Slave_IFC#(aw, dw, uw) slave;
+			interface AXI4_Slave_IFC#(aw, iw, dw, uw) slave;
       (*always_ready*)
       interface Vector#(targets, Bool) sb_to_targets;
       (*always_ready, always_enabled, prefix=""*)
       method Action sb_frm_sources((*port="sb_frm_sources"*) Bit#(sources) irq);
 	endinterface
-	module mkplic_axi4#(parameter Integer slave_base)(Ifc_plic_axi4#(aw,dw,uw, sources, targets, maxpriority))
+	module mkplic_axi4#(parameter Integer slave_base)(Ifc_plic_axi4#(aw,iw,dw,uw, sources, targets, maxpriority))
       provisos(
         Add#(1,sources,nsources),
         Add#(nsources, _a, 1024),             // max sources is 1024
@@ -560,14 +561,14 @@ endmodule:mkplic
 
 		let strb_size = valueOf(TSub#(TDiv#(dw,8),1));
 
-		AXI4_Slave_Xactor_IFC #(aw, dw, uw)  s_xactor <- mkAXI4_Slave_Xactor;
+		AXI4_Slave_Xactor_IFC #(aw, iw, dw, uw)  s_xactor <- mkAXI4_Slave_Xactor;
 		User_ifc#(aw, dw, sources, targets, maxpriority) plic <- mkplic(slave_base);
 
 	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(aw,uw)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(aw,uw)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(aw,iw,uw)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(aw,iw,uw)) rg_wrpacket <- mkRegA(?);
 
 
 		 (*preempts="rl_config_plic_reg_read,rl_config_plic_reg_write"*)

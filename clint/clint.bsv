@@ -234,9 +234,9 @@ package clint;
 	 endmodule:mkclint_axi4lite
   `endif
 
-	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type data_width, 
+	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
-	 	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+	 	interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
     interface Get#(Bit#(msip_size)) sb_clint_msip;
     interface Get#(Bit#(1)) sb_clint_mtip;
     interface Get#(Bit#(64)) sb_clint_mtime;
@@ -244,7 +244,7 @@ package clint;
 	 endinterface
 
 
-	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,data_width,user_width,msip_size,tick_count))
+	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,id_width,data_width,user_width,msip_size,tick_count))
 		provisos(
         `ifndef iclass
           Add#(b__, data_width, 64),
@@ -266,12 +266,12 @@ package clint;
     `endif
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
-	 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+	 	AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 	 	rule axi_read_transaction(rg_rdburst_count==0);
 	 		let req <- pop_o(s_xactor.o_rd_addr);

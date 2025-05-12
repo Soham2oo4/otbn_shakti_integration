@@ -158,8 +158,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
     AXI4_Master_Xactor_IFC#(`paddr, `debug_bus_sz, 0) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
   `else
-    AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, `USERSPACE) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
-    AXI4_Master_Xactor_IFC#(`paddr, `debug_bus_sz, `USERSPACE) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
+    AXI4_Slave_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
+    AXI4_Master_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
   `endif
 
   function Bit#(32) genLoads(AccessReg cntrl);
@@ -664,13 +664,13 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     endcase
 
     if (lv_err == SbSuccess) begin
-      AXI4_Rd_Addr#(`paddr, `ifndef iclass 0 `else `USERSPACE `endif ) read_request = AXI4_Rd_Addr{araddr: truncate(address),aruser: 0, 
+      AXI4_Rd_Addr#(`paddr, `axi4_id_width, `ifndef iclass 0 `else `USERSPACE `endif ) read_request = AXI4_Rd_Addr{araddr: truncate(address),aruser: 0, 
                                       arlen : 0, arsize: sbaccess, arburst: 0,
                                       arid  : 0, arprot:'d3};
-      AXI4_Wr_Addr#(`paddr, `ifndef iclass 0 `else `USERSPACE `endif ) wr_addr_request = AXI4_Wr_Addr{awaddr: truncate(address),awuser: 0, 
+      AXI4_Wr_Addr#(`paddr, `axi4_id_width, `ifndef iclass 0 `else `USERSPACE `endif ) wr_addr_request = AXI4_Wr_Addr{awaddr: truncate(address),awuser: 0, 
                                       awlen : 0, awsize: sbaccess, awburst: 0,
                                       awid  : 0, awprot:'d3};
-      AXI4_Wr_Data#(`debug_bus_sz) wr_data_request = AXI4_Wr_Data{ wdata: writedata, wstrb: writestrb, wlast: True};
+      AXI4_Wr_Data#(`axi4_id_width, `debug_bus_sz) wr_data_request = AXI4_Wr_Data{ wdata: writedata, wstrb: writestrb, wlast: True};
       if (rg_sbread_en ) begin
         master_xactor.i_rd_addr.enq(read_request);
         rg_sbread_en <= False;
@@ -827,7 +827,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else begin
       succ = False;
     end
-	 	AXI4_Rd_Data#(`debug_bus_sz, `ifndef iclass 0 `else `USERSPACE `endif ) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
+	 	AXI4_Rd_Data#(`axi4_id_width, `debug_bus_sz, `ifndef iclass 0 `else `USERSPACE `endif ) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
           rdata: data, ruser: 0};
 	 	slave_xactor.i_rd_data.enq(r);
     `logLevel( debug, 1, $format("DEBUG: ReadReq: ",fshow(req)))

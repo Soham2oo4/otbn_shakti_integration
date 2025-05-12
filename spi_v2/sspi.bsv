@@ -1001,12 +1001,12 @@ endmodule : mk_sspi
 	endmodule
 
 	//axi4
-	interface Ifc_sspi_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
+	interface Ifc_sspi_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width);
 		interface Ifc_sspi_io io;
 		method Bit#(1) sb_sspi_interrupt;
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
+		interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width)	slave;
 	endinterface
-	module mksspi_axi4(Ifc_sspi_axi4#(addr_width,data_width,user_width))
+	module mksspi_axi4(Ifc_sspi_axi4#(addr_width,id_width,data_width,user_width))
 			provisos(Add#(a__, 32, data_width),
 					 Add#(b__,  4, data_width),
 					 Mul#(32, c__, data_width),
@@ -1016,12 +1016,12 @@ endmodule : mk_sspi
 					 Add#(16, g__, data_width)
 					);
 		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi;
-		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
+		AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
 		rule read_request(rg_rdburst_count==0);

@@ -329,10 +329,11 @@ package uart;
 
 
  	interface Ifc_uart_axi4#(numeric type addr_width, 
+						   numeric type id_width,
                            numeric type data_width, 
                            numeric type user_width, 
                            numeric type depth);
-		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
 		(*always_ready, always_enabled*)
 		(*prefix=""*) interface RS232 io;
 		(*always_ready, always_enabled*)
@@ -341,7 +342,7 @@ package uart;
 
 	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate,
                           parameter Bit#(2) stopbits, parameter Bit#(2) parity)
-                                          (Ifc_uart_axi4#(addr_width,data_width,user_width, depth))
+                                          (Ifc_uart_axi4#(addr_width,id_width,data_width,user_width, depth))
 	// same provisos for the uart
     provisos(Mul#(32, a__, data_width),
               Add#(d__, 8, data_width),    
@@ -357,7 +358,7 @@ package uart;
 		Clock core_clock<-exposeCurrentClock;
 		Reset core_reset<-exposeCurrentReset;
 		Bool sync_required=(core_clock!=uart_clock);
-		AXI4_Slave_Xactor_IFC #(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+		AXI4_Slave_Xactor_IFC #(addr_width,id_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0, clocked_by uart_clock, reset_by uart_reset);
 
@@ -365,8 +366,8 @@ package uart;
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate,
                                                                     stopbits, parity);
-		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegU;
-  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegU;
+		  Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegU;
+  		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegU;
 			//capturing the read requests
 			rule capture_read_request(rg_rdburst_count==0);
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
@@ -433,14 +434,14 @@ package uart;
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate,
                                                                     stopbits, parity);
-			SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_request <- 
+			SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) ff_rd_request <- 
 														                      									mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Wr_Addr#(addr_width,user_width)) ff_wr_request <- 
+			SyncFIFOIfc#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) ff_wr_request <- 
 																							                      mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Wr_Data#(data_width)) ff_wdata_request <- mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Rd_Data#(data_width,user_width)) ff_rd_response <- 
+			SyncFIFOIfc#(AXI4_Wr_Data#(id_width,data_width)) ff_wdata_request <- mkSyncFIFOFromCC(3,uart_clock);
+			SyncFIFOIfc#(AXI4_Rd_Data#(id_width,data_width,user_width)) ff_rd_response <- 
 																				                  mkSyncFIFOToCC(3,uart_clock,uart_reset);
-			SyncFIFOIfc#(AXI4_Wr_Resp#(user_width)) ff_wr_response <- 
+			SyncFIFOIfc#(AXI4_Wr_Resp#(id_width,user_width)) ff_wr_response <- 
 																				                  mkSyncFIFOToCC(3,uart_clock,uart_reset);
 
 			//capturing the read requests
