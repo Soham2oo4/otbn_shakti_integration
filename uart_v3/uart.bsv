@@ -482,20 +482,20 @@ package uart;
 				s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
 			endrule
 		
-	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(uart_clk_gated.new_clk, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sin <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
-	SyncBitIfc#(Bit#(1)) sync_cts <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
-	SyncBitIfc#(Bit#(1)) sync_dsr <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
-	SyncBitIfc#(Bit#(1)) sync_ri <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
-	SyncBitIfc#(Bit#(1)) sync_dcd <- mkSyncBit(core_clock, core_reset,  uart_clk_gated.new_clk);
+	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(uart_clock, uart_rst,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sin <- mkSyncBit(core_clock, core_reset,  uart_clock);
+	SyncBitIfc#(Bit#(1)) sync_cts <- mkSyncBit(core_clock, core_reset,  uart_clock);
+	SyncBitIfc#(Bit#(1)) sync_dsr <- mkSyncBit(core_clock, core_reset,  uart_clock);
+	SyncBitIfc#(Bit#(1)) sync_ri <- mkSyncBit(core_clock, core_reset,  uart_clock);
+	SyncBitIfc#(Bit#(1)) sync_dcd <- mkSyncBit(core_clock, core_reset, uart_clock);
 
 	rule syncbits_out; 
 		sync_rts.send(user_ifc.io.rts); 

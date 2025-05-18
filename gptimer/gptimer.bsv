@@ -454,9 +454,9 @@ package gptimer;
       		s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
   		endrule
 		
-	SyncBitIfc#(Bit#(1)) sync_gpt_out <- mkSyncBit(gpt_clk_gated.new_clk, downreset,  bus_clock);
-	SyncBitIfc#(Bit#(1)) sync_gpt_in <- mkSyncBit(bus_clock, bus_reset,  gpt_clk_gated.new_clk);
-	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(gpt_clk_gated.new_clk, downreset,  bus_clock);
+	SyncBitIfc#(Bit#(1)) sync_gpt_out <- mkSyncBit(downclock, downreset,  bus_clock);
+	SyncBitIfc#(Bit#(1)) sync_gpt_in <- mkSyncBit(bus_clock, bus_reset,  downclock);
+	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(downclock, downreset,  bus_clock);
 	
 	rule syncbits_out; 
 	   sync_gpt_out.send(gptimer.io.timer_out); 
