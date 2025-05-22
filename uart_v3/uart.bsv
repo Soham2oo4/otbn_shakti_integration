@@ -346,15 +346,28 @@ package uart;
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		Reset uart_rst                   <- mkAsyncReset(2,core_reset,uart_clock);    // div rst
 		GatedClockIfc   uart_clk_gated                   <- mkGatedClock(False,uart_clock, clocked_by uart_clock, reset_by uart_rst); 	
-		UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
-                                                                    reset_by uart_rst, baudrate,
-                                                                    stopbits, parity);
+		
 		Reg#(bit) rg_clk_en <- mkRegA(0);
+		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
+        Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0),rg_rst,rg_clk_en);
+
+		MakeResetIfc reg_reset <-mkReset(0,False,core_clock);            // create a new reset for curr_clk
+        Reset uart_curr_reset <- mkResetEither(reg_reset.new_rst,core_reset);     // OR default and new_rst
+		Reset uart_reg_rst    <- mkAsyncReset(2,uart_curr_reset,uart_clock);    // div rst
+
+		UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
+                                                                    reset_by uart_reg_rst, baudrate,
+                                                                    stopbits, parity);
+
 		SyncBitIfc#(bit) sync_rg_clk_en <- mkSyncBit(core_clock, core_reset, uart_clock);
 			
 		rule clock_en;    
 			uart_clk_gated.setGateCond(unpack(sync_rg_clk_en.read));	         
 		endrule
+
+		rule reset_uart(rg_rst == 1);
+          reg_reset.assertReset;
+        endrule
 		
 		rule clk_enable_send;
                 	sync_rg_clk_en.send(rg_clk_en); 
@@ -368,7 +381,7 @@ package uart;
 		        Bit#(data_width) data = 0 ; 
 	       if (req.araddr[6:0] == `UART_Clk_en && req.arsize == 0) begin 
 		           succ = True; 
-		           data = duplicate({7'b0,rg_clk_en});  	         
+		           data = duplicate({rg_rst_clk});  	         
 	         end 
 	          else begin
 			{data, succ}<- user_ifc.read_req(req.araddr,unpack(truncate(req.arsize)));
@@ -392,7 +405,7 @@ package uart;
        		let addreq <- pop_o(s_xactor.o_wr_addr);
        		let datareq <- pop_o(s_xactor.o_wr_data);
        		if (addreq.awaddr[6:0] == `UART_Clk_en && addreq.awsize == 0) begin 
-       		    rg_clk_en <= truncate(datareq.wdata); 
+			     rg_rst_clk <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 
        		 else begin 
@@ -418,7 +431,7 @@ package uart;
 				Bit#(data_width) rdata = 0 ;
 				if (rd_req.araddr[7:0] == `UART_Clk_en  && rd_req.arsize == 0) begin	 
 					succ = True; 
-					rdata = duplicate({7'b0,rg_clk_en}); 
+					rdata = duplicate({rg_rst_clk}); 
 					let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
 																rdata: rdata, ruser: ?}; //TODO user?
 					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
@@ -452,7 +465,7 @@ package uart;
 				let wr_data <- pop_o(s_xactor.o_wr_data);
 			Bool succ = False;
 			if (wr_req.awaddr[7:0] == `UART_Clk_en && wr_req.awsize == 0) begin 
-				rg_clk_en <= truncate(wr_data.wdata); 
+			    rg_rst_clk <= truncate(wr_data.wdata); 
 				succ = True;
 				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
 					s_xactor.i_wr_resp.enq(lv_resp);

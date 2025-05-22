@@ -1132,18 +1132,28 @@ endmodule : mk_sspi
 					 Mul#(16, e__, data_width),
 					 Mul#( 4, f__, data_width),
 					 Add#(16, g__, data_width),
-					 Add#(h__, 1, data_width)
+					 Add#(h__, 8, data_width)
 					);
 		GatedClockIfc spi_clk_gated <- mkGatedClockFromCC(False);
 		Reset core_reset<-exposeCurrentReset;
-		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(clocked_by spi_clk_gated.new_clk);
+		Clock core_clock<-exposeCurrentClock;
+		
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		Reg#(bit) rg_clk_en <- mkRegA(0);
+		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
+        Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0),rg_rst,rg_clk_en);
 		
-		
+		MakeResetIfc reg_reset <-mkReset(0,False,core_clock);            // create a new reset for curr_clk
+        Reset spi_curr_reset <- mkResetEither(reg_reset.new_rst,core_reset);     // OR default and new_rst
+		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(clocked_by spi_clk_gated.new_clk, reset_by spi_curr_reset);
+
 	    rule clock_en;    
 	       spi_clk_gated.setGateCond(unpack(rg_clk_en));	         
-	       endrule
+	    endrule
+
+		rule reset_spi(rg_rst == 1);
+          reg_reset.assertReset;
+        endrule
 
 		rule read_request;
 		        Bool succ = False;
@@ -1151,7 +1161,7 @@ endmodule : mk_sspi
 	  		let req <- pop_o (s_xactor.o_rd_addr);
 	       if (req.araddr[7:0] == `SPI_Clk_En && req.arsize == 0) begin 
 		           succ = True; 
-		           data = duplicate({7'b0,rg_clk_en});  	         
+		           data = duplicate({rg_rst_clk});  	         
 	         end 
 	          else if(rg_clk_en == 1) begin  		
       		          {succ,data} <- sspi.mav_read_req(req.araddr,unpack(truncate(req.arsize)));
@@ -1169,7 +1179,7 @@ endmodule : mk_sspi
        		let addreq <- pop_o(s_xactor.o_wr_addr);
        		let datareq <- pop_o(s_xactor.o_wr_data);
        		if (addreq.awaddr[7:0] == `SPI_Clk_En && addreq.awsize == 0) begin 
-       		    rg_clk_en <= truncate(datareq.wdata); 
+			     rg_rst_clk <= truncate(datareq.wdata); 
        		     succ = True;
        		 end 
        		 else if(rg_clk_en == 1) begin 
