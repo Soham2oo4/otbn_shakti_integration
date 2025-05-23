@@ -678,7 +678,8 @@ package i2c;
         s3 <= 'h0A;
       end
       else begin
-        val_SDA <= startSig[sendInd];
+        // val_SDA <= startSig[sendInd];
+        val_SDA <= 0;
         sendInd <= sendInd-1;
       end         //TODO check what happens when multiple start has to be send!!!!
     endrule
@@ -770,9 +771,8 @@ package i2c;
           cOutEn <=True;
           `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
           controlReg <= 8'hc5 | 8'b01000101;       //TODO 45h Check this out
-          // val_SDA <= 1;
-          val_SDA <= 0;
-          // sendInd <= 2;
+          val_SDA <= 1;
+          sendInd <= 2;
           repstart_prog <= 0;
         end
         else begin
