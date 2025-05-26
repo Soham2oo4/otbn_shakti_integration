@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.2.2] - 2025-05-26
+--------------------
+- Moved configure script soc_config script
+
 [4.2.1] - 2025-04-25
 --------------------
 - Moved the $display line under verbose in the FMA and FTOF wrappers

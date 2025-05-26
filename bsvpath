@@ -5,7 +5,6 @@ src/mbox
 src/fpu/
 src/fpu/hardfloat
 src/fpu/bsv_float
-test_soc/
 benchmarks/
 fabrics/axi4
 fabrics/axi4lite
