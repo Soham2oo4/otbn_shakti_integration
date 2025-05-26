@@ -8,6 +8,12 @@ else
   width=16
 endif
 
+ifeq ($(TSOC), 1)
+  test_start=F0000000
+else
+  test_start=80000000
+endif
+
 default: create_hex append$(width)
 
 .PHONY: append4
@@ -19,7 +25,7 @@ append4:
 
 .PHONY: append8
 append8:
-	@printf '0202859300000297\n0182b283f1402573\n0000000000028067\n0000000080000000\n' | cat - boot.hex > temp && mv temp boot.hex
+	@printf '0202859300000297\n0182b283f1402573\n0000000000028067\n00000000$(test_start)\n' | cat - boot.hex > temp && mv temp boot.hex
 	@for number in $$(seq 1 8069) ; do \
     echo "0000000000000000" >> boot.hex; \
   done;
