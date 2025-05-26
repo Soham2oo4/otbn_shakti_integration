@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.3.0] - 2025-05-27
+--------------------
+- Fix mstatus.fs update for fp context switch
+
 [4.2.2] - 2025-05-26
 --------------------
 - Moved configure script soc_config script
