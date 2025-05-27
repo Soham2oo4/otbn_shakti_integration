@@ -322,7 +322,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : Base Op ",hartid, fshow(baseout)))
     if (epochs_match) begin
       wr_increment_minstret <= True;
-      `ifdef spfpu csr.ma_set_fflags(baseout.fflags); `endif
+      `ifdef spfpu csr.ma_set_fflags(baseout.fflags, fuid.rdtype); `endif
       wr_commit <= CommitData{addr: fuid.rd, data: zeroExtend(baseout.rdvalue), unlock_only:False
                                       `ifdef no_wawstalls , id: fuid.id `endif
                                       `ifdef spfpu ,rdtype: fuid.rdtype `endif };
