@@ -678,7 +678,8 @@ package i2c;
         s3 <= 'h0A;
       end
       else begin
-        val_SDA <= startSig[sendInd];
+        // val_SDA <= startSig[sendInd];
+        val_SDA <= 0;
         sendInd <= sendInd-1;
       end         //TODO check what happens when multiple start has to be send!!!!
     endrule
@@ -770,9 +771,8 @@ package i2c;
           cOutEn <=True;
           `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
           controlReg <= 8'hc5 | 8'b01000101;       //TODO 45h Check this out
-          // val_SDA <= 1;
-          val_SDA <= 0;
-          // sendInd <= 2;
+          val_SDA <= 1;
+          sendInd <= 2;
           repstart_prog <= 0;
         end
         else begin
@@ -1010,19 +1010,24 @@ package i2c;
       Mul#(16, c__, data_width),
       Mul#(8, d__, data_width),
       Mul#(32, e__, data_width),
-      Add#(f__, 1, data_width)
+      Add#(f__, 8, data_width)
     );
     Clock core_clock<-exposeCurrentClock;
     Reset core_reset<-exposeCurrentReset;
     AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Lite_Slave_Xactor();
     Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    Reg#(Bit#(1)) rg_rst <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0),rg_rst,rg_clk_en);
+
+    MakeResetIfc reg_reset <-mkReset(0,False,i2c_clock);            // create a new reset for curr_clk
+    Reset i2c_curr_reset <- mkResetEither(reg_reset.new_rst,i2c_reset);     // OR default and new_rst
     GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
     Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
-                                                                               reset_by i2c_reset);
+                                                                               reset_by i2c_curr_reset);
                                                                                
     	rule clock_en;    
 	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
-	endrule
+	    endrule
 
       rule read_request;
         let rd_req <- pop_o(s_xactor.o_rd_addr);
@@ -1032,7 +1037,7 @@ package i2c;
                     
         if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
 		      err = False; 
-		      rdata = duplicate({7'b0,rg_clk_en});  
+		      rdata = duplicate({rg_rst_clk});  
 	      end
 	      else if(rg_clk_en == 1) begin  
              {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
@@ -1052,7 +1057,7 @@ package i2c;
              
         if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
           err = False; 
-          rg_clk_en <=  truncate(wr_data.wdata);
+          rg_rst_clk <=  truncate(wr_data.wdata);
           $display("response from rg_clk_en - %d",err); 
         end
         else if(rg_clk_en == 1) 
@@ -1065,6 +1070,10 @@ package i2c;
         end
         let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
         s_xactor.i_wr_resp.enq(lv_resp);
+      endrule
+
+      rule reset_i2c(rg_rst == 1);
+        reg_reset.assertReset;
       endrule
 
     interface slave = s_xactor.axi_side;

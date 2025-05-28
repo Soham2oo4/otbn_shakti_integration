@@ -1660,7 +1660,10 @@ endinterface
 module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr `ifdef testmode ,Bool test_mode `endif )(Ifc_qspi_axi4#(addr_width,
 														 data_width,
 														 user_width))
-    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32), Mul#(8, e__, data_width),Add#(d__, 1, data_width));
+    provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32), Mul#(8, e__, data_width),Add#(d__, 8, data_width));
+
+	Clock core_clock<-exposeCurrentClock;
+	Reset core_reset<-exposeCurrentReset;
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
@@ -1674,11 +1677,18 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 
 	
  	
-        Reg#(bit) rg_clk_en <- mkRegA(0);
+    Reg#(bit) rg_clk_en <- mkRegA(0);
+	Reg#(Bit#(1)) rg_rst <- mkRegA(0);
+    Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0),rg_rst,rg_clk_en);
+
+	MakeResetIfc reg_reset <-mkReset(0,False,core_clock);            // create a new reset for curr_clk
+    Reset qspi_curr_reset <- mkResetEither(reg_reset.new_rst,slow_rst);     // OR default and new_rst
+	// Reset qspi_reg_rst    <- mkAsyncReset(2,qspi_curr_reset,slow_clk);    // div rst
+
  	GatedClockIfc   qspi_gated_clk                   <- mkGatedClock(False,slow_clk); 	
  	//Reset          qspi_gated_clk_rst                   <- mkAsyncReset(2,slow_rst,qspi_gated_clk.new_clk); 
 
-	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by qspi_gated_clk.new_clk, reset_by slow_rst );
+	Ifc_qspi_controller#(addr_width, data_width, user_width)	qspi <- mkqspi_controller(start_mm_addr, end_mm_addr,clocked_by qspi_gated_clk.new_clk, reset_by qspi_curr_reset );
 	
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(2, qspi_gated_clk.new_clk);
         SyncFIFOIfc#(AXI4_Lite_Resp) 	                        ff_sync_wr_resp 	<- mkSyncFIFOToCC(2, qspi_gated_clk.new_clk, slow_rst );
@@ -1687,16 +1697,20 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 	
         rule clock_en;    
 	       qspi_gated_clk.setGateCond(unpack(rg_clk_en));	         
-	endrule
+	    endrule
+
+		rule reset_qspi(rg_rst == 1);
+          reg_reset.assertReset;
+        endrule
 	
 	rule rl_write_request(rg_req_en == 0); // this rule is running at fast_clk (i.e 166MHz)
 		let aw <- pop_o (s_xactor.o_wr_addr);
    		let w  <- pop_o (s_xactor.o_wr_data);
 
-                 if(aw.awaddr[7:0] == `Qspi_Clk_En && aw.awsize == 0) begin 
-		   rg_clk_en <= truncate(w.wdata); 
-		  let b = AXI4_Wr_Resp {bresp : AXI4_OKAY, buser : 0, bid : aw.awid};
-	              s_xactor.i_wr_resp.enq (b);
+        if(aw.awaddr[7:0] == `Qspi_Clk_En && aw.awsize == 0) begin 
+		   rg_rst_clk <= truncate(w.wdata); 
+		   let b = AXI4_Wr_Resp {bresp : AXI4_OKAY, buser : 0, bid : aw.awid};
+	       s_xactor.i_wr_resp.enq (b);
 		   `logLevel(qspicontrol, 0, $format("QSPI: Sending gated clk Write response"))
 		 end  		
    		else if(rg_clk_en == 1) begin   
@@ -1739,7 +1753,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 		let ar<- pop_o(s_xactor.o_rd_addr);
 		
 		if(ar.araddr[7:0] == `Qspi_Clk_En && ar.arsize == 0) begin
-	      let rsp = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: duplicate({7'b0,rg_clk_en}) , ruser: 0, rid: ar.arid, rlast: True};
+	      let rsp = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: duplicate({rg_rst_clk}) , ruser: 0, rid: ar.arid, rlast: True};
 	             s_xactor.i_rd_data.enq(rsp);    
 		   `logLevel(qspicontrol, 0, $format("QSPI: qspi sent read request")) 
               end 
@@ -1753,7 +1767,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 		rg_req_en <= 1;
 		rg_rid <= ar.arid; end
 		else begin
-			let rsp = AXI4_Rd_Data {rresp: AXI4_SLVERR, rdata: duplicate({7'b0,rg_clk_en}) , ruser: 0, rid: ar.arid, rlast: True};
+			let rsp = AXI4_Rd_Data {rresp: AXI4_SLVERR, rdata: duplicate({rg_rst_clk}) , ruser: 0, rid: ar.arid, rlast: True};
 			s_xactor.i_rd_data.enq(rsp); 
 		end
 		`logLevel(qspicontrol, 0, $format("QSPI: qspi received read request"))
