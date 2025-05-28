@@ -331,11 +331,12 @@ package gptimer;
 		 let bus_reset <- exposeCurrentReset;
 		 
 		Reg#(bit)                rg_clk_en               <- mkRegA(0);
+		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
 	        Reg#(bit)                rg_clk_src              <- mkRegA(0);
 	        Reg#(Bit#(16))           rg_clk_divider          <- mkRegA(0);
-                Reg#(Bit#(32))           rg_clock_control = concatReg4(readOnlyReg(14'd0),rg_clk_en,rg_clk_divider,rg_clk_src);
+                Reg#(Bit#(32))           rg_clock_control = concatReg5(readOnlyReg(13'd0),rg_rst,rg_clk_en,rg_clk_divider,rg_clk_src);
                  
-                 
+                
                 
                 MuxClkIfc      clock_selection     <- mkClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk                 
                 Reset async_reset <- mkAsyncResetFromCR(2,clock_selection.clock_out);    // first rst
@@ -344,12 +345,16 @@ package gptimer;
                 
                 let downclock           = clk_divider.slowclock;   // div clk                           
                 Reset downreset                   <- mkAsyncReset(2,bus_reset,downclock);    // div rst 
+
+				MakeResetIfc reg_reset <-mkReset(0,False,bus_clock);            // create a new reset for curr_clk
+                Reset gpt_curr_reset <- mkResetEither(reg_reset.new_rst,bus_reset);     // OR default and new_rst 
+				Reset async_rg_reset <- mkAsyncReset(2,gpt_curr_reset,downclock);
                 
                           
 		GatedClockIfc  gpt_clk_gated       <- mkGatedClock(False,downclock,clocked_by downclock,reset_by downreset);
 	
 							
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by downreset);		
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by async_rg_reset);		
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();		
 		
 		SyncBitIfc#(Bit#(1)) sync_rg_clk_en <- mkSyncBit(bus_clock, bus_reset, downclock); // 
@@ -361,6 +366,10 @@ package gptimer;
 	    rule transfer_data_from_clock_domains;
 	      clock_divisor_sync <= rg_clk_divider;
 	    endrule
+
+		rule reset_gpt(rg_rst == 1);
+          reg_reset.assertReset;
+        endrule
  
 	     rule generate_slow_clock;
 	      clk_divider.divisor(clock_divisor_sync);
