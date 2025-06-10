@@ -463,7 +463,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   * counter is reset to zero. We also invalidate the wr_write_req register on the last beat*/
   rule rl_dmem_burst_write_data(rg_burst_count != 0);
     // last beat is detected if the burst_counter has reached the size of the words in each line -1.
-    Bool last = rg_burst_count == fromInteger(((`dblocks * `dwords) / `buswidth)  - 1 );
+    Bool last = rg_burst_count == fromInteger(((`dblocks * `dwords * 8) / `buswidth)  - 1 );
 
     // read the eviction fifo
     let req = dmem.send_mem_wr_req;
