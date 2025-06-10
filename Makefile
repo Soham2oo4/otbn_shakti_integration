@@ -241,14 +241,10 @@ benchmarks: ## to run benchmarks
 
 .PHONY: generate_boot_files
 generate_boot_files: ## to generate boot files for simulation
-	@echo "XLEN=$(XLEN)" > boot/Makefile.inc
+	@echo "XLEN=128" > boot/Makefile.inc
 	@mkdir -p bin
 	@cd boot/; make;
-	@cut -c1-8 boot/boot.hex > bin/boot.MSB
-	@if [ "$(XLEN)" = "64" ]; then\
-	  cut -c9-16 boot/boot.hex > bin/boot.LSB;\
-    else cp bin/boot.MSB bin/boot.LSB;\
-  fi
+	@(head -n 61 boot/boot.hex; yes 00000000000000000000000000000000 | head -n 4007) > bin/bootfile
 
 .PHONY: ip_build
 ip_build: ## build Xilinx Core-IPs used in this project

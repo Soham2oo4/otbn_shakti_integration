@@ -19,22 +19,22 @@ package sign_dump;
 	import Semi_FIFOF:: *;
 
   interface Ifc_sign_dump;
-		interface AXI4_Master_IFC#(`paddr, `elen, USERSPACE) master;
-		interface AXI4_Slave_IFC#(`paddr, `elen, USERSPACE) slave;
+		interface AXI4_Master_IFC#(`paddr, `buswidth, USERSPACE) master;
+		interface AXI4_Slave_IFC#(`paddr, `buswidth, USERSPACE) slave;
   endinterface
 
   (*synthesize*)
   module mksign_dump(Ifc_sign_dump);
     
-    let word_count = 128/valueOf(`elen);
+    let word_count = 128/valueOf(`buswidth);
 
     Reg#(Bool) rg_start<- mkReg(False);
-    Reg#(Bit#(TLog#(TDiv#(128,`elen)))) rg_word_count <- mkReg(fromInteger(word_count-1));
+    Reg#(Bit#(TLog#(TDiv#(128,`buswidth)))) rg_word_count <- mkReg(fromInteger(word_count-1));
     Reg#(Bit#(`paddr)) rg_total_count <- mkReg(0);
-		AXI4_Master_Xactor_IFC #(`paddr, `elen, USERSPACE) m_xactor <- mkAXI4_Master_Xactor;
-		AXI4_Slave_Xactor_IFC #(`paddr, `elen, USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
+		AXI4_Master_Xactor_IFC #(`paddr, `buswidth, USERSPACE) m_xactor <- mkAXI4_Master_Xactor;
+		AXI4_Slave_Xactor_IFC #(`paddr, `buswidth, USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
     
-    FIFOF#(Bit#(TLog#(TDiv#(`elen,8)))) ff_lower_order_bits <- mkSizedFIFOF(8);
+    FIFOF#(Bit#(TLog#(TDiv#(`buswidth,8)))) ff_lower_order_bits <- mkSizedFIFOF(8);
 
     Reg#(Bit#(`paddr)) rg_start_address<- mkReg(0);    // 0x2000
     Reg#(Bit#(`paddr)) rg_end_address<- mkReg(0);      // 0x2008
@@ -93,8 +93,8 @@ package sign_dump;
     rule receive_response(rg_cnt>=5 && rg_start);
 			let response <- pop_o (m_xactor.o_rd_data);	
       ff_lower_order_bits.deq();
-			Bit#(TLog#(TDiv#(`elen,8))) lower_addr_bits= ff_lower_order_bits.first();
-			Bit#(TAdd#(TLog#(TDiv#(`elen,8)),3)) lv_shift = {lower_addr_bits,3'd0};
+			Bit#(TLog#(TDiv#(`buswidth,8))) lower_addr_bits= ff_lower_order_bits.first();
+			Bit#(TAdd#(TLog#(TDiv#(`buswidth,8)),3)) lv_shift = {lower_addr_bits,3'd0};
 			let lv_data= response.rdata >> lv_shift;
     	$fwrite(dump,"%8h\n", lv_data[31:0]); 
       rg_total_count<=rg_total_count-1;

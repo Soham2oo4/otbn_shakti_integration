@@ -50,6 +50,7 @@ dcache_configuration:
   rwports: '1rw'
 reset_pc: 4096
 bus_protocol: AXI4
+bus_width: 128
 bsc_compile_options:
   test_memory_size: 67108864
   assertions: true

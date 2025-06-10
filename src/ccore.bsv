@@ -49,8 +49,8 @@ typedef enum {None, IWalk, DWalk} PTWState deriving(Bits, Eq, FShow);
 `endif
 
 interface Ifc_ccore_axi4;
-	interface AXI4_Master_IFC#(`paddr, `elen, USERSPACE) master_d;
-	interface AXI4_Master_IFC#(`paddr, `elen, USERSPACE) master_i;
+	interface AXI4_Master_IFC#(`paddr, `buswidth, USERSPACE) master_d;
+	interface AXI4_Master_IFC#(`paddr, `buswidth, USERSPACE) master_i;
     interface Put#(Bit#(1)) sb_clint_msip;
 
 	/*doc:method: This method should receive the machine timer interrupt from the CLINT module*/
@@ -136,8 +136,8 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
     Ifc_ptwalk#(`asidwidth) ptwalk <- mkptwalk;
   `endif
 
-	AXI4_Master_Xactor_IFC #(`paddr, `elen, USERSPACE) fetch_xactor <- mkAXI4_Master_Xactor;
-	AXI4_Master_Xactor_IFC #(`paddr, `elen, USERSPACE) memory_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(`paddr, `buswidth, USERSPACE) fetch_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(`paddr, `buswidth, USERSPACE) memory_xactor <- mkAXI4_Master_Xactor;
 `ifdef pmp
   /*doc:var: When pmp is enabled we capture the curernt pmp configurations and addresses that will
   * be required by the TLBs*/
@@ -159,7 +159,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 
   /*doc:reg: While performing burst writes during line eviction, this register indicates the amount
    * the line should be shifted to send the next beat of data on the bus*/
-  Reg#(Bit#(TLog#(TMul#(TMul#(`dwords, 8), `dblocks)))) rg_shift_amount <- mkReg(`dwords * 8 );
+  Reg#(Bit#(TLog#(TMul#(TMul#(`dwords, 8), `dblocks)))) rg_shift_amount <- mkReg(`dwords * 16 );
 `endif
   /*doc: capture the current privilege mode under which the current transaction is being carried
   * out. TODO: This should ideally come form the caches themselves. Capturing here can have issues.
@@ -246,18 +246,24 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
     `logLevel( core, 0, $format("CORE: Received io op: ",fshow(req)))
 
     // resize the data and duplicate the bytes based on the size of the transaction
-    if(req.size[1:0]== 0)
-      req.data = duplicate(req.data[7 : 0]);
-    else if(req.size[1:0] == 1)
-      req.data = duplicate(req.data[15 : 0]);
-    else if(req.size[1:0] == 2)
-      req.data = duplicate(req.data[31 : 0]);
+     Bit#(`buswidth) lv_data = 0; 
+    if(req.size[2:0]== 0)
+     lv_data = duplicate(req.data[7 : 0]);
+    else if(req.size[2:0] == 1)
+     lv_data = duplicate(req.data[15 : 0]);
+    else if(req.size[2:0] == 2)
+      lv_data = duplicate(req.data[31 : 0]);
+     else if(req.size[2:0] == 3)
+      lv_data = duplicate(req.data[63 : 0]);
+      else 
+       lv_data = duplicate(req.data[63 : 0]);
 
     // build the write-strobe based on the size of the request.
-    Bit#(TDiv#(`elen, 8)) write_strobe = req.size[1:0] == 0?'b1 :
+    Bit#(TDiv#(`buswidth, 8)) write_strobe = req.size[1:0] == 0?'b1 :
                                         req.size[1:0] == 1?'b11 :
-                                        req.size[1:0] == 2?'hf : '1;
-    Bit#(TAdd#(1, TDiv#(`elen, 32))) byte_offset = truncate(req.address);
+                                        req.size[1:0] == 2?'hf : 
+                                        req.size[1:0] == 3?'hff :   '1;
+    Bit#(TAdd#(1, TDiv#(`buswidth, 32))) byte_offset = truncate(req.address);
     write_strobe = write_strobe<<byte_offset;
 
     // if read operation send transaction on the i_rd_addr channel
@@ -273,7 +279,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
         awlen : 0, awsize : zeroExtend(req.size[1 : 0]), awburst : 'b0,
         awid : 1, awprot:{1'b0, 1'b0, curr_priv[1]} }; // arburst : 00 - FIXED 01 - INCR 10 - WRAP
 
-      let w  = AXI4_Wr_Data {wdata : truncate(req.data), wstrb : write_strobe,
+      let w  = AXI4_Wr_Data {wdata : truncate(lv_data), wstrb : write_strobe,
                              wlast : True, 
                              wid : 1};
 	    memory_xactor.i_wr_addr.enq(aw);
@@ -288,7 +294,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   rule rl_handle_io_read_response(memory_xactor.o_rd_data.first.rid == 1);
     let response <- pop_o(memory_xactor.o_rd_data);
   	let bus_error = !(response.rresp == AXI4_OKAY);
-    dmem.receive_mem_io_resp.put(DCache_io_response{data:response.rdata, 
+    dmem.receive_mem_io_resp.put(DCache_io_response{data:truncate(response.rdata), 
                                               error:bus_error});
     `logLevel( core, 1, $format("[%2d]CORE : IO Read Response ",hartid, fshow(response)))
   endrule:rl_handle_io_read_response
@@ -344,12 +350,20 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   popped request from the data memory subsystem into the rg_read_line_req register so that it can be
   handled once the conflict is done.
   */
+    
+     Reg#(Bit#(32)) rg_burst_rd_request_dmem <- mkRegA(0);
+     Reg#(Bit#(64)) rg_rd_datapacket <- mkRegA(0);
+     Reg#(Bit#(64)) rg_rd_datapacket_wrap_edge <- mkRegA(0);
+     Reg#(Bit#(4)) rg_burst_cnt_rd <- mkRegA(0);
+     
   rule rl_handle_dmem_line_read_request(rg_read_line_req matches tagged Invalid );
     Bool perform_req = True;
   	let req <- dmem.send_mem_rd_req.get;
-  	AXI4_Rd_Addr#(`paddr, 0) dmem_request = AXI4_Rd_Addr {araddr : truncate(req.address), aruser: ?,
-      arlen : req.burst_len, arsize : req.burst_size, arburst : 'b10, // arburst : 00 - FIXED 01 - INCR 10 - WRAP
+  	rg_burst_rd_request_dmem <= req.address; 
+  	AXI4_Rd_Addr#(`paddr, 0) dmem_request = AXI4_Rd_Addr {araddr : truncate({req.address[31:4],4'b0}), aruser: ?,
+      arlen : 3, arsize : 4, arburst : 'b10, // arburst : 00 - FIXED 01 - INCR 10 - WRAP
       arid : 0 ,arprot:{1'b0, 1'b0, curr_priv[1]} }; 
+      
     if(wr_write_req matches tagged Valid .waddr) begin
       if((waddr>>(`dwords + `dblocks )) == (req.address>>(`dwords + `dblocks ) ))begin
         perform_req = False;
@@ -373,13 +387,45 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   endrule:rl_handle_delayed_read
 
 	rule rl_handle_dmem_line_resp(memory_xactor.o_rd_data.first.rid == 0);
-    let fab_resp <- pop_o (memory_xactor.o_rd_data);
-		let lv_data= fab_resp.rdata;
-  	Bool bus_error = !(fab_resp.rresp == AXI4_OKAY);
-    dmem.receive_mem_rd_resp.put(DCache_mem_readresp{data:truncate(lv_data),
-                                               last:fab_resp.rlast,
+	
+    	Bool lv_wrap_edge_case = (rg_burst_rd_request_dmem[3] == 1);
+	
+        if(rg_burst_cnt_rd == 8 && lv_wrap_edge_case) begin 
+          rg_burst_cnt_rd <= 0; end
+         else if (rg_burst_cnt_rd == 7 && !lv_wrap_edge_case) begin
+         rg_burst_cnt_rd <= 0; end
+         else begin       
+          rg_burst_cnt_rd <= rg_burst_cnt_rd + 1;  
+                end
+           
+           if(rg_burst_cnt_rd[0] == 1 && !lv_wrap_edge_case)begin   
+            memory_xactor.o_rd_data.deq; end 
+            else if ((rg_burst_cnt_rd[0] == 1 && lv_wrap_edge_case && rg_burst_cnt_rd != 7) || rg_burst_cnt_rd ==8)begin   
+             memory_xactor.o_rd_data.deq; end
+            
+            let fab_resp = memory_xactor.o_rd_data.first;  
+             rg_rd_datapacket <= fab_resp.rdata[127:64]; 
+        
+             let lv_Data = (rg_burst_cnt_rd[0] == 0) ? fab_resp.rdata[63:0] : rg_rd_datapacket;  	          
+               
+            if (rg_burst_cnt_rd == 0 && lv_wrap_edge_case ) begin     // edge case starting             
+                     rg_rd_datapacket_wrap_edge<=fab_resp.rdata[63:0]; 
+                     end   
+              else if(rg_burst_cnt_rd == 8 && lv_wrap_edge_case)begin 
+  	Bool bus_error = !(fab_resp.rresp == AXI4_OKAY); 
+                dmem.receive_mem_rd_resp.put(DCache_mem_readresp{data:rg_rd_datapacket_wrap_edge,
+                                                                 last:(rg_burst_cnt_rd == 8),
                                                err :bus_error});
-    `logLevel( core, 1, $format("[%2d]CORE : DMEM Line Response ",hartid, fshow(fab_resp)))
+                      end 
+               else if(rg_burst_cnt_rd >=0 && rg_burst_cnt_rd <=7 )  begin
+               	Bool bus_error = !(fab_resp.rresp == AXI4_OKAY);
+                   dmem.receive_mem_rd_resp.put(DCache_mem_readresp{data:lv_Data,
+                                                                    last:(rg_burst_cnt_rd == 7 && !lv_wrap_edge_case),
+                                                                     err :bus_error});
+                       end 
+                              
+	 	
+    //`logLevel( core, 1, $format("[%2d]CORE : DMEM Line Response ",hartid, fshow(fab_resp)))
   endrule:rl_handle_dmem_line_resp
 
   /*doc:rule: This rule is fired when the data memory subsytem is requesting to write an entire line
@@ -392,13 +438,13 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
     let req = dmem.send_mem_wr_req;
 
     // write strobe will always be all-ones.
-	  Bit#(TDiv#(`elen, 8)) write_strobe = '1;
+	  Bit#(TDiv#(`buswidth, 8)) write_strobe = '1;
 
   	// increment burst count to indicate one beat has been sent.
       rg_burst_count <= rg_burst_count + 1;
 
-	  AXI4_Wr_Addr#(`paddr, 0) aw = AXI4_Wr_Addr {awaddr : truncate(req.address), awuser : 0,
-      awlen : req.burst_len, awsize : zeroExtend(req.burst_size[1 : 0]), awburst : 'b01,
+	  AXI4_Wr_Addr#(`paddr, 0) aw = AXI4_Wr_Addr {awaddr : {req.address[31:4],4'b0}, awuser : 0,
+      awlen : 3, awsize : 4, awburst : 'b01,
       awid : 0, awprot:{1'b0, 1'b0, curr_priv[1]} }; // arburst : 00 - FIXED 01 - INCR 10 - WRAP
 
 	  let w  = AXI4_Wr_Data {wdata : truncate(req.data), wstrb : write_strobe,
@@ -417,7 +463,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   * counter is reset to zero. We also invalidate the wr_write_req register on the last beat*/
   rule rl_dmem_burst_write_data(rg_burst_count != 0);
     // last beat is detected if the burst_counter has reached the size of the words in each line -1.
-    Bool last = rg_burst_count == fromInteger(`dblocks - 1 );
+    Bool last = rg_burst_count == fromInteger(((`dblocks * `dwords) / `buswidth)  - 1 );
 
     // read the eviction fifo
     let req = dmem.send_mem_wr_req;
@@ -431,13 +477,13 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
     // if last reset all state and exit this loop
     if(last) begin
       rg_burst_count <= 0;
-      rg_shift_amount <= (`dwords * 8);
+      rg_shift_amount <= `buswidth;
       wr_write_req <= tagged Invalid;
       dmem.deq_mem_wr_req;
     end
     else begin
       // generate the next shift amount and increment rg_burst_count counter.
-      rg_shift_amount <= rg_shift_amount + (`dwords * 8);
+      rg_shift_amount <= rg_shift_amount + `buswidth;
       rg_burst_count <= rg_burst_count + 1;
     end
 	  memory_xactor.i_wr_data.enq(w);
