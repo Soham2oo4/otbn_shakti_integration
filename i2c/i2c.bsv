@@ -1026,7 +1026,7 @@ endfunction
 `ifdef i2c_clk_gate_en
 	`ifdef i2c_loc_rst_en   
 		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
-                                                                               reset_by i2c_curr_reset)
+                                                                               reset_by i2c_curr_reset);
     `else
 		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
                                                                                reset_by i2c_reset);
@@ -1158,7 +1158,7 @@ endfunction
 `ifdef i2c_clk_gate_en
 	`ifdef i2c_loc_rst_en   
 		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
-                                                                               reset_by i2c_curr_reset)
+                                                                               reset_by i2c_curr_reset);
    `else
 		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
                                                                                reset_by i2c_reset);
