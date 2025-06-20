@@ -157,9 +157,9 @@ module mkrtc(Clock ext_clk, Reset ext_rst, User_ifc#(addr_width, data_width) use
     let default_time = Time{tos: 0, s: 0, ts: 0, m: 0, tm: 0, h: 0, th: 0, dow: 5, dummy: 0};
     let default_date = Date{d: 1, td: 0, m: 1, tm: 0, y: 0, ty: 7, c: 9, tc: 1, dummy: 0};
 
-    Reg#(Talrm) talrm_reg <- mkReg(default_talrm);
-    Reg#(Dalrm) dalrm_reg <- mkReg(default_dalrm);
-    Reg#(Ctrl) ctrl_reg <- mkReg(default_ctrl);
+    Reg#(Talrm) talrm_reg <- mkRegA(default_talrm);
+    Reg#(Dalrm) dalrm_reg <- mkRegA(default_dalrm);
+    Reg#(Ctrl) ctrl_reg <- mkRegA(default_ctrl);
 
     /*Clock Divider*/    
     Reg#(Ctrl) sync_ctrl_reg <- mkSyncRegFromCC(default_ctrl, ext_clk); //READ: ext_clk, WRITE: default_clk
@@ -167,8 +167,8 @@ module mkrtc(Clock ext_clk, Reset ext_rst, User_ifc#(addr_width, data_width) use
         sync_ctrl_reg <= ctrl_reg;
     endrule
 
-    Reg#(Bit#(27)) cntr_div <- mkReg(unpack(default_ctrl.div), clocked_by ext_clk, reset_by ext_rst);
-    Reg#(Bit#(1)) osc <- mkReg(0, clocked_by ext_clk, reset_by ext_rst);
+    Reg#(Bit#(27)) cntr_div <- mkRegA(unpack(default_ctrl.div), clocked_by ext_clk, reset_by ext_rst);
+    Reg#(Bit#(1)) osc <- mkRegA(0, clocked_by ext_clk, reset_by ext_rst);
     MakeClockIfc#(Bit#(1)) mc <- mkClock(0, True, clocked_by ext_clk, reset_by ext_rst);
     Clock lo_clk = mc.new_clk;
     rule oscillate;
@@ -195,8 +195,8 @@ module mkrtc(Clock ext_clk, Reset ext_rst, User_ifc#(addr_width, data_width) use
           en_lo <= pack(ctrl_reg.en);
 	endrule
 
-    Reg#(Time) time_reg <- mkReg(default_time, clocked_by lo_clk, reset_by lo_rst);
-    Reg#(Date) date_reg <- mkReg(default_date, clocked_by lo_clk, reset_by lo_rst);
+    Reg#(Time) time_reg <- mkRegA(default_time, clocked_by lo_clk, reset_by lo_rst);
+    Reg#(Date) date_reg <- mkRegA(default_date, clocked_by lo_clk, reset_by lo_rst);
     //
     // Leap year calculation
     //
@@ -445,8 +445,8 @@ module mkrtc(Clock ext_clk, Reset ext_rst, User_ifc#(addr_width, data_width) use
         sync_date_read_fifo.enq(date_reg);
     endrule
 
-    Reg#(Time) sync_time <- mkReg(default_time);
-    Reg#(Date) sync_date <- mkReg(default_date);
+    Reg#(Time) sync_time <- mkRegA(default_time);
+    Reg#(Date) sync_date <- mkRegA(default_date);
     rule clear_FIFO;
         sync_time <= sync_time_read_fifo.first;
         sync_time_read_fifo.deq;
@@ -533,8 +533,8 @@ module mkrtc(Clock ext_clk, Reset ext_rst, User_ifc#(addr_width, data_width) use
         end else return False;
     endfunction
 
-    Reg#(Bool) isValidTimeWrite <- mkReg(False);
-    Reg#(Bool) isValidDateWrite <- mkReg(False);
+    Reg#(Bool) isValidTimeWrite <- mkRegA(False);
+    Reg#(Bool) isValidDateWrite <- mkRegA(False);
 
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data); //default_clk
        // $display                       ("Requested to write %h into %h ", data, addr);
@@ -660,10 +660,10 @@ module mkrtc_axi4#(Clock ext_clk, Reset ext_rst)(Ifc_rtc_axi4#(addr_width, data_
 	User_ifc#(addr_width,data_width) rtc <- mkrtc(ext_clk, ext_rst);
 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
 	
-	Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
-	Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
-	Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
-	Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);	
+	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+	Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
+	Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+	Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);	
 
 	rule write_request(rg_wrburst_count==0);
 		let addreq <- pop_o (s_xactor.o_wr_addr);

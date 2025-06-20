@@ -55,16 +55,16 @@ package err_slave;
 
   module mkerr_slave_axi4(Ifc_err_slave_axi4#(addr_width, data_width, user_width));
 	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Mem_State) read_state <- mkReg(Idle);
-    Reg#(Mem_State) write_state <- mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter <- mkReg(0);
-	  Reg#(Bit#(8)) rg_read_length <- mkReg(0);
+    Reg#(Mem_State) read_state <- mkRegA(Idle);
+    Reg#(Mem_State) write_state <- mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter <- mkRegA(0);
+	  Reg#(Bit#(8)) rg_read_length <- mkRegA(0);
     `ifndef iclass
-      Reg#(Bit#(4)) rg_rd_id <- mkReg(0);
+      Reg#(Bit#(4)) rg_rd_id <- mkRegA(0);
     `else
-      Reg#(Bit#(`axi4_id_bits)) rg_rd_id <- mkReg(0);
+      Reg#(Bit#(`axi4_id_bits)) rg_rd_id <- mkRegA(0);
     `endif
-	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <- mkReg(?);
+	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <- mkRegA(?);
     rule receive_read_request(read_state == Idle);
       let ar <- pop_o(s_xactor.o_rd_addr);
       read_state <= Burst;

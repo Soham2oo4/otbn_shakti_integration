@@ -15,7 +15,9 @@ package gptimer;
 	`include "gptimer.defines"	
 
 	interface Ifc_gptimer_io;
-		//(*always_ready,always_enabled*)
+		`ifndef gpt_clk_gate_en
+		  (*always_enabled, always_ready*)
+		`endif
 		method Action input_signal(Bit#(1) signal_in);
 		method Bit#(1) timer_out;
 	endinterface
@@ -37,6 +39,13 @@ package gptimer;
 							 Add#(4,g__,data_width),
 							 Mul#(4,h__,data_width)
 							);
+
+`ifndef gpt_clk_gate_loc_rst_en
+			Reg#(Bit#(16)) rg_clk_divider <- mkRegA(0);
+			Reg#(bit) rg_clk_src <- mkRegA(0);
+      Reg#(Bit#(32)) rg_clock_control = concatReg3(readOnlyReg(15'd0),rg_clk_divider,rg_clk_src);
+      
+`endif
 
 			Reg#(Bit#(gptimer_width))  rg_input_capture        <- mkRegA(0);
 			Reg#(bit)                  rg_prev_input           <- mkRegA(0);
@@ -239,8 +248,10 @@ package gptimer;
 				if (data[11]==1'b1)
 					pwm_fall_intr <= 0;
 			end
-			/*else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
-				rg_clk_divider <= truncate(data);*/
+`ifndef gpt_clk_gate_loc_rst_en
+			else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
+				rg_clock_control <= truncate(data);
+`endif
 			else if(addr[7:0] == `GPTimer_compare && size == 2)
 				rg_duty_cycle <= truncate(data);
 			else if(addr[7:0] == `GPTimer_countref && size ==2)
@@ -262,8 +273,10 @@ package gptimer;
 		      if(addr[7:0] == `GPTimer_ctrl && size == 1) begin
 			    data = duplicate(rg_control);
 			end
-			/*else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
-				data = duplicate(rg_clk_divider);*/
+`ifndef gpt_clk_gate_loc_rst_en
+			else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
+				data = duplicate(rg_clock_control);
+`endif
 			else if(addr[7:0] == `GPTimer_counter && size ==2)
 				data = duplicate(rg_counter);
 			else if(addr[7:0] == `GPTimer_repeat_count && size ==2)
@@ -308,6 +321,9 @@ package gptimer;
 	//axi4lite
 	interface Ifc_gptimer_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type gptimer_width);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
+		`ifndef gpt_clk_gate_en
+		  (*always_enabled, always_ready*)
+		`endif		
 		interface Ifc_gptimer_io io;
 		(*always_ready,always_enabled*)
     	method Bit#(1) sb_interrupt;
@@ -329,12 +345,13 @@ package gptimer;
 		 
 		 let bus_clock <- exposeCurrentClock;
 		 let bus_reset <- exposeCurrentReset;
-		 
+		 `ifdef gpt_clk_gate_en
 		Reg#(bit)                rg_clk_en               <- mkRegA(0);
+		`endif		 
 		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
 	        Reg#(bit)                rg_clk_src              <- mkRegA(0);
 	        Reg#(Bit#(16))           rg_clk_divider          <- mkRegA(0);
-                Reg#(Bit#(32))           rg_clock_control = concatReg5(readOnlyReg(13'd0),rg_rst,rg_clk_en,rg_clk_divider,rg_clk_src);
+                Reg#(Bit#(32))           rg_clock_control = concatReg5(readOnlyReg(13'd0),`ifdef gpt_loc_rst_en rg_rst  `else readOnlyReg(1'b0) `endif , `ifdef gpt_clk_gate_en rg_clk_en `else readOnlyReg(1'b0) `endif ,rg_clk_divider,rg_clk_src);
                  
                 
                 
@@ -345,19 +362,32 @@ package gptimer;
                 
                 let downclock           = clk_divider.slowclock;   // div clk                           
                 Reset downreset                   <- mkAsyncReset(2,bus_reset,downclock);    // div rst 
-
+		 `ifdef gpt_loc_rst_en
 				MakeResetIfc reg_reset <-mkReset(0,False,bus_clock);            // create a new reset for curr_clk
                 Reset gpt_curr_reset <- mkResetEither(reg_reset.new_rst,bus_reset);     // OR default and new_rst 
 				Reset async_rg_reset <- mkAsyncReset(2,gpt_curr_reset,downclock);
-                
-                          
+		`endif                
+`ifdef gpt_clk_gate_en								                   
 		GatedClockIfc  gpt_clk_gated       <- mkGatedClock(False,downclock,clocked_by downclock,reset_by downreset);
-	
-							
+`endif                
+`ifdef gpt_clk_gate_en								
+		 `ifdef gpt_loc_rst_en							
 		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by async_rg_reset);		
+		`else
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by downreset);		
+		`endif
+`else
+		 `ifdef gpt_loc_rst_en							
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by downclock , reset_by async_rg_reset);
+		`else
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by downclock , reset_by downreset);		
+		`endif	
+`endif	
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();		
 		
+		`ifdef gpt_clk_gate_en
 		SyncBitIfc#(Bit#(1)) sync_rg_clk_en <- mkSyncBit(bus_clock, bus_reset, downclock); // 
+		`endif
 		
                 Reg#(Bit#(16)) clock_divisor_sync <- mkSyncRegFromCC(0, clock_selection.clock_out);		
 	
@@ -367,35 +397,48 @@ package gptimer;
 	      clock_divisor_sync <= rg_clk_divider;
 	    endrule
 
+`ifdef gpt_loc_rst_en
 		rule reset_gpt(rg_rst == 1);
           reg_reset.assertReset;
         endrule
- 
+`endif                 
 	     rule generate_slow_clock;
 	      clk_divider.divisor(clock_divisor_sync);
 	    endrule
 	 	        
+		`ifdef gpt_clk_gate_en
 	     rule clock_en;    
 	          gpt_clk_gated.setGateCond(unpack(sync_rg_clk_en.read));	         
 	      endrule
 	    
+		`endif
+	    
 	     rule clk_select;
                clock_selection.select(rg_clk_src==1);
+		`ifdef gpt_clk_gate_en
                 sync_rg_clk_en.send(rg_clk_en); 
+		`endif
              endrule 
                 
-  		
+		`ifdef gpt_clk_gate_en  		
   		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
   		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
   		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
   		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,downreset);
   		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,downreset);
-  		
+		`else
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,downclock);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,downclock);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,downclock);
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,downclock,downreset);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,downclock,downreset);
+		`endif  		
   		//capturing the read requests
   		rule capture_read_request;   
   			let rd_req <- pop_o (s_xactor.o_rd_addr);
 			     Bool succ = False;
 		         Bit#(data_width) rdata = 0 ;
+`ifdef gpt_clk_gate_loc_rst_en
 				if (rd_req.araddr[7:0] == `GPTimer_clk_ctrl  && rd_req.arsize == 2) begin	 
 			       succ = True; 
 		           rdata = duplicate(rg_clock_control); 
@@ -403,14 +446,24 @@ package gptimer;
       	                                                      rdata: rdata, ruser: ?}; //TODO user?
   			       s_xactor.i_rd_data.enq(lv_resp);//sending back the response
 					    end 
-			    else if(rg_clk_en == 1) begin 
-						ff_rd_request.enq(rd_req); 
+`endif
+				`ifndef gpt_clk_gate_loc_rst_en
+				ff_rd_request.enq(rd_req); 
+				`elsif gpt_clk_gate_en
+				else if(rg_clk_en == 1)   begin 
+					ff_rd_request.enq(rd_req); 	
 				end  //core domain 
+				`else
+				else
+					ff_rd_request.enq(rd_req); 	
+				`endif
+				`ifdef gpt_clk_gate_en
 				else begin
-					let lv_resp= AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, 
-																rdata: rdata, ruser: ?}; //TODO user?
-					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
-				end 
+				let lv_resp= AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, 
+															rdata: rdata, ruser: ?}; //TODO user?
+				s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+				end
+				`endif
   		endrule
   
   		rule perform_read; 
@@ -428,23 +481,38 @@ package gptimer;
   		endrule              
   
   		// capturing write requests
-  		rule capture_write_request;  // core domain
+  		  		rule capture_write_request;  // core domain
   			let wr_req  <- pop_o(s_xactor.o_wr_addr);
   			let wr_data <- pop_o(s_xactor.o_wr_data);
 			 Bool succ = False;
+`ifdef gpt_clk_gate_loc_rst_en
 			if (wr_req.awaddr[7:0] == `GPTimer_clk_ctrl && wr_req.awsize == 2) begin 
 				 rg_clock_control <= truncate(wr_data.wdata); 
        			        succ = True;
 				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
       	        s_xactor.i_wr_resp.enq(lv_resp);
        		end
-			else if(rg_clk_en == 1) begin 
+`endif
+`ifndef gpt_clk_gate_loc_rst_en
 			   ff_wr_request.enq(wr_req);
-			   ff_wdata_request.enq(wr_data); end 
-			else begin
-			   let lv_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: ?};
-				   s_xactor.i_wr_resp.enq(lv_resp);
+			   ff_wdata_request.enq(wr_data); 
+			`elsif gpt_clk_gate_en
+			else if(rg_clk_en == 1) begin
+			ff_wr_request.enq(wr_req);
+			ff_wdata_request.enq(wr_data); 
 			end 
+			`else
+			else begin
+				ff_wr_request.enq(wr_req);
+				ff_wdata_request.enq(wr_data); 
+			end
+			`endif
+			`ifdef gpt_clk_gate_en
+			else begin
+			let lv_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: ?};
+				s_xactor.i_wr_resp.enq(lv_resp);
+			end
+			`endif
   		endrule
   
   		rule perform_write;   // peripheral domain 
@@ -489,7 +557,7 @@ package gptimer;
 	endmodule
 
 	//axi4
-	/*interface Ifc_gptimer_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width,numeric type gptimer_width);
+	interface Ifc_gptimer_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width,numeric type gptimer_width);
 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
 		interface Ifc_gptimer_io io;
     	method Bit#(1) sb_interrupt;
@@ -504,7 +572,7 @@ package gptimer;
 							 Add#(g__,4,data_width),
 							 Mul#(4,h__,data_width)
 							);
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(ext_clock, ext_reset);
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer;
 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
@@ -559,5 +627,6 @@ package gptimer;
     	method sb_interrupt=gptimer.sb_interrupt;
 		interface io=gptimer.io;
 		interface slave = s_xactor.axi_side;
-	endmodule*/
+	endmodule
 endpackage
+

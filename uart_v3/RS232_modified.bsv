@@ -107,12 +107,15 @@ typedef enum {
 ////////////////////////////////////////////////////////////////////////////////
 /// Interfaces
 ////////////////////////////////////////////////////////////////////////////////
-// (* always_ready, always_enabled *)
+`ifndef uart_clk_gate_en
+		(*always_ready,always_enabled*)
+`endif
 /* Contains the definitions of all physical pins expected from our implementation */
 interface RS232;
    // Inputs
    (* prefix = "" *)
-   method    Action      sin((* port = "SIN" *)Bit#(1) x); 
+   method    Action      sin((* port = "SIN" *)Bit#(1) x);
+`ifdef uart_modem 
    (* prefix = "" *)
    method    Action      cts((* port = "CTS" *)Bit#(1) x);
    (* prefix = "" *)
@@ -121,11 +124,13 @@ interface RS232;
    method    Action      ri((* port = "RI" *)Bit#(1) x);
    (* prefix = "" *)
    method    Action      dcd((* port = "DCD" *)Bit#(1) x);
+`endif
    // Outputs
    (* prefix = "", result = "SOUT" *)
    method    Bit#(1)     sout();
    (* prefix = "", result = "SOUT_EN" *)
    method    Bit#(1)     sout_en();
+`ifdef uart_modem 
    (* prefix = "", result = "DTR" *)
    method    Bit#(1)     dtr();   
    (* prefix = "", result = "RTS" *)
@@ -134,6 +139,7 @@ interface RS232;
    method    Bit#(1)     out1();   
    (* prefix = "", result = "OUT2" *)
    method    Bit#(1)     out2();
+`endif
    (* prefix = "", result = "DMA_RDY" *)
    method Bit#(2) dma_ready;
 endinterface
@@ -172,11 +178,13 @@ interface UART#(numeric type depth);
    (* prefix = "" *)
    interface RS232           rs232;
    interface Get#(Bit#(32))   tx;
-   interface Put#(Bit#(32))   rx;  
+   interface Put#(Bit#(32))   rx;
+`ifdef uart_modem  
 (* always_ready, always_enabled *)
    method Action transmittor_clear;
 (* always_ready, always_enabled *)
    method Action receiver_clear;
+`endif
 (* always_ready, always_enabled *)
    method Bool receiver_not_empty;
 (* always_ready, always_enabled *)
@@ -188,8 +196,14 @@ interface UART#(numeric type depth);
 (* always_ready, always_enabled *)
    method Bit#(5) error_status;
 (* always_ready, always_enabled *)
+`ifdef uart_modem 
    method Bit#(8) modem_status;
+`endif
+`ifdef uart_modem 
    method Action clear_status(Bit#(12) clear_bits);
+`else 
+   method Action clear_status(Bit#(5) clear_bits);
+`endif
 (* always_ready, always_enabled *)
    method Action rx_threshold (UInt#((TLog#(TAdd#(depth,1)))) val);
 endinterface
@@ -451,14 +465,15 @@ endmodule
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 /* Takes care of all the functionality of an UART */
-module mkUART( Reg#(Bit#(1)) auto_rts
-	     , Reg#(Bit#(5)) modemctrl
-	     , Bit#(6) charsize
+module mkUART( `ifdef uart_modem  Reg#(Bit#(1)) auto_rts
+	     , Reg#(Bit#(5)) modemctrl 
+	     ,  `endif  
+             Bit#(6) charsize
              , Parity paritysel
              , StopBits stopbits
              , Bit#(16) divider
              , Bit#(16) delay_control
-             , Bit#(1) stickparity
+             `ifdef uart_modem , Bit#(1) stickparity 	`endif
              , UART#(d) ifc)
    provisos(Add#(2, _1, d));
 
@@ -512,10 +527,12 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    PulseWire                                 pwXmitEnableBitCount  <- mkPulseWire;
    PulseWire                                 pwXmitLoadBuffer      <- mkPulseWire;
    PulseWire                                 pwXmitShiftBuffer     <- mkPulseWire;
+`ifdef uart_modem
    Vector#(4,Reg#(Bit#(1)))                  vrModemBuffer_pins    <- replicateM(mkRegA(1));
    Vector#(4,Reg#(Bit#(1)))                  vrModemBuffer_delta   <- replicateM(mkRegA(0));
    Vector#(8, Reg#(Bit#(1)))                 vrModemBuffer         <- replicateM(mkRegA(1));
    vrModemBuffer = append(vrModemBuffer_pins,vrModemBuffer_delta);
+`endif
    ////////////////////////////////////////////////////////////////////////////////
    /// Definitions
    ////////////////////////////////////////////////////////////////////////////////
@@ -560,7 +577,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    endrule
    /*Checks if the received bit is active low (since the start bit should be LOW) if yes proceeds further otherwise waits
    for a active low bit. It also executes only if CTS is active */
-   rule receive_wait_for_start_bit(rRecvState == Start && tick && vrModemBuffer[3] == 1'b1);
+   rule receive_wait_for_start_bit(rRecvState == Start && tick `ifdef uart_modem  && vrModemBuffer[3] == 1'b1 `endif );
       pwRecvCellCountReset.send();
       if (rRecvData == 1'b0) begin
          rRecvState <= Center;           
@@ -675,10 +692,12 @@ module mkUART( Reg#(Bit#(1)) auto_rts
        fifo_almost_full<= 1;
      end
    endrule
+`ifdef uart_modem
    /* If Auto RTS is active and FIFO reached threshold then deactivate the RTS */
    rule rl_auto_rts(fifo_almost_full == 1'b1 && auto_rts ==1'b1);
    	modemctrl[3] <= 1'b0; 
    endrule
+`endif
    ////////////////////////////////////////////////////////////////////////////////
    /// Transmit Rules
    ////////////////////////////////////////////////////////////////////////////////
@@ -710,7 +729,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    endrule
    /* Sets the transmitted bit as active high and runs the rule to count the cells and to send the Start Bit It also
    executes only if RTS is active */
-   rule transmit_wait_for_start_command(rXmitState == Idle && tick  && modemctrl[3] == 1'b1 );
+   rule transmit_wait_for_start_command(rXmitState == Idle && tick  `ifdef uart_modem && modemctrl[3] == 1'b1 `endif );
       rXmitDataOut <= 1'b1;
       pwXmitResetBitCount.send;
       if (fifoXmit.notEmpty) begin
@@ -791,9 +810,14 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    /* Sends out the parity bit if stick parity is disabled else sends out the default bit.*/
    rule transmit_send_parity_bit(rXmitState == Parity && tick);
       case(paritysel) matches
+`ifdef uart_modem
          ODD:        rXmitDataOut <= (stickparity == 1'b1) ? 1'b1 : ~rXmitParity;      //////////////////////
          EVEN:       rXmitDataOut <= (stickparity == 1'b1) ? 1'b0 : rXmitParity;        ///////////////////////
-         default:    rXmitDataOut <= 1'b0;
+`else   
+         ODD:        rXmitDataOut <= ~rXmitParity;      //////////////////////
+         EVEN:       rXmitDataOut <= rXmitParity;       ///////////////////////	
+`endif 
+	default:    rXmitDataOut <= 1'b0;
       endcase
 
       if (rXmitCellCount == 4'hF) begin
@@ -856,6 +880,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       method sin     = rRecvData._write;  
       /* Puts the out_enable value to sout_en */
       method sout_en = out_enable;
+      `ifdef uart_modem
       /* Incase CTS value changes update it to status register and updates the DCTS to 1 (In Vector Form) */
       method    Action      cts(Bit#(1) x);
       if(x != ~vrModemBuffer[3])
@@ -878,7 +903,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       	begin
         vrModemBuffer[1] <= ~x;
         if(~vrModemBuffer[1] == 1 && x == 0) //Trailing Edge
-      	     vrModemBuffer[5] <= 1'b1;
+      	vrModemBuffer[5] <= 1'b1;
       	end
       endmethod
       /* Incase DCD value changes update it to status register and updates the DDCD to 1 */
@@ -897,6 +922,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
       method out1    = ~modemctrl[2];
       /* Outputs OUT2 value from Control Register */
       method out2    = ~modemctrl[1];
+     `endif
       method Bit#(2) dma_ready;
          return {pack(fifoRecv.count > 0), pack(fifoXmit.count <= 14)};
          //return {pack(fifoRecv.notEmpty), pack(fifoXmit.notFull)};
@@ -918,6 +944,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
          fifoXmit.enq(x);
       endmethod
    endinterface
+`ifdef uart_modem  
    /* If this method is called then the data in the Transmitter FIFO is cleared. */
    method Action transmittor_clear();
          fifoXmit.clear;
@@ -926,6 +953,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    method Action receiver_clear();
          fifoRecv.clear;
    endmethod
+`endif
    /* If this metod is called it returns if te Receiver FIFO as data or not . */
    method Bool receiver_not_empty;
       return fifoRecv.notEmpty();
@@ -949,6 +977,7 @@ module mkUART( Reg#(Bit#(1)) auto_rts
    method Bit#(5) error_status;
 		 return {fifo_almost_full,error_status_register};
    endmethod
+   `ifdef uart_modem
    /* Clears the status register */
    method Action clear_status(Bit#(12) clear_bits);
      int i;
@@ -957,16 +986,24 @@ module mkUART( Reg#(Bit#(1)) auto_rts
      for(i = 5; i <= 11; i = i+1)
      	vrModemBuffer[i-4] <= vrModemBuffer[i-4] & clear_bits[i];
    endmethod
+   `else
+   method Action clear_status(Bit#(5) clear_bits);
+     error_status_register<= (error_status_register & clear_bits[3:0]);
+     fifo_almost_full<= fifo_almost_full & clear_bits[4];
+   endmethod
+   `endif
    /* Sets the threshold register with te value passed*/
    method Action rx_threshold (UInt#(TLog#(TAdd#(d,1))) val);
      wr_fifoRTSCount<= val;
    endmethod
+   `ifdef uart_modem
    /* Returns the modem part of status register*/
    method Bit#(8) modem_status;
      Vector#(8, Bit#(1)) m_status = take(readVReg(vrModemBuffer));
      Bit#(8) modemstatus = pack(m_status);
      return modemstatus;
    endmethod
+   `endif
       
 endmodule
 

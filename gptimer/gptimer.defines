@@ -1,11 +1,17 @@
+`ifdef gpt_clk_gate_en
+`define gpt_clk_gate_loc_rst_en 
+`endif
+`ifdef gpt_loc_rst_en
+`define gpt_clk_gate_loc_rst_en 
+`endif
 `define GPTimer_ctrl			'h00
 `define GPTimer_clk_ctrl		'h04
 `define GPTimer_counter			'h08
-`define GPTimer_repeat_count	        'h0C
+`define GPTimer_repeat_count	'h0C
 `define GPTimer_compare			'h10
 `define GPTimer_countref		'h14
 `define GPTimer_capture			'h18
 `ifdef IQC
     `define GPTimer_input_qual		'h1C
 `endif
-`define GPT_Ext_Clk_en                  'h20
+

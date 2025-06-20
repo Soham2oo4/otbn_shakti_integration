@@ -1,6 +1,10 @@
 `define verbose
-
-
+`ifdef qspi_clk_gate_en
+`define qspi_clk_gate_loc_rst_en 
+`endif
+`ifdef qspi_loc_rst_en
+`define qspi_clk_gate_loc_rst_en 
+`endif
 `define CR 		'h00          // control register
 `define DCR 	        'h04          // device configuration register
 `define SR		'h08          // status register
@@ -14,7 +18,9 @@
 `define PSMAR	        'h28          // polling status match register
 `define PIR		'h2c          // polling interval register
 `define LPTR	        'h30          // low-power timeout register
+`ifdef qspi_clk_gate_loc_rst_en
 `define Qspi_Clk_En	'h34 
+`endif
 
 //`define STARTMM 'h0000000
 //`define ENDMM	'h007FFFF

@@ -59,15 +59,20 @@ package uart;
   export mkuart_axi4lite;
   export mkuart_axi4;
   export mkuart_user;
+	
 
 	interface UserInterface#(numeric type addr_width ,numeric type data_width,  numeric type depth);
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
 																									AccessSize size);
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, 
 																									AccessSize size);
-//		(*always_ready, always_enabled*)
+`ifndef uart_clk_gate_en
+	(*always_ready, always_enabled*)
+`endif
     interface RS232 io;
-//		(*always_ready, always_enabled*)
+`ifndef uart_clk_gate_en
+		(*always_ready, always_enabled*)
+`endif
 	  method Bit#(1) interrupt;
 	endinterface
 
@@ -90,11 +95,13 @@ package uart;
 		Reg#(Bit#(16)) baud_value <- mkRegA(baudrate);
     	Reg#(Bit#(16)) rg_delay_control <- mkRegA(0);
 		Reg#(StopBits) rg_stopbits <- mkRegA(unpack(stopbits));
+`ifdef uart_modem  
 	        Reg#(Bit#(5))  rg_modem    <- mkRegA(30);
 		Reg#(Bit#(1))  auto_rts    <- mkRegA(0);
+		Reg#(Bit#(1))  rg_stickparity <- mkRegA(0);
+`endif
 		Reg#(Parity)   rg_parity   <- mkRegA(unpack(parity));
 		Reg#(Bit#(6))  rg_charsize <- mkRegA(8);
-		Reg#(Bit#(1))  rg_stickparity <- mkRegA(0);
   `ifdef IQC
     Reg#(Bit#(8)) rg_qual_cycles <- mkRegA(0);
     Ifc_iqc#(1) iqc <- mkiqc(rg_qual_cycles);
@@ -103,15 +110,17 @@ package uart;
 
 		//Reg#(Bit#(9)) rg_control= concatReg3(rg_charsize, rg_parity, rg_stopbits);
 /* Instantiating a UART module with the respective parameters */
-		UART#(depth) uart <-mkUART(auto_rts,rg_modem,rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control,rg_stickparity); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
+		UART#(depth) uart <-mkUART(`ifdef uart_modem  auto_rts,rg_modem, `endif rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control `ifdef uart_modem ,rg_stickparity `endif ); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
 		Reg#(Bit#(16)) rg_interrupt_en <-mkRegA(0);
 /* Combines all the status bits into one complete status register */
-    let status= { uart.modem_status[7:1],uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
+    let status= { `ifdef uart_modem  uart.modem_status[7:1] `else 7'd0 `endif ,uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
                   pack(uart.transmittor_full), pack(uart.transmittor_empty) }; //Remember uart.modem_status[0]
     /* Sends the value in the threshold register for every instance so that it is verifed if threshold is reached. */
     rule rl_send_rx_threshold;
       uart.rx_threshold(rg_rx_threshold);
     endrule
+
+	`ifdef uart_modem  
     /* If Loopback is enabled connects the transmitter section and the receiver section together */
     rule rl_loopback(rg_modem[0]==1'b1);
          uart.rs232.sin(uart.rs232.sout);
@@ -121,6 +130,7 @@ package uart;
          uart.rs232.dcd(uart.rs232.out2);
          //the MODEM Control output pins are forced to their inactive state (high).
     endrule
+	`endif
 
    /* Used for reading  data from the respective register by using its address */
 		method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, 
@@ -132,15 +142,15 @@ package uart;
       /* Returns the receiver register's data if data is present and DCD, RI , DSR and CTS are active */
 			else if(addr[5:0]==`RxReg) begin
 				Bit#(32) data =0;
-				if(uart.receiver_not_empty)
+				if(uart.receiver_not_empty `ifdef uart_modem  && uart.modem_status[3:0] == 4'b1111 `endif )
 					data<-uart.tx.get; 
 		`logLevel( uart, 1, $format("UART read data: %h %c", data, data))
 		data= data >> (32-rg_charsize);
 				return tuple2(duplicate(data),True);
 			end
        /* Returns the control register's data */
-			else if(addr[5:0]==`ControlReg) begin
-				return tuple2(duplicate({14'b0,uart.modem_status[0],auto_rts,rg_modem,rg_charsize, pack(rg_parity), pack(rg_stopbits), rg_stickparity}),True);
+			else if( addr[5:0]==`ControlReg  `ifdef uart_modem  && size==HWord `endif ) begin
+				return tuple2(duplicate({ `ifdef uart_modem  14'b0,uart.modem_status[0] , auto_rts,rg_modem `else 5'd0 `endif ,rg_charsize, pack(rg_parity), pack(rg_stopbits), `ifdef uart_modem rg_stickparity `else 1'b0 `endif }),True);
 			end
 			/* Returns the baud register's data */
 			else if(addr[5:0]==`BaudReg) begin
@@ -189,12 +199,16 @@ package uart;
 			end
 		        /* Write the individual controls parts from the input data. */																				
 			else if(addr[5:0]==`ControlReg) begin
+`ifdef uart_modem
 				auto_rts<= data[16];
 				rg_modem<= data[15:11];
+`endif
+`ifdef uart_modem 
+ 				rg_stickparity<= data[0];
+`endif 
 				rg_charsize<= data[10:5];
 				rg_parity<= unpack(data[4:3]);
 				rg_stopbits<= unpack(data[2:1]);
-				rg_stickparity<= data[0];
 				//rg_control<= truncate(data);
 				return True;
 			end
@@ -205,7 +219,11 @@ package uart;
 			end
       /* Clears the status register value based on the input data. */																				
       else if(addr[5:0]==`StatusReg && size==HWord) begin
+`ifdef uart_modem
         Bit#(12) clear_status_errors= data[15:4];
+`else
+	Bit#(5) clear_status_errors= data[8:4];
+`endif
         uart.clear_status(clear_status_errors);
         return True;
       end
@@ -218,6 +236,7 @@ package uart;
     `endif
       /* Clears the transmitter and receiver FIFOs based on the bits set and writes the Receiver Threshold value. */																				
       else if(addr[5:0]==`RX_Threshold && size==Byte) begin
+`ifdef uart_modem
         if(data[7] == 1'b1)
         begin
         uart.transmittor_clear;
@@ -230,6 +249,7 @@ package uart;
         if(data[6] == 1'b1)
            uart.receiver_clear;
         end
+`endif
         rg_rx_threshold<= unpack(truncate(data));
 				return True;
       end
@@ -239,7 +259,7 @@ package uart;
 	
 	  interface RS232 io;
       /* Receives data from any other UART compatible device to our UART. */
-      method Action sin(Bit#(1) x) if(rg_modem[0]==1'b0);
+      method Action sin(Bit#(1) x) `ifdef uart_modem   if(rg_modem[0]==1'b0) `endif ;
       `ifdef IQC
         let lv_qualified_inputs<- iqc.qualify(x);
       `else
@@ -250,6 +270,7 @@ package uart;
       /* Sends out data from the UART to the other UART compatible device. */
       method sout= uart.rs232.sout;
       method sout_en= uart.rs232.sout_en;
+`ifdef uart_modem
       /*Clear To Send pin is an input pin which takes in a signal to a modem and decides if it is ready to receive data
       depending upon the same */
       method    Action      cts(Bit#(1) x) if(rg_modem[0]==1'b0);
@@ -273,7 +294,7 @@ package uart;
       /* Request to Send is an output pin which gives out a signal to a modem to start sending data. */
       method    Bit#(1)     rts();
       		if(rg_modem[0]==1'b0)
-			return uart.rs232.rts();
+		return uart.rs232.rts();
 		else
 			return 1;
       endmethod
@@ -297,16 +318,19 @@ package uart;
       else
 		return 1;
       endmethod
+`endif
 	  method Bit#(2) dma_ready;
 		return uart.rs232.dma_ready;
 	endmethod
     endinterface
 		method Bit#(1) interrupt;
+`ifdef uart_modem
 		/* If Modem Status Interrupt is enabled and either DCTS,DDSR,DDCD,and TERI are enabled send interrupt */
 				if(uart.modem_status[7:4] != 4'b0000 && rg_interrupt_en[9] == 1) 
 					return 1;
 	        /* If any other interrupt as well as the status is enabled return 1 */
 				else
+`endif
 					return |(status[8:0] & rg_interrupt_en[8:0]);
 		endmethod
 
@@ -317,9 +341,13 @@ package uart;
                                numeric type user_width, 
                                numeric type depth);
 		(*prefix=""*) interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave; 
-//		(*always_ready, always_enabled*)
+`ifndef uart_clk_gate_en
+		(*always_ready,always_enabled*)
+`endif
 	  (*prefix=""*) interface RS232 io;
-//		(*always_ready, always_enabled*)
+`ifndef uart_clk_gate_en
+		(*always_ready,always_enabled*)
+`endif
 		(*prefix=""*) method Bit#(1) interrupt;
   endinterface
 
@@ -345,104 +373,94 @@ package uart;
 		Reset core_reset<-exposeCurrentReset;
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 		Reset uart_rst                   <- mkAsyncReset(2,core_reset,uart_clock);    // div rst
-		GatedClockIfc   uart_clk_gated                   <- mkGatedClock(False,uart_clock, clocked_by uart_clock, reset_by uart_rst); 	
-		
-		Reg#(bit) rg_clk_en <- mkRegA(0);
-		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
-        Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0),rg_rst,rg_clk_en);
-
-		MakeResetIfc reg_reset <-mkReset(0,False,core_clock);            // create a new reset for curr_clk
-        Reset uart_curr_reset <- mkResetEither(reg_reset.new_rst,core_reset);     // OR default and new_rst
-		Reset uart_reg_rst    <- mkAsyncReset(2,uart_curr_reset,uart_clock);    // div rst
-
-		UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
+		`ifdef uart_clk_gate_en
+			GatedClockIfc   uart_clk_gated                   <- mkGatedClock(False,uart_clock, clocked_by uart_clock, reset_by uart_rst); 
+			Reg#(bit) rg_clk_en <- mkRegA(0);	
+		`endif
+		`ifdef uart_loc_rst_en
+			Reg#(Bit#(1)) rg_rst <- mkRegA(0);
+			MakeResetIfc reg_reset <-mkReset(0,False,core_clock);            // create a new reset for curr_clk
+			Reset uart_curr_reset <- mkResetEither(reg_reset.new_rst,core_reset);     // OR default and new_rst
+			Reset uart_reg_rst    <- mkAsyncReset(2,uart_curr_reset,uart_clock);    // div rst
+		`endif
+		`ifdef uart_clk_gate_loc_rst_en
+        	Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0), `ifdef uart_loc_rst_en rg_rst `else readOnlyReg(1'b0) `endif , `ifdef uart_clk_gate_en rg_clk_en `else 	readOnlyReg(1'b0) `endif );
+		`endif
+		`ifdef uart_clk_gate_en
+			`ifdef uart_loc_rst_en   
+				UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
                                                                     reset_by uart_reg_rst, baudrate,
                                                                     stopbits, parity);
+			 `else
+				UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clk_gated.new_clk, 
+                                                                    reset_by uart_rst, baudrate,
+                                                                    stopbits, parity);
+			`endif
+		`else
+			`ifdef uart_loc_rst_en   
+				UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
+                                                                    reset_by uart_reg_rst, baudrate,
+		                                                                    stopbits, parity);
+			 `else
+				UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
+                                                                    reset_by uart_rst, baudrate,
+		                                                                    stopbits, parity);
+			`endif
+		`endif
 
+`ifdef uart_clk_gate_en
 		SyncBitIfc#(bit) sync_rg_clk_en <- mkSyncBit(core_clock, core_reset, uart_clock);
 			
 		rule clock_en;    
 			uart_clk_gated.setGateCond(unpack(sync_rg_clk_en.read));	         
 		endrule
-
+		rule clk_enable_send;
+            sync_rg_clk_en.send(rg_clk_en); 
+        endrule
+`endif
+`ifdef uart_loc_rst_en
 		rule reset_uart(rg_rst == 1);
           reg_reset.assertReset;
         endrule
-		
-		rule clk_enable_send;
-                	sync_rg_clk_en.send(rg_clk_en); 
-             	endrule
-             	
-		`ifdef fast_clk
-			//capturing the read requests
-			rule capture_read_request;
-				let req <- pop_o(s_xactor.o_rd_addr);
-			Bool succ = False;
-		        Bit#(data_width) data = 0 ; 
-	       if (req.araddr[6:0] == `UART_Clk_en && req.arsize == 0) begin 
-		           succ = True; 
-		           data = duplicate({rg_rst_clk});  	         
-	         end 
-	          else begin
-			{data, succ}<- user_ifc.read_req(req.araddr,unpack(truncate(req.arsize)));
-			end
-			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
-                                    rdata:data, ruser: ?};
-	  		s_xactor.i_rd_data.enq(resp);
-			endrule              
-			(*conflict_free = "io_dcd,capture_write_request"*)
-			(*conflict_free = "io_ri,capture_write_request"*)
-			(*conflict_free = "io_dsr,capture_write_request"*)
-			(*conflict_free = "io_cts,capture_write_request"*)
-			(*conflict_free = "user_ifc_rl_loopback,capture_write_request"*)
-			(*conflict_free = "io_dcd,user_ifc_rl_loopback"*)
-			(*conflict_free = "io_ri,user_ifc_rl_loopback"*)
-			(*conflict_free = "io_dsr,user_ifc_rl_loopback"*)
-			(*conflict_free = "io_cts,user_ifc_rl_loopback"*)
-			// capturing write requests
-			rule capture_write_request;
-				Bool succ = False;
-       		let addreq <- pop_o(s_xactor.o_wr_addr);
-       		let datareq <- pop_o(s_xactor.o_wr_data);
-       		if (addreq.awaddr[6:0] == `UART_Clk_en && addreq.awsize == 0) begin 
-			     rg_rst_clk <= truncate(datareq.wdata); 
-       		     succ = True;
-       		 end 
-       		 else begin 
-				succ <- user_ifc.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
-			end
-		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
-		  s_xactor.i_wr_resp.enq (ls);	
-			endrule
-			interface slave = s_xactor.axi_side;
-			interface io= user_ifc.io;
-			method interrupt= user_ifc.interrupt;
-		`endif
-		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
-		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
-		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,uart_clk_gated.new_clk);
-		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_rst);
-		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,uart_clk_gated.new_clk,uart_rst);
+`endif		
+
+		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,`ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,`ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,`ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3, `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif , uart_rst  );
+		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,`ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif , uart_rst  );
 		
 			//capturing the read requests
 			rule capture_read_request;   
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
 				Bool succ = False;
 				Bit#(data_width) rdata = 0 ;
+				`ifdef uart_clk_gate_loc_rst_en
 				if (rd_req.araddr[7:0] == `UART_Clk_en  && rd_req.arsize == 0) begin	 
 					succ = True; 
 					rdata = duplicate({rg_rst_clk}); 
 					let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
 																rdata: rdata, ruser: ?}; //TODO user?
 					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
-						end 
-					else if(rg_clk_en == 1) begin 
-						ff_rd_request.enq(rd_req); end  //core domain 
-					else begin
-					let lv_resp= AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, 
-																rdata: rdata, ruser: ?}; //TODO user?
-					s_xactor.i_rd_data.enq(lv_resp);//sending back the response
-					end
+					end 
+				`endif
+				`ifndef uart_clk_gate_loc_rst_en
+				ff_rd_request.enq(rd_req); 	
+				`elsif uart_clk_gate_en
+				else if(rg_clk_en == 1)   begin 
+					ff_rd_request.enq(rd_req); 	
+				end  //core domain 
+				`else
+				else
+					ff_rd_request.enq(rd_req); 	
+				`endif
+				`ifdef uart_clk_gate_en
+				else begin
+				let lv_resp= AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, 
+															rdata: rdata, ruser: ?}; //TODO user?
+				s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+				end
+				`endif
 			endrule
 
 			rule perform_read; 
@@ -463,20 +481,35 @@ package uart;
 			rule capture_write_request;  // core domain
 				let wr_req  <- pop_o(s_xactor.o_wr_addr);
 				let wr_data <- pop_o(s_xactor.o_wr_data);
-			Bool succ = False;
+				Bool succ = False;
+			`ifdef uart_clk_gate_loc_rst_en
 			if (wr_req.awaddr[7:0] == `UART_Clk_en && wr_req.awsize == 0) begin 
 			    rg_rst_clk <= truncate(wr_data.wdata); 
 				succ = True;
 				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
 					s_xactor.i_wr_resp.enq(lv_resp);
 				end 
-				else if(rg_clk_en == 1) begin 
+			`endif 
+			`ifndef uart_clk_gate_loc_rst_en
+			ff_wr_request.enq(wr_req);
+			ff_wdata_request.enq(wr_data); 
+			`elsif uart_clk_gate_en
+			else if(rg_clk_en == 1) begin
+			ff_wr_request.enq(wr_req);
+			ff_wdata_request.enq(wr_data); 
+			end 
+			`else
+			else begin
 				ff_wr_request.enq(wr_req);
-				ff_wdata_request.enq(wr_data); end 
-				else begin
-				let lv_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: ?};
-					s_xactor.i_wr_resp.enq(lv_resp);
-				end
+				ff_wdata_request.enq(wr_data); 
+			end
+			`endif
+			`ifdef uart_clk_gate_en
+			else begin
+			let lv_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: ?};
+				s_xactor.i_wr_resp.enq(lv_resp);
+			end
+			`endif
 			endrule
 
 			rule perform_write;   // peripheral domain 
@@ -495,26 +528,30 @@ package uart;
 				s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
 			endrule
 		
-	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(uart_clock, uart_rst,  core_clock);
-	SyncBitIfc#(Bit#(1)) sync_sin <- mkSyncBit(core_clock, core_reset,  uart_clock);
-	SyncBitIfc#(Bit#(1)) sync_cts <- mkSyncBit(core_clock, core_reset,  uart_clock);
-	SyncBitIfc#(Bit#(1)) sync_dsr <- mkSyncBit(core_clock, core_reset,  uart_clock);
-	SyncBitIfc#(Bit#(1)) sync_ri <- mkSyncBit(core_clock, core_reset,  uart_clock);
-	SyncBitIfc#(Bit#(1)) sync_dcd <- mkSyncBit(core_clock, core_reset, uart_clock);
 
+	SyncBitIfc#(Bit#(1)) sync_dma_ready0 <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dma_ready1 <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sout_en <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_sin <- mkSyncBit(core_clock, core_reset,  `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+`ifdef uart_modem        
+	SyncBitIfc#(Bit#(1)) sync_cts <- mkSyncBit(core_clock, core_reset,  `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+	SyncBitIfc#(Bit#(1)) sync_dsr <- mkSyncBit(core_clock, core_reset,  `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+	SyncBitIfc#(Bit#(1)) sync_ri <- mkSyncBit(core_clock, core_reset,  `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+	SyncBitIfc#(Bit#(1)) sync_dcd <- mkSyncBit(core_clock, core_reset,  `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif );
+	SyncBitIfc#(Bit#(1)) sync_rts <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_dtr <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out1 <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+	SyncBitIfc#(Bit#(1)) sync_out2 <- mkSyncBit( `ifdef uart_clk_gate_en uart_clk_gated.new_clk `else uart_clock `endif ,  uart_rst   ,  core_clock);
+`endif
 	rule syncbits_out; 
+`ifdef uart_modem        
 		sync_rts.send(user_ifc.io.rts); 
 		sync_dtr.send(user_ifc.io.dtr); 
 		sync_out1.send(user_ifc.io.out1); 
 		sync_out2.send(user_ifc.io.out2); 
+`endif
 		sync_dma_ready0.send(user_ifc.io.dma_ready[0]);
 		sync_dma_ready1.send(user_ifc.io.dma_ready[1]); 
 		sync_sout.send(user_ifc.io.sout); 
@@ -522,28 +559,31 @@ package uart;
 		sync_interrupt.send(user_ifc.interrupt); 
 	endrule 
 	
-	(*conflict_free = "syncbits_in,perform_write"*)
 	rule syncbits_in; 
 		user_ifc.io.sin(sync_sin.read);
+`ifdef uart_modem        
 		user_ifc.io.cts(sync_cts.read);
 		user_ifc.io.dsr(sync_dsr.read);
 		user_ifc.io.ri(sync_ri.read);
 		user_ifc.io.dcd(sync_dcd.read);
+`endif
 	endrule 
 				
 	
 		interface io = interface RS232
-			method rts= sync_rts.read;
-			method dtr= sync_dtr.read;
-			method out1= sync_out1.read;
-			method out2= sync_out2.read;
 			method dma_ready = {sync_dma_ready1.read,sync_dma_ready0.read};
 			method sout= sync_sout.read;
 			method sout_en= sync_sout_en.read;
+`ifdef uart_modem        
 			method cts=sync_cts.send;
 			method dsr=sync_dsr.send;
 			method ri=sync_ri.send;
 			method dcd=sync_dcd.send;
+			method rts= sync_rts.read;
+			method dtr= sync_dtr.read;
+			method out1= sync_out1.read;
+			method out2= sync_out2.read;
+`endif
 			method sin=sync_sin.send;
 		endinterface;
 		interface slave = s_xactor.axi_side;
@@ -557,9 +597,13 @@ package uart;
                            numeric type user_width, 
                            numeric type depth);
 		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
-		// (*always_ready, always_enabled*)
+`ifndef uart_clk_gate_en
+		(*always_ready,always_enabled*)
+`endif
 		(*prefix=""*) interface RS232 io;
-		// (*always_ready, always_enabled*)
+`ifndef uart_clk_gate_en
+		(*always_ready,always_enabled*)
+`endif
 		(*prefix=""*) method Bit#(1) interrupt;
  	endinterface
 
@@ -768,4 +812,3 @@ package uart;
 	endmodule:mkuart_axi4
 	
 endpackage:uart
-

@@ -66,7 +66,6 @@ package gpio;
 	import BUtils				::*;	
 	import ConfigReg			::*;
   import GetPut     ::*;
-  import Clocks::*;
 	/*===== Project Imports ===== */
 	import Semi_FIFOF        :: *;
 	import AXI4_Lite_Types   :: *;
@@ -88,6 +87,7 @@ package gpio;
 
  	/*doc: interface: interface for GPIO module. Takes three methods. One for input, one for output and last one for output enable.  */
 	 interface GPIO#(numeric type ionum);
+		(*always_ready,always_enabled*)
 		method Action gpio_in (Vector#(ionum,Bit#(1)) inp);
 		method Vector#(ionum,Bit#(1))   gpio_out;
 		method Vector#(ionum,Bit#(1))   gpio_out_en;
@@ -95,9 +95,8 @@ package gpio;
  	/*doc: interface: interface for GPIO axi user interface module. */
 	 interface User_ifc#(numeric type addr_width, numeric type data_width,numeric type ionum);
 //    (*always_ready,always_enabled*)
-	// /*doc : subifc : subinterface which uses get method to pass interrupt to plic */
-	// interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
-	method Bit#(1) interrupt;
+	/*doc : subifc : subinterface which uses get method to pass interrupt to plic */
+	interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
  	/*doc : subifc : subinterface which uses GPIO interface for configuring the GPIO and updates the values */
 	 interface GPIO#(ionum) io;
 		/*doc : method : method to receive write requests from AXI */
@@ -111,8 +110,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
-        		Add#(c__, ionum, 64),
-				Add#(d__, data_width, 32)
+        		Add#(c__, ionum, 64)
 			);
 			
 	/* doc : vector : holds the GPIO ports direction configuration. If set, the corresponding port is configured as output else input. Vector length is equal to the number of IO ports required.*/
@@ -137,7 +135,6 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 	`endif
 
  		let vionum = valueOf(ionum);
-		let iocount = (vionum<32)?vionum:32;
 
 	/*doc:rule: This rule fires always. The plic is given interrupt request whenever GPIO direction register is configured as input and interrupt configuration register is configured for active low(1)/high(0) and the data in register is low/high. */
 	rule capture_interrupt;
@@ -182,64 +179,37 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			// thus we need a mechanism to shift the data in accordance and then pass the data
 			//Bit#(32) temp_data=(size==Word)?truncate(data):(size==HWord)?zeroExtend(data[15:0]):(size==Byte)?zeroExtend(data[7:0]):0;
 
-	    Bit#(32) mask=size==Byte?'hff:size==HWord?'hFFFF:'hFFFFFFFF;
-	    Bit#(5) shift_amt=zeroExtend(addr[1:0])<<3;
+	    Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+	    Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
 	    mask=mask<<shift_amt;
-	    Bit#(32) datamask=zeroExtend(data)&mask;
+	    Bit#(64) datamask=zeroExtend(data)&mask;
 
 
-			if( addr[6:0]>=`dir_reg1 && addr[6:0]<`dir_reg2 )
-				for(Integer i=0;i<iocount ;i=i+1)
+			if( addr[6:0]>=`dir_reg && addr[6:0]<`dataout_reg )
+				for(Integer i=0;i<vionum ;i=i+1)
 					direction_reg[i]<=unpack(datamask[i]);
-			else if( addr[6:0]>=`dir_reg2 && addr[6:0]<`dataout_reg1 )
-			    for(Integer i=iocount;i<vionum ;i=i+1)
-				    direction_reg[i]<=unpack(datamask[i-iocount]);
-			else if(addr[6:0]>=`dataout_reg1  && addr[6:0]< `dataout_reg2 )
-				for(Integer i=0;i<iocount ;i=i+1)
+			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< `set_data )
+				for(Integer i=0;i<vionum ;i=i+1)
 					dataout_register[i]<=datamask[i];
-			else if(addr[6:0]>=`dataout_reg2  && addr[6:0]< `set_data1 )
-				for(Integer i=iocount;i<vionum ;i=i+1)
-					dataout_register[i]<=datamask[i-iocount];
-			else if( addr[6:0] >= `set_data1 && addr[6:0] < `set_data2)
-				for(Integer i=0;i<iocount; i=i+1) begin
+			else if( addr[6:0] >= `set_data && addr[6:0] < `clear_data)
+				for(Integer i=0;i<vionum; i=i+1) begin
 					dataout_register[i] <= dataout_register[i] | datamask[i];
 				end
-			else if( addr[6:0] >= `set_data2 && addr[6:0] < `clear_data1)
-				for(Integer i=iocount;i<vionum; i=i+1) begin
-					dataout_register[i] <= dataout_register[i] | datamask[i-iocount];
-				end
-			else if( addr[6:0] >= `clear_data1 && addr[6:0] < `clear_data2)
-				for(Integer i=0;i<iocount; i=i+1) begin
+			else if( addr[6:0] >= `clear_data && addr[6:0] < `toggle_data)
+				for(Integer i=0;i<vionum; i=i+1) begin
 					dataout_register[i] <= dataout_register[i] & ~datamask[i];
 				end
-			else if( addr[6:0] >= `clear_data2 && addr[6:0] < `toggle_data1)
-				for(Integer i=iocount;i<vionum; i=i+1) begin
-					dataout_register[i] <= dataout_register[i] & ~datamask[i-iocount];
-				end
-			else if( addr[6:0] >= `toggle_data1 && addr[6:0] < (`toggle_data2))
-				for(Integer i=0;i<iocount; i=i+1) begin
+			else if( addr[6:0] >= `toggle_data && addr[6:0] < (`toggle_data + 8))
+				for(Integer i=0;i<vionum; i=i+1) begin
 					dataout_register[i] <= dataout_register[i] ^ datamask[i];
-				end
-			else if( addr[6:0] >= `toggle_data2 && addr[6:0] < (`toggle_data2 + 4))
-				for(Integer i=iocount;i<vionum; i=i+1) begin
-					dataout_register[i] <= dataout_register[i] ^ datamask[i-iocount];
 				end
 		`ifdef IQC
 			else if( addr[6:0] == `input_qual && size == Byte)
 				rg_qual_cycles <= truncate(data);
 		`endif
-			else if( addr[6:0] >= `intr_config1 && addr[6:0] < (`intr_config2))
-				for(Integer i=0; i<iocount; i=i+1)
+			else if( addr[6:0] == `intr_config && addr[6:0] < (`intr_config + 8))
+				for(Integer i=0; i<vionum; i=i+1)
 					rg_interrupt_config[i] <= datamask[i];
-			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
-				for(Integer i=iocount; i<vionum; i=i+1)
-					rg_interrupt_config[i] <= datamask[i-iocount];
-			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
-				for(Integer i=0;i<iocount;i=i+1)
-						toplic[i] <= toplic[i]^datamask[i];
-			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
-				for(Integer i=iocount;i<vionum;i=i+1)
-						toplic[i] <= toplic[i]^datamask[i-iocount];
 			else
 				success=False;
 			return success;	
@@ -251,37 +221,24 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			let dvalue=valueOf(data_width);
 			Bool success= True;
 			Bit#(data_width) data=0;
-			Bit#(5) shift_amt=zeroExtend(addr[1:0])<<3;//generating the shift amount
-			Bit#(32) temp =0;//parameterised
+			Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;//generating the shift amount
+			Bit#(64) temp =0;//parameterised
 			
-			if( addr[6:0]>=`dir_reg1 && addr[6:0]<`dir_reg2 )
-				for(Integer i=0;i<iocount ;i=i+1)
+			if( addr[6:0]>=`dir_reg && addr[6:0]<`dataout_reg ) begin
+				for(Integer i=0;i<vionum ;i=i+1)
 					temp[i]=pack(direction_reg[i]);
-			else if( addr[6:0]>=`dir_reg2 && addr[6:0]<`dataout_reg1 )
-			    for(Integer i=iocount;i<vionum ;i=i+1)
-					temp[i-iocount]=pack(direction_reg[i]);
-			else if(addr[6:0]>=`dataout_reg1  && addr[6:0]< `dataout_reg2 )
-				for(Integer i=0;i<iocount ;i=i+1)
+			end
+			else if(addr[6:0]>=`dataout_reg  && addr[6:0]< `set_data) begin
+				for(Integer i=0;i<vionum ;i=i+1)
 					temp[i]=datain_register[i];
-			else if(addr[6:0]>=`dataout_reg2  && addr[6:0]< `set_data1 )
-				for(Integer i=iocount;i<vionum ;i=i+1)
-					temp[i-iocount]=datain_register[i];
+			end
 		`ifdef IQC
 			else if( addr[6:0] == `input_qual && size == Byte)
 				temp = zeroExtend(rg_qual_cycles);
 		`endif
-			else if( addr[6:0] >= `intr_config1 && addr[6:0] < (`intr_config2))
-				for(Integer i=0; i<iocount; i=i+1)
+			else if( addr[6:0] == `intr_config && addr[6:0] < (`intr_config + 8))
+				for(Integer i=0;i<vionum;i=i+1)
 					temp[i] = rg_interrupt_config[i];
-			else if( addr[6:0] >= `intr_config2 && addr[6:0] < (`intr_config2 + 4))
-				for(Integer i=iocount; i<vionum; i=i+1)
-					temp[i-iocount] = rg_interrupt_config[i];
-			else if( addr[6:0] >= `intr_status_reg1 && addr[6:0] < (`intr_status_reg2))
-				for(Integer i=0;i<iocount;i=i+1)
-						temp[i] = toplic[i];
-			else if( addr[6:0] >= `intr_status_reg2 && addr[6:0] < (`intr_status_reg2 + 4))
-				for(Integer i=iocount;i<vionum;i=i+1)
-						temp[i-iocount] = toplic[i];
 			else
 				success=False;
 
@@ -293,24 +250,22 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
        			temp=duplicate(temp[15:0]);
        		else if(size==Word && dvalue%32==0)
        			temp=duplicate(temp[31:0]);
+			else if(size == DWord && dvalue%64==0)	
+			  	temp=duplicate(temp);
 
       		data=truncate(temp);
 			return tuple2(success,data);
 		endmethod
 
-	// 	/*doc : interface : interface to interrupt the PLIC gateway with GPIO port interrupt. has method which returns action value of returning the interrupt value of vecton of length ionum. */
-	// 	interface sb_gpio_to_plic = interface Get
-    //   method ActionValue#(Vector#(ionum ,Bit#(1))) get;
-    //     Vector#(ionum,Bit#(1)) temp=readVReg(toplic);
-    //     return temp;
-    //   endmethod
-    // endinterface;
-	method Bit#(1) interrupt;
-		Bit #(1) intr = 0;
-		for(Integer i=0;i<vionum;i=i+1)
-			intr = intr | toplic[i];
-		return intr;
-	endmethod
+		/*doc : interface : interface to interrupt the PLIC gateway with GPIO port interrupt. has method which returns action value of returning the interrupt value of vecton of length ionum. */
+		interface sb_gpio_to_plic = interface Get
+      method ActionValue#(Vector#(ionum ,Bit#(1))) get;
+        Vector#(ionum,Bit#(1)) temp=readVReg(toplic);
+
+        return temp;
+      endmethod
+    endinterface;
+
 	endmodule:mkgpio
 
 		/*doc : interface : GPIO axi4lite interface using AXI4lite . */
@@ -318,47 +273,28 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 		/*doc : subifc : subinterface for AXI4lite slave interface. */
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width,user_width) slave;
 //    (*always_ready,always_enabled*)
-		// /*doc : subifc : subinterface for getting interrupt to PLIC. */
-		// interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
+		/*doc : subifc : subinterface for getting interrupt to PLIC. */
+		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
 		/*doc : subifc : subinterface configure and control GPIO.. */
     	interface GPIO#(ionum) io;
-		method Bit#(1) interrupt;
 	endinterface
 
 /*doc:module: gpio AXI4lite module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4lite interface of core. */
-module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
+module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
-        		Add#(c__, ionum, 64),
-        		Add#(d__, 1, data_width),
-        		Mul#(8, e__, data_width),
-				Add#(f__, data_width, 32)
+        		Add#(c__, ionum, 64)
 			);
-		Reset core_reset<-exposeCurrentReset;
-		GatedClockIfc gpio_clk_gated <- mkGatedClockFromCC(False);
-		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio(clocked_by gpio_clk_gated.new_clk);
+
+		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio;
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
-		Reg#(bit) rg_clk_en <- mkRegA(0);
-		
-		
-	rule clock_en;    
-	       gpio_clk_gated.setGateCond(unpack(rg_clk_en));	         
-	endrule
 
 	/*doc:rule: This rule fires whenever write request from core of the AXI4lite is raised.  Configures the internal registers of GPIO through AXI4.*/
 	rule write_request;
-			Bool succ = False;
-       		let addreq <- pop_o(s_xactor.o_wr_addr);
-       		let datareq <- pop_o(s_xactor.o_wr_data);
-       		if (addreq.awaddr[6:0] == `GPIO_Clk_en && addreq.awsize == 0) begin 
-       		    rg_clk_en <= truncate(datareq.wdata); 
-       		     succ = True;
-       		 end 
-       		 else begin 
-			
-			succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
-		end
+			let addreq <- pop_o (s_xactor.o_wr_addr);
+			let datareq  <- pop_o (s_xactor.o_wr_data);
+			let succ <- gpio.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
 		  let ls = AXI4_Lite_Wr_Resp {bresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: addreq.awuser};
 		  s_xactor.i_wr_resp.enq (ls);			
 		endrule
@@ -366,22 +302,13 @@ module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4li
 	/*doc:rule: This rule fires whenever read request from core of the AXI4lite is raised.  Reads the internal registers of GPIO through AXI4 and the returns the value to AXI4lite interface along with response status.*/
 	rule read_request;
 			let req <- pop_o(s_xactor.o_rd_addr);
-			Bool succ = False;
-		        Bit#(data_width) data = 0 ; 
-	       if (req.araddr[6:0] == `GPIO_Clk_en && req.arsize == 0) begin 
-		           succ = True; 
-		           data = duplicate({7'b0,rg_clk_en});  	         
-	         end 
-	          else begin
-			{succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
-		end
+			let {succ,data}<- gpio.read_req(req.araddr,unpack(truncate(req.arsize)));
 			let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
 	  		s_xactor.i_rd_data.enq(resp);
 		endrule
 	 	interface slave = s_xactor.axi_side;
-    // interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
-	method interrupt = gpio.interrupt;
+    interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
     interface io = gpio.io;
 	endmodule:mkgpio_axi4lite
 
@@ -390,9 +317,8 @@ module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4li
 		interface Ifc_gpio_axi4#(numeric type addr_width, numeric type data_width,numeric type user_width, numeric type ionum);
 			/*doc : subifc : subinterface for AXI4 slave interface. */
 			interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
-		// /*doc : subifc : subinterface for getting interrupt to PLIC. */
-		// interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
-		method Bit#(1) interrupt;
+		/*doc : subifc : subinterface for getting interrupt to PLIC. */
+		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
 		/*doc : subifc : subinterface configure and control GPIO.. */
 		interface GPIO#(ionum) io;
 	endinterface
@@ -402,8 +328,7 @@ module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
-        		Add#(c__, ionum, 64),
-				Add#(d__, data_width, 32)
+        		Add#(c__, ionum, 64)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
@@ -469,8 +394,7 @@ module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
 
 		endrule
 	 	interface slave = s_xactor.axi_side;
-    // interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
-	method interrupt = gpio.interrupt;
+    interface sb_gpio_to_plic=gpio.sb_gpio_to_plic;
     interface io = gpio.io;
 	endmodule:mkgpio_axi4
 endpackage:gpio

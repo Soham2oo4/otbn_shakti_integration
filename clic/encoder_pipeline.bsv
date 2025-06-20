@@ -55,14 +55,14 @@ package encoder_pipeline;
  
   module mkmain(Ifc_enc#(number_of_interrupt));
 	Integer limit = valueOf(number_of_interrupt);
-    Vector#(number_of_interrupt,Reg#(Bit#(8))) rg <- replicateM(mkReg(0));
-	Reg#(Bit#(8)) rg_final <- mkReg(0);
-    Reg#(Bit#(8)) rg_out1 <- mkReg(0);
-//	Reg#(Bit#(8)) rg_out2 <- mkReg(0);
-	Reg#(Bit#(11)) rg_index <- mkReg(0);
-	Reg#(Bit#(11)) rg_index1 <- mkReg(0);
-//	Reg#(Bit#(11)) rg_index2 <- mkReg(0);
-	Reg#(Bool) start <- mkReg(True);
+    Vector#(number_of_interrupt,Reg#(Bit#(8))) rg <- replicateM(mkRegA(0));
+	Reg#(Bit#(8)) rg_final <- mkRegA(0);
+    Reg#(Bit#(8)) rg_out1 <- mkRegA(0);
+//	Reg#(Bit#(8)) rg_out2 <- mkRegA(0);
+	Reg#(Bit#(11)) rg_index <- mkRegA(0);
+	Reg#(Bit#(11)) rg_index1 <- mkRegA(0);
+//	Reg#(Bit#(11)) rg_index2 <- mkRegA(0);
+	Reg#(Bool) start <- mkRegA(True);
 	Integer half=limit/2;
     rule start_enc(start);
       Vector#(number_of_interrupt,Bit#(8)) t=replicate(0);
@@ -106,8 +106,8 @@ package encoder_pipeline;
 //		LFSR#(Bit#(8)) lfsr [1024];// creating the lfsr
 //		for(Integer i=0; i<1024; i=i+1)
 //			lfsr[i]<- mkLFSR_8 ;
-//		Reg#(Bool)	done<- mkReg(False)	;
-//		Reg#(Bit#(8)) test_vec<-mkReg(15);//test vec
+//		Reg#(Bool)	done<- mkRegA(False)	;
+//		Reg#(Bit#(8)) test_vec<-mkRegA(15);//test vec
 //		rule rl1(!done);
 //			Vector#(1024,Bit#(8))	input_vec=replicate(0);//instantiating the input vector
 ////			input_vec[15]=8'b11111111;//fixed for testing purpose

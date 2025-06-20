@@ -5,6 +5,12 @@
 // 0x8: U R R R
 
 // Memory Map
+`ifdef gpio_clk_gate_en
+`define gpio_clk_gate_loc_rst_en 
+`endif
+`ifdef gpio_loc_rst_en
+`define gpio_clk_gate_loc_rst_en 
+`endif
 `define dir_reg1 		'h00
 `define dir_reg2 		'h04
 `define dataout_reg1 	'h08
@@ -20,7 +26,9 @@
 `endif
 `define intr_config1	 'h30
 `define intr_config2	 'h34
+`ifdef gpio_clk_gate_loc_rst_en
 `define GPIO_Clk_en		 'h38
+`endif
 `define intr_status_reg1 'h40
 `define intr_status_reg2 'h44
 `define intr_enable_reg1 'h48
