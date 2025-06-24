@@ -1,9 +1,5 @@
 // See LICENSE.iitm for license details
-/*
-Author: IIT Madras
-Created on: Wednesday 29 April 2020 10:09:32 AM IST
 
-*/
 package DebugSoc ;
   import FIFOF        :: * ;
   import Vector       :: * ;

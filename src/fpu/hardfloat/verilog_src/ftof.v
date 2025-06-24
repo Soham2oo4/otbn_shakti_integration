@@ -6,6 +6,7 @@ Description: Float to Float Module using Hardfloat
 
 module ftof#(parameter expWidthIn = 3, parameter sigWidthIn = 3, parameter expWidthOut = 3, parameter sigWidthOut = 3) (
         clk,
+        gate,
         control,
         a,
         roundingMode,
@@ -15,6 +16,7 @@ module ftof#(parameter expWidthIn = 3, parameter sigWidthIn = 3, parameter expWi
     );
     
     input clk;
+    input gate;
     input control;
     input [(expWidthIn + sigWidthIn -1):0] a;
     input [2:0] roundingMode;

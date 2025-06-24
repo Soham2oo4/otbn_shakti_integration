@@ -18,7 +18,7 @@ import re
 #from mermaid import *
 
 def gen_schema_doc():
-    text = open('../../configure/schema.yaml','r').read()
+    text = open('../../soc_config/soc_config/schema.yaml','r').read()
     rst_file = open('schema_doc.rst','w')
     x = re.findall("^###(?:(?:\r\n|[\r\n]).+$)*",text,re.M|re.U)
     for y in x:

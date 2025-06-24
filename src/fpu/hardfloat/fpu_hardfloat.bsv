@@ -104,7 +104,7 @@ package fpu_hardfloat;
 `else
 	(*synthesize*)
 `endif
-  module mksptoi_instance(Ifc_wrapper_ftoi#(8,24,ELEN));
+  module mksptoi_instance_w(Ifc_wrapper_ftoi#(8,24,32));
     let ifc();
     mkwrapper_ftoi ftoi(ifc);
     return (ifc);
@@ -115,7 +115,30 @@ package fpu_hardfloat;
 `else
 	(*synthesize*)
 `endif
-  module mkdptoi_instance(Ifc_wrapper_ftoi#(11,53,ELEN));
+  module mksptoi_instance_l(Ifc_wrapper_ftoi#(8,24,64));
+    let ifc();
+    mkwrapper_ftoi ftoi(ifc);
+    return (ifc);
+  endmodule
+  
+  
+`ifdef fpu_clockgate
+  (*synthesize,gate_all_clocks*)
+`else
+	(*synthesize*)
+`endif
+  module mkdptoi_instance_w(Ifc_wrapper_ftoi#(11,53,32));
+    let ifc();
+    mkwrapper_ftoi ftoi(ifc);
+    return (ifc);
+  endmodule
+
+`ifdef fpu_clockgate
+  (*synthesize,gate_all_clocks*)
+`else
+	(*synthesize*)
+`endif
+  module mkdptoi_instance_l(Ifc_wrapper_ftoi#(11,53,64));
     let ifc();
     mkwrapper_ftoi ftoi(ifc);
     return (ifc);
@@ -216,13 +239,18 @@ package fpu_hardfloat;
     method Bit#(1) fpu_ready;
   endinterface
 
+`ifdef fpu_clockgate
   (*synthesize,gate_all_clocks*)
-  module mkfpu_hardfloat(Ifc_fpu);
+`else
+	(*synthesize*)
+`endif  
+module mkfpu_hardfloat(Ifc_fpu);
 
     let spfma <- mkspfma_instance;
     let spdiv_sqrt <- mkspdiv_sqrt_instance;
     let itosp <- mkitosp_instance;
-    let sptoi <- mksptoi_instance;
+    let sptoi_w <- mksptoi_instance_w;
+    let sptoi_l <- mksptoi_instance_l;
     let spcmp <- mkspcmp_instance;
     let spfclass <- mkspfclass_instance;
     let spsign_inject <- mkspsign_inject_instance;
@@ -231,7 +259,8 @@ package fpu_hardfloat;
 	let dpfma <- mkdpfma_instance;
 	let dpdiv_sqrt <- mkdpdiv_sqrt_instance;
 	let itodp <- mkitodp_instance;
-	let dptoi <- mkdptoi_instance;
+	let dptoi_w <- mkdptoi_instance_w;
+	let dptoi_l <- mkdptoi_instance_l;
 	let dpcmp <- mkdpcmp_instance;
 	let dpfclass <- mkdpfclass_instance;
 	let dpsign_inject <- mkdpsign_inject_instance;
@@ -294,14 +323,22 @@ package fpu_hardfloat;
     Wire#(Bit#(3)) wr_f3      <- mkDWire(0);
     Wire#(Bit#(ELEN)) wr_op1  <- mkDWire(0);
     Wire#(Bit#(ELEN)) wr_op2  <- mkDWire(0);
-    Wire#(Bool) wr_issp       <- mkDWire(True);
+    Wire#(Bool) wr_issp       <- mkWire;
     Reg#(Bool)  rg_issp       <- mkReg(False);
     Reg#(Bool) rg_multicycle_op <-mkReg(False);
    
 `ifdef dpfpu
-    (*conflict_free="start, output_spfma, output_dpfma, output_spdiv_sqrt, output_dpdiv_sqrt, output_sptoi, output_dptoi, output_itosp, output_itodp, output_sptodp, output_dptosp"*)
+	`ifdef RV64
+    (*conflict_free="start, output_spfma, output_dpfma, output_spdiv_sqrt, output_dpdiv_sqrt, output_sptoi_w, output_sptoi_l, output_dptoi_w, output_dptoi_l, output_itosp, output_itodp, output_sptodp, output_dptosp"*)
 `else
-    (*conflict_free="start, output_spfma, output_spdiv_sqrt, output_sptoi, output_itosp"*)
+	(*conflict_free="start, output_spfma, output_dpfma, output_spdiv_sqrt, output_dpdiv_sqrt, output_sptoi_w, output_dptoi_w, output_itosp, output_itodp, output_sptodp, output_dptosp"*)
+	`endif
+`else
+	`ifdef RV64
+    (*conflict_free="start, output_spfma, output_spdiv_sqrt, output_sptoi_w, output_sptoi_l, output_itosp"*)
+	`else
+    (*conflict_free="start, output_spfma, output_spdiv_sqrt , output_sptoi_w, output_itosp"*)
+	`endif
 `endif
 
     rule rl_send_spdiv_sqrt_inputs(wr_issp);
@@ -400,14 +437,27 @@ package fpu_hardfloat;
 	  	end
 
 	  	//Convert to Integer
-	  	else if(f7[6:2] == `FCVT_I_F_f5 && opcode == `FP_OPCODE) begin
-	  	  `ifdef verbose $display($time,"\tfpu Input FTOI: op1: %h, f3: %b, imm[1:0]: %b", op1, f3, imm[1:0]); `endif
+	  	else if(f7[6:2] == `FCVT_I_F_f5 && opcode == `FP_OPCODE && imm[1] == 0) begin
+	  	  `ifdef verbose $display($time,"\tfpu Input FTOI_W: op1: %h, f3: %b, imm[1:0]: %b", op1, f3, imm[1:0]); `endif
 			  if(issp) begin
-	  	   	sptoi.request(truncate(op1), f3, ~imm[0], imm[1]);
+	  	   	sptoi_w.request(truncate(op1), f3, ~imm[0], imm[1]);
 			  end
 			`ifdef dpfpu
 			  else begin
-	  	   	dptoi.request(op1, f3, ~imm[0], imm[1]);
+	  	   	dptoi_w.request(op1, f3, ~imm[0], imm[1]);
+			  end
+			`endif
+			  rg_multicycle_op<=True;
+	  	end
+
+		else if(f7[6:2] == `FCVT_I_F_f5 && opcode == `FP_OPCODE && imm[1] == 1) begin //Add condition
+	  	  `ifdef verbose $display($time,"\tfpu Input FTOI_L: op1: %h, f3: %b, imm[1:0]: %b", op1, f3, imm[1:0]); `endif
+			  if(issp) begin
+	  	   	sptoi_l.request(truncate(op1), f3, ~imm[0], imm[1]);
+			  end
+			`ifdef dpfpu
+			  else begin
+	  	   	dptoi_l.request(op1, f3, ~imm[0], imm[1]);
 			  end
 			`endif
 			  rg_multicycle_op<=True;
@@ -596,12 +646,28 @@ package fpu_hardfloat;
     endrule
 		`endif
 
-    rule output_sptoi(sptoi.resp_valid);
-      //let resp = sptoi.response;
-			let {lv_out, lv_flag, lv_meta}= sptoi.response;
+	`ifdef RV64
+    rule output_sptoi_l(sptoi_l.resp_valid); //check response
+      //let resp = sptoi_l.response;
+		let {lv_out_temp, lv_flag, lv_meta}= sptoi_l.response;
+		Bit#(ELEN) lv_out = signExtend(lv_out_temp);
       `ifdef verbose $display($time,"\tfpu Output from hardfloat: out: %h, flag: %b meta: %b", lv_out, lv_flag, lv_meta); `endif
 			// let {out, flag} = compensate_for_32bit_int(lv_out, lv_flag, lv_meta[0], lv_meta[1]);
-    //   `ifdef verbose $display($time,"\tfpu Output SPTOI: out: %h, flag: %b", out, flag); `endif
+    //   `ifdef verbose $display($time,"\tfpu Output SPTOI_L: out: %h, flag: %b", out, flag); `endif
+      let u = tuple3(True, lv_out, lv_flag);
+	  let y = XBoxOutput{valid:  tpl_1(u),data:   tpl_2(u),	fflags: tpl_3(u) };
+	  tx_fbox_out.u.enq(y);
+	  rg_multicycle_op<=False;
+    endrule
+	`endif
+
+	rule output_sptoi_w(sptoi_w.resp_valid);
+      //let resp = sptoi_w.response;
+		let {lv_out_temp, lv_flag, lv_meta}= sptoi_w.response;
+		Bit#(ELEN) lv_out = signExtend(lv_out_temp);
+      `ifdef verbose $display($time,"\tfpu Output from hardfloat: out: %h, flag: %b meta: %b", lv_out, lv_flag, lv_meta); `endif
+			// let {out, flag} = compensate_for_32bit_int(lv_out, lv_flag, lv_meta[0], lv_meta[1]);
+    //   `ifdef verbose $display($time,"\tfpu Output SPTOI_W: out: %h, flag: %b", out, flag); `endif
       let u = tuple3(True, lv_out, lv_flag);
 	  let y = XBoxOutput{valid:  tpl_1(u),data:   tpl_2(u),	fflags: tpl_3(u) };
 	  tx_fbox_out.u.enq(y);
@@ -609,16 +675,31 @@ package fpu_hardfloat;
     endrule
    
 	`ifdef dpfpu
-    rule output_dptoi(dptoi.resp_valid);
-			let {lv_out, lv_flag, lv_meta}= dptoi.response;
+	rule output_dptoi_w(dptoi_w.resp_valid);
+		let {lv_out_temp, lv_flag, lv_meta}= dptoi_w.response;
+		Bit#(ELEN) lv_out = signExtend(lv_out_temp);
       `ifdef verbose $display($time,"\tfpu Output from hardfloat: out: %h, flag: %b meta: %b", lv_out, lv_flag, lv_meta); `endif
-			let {out, flag} = compensate_for_32bit_int(lv_out, lv_flag, lv_meta[0], lv_meta[1]);
-      `ifdef verbose $display($time,"\tfpu Output DPTOI: out: %h, flag: %b", out, flag); `endif
-      let u = tuple3(True, out, flag);
+		//let {out, flag} = compensate_for_32bit_int(lv_out, lv_flag, lv_meta[0], lv_meta[1]);
+      `ifdef verbose $display($time,"\tfpu Output DPTOI_W: out: %h, flag: %b", out, flag); `endif
+      let u = tuple3(True, lv_out, lv_flag);
 	  let y = XBoxOutput{valid:  tpl_1(u),data:   tpl_2(u),	fflags: tpl_3(u) };
 	  tx_fbox_out.u.enq(y);
 	  rg_multicycle_op<=False;
     endrule
+
+	`ifdef RV64
+    rule output_dptoi_l(dptoi_l.resp_valid);
+		let {lv_out_temp, lv_flag, lv_meta}= dptoi_l.response;
+		Bit#(ELEN) lv_out = signExtend(lv_out_temp);
+      `ifdef verbose $display($time,"\tfpu Output from hardfloat: out: %h, flag: %b meta: %b", lv_out, lv_flag, lv_meta); `endif
+		//let {out, flag} = compensate_for_32bit_int(lv_out, lv_flag, lv_meta[0], lv_meta[1]);
+      `ifdef verbose $display($time,"\tfpu Output DPTOI_L: out: %h, flag: %b", out, flag); `endif
+      let u = tuple3(True, lv_out, lv_flag);
+	  let y = XBoxOutput{valid:  tpl_1(u),data:   tpl_2(u),	fflags: tpl_3(u) };
+	  tx_fbox_out.u.enq(y);
+	  rg_multicycle_op<=False;
+    endrule
+	`endif
 	`endif
    
     rule output_itosp(itosp.resp_valid);

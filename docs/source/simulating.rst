@@ -8,8 +8,15 @@ Generate Verilated Executable
 .. code-block:: bash
 
   $ cd c-class
-  $ python -m configure.main -ispec sample_config/default.yaml
-  $ make
+  $ pip install -r requirements.txt
+  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml --clean &> /dev/null
+  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup 
+  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
+  $ make generate_verilog; make link_verilator;
+  # for xxd versions 2023 and above
+  $ export XXD_VERSION=2023
+  $ generate_boot_files 
+
 
 The above should result in following files in the ``bin`` folder:
 
@@ -85,13 +92,14 @@ This can be instantiated in the design by configuring with: ``debugger_support: 
 Perform the following steps to connect to the core executable with a gdb terminal. 
 This assumes you have installed openocd and is available as part of you `$PATH` variable.
 
-Modify the ``sample_config/default.yaml`` to enable:  debugger_support and open_ocd. 
+Modify the ``sample_config/c64/core64.yaml`` to enable:  debugger_support and open_ocd. 
 Generate a new executable with this config to support jtag remote-bitbang in the
 test-bench
 
 .. code-block:: bash
 
-  $ python -m configure.main -ispec sample_config/default.yaml
+  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup 
+  $ soc_config -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
   $ make gdb # generate executable with open-ocd vpi enabled in the test-bench
 
 1. Simulate the RTL
@@ -160,11 +168,11 @@ to the ``bin`` and execute the cclass verilated binary:
 Linux on C-Class
 ----------------
 
-1. Generate RTL using the default.yaml config as provided in the repo
+1. Generate RTL using the yaml config files as provided in the repo
 
    .. code-block:: bash
 
-    $ python -m configure.main -ispec sample_config/default.yaml
+    $ soc_config -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
     $ make # generate executable
 
 2. Download the shakti-linux repository  and generate the kernel image:
@@ -198,7 +206,7 @@ FreeRTOS on C-class
    
    .. code-block:: bash
 
-    $ python -m configure.main -ispec sample_config/freertos.yaml
+    $ soc_config -ispec sample_config/freertos.yaml
     $ make # generate executable
 
 2. Download the free-RTOS repository for C-class

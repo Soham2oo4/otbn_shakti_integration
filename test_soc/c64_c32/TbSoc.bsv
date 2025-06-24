@@ -1,10 +1,5 @@
 // See LICENSE.iitm for license details
-/*
-Author: IIT Madras
-Details:
 
---------------------------------------------------------------------------------------------------
-*/
 package TbSoc;
   import Soc:: *;
   import Clocks::*;

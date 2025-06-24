@@ -6,6 +6,7 @@ isb_sizes:
     isb_s4s5: 8
 num_harts: 1
 merged_rf: False
+hardfloat: False
 s_extension:
   itlb_size: 4
   dtlb_size: 4
@@ -62,7 +63,7 @@ bsc_compile_options:
   build_dir: build/hw/intermediate
   top_module: mkTbSoc
   top_file: TbSoc.bsv
-  top_dir: test_soc
+  top_dir: test_soc/c64_c32
   open_ocd: False
   cocotb_sim: False
   static_check: True

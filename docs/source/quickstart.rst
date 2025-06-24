@@ -127,7 +127,9 @@ To build the core with a sample test-soc using the default config do the followi
 
 .. code-block:: bash
 
-  $ python -m configure.main -ispec sample_config/default.yaml
+  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml --clean &> /dev/null 
+  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup
+  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info 
 
 The above step generates a ``makefile.inc`` file in the same folder and also
 clones other dependent repositories to build a test-soc and carry out
@@ -183,7 +185,7 @@ You can run the entire riscv-tests suite in a regression using the following: :
 
 .. code-block:: bash
 
-  $ make regress opts='--filter=rv64 --parallel=20 --sub' CONFIG_ISA=RV64IMAFDC
+  $ make regress opts='--filter=rv64 --sub' CONFIG_ISA=RV64IMAFDC
   $ make regress opts='--filter=rv64 --final'
 
 The last command, after some delay, should present the following output:

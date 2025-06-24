@@ -4,6 +4,12 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.4.0] - 2025-06-04
+--------------------
+- Updated for C-Class hardfloat support: fixed ifdefs, missing gate inputs, fdiv and fcvt_w instructions. 
+- Added  c64_hardfloat config
+- Updated docs for C-Class restructuring
+
 [4.3.0] - 2025-05-27
 --------------------
 - Fix mstatus.fs update for fp context switch

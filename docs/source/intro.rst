@@ -9,7 +9,7 @@ Introduction
 What is C-Class 
 ---------------
 C-Class is a member of the `SHAKTI <https://shakti.org.in>`_ family of processors.
-It is an extremely configurable and commercial-grade 5-stage in-order core supporting the standard
+It is an extremely configurable and commercial-grade 6-stage in-order core supporting the standard
 RV64GCSUN ISA extensions. The core generator in this repository is capable of configuring the core
 to generate a wide variety of design instances from the same high-level source code. The design instances
 can serve domains ranging from embedded systems, motor-control, IoT, storage, industrial applications
