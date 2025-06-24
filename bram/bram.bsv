@@ -25,7 +25,7 @@ package bram;
   `include "Logger.bsv"
   export Ifc_bram_axi4 (..);
   export mkbram_axi4;
-  `ifndef iclass
+  `ifndef axi4_128b
     export Ifc_bram_axi4lite (..);
     export mkbram_axi4lite;
   `endif
@@ -208,7 +208,7 @@ package bram;
     interface slave = s_xactor.axi_side;
   endmodule
 
-`ifndef iclass
+`ifndef axi4_128b
   interface Ifc_bram_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width,
                                                                            numeric type index_size);
     interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
