@@ -150,9 +150,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[26] = 'h00000013;  // 0x868
   vrom[27] = 'h00000013;  // 0x86c
   vrom[28] = 'h00000013;  // 0x870
-  vrom[29] = 'h00000013;  // 0x870
-  vrom[30] = 'h00000013;  // 0x870
-  vrom[31] = 'h00000013;  // 0x870
+  vrom[29] = 'h00000013;  // 0x874
+  vrom[30] = 'h00000013;  // 0x878
+  vrom[31] = 'h00000013;  // 0x87c
 `endif
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
