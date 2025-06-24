@@ -29,7 +29,7 @@ function Bit#(m) reSize (Bit#(n) din) provisos( Add#(m,n,mn) );
 endfunction:reSize
 
 function Bit#(2) strb2size_2(Bit#(n) strb)
-  `ifndef iclass
+  `ifndef axi4_128b
     provisos(Add#(a__, n, 8));
     Bit#(8) _t = zeroExtend(strb);
   `else
@@ -56,7 +56,7 @@ function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr,
     Add#(a__, os, a),
     Mul#(TDiv#(n, 8), 8, n), // bus-side data-width should be multiples of 8
     Mul#(TDiv#(m, 8), 8, m), // register data-width should be multiples of 8
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(n, b__, 64), // bus side data should be <= 64
     `else
       Add#(n, b__, 128),
@@ -64,7 +64,7 @@ function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr,
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(d__, TDiv#(n, 8), 8)
     `else
       Add#(d__, TDiv#(n, 8), 16)
@@ -108,7 +108,7 @@ function ActionValue#(Tuple2#(Bool,Bit#(m))) fn_adjust_write(Bit#(a) addr,
     Add#(a__, os, a),
     Mul#(TDiv#(n, 8), 8, n), // bus-side data-width should be multiples of 8
     Mul#(TDiv#(m, 8), 8, m), // register data-width should be multiples of 8
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(n, b__, 64), // bus side data should be <= 64
     `else
       Add#(n, b__, 128),
@@ -116,7 +116,7 @@ function ActionValue#(Tuple2#(Bool,Bit#(m))) fn_adjust_write(Bit#(a) addr,
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(d__, TDiv#(n, 8), 8),
     `else
       Add#(d__, TDiv#(n, 8), 16),
@@ -189,13 +189,13 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Add#(8, b__, dw),         // data atleast 8 bits
     Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
     Add#(c__, 2, aw),
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(dw, d__, 64),
     `else
       Add#(dw, d__, 128),
     `endif
     Add#(TExp#(TLog#(dw)),0,dw),
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(e__, TDiv#(dw, 8), 8),
     `else
       Add#(e__, TDiv#(dw, 8), 16),
@@ -469,13 +469,13 @@ endmodule:mkplic
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
         Add#(c__, 2, aw),
-        `ifndef iclass
+        `ifndef axi4_128b
           Add#(dw, d__, 64),
         `else
           Add#(dw, d__, 128),
         `endif
         Add#(TExp#(TLog#(dw)),0,dw),
-        `ifndef iclass
+        `ifndef axi4_128b
           Add#(e__, TDiv#(dw, 8), 8),
         `else
           Add#(e__, TDiv#(dw, 8), 16),
@@ -543,13 +543,13 @@ endmodule:mkplic
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
         Add#(c__, 2, aw),
-        `ifndef iclass
+        `ifndef axi4_128b
           Add#(dw, d__, 64),
         `else
           Add#(dw, d__, 128),
         `endif
         Add#(TExp#(TLog#(dw)),0,dw),
-        `ifndef iclass
+        `ifndef axi4_128b
           Add#(e__, TDiv#(dw, 8), 8),
         `else
           Add#(e__, TDiv#(dw, 8), 16),

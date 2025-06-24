@@ -80,14 +80,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   // --------------------------------------- Reset generation ------------------------------------
   Clock curr_clk <- exposeCurrentClock;                                  // current default clock
   Reset curr_reset<-exposeCurrentReset;                                  // current default reset
-  MakeResetIfc dmactive_reset <-mkReset(0,False,curr_clk);            // create a new reset for curr_clk
-  Reset  dm_reset <- mkResetEither(dmactive_reset.new_rst,curr_reset);     // OR default and new_rst
+  MakeResetIfc dmactive_reset <-mkReset(0,False,curr_clk);               // create a new reset for curr_clk
+  Reset  dm_reset <- mkResetEither(dmactive_reset.new_rst,curr_reset);   // OR default and new_rst
   // ----------------------------------------------------------------------------------------------
   
   Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
-  Vector#(29,Bit#(32)) vrom;
+  Vector#(32, Bit#(32)) vrom; // debug ROM
 `ifndef iclass
-  vrom[0] = 'h00c0006f;
+  vrom[0] = 'h00c0006f;  // 0x800
   vrom[1] = 'h0600006f;
   vrom[2] = 'h0380006f;
   vrom[3] = 'h0ff0000f;
@@ -115,7 +115,10 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[25] = 'hf1402473;
   vrom[26] = 'h10802423;
   vrom[27] = 'h7b202473;
-  vrom[28] = 'h7b200073;
+  vrom[28] = 'h7b200073;  // 0x870
+  vrom[29] = 'h00000013;  // 0x874
+  vrom[30] = 'h00000013;  // 0x878
+  vrom[31] = 'h00000013;  // 0x87c
 
 `else
   vrom[0] = 'h00c0006f;   // 0x800 (j _entry @ 0x80c) : entry
@@ -147,6 +150,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[26] = 'h00000013;  // 0x868
   vrom[27] = 'h00000013;  // 0x86c
   vrom[28] = 'h00000013;  // 0x870
+  vrom[29] = 'h00000013;  // 0x874
+  vrom[30] = 'h00000013;  // 0x878
+  vrom[31] = 'h00000013;  // 0x87c
 `endif
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
@@ -154,13 +160,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     v_abstract_reg[i] <- mkReg(`NOP, reset_by dm_reset);
   end
 
-  `ifndef iclass
-    AXI4_Slave_Xactor_IFC#(`paddr, `debug_bus_sz, 0) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
-    AXI4_Master_Xactor_IFC#(`paddr, `debug_bus_sz, 0) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
-  `else
-    AXI4_Slave_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
-    AXI4_Master_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
-  `endif
+  AXI4_Slave_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
+  AXI4_Master_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) master_xactor <- mkAXI4_Master_Xactor(reset_by dm_reset);
 
   function Bit#(32) genLoads(AccessReg cntrl);
     Bit#(32) instruction;
@@ -378,12 +379,12 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(3)) sbaccess <- mkReg(2, reset_by dm_reset);
   Reg#(Bit#(1)) sbautoincrement <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(1)) sbreadondata <- mkReg(0, reset_by dm_reset);
-`ifdef iclass
-  Reg#(Bit#(3)) sberr <- mkReg(7, reset_by dm_reset); // not supported
+`ifdef axi4_128b
+  Reg#(Bit#(3)) sberr <- mkReg(7, reset_by dm_reset); // sysbus for 128b bus not supported
 `else
   Reg#(Bit#(3)) sberr <- mkReg(0, reset_by dm_reset);
 `endif
-  Reg#(Bit#(7)) sbasize = readOnlyReg(`paddr);
+  Reg#(Bit#(7)) sbasize = `ifdef axi4_128b readOnlyReg(0) `else readOnlyReg(`paddr) `endif ; // sysbus for 128b bus not supported
   Reg#(Bit#(1)) sbaccess128 = readOnlyReg(pack(`debug_bus_sz >= 128));
   Reg#(Bit#(1)) sbaccess64 = readOnlyReg(pack(`debug_bus_sz >= 64));
   Reg#(Bit#(1)) sbaccess32 = readOnlyReg(pack(`debug_bus_sz >= 32));
@@ -664,10 +665,10 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     endcase
 
     if (lv_err == SbSuccess) begin
-      AXI4_Rd_Addr#(`paddr, `axi4_id_width, `ifndef iclass 0 `else `USERSPACE `endif ) read_request = AXI4_Rd_Addr{araddr: truncate(address),aruser: 0, 
+      AXI4_Rd_Addr#(`paddr, `axi4_id_width, `USERSPACE) read_request = AXI4_Rd_Addr{araddr: truncate(address),aruser: 0, 
                                       arlen : 0, arsize: sbaccess, arburst: 0,
                                       arid  : 0, arprot:'d3};
-      AXI4_Wr_Addr#(`paddr, `axi4_id_width, `ifndef iclass 0 `else `USERSPACE `endif ) wr_addr_request = AXI4_Wr_Addr{awaddr: truncate(address),awuser: 0, 
+      AXI4_Wr_Addr#(`paddr, `axi4_id_width, `USERSPACE) wr_addr_request = AXI4_Wr_Addr{awaddr: truncate(address),awuser: 0, 
                                       awlen : 0, awsize: sbaccess, awburst: 0,
                                       awid  : 0, awprot:'d3};
       AXI4_Wr_Data#(`axi4_id_width, `debug_bus_sz) wr_data_request = AXI4_Wr_Data{ wdata: writedata, wstrb: writestrb, wlast: True};
@@ -776,15 +777,15 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       data = duplicate({fn_j_imm(_off),12'h6f});
       `logLevel( debug, 0, $format("DEBUG: Reading WHERETO:DASM(0x%h)",data[31:0]))
     end
-    else if (offset >= `ABSTRACT && offset < `PROGBUF `ifndef iclass && req.arsize==2 `endif ) begin // read abstract command registers
+    else if (offset >= `ABSTRACT && offset < `PROGBUF `ifndef axi4_128b && req.arsize==2 `endif ) begin // read abstract command registers
       Bit#(1) index = truncate((offset - `ABSTRACT)>>2);
       `logLevel( debug, 0, $format("DEBUG: Abstract offset:%h Abstract:%h index:%d",offset,
       `ABSTRACT, index))
-    `ifndef iclass
+    `ifndef axi4_128b
       data = duplicate(v_abstract_reg[index]);
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)",v_abstract_reg[index]))
     `else
-      // Note: 128-bit bus width for i-class
+      // Note: send 4 32-bit register values for 128-bit bus width
       data = {v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1], v_abstract_reg[0]};
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h) DASM(0x%h)",v_abstract_reg[1], v_abstract_reg[0]))
     `endif
@@ -802,23 +803,23 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
-      `ifndef iclass
+      `ifndef axi4_128b
         data = duplicate(v_progbuf_reg[index]);
         if (req.arsize==3)
           data[63:32] = v_progbuf_reg[index+1];
       `else
-        // Note: 128-bit bus width for i-class
+        // Note: for 128-bit bus width
         // TODO: non-power-of-2
         data = {v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]};
       `endif
       `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)",v_progbuf_reg[index]))
     end
-    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) `ifndef iclass && req.arsize == 2 `endif ) begin
+    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) `ifndef axi4_128b && req.arsize == 2 `endif ) begin
       Bit#(5) index = truncate((offset - `ROMBASE)>>2);
-      `ifndef iclass
+      `ifndef axi4_128b
         data = duplicate(vrom[index]);
       `else
-        // Note: 128-bit bus width for i-class
+        // Note: for 128-bit bus width
         // TODO: non-power-of-2
         data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
       `endif
@@ -827,9 +828,13 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else begin
       succ = False;
     end
-	 	AXI4_Rd_Data#(`axi4_id_width, `debug_bus_sz, `ifndef iclass 0 `else `USERSPACE `endif ) r = AXI4_Rd_Data {rresp: succ?AXI4_OKAY:AXI4_SLVERR,rid:req.arid,rlast:(req.arlen==0), 
-          rdata: data, ruser: 0};
-	 	slave_xactor.i_rd_data.enq(r);
+
+    AXI4_Rd_Data#(`axi4_id_width, `debug_bus_sz, `USERSPACE) r = AXI4_Rd_Data {rresp: succ ? AXI4_OKAY : AXI4_SLVERR,
+                                                                               rid: req.arid,
+                                                                               rlast: (req.arlen==0), 
+                                                                               rdata: data,
+                                                                               ruser: 0};
+    slave_xactor.i_rd_data.enq(r);
     `logLevel( debug, 1, $format("DEBUG: ReadReq: ",fshow(req)))
     `logLevel( debug, 1, $format("DEBUG: ReadResp: ",fshow(r)))
   endrule

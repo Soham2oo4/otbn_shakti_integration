@@ -59,7 +59,7 @@ package err_slave;
     Reg#(Mem_State) write_state <- mkReg(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter <- mkReg(0);
 	  Reg#(Bit#(8)) rg_read_length <- mkReg(0);
-    `ifndef iclass
+    `ifndef axi4_128b
       Reg#(Bit#(4)) rg_rd_id <- mkReg(0);
     `else
       Reg#(Bit#(id_width)) rg_rd_id <- mkReg(0);
