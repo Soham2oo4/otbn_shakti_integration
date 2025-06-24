@@ -1,11 +1,5 @@
 // See LICENSE.iitm for license details
-/* 
 
-Author: IIT Madras
-Details:
-
---------------------------------------------------------------------------------------------------
-*/
 package Soc;
   // project related imports
 	import Semi_FIFOF:: *;

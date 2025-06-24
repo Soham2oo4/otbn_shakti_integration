@@ -53,8 +53,11 @@ interface Ifc_fpu;							//interface to module mk_fpu
 endinterface
 
 
-
+`ifdef fpu_clockgate
+(*synthesize,gate_all_clocks*)
+`else
 (*synthesize*)
+`endif
 module mkfpu_bsvfloat(Ifc_fpu);
   // ============================================
   //  Decode and Maintenance Registers

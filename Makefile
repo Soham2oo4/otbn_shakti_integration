@@ -1,5 +1,39 @@
 include ./makefile.inc
 
+ISA=RV64IMAFDCSU
+JOBS:=$(shell nproc)
+SHAKTI_HOME:=$(CURDIR)
+
+WORKING_DIR := $(shell pwd)
+Vivado_loc=$(shell which vivado || which vivado_lab)
+
+ifeq ($(BSCAN2E), enable)
+	override BSC_DEFINES += bscan2e=True
+	JTAG_TYPE:=JTAG_BSCAN2E
+else
+	JTAG_TYPE:=JTAG_EXTERNAL
+endif
+
+ifeq ($(BOARD), arty_a7)
+	FPGA:=xc7a100tcsg324-1
+	MCS:=true
+else ifeq ($(BOARD), arty_a7_fpu)
+	FPGA:=xc7a100tcsg324-1
+	MCS:=true
+else ifeq ($(BOARD), profpga)
+	FPGA:=xcvu440-flga2892-1-c
+	MCS:=false
+else ifeq ($(BOARD), nexys_video)
+	FPGA:=xc7a200tsbg484-1
+	MCS:=true
+else ifeq ($(BOARD), vcu118)
+	FPGA:=xcvu9p-flga2104-2L-e
+	MCS:=false
+else ifeq ($(BOARD), vcu108)
+	FPGA:=xcvu095-ffva2104-2-e
+	MCS:=false
+endif
+
 # ------------------------------------- Makefile TARGETS ----------------------------------------- #
 default: generate_verilog link_verilator generate_boot_files
 gdb: generate_verilog link_verilator_gdb generate_boot_files
@@ -11,6 +45,33 @@ MOREDEFINES=$(addprefix -D , $(BSC_DEFINES))
 
 .PHONY: generate_verilog
 generate_verilog: $(BSVBUILDDIR)/$(TOP_BIN)
+	@cp ${BS_VERILOG_LIB}/../Verilog.Vivado/RegFile.v ${VERILOGDIR}  
+	@cp ${BS_VERILOG_LIB}/../Verilog.Vivado/BRAM2BELoad.v ${VERILOGDIR}  
+	@cp ${BS_VERILOG_LIB}/FIFO2.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/FIFO1.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/FIFO10.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/FIFOL1.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/Counter.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SizedFIFO.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/ResetEither.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/MakeReset0.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncReset0.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/ClockInverter.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncFIFO1.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncFIFO.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/RevertReg.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncBit.v ${VERILOGDIR}
+	@cp ./common_verilog/bram_1rw.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/FIFO20.v ${VERILOGDIR}
+	@cp ./common_verilog/bram_2rw.v ${VERILOGDIR}
+	@cp common_verilog/signedmul.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncRegister.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/MakeClock.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/UngatedClockMux.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/MakeResetA.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncResetA.v ${VERILOGDIR}
+	@cp ${BS_VERILOG_LIB}/SyncHandshake.v ${VERILOGDIR}
+	@echo Compilation finished
 
 
 .PHONY: link_verilator
@@ -189,6 +250,32 @@ generate_boot_files: ## to generate boot files for simulation
     else cp bin/boot.MSB bin/boot.LSB;\
   fi
 
+.PHONY: ip_build
+ip_build: ## build Xilinx Core-IPs used in this project
+	vivado -log ipbuild.log -nojournal -mode tcl -notrace -source $(TOP_DIR)/tcl/create_ip_project.tcl \
+		-tclargs $(FPGA) $(XLEN) $(ISA) $(JOBS) \
+		|| (echo "Could not create IP project"; exit 1)
+
+.PHONY: board_build
+board_build:
+	vivado -nojournal -nolog -mode tcl -notrace -source $(TOP_DIR)/tcl/create_project.tcl -tclargs fpga_top $(FPGA) $(ISA) $(JTAG_TYPE) $(VERILOGDIR)\
+	|| (echo "Could not create core project"; exit 1)
+	vivado -nojournal -log artybuild.log -notrace -mode tcl -source $(TOP_DIR)/tcl/run.tcl \
+		-tclargs $(JOBS) || (echo "ERROR: While running synthesis")
+ifeq ($(MCS),true)
+	@make generate_mcs 
+endif
+
+.PHONY: generate_mcs
+generate_mcs: ## Generate the FPGA Configuration Memory file.
+	vivado -nojournal -nolog -mode tcl -source $(TOP_DIR)/tcl/generate_mcs.tcl
+
+.PHONY: program_mcs
+program_mcs: ## Program the FPGA Configuration Memory in order to use the onboard ftdi jtag chain
+	$(Vivado_loc) -nojournal -nolog -mode tcl -source $(TOP_DIR)/tcl/program_mcs.tcl
+	echo "Please Disconnect and reconnect Your Arty Board from your PC"
+	echo "After programming reset the device once and run \"sudo openocd \
+	-f shakti-arty.cfg\" to start a gdb server at localhost:3333 "
 .PHONY: merge_cov
 merge_cov:
 	cd $(SHAKTI_HOME)/verification/workdir && ln -s $(SHAKTI_HOME)/verilog verilog
@@ -205,6 +292,11 @@ yml:
 clean:
 	rm -rf $(BSVBUILDDIR)/* *.log $(BSVOUTDIR)/* obj_dir $(VERILOGDIR)/*
 	rm -f *.jou rm *.log *.mem log sim_main.h cds.lib hdl.var
+
+.PHONY: clean_all
+clean_all:
+	rm -rf build *.log $(BSVOUTDIR)/ obj_dir $(VERILOGDIR)/ makefile csrbox_bsv
+	rm -f *.jou rm *.log *.mem log sim_main.h cds.lib hdl.var makefile.inc
 
 clean_verif:
 	rm -rf verification/workdir/*
