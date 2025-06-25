@@ -165,7 +165,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 
 	let val_numChannels= valueOf(numChannels);
 
-	AXI4_Master_Xactor_IFC #(addr_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(addr_width, id_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
 	Wire#(Bit#(config_addr_width)) wr_read_addr <- mkWire();
 	Wire#(AccessSize) wr_read_access_size <- mkWire();
 	Wire#(Bool) wr_read_prot <- mkWire();
@@ -313,7 +313,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	// (interfaces)
 	// And returns a set a rules.
 	// The rule are identical to the set used in the one mmu port case.
-	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) xactor, Integer chanNum);
+	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, id_width, data_width, user_width) xactor, Integer chanNum);
 		return
 		rules
 
