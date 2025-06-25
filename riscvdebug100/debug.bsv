@@ -85,8 +85,82 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   // ----------------------------------------------------------------------------------------------
   
   Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
-  Vector#(32, Bit#(32)) vrom; // debug ROM
-`ifndef iclass
+
+`ifndef debugrom_large  // normal debug ROM
+  Vector#(32, Bit#(32)) vrom;
+  `ifndef iclass // other cores
+    vrom[0] = 'h00c0006f;  // 0x800
+    vrom[1] = 'h0600006f;
+    vrom[2] = 'h0380006f;
+    vrom[3] = 'h0ff0000f;
+    vrom[4] = 'h7b241073;
+    vrom[5] = 'hf1402473;
+    vrom[6] = 'h10802023;
+    vrom[7] = 'h40044403;
+    vrom[8] = 'h00147413;
+    vrom[9] = 'h02041463;
+    vrom[10] = 'hf1402473;
+    vrom[11] = 'h40044403;
+    vrom[12] = 'h00247413;
+    vrom[13] = 'h02041863;
+    vrom[14] = 'h00000013;
+    vrom[15] = 'hfd9ff06f;
+    vrom[16] = 'h7b202473;
+    vrom[17] = 'h10002623;
+    vrom[18] = 'h00100073;
+    vrom[19] = 'hf1402473;
+    vrom[20] = 'h10802223;
+    vrom[21] = 'h7b202473;
+    vrom[22] = 'h0ff0000f;
+    vrom[23] = 'h0000100f;
+    vrom[24] = 'h30000067;
+    vrom[25] = 'hf1402473;
+    vrom[26] = 'h10802423;
+    vrom[27] = 'h7b202473;
+    vrom[28] = 'h7b200073;  // 0x870
+    vrom[29] = 'h00000013;  // 0x874
+    vrom[30] = 'h00000013;  // 0x878
+    vrom[31] = 'h00000013;  // 0x87c
+
+  `else // for i-class core
+    vrom[0] = 'h00c0006f;   // 0x800 (j _entry @ 0x80c) : entry
+    vrom[1] = 'h0500006f;   // 0x804 (j _resume @ 0x854) : resume
+    vrom[2] = 'h0300006f;   // 0x808 (j _exception @ 0x838) : exception
+    vrom[3] = 'h7b241073;   // 0x80c : _entry
+    vrom[4] = 'hf1402473;   // 0x810 : entry_loop
+    vrom[5] = 'h10802023;   // 0x814
+    vrom[6] = 'h40044403;   // 0x818
+    vrom[7] = 'h00147413;   // 0x81c
+    vrom[8] = 'h02041263;   // 0x820 (bnez s0, going @ 0x844)
+    vrom[9] = 'hf1402473;   // 0x824
+    vrom[10] = 'h40044403;  // 0x828
+    vrom[11] = 'h00247413;  // 0x82c
+    vrom[12] = 'h02041263;  // 0x830 (bnez s0, _resume @ 0x854)
+    vrom[13] = 'hfddff06f;  // 0x834 (j entry_loop @ 0x810) : _exception
+    vrom[14] = 'h7b202473;  // 0x838
+    vrom[15] = 'h10002623;  // 0x83c
+    vrom[16] = 'h00100073;  // 0x840 (ebreak)
+    vrom[17] = 'hf1402473;  // 0x844 : going
+    vrom[18] = 'h10802223;  // 0x848
+    vrom[19] = 'h7b202473;  // 0x84c
+    vrom[20] = 'h30000067;  // 0x850 (jr whereto @ 0x300)
+    vrom[21] = 'hf1402473;  // 0x854 : _resume
+    vrom[22] = 'h10802423;  // 0x858
+    vrom[23] = 'h7b202473;  // 0x85c
+    vrom[24] = 'h7b200073;  // 0x860 (dret)
+    vrom[25] = 'h00000013;  // 0x864
+    vrom[26] = 'h00000013;  // 0x868
+    vrom[27] = 'h00000013;  // 0x86c
+    vrom[28] = 'h00000013;  // 0x870
+    vrom[29] = 'h00000013;  // 0x874
+    vrom[30] = 'h00000013;  // 0x878
+    vrom[31] = 'h00000013;  // 0x87c
+  `endif
+
+`else // large debug ROM
+  Vector#(64, Bit#(32)) vrom; // debug ROM
+
+  // lower 128 bytes
   vrom[0] = 'h00c0006f;  // 0x800
   vrom[1] = 'h0600006f;
   vrom[2] = 'h0380006f;
@@ -120,40 +194,40 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   vrom[30] = 'h00000013;  // 0x878
   vrom[31] = 'h00000013;  // 0x87c
 
-`else
-  vrom[0] = 'h00c0006f;   // 0x800 (j _entry @ 0x80c) : entry
-  vrom[1] = 'h0500006f;   // 0x804 (j _resume @ 0x854) : resume
-  vrom[2] = 'h0300006f;   // 0x808 (j _exception @ 0x838) : exception
-  vrom[3] = 'h7b241073;   // 0x80c : _entry
-  vrom[4] = 'hf1402473;   // 0x810 : entry_loop
-  vrom[5] = 'h10802023;   // 0x814
-  vrom[6] = 'h40044403;   // 0x818
-  vrom[7] = 'h00147413;   // 0x81c
-  vrom[8] = 'h02041263;   // 0x820 (bnez s0, going @ 0x844)
-  vrom[9] = 'hf1402473;   // 0x824
-  vrom[10] = 'h40044403;  // 0x828
-  vrom[11] = 'h00247413;  // 0x82c
-  vrom[12] = 'h02041263;  // 0x830 (bnez s0, _resume @ 0x854)
-  vrom[13] = 'hfddff06f;  // 0x834 (j entry_loop @ 0x810) : _exception
-  vrom[14] = 'h7b202473;  // 0x838
-  vrom[15] = 'h10002623;  // 0x83c
-  vrom[16] = 'h00100073;  // 0x840 (ebreak)
-  vrom[17] = 'hf1402473;  // 0x844 : going
-  vrom[18] = 'h10802223;  // 0x848
-  vrom[19] = 'h7b202473;  // 0x84c
-  vrom[20] = 'h30000067;  // 0x850 (jr whereto @ 0x300)
-  vrom[21] = 'hf1402473;  // 0x854 : _resume
-  vrom[22] = 'h10802423;  // 0x858
-  vrom[23] = 'h7b202473;  // 0x85c
-  vrom[24] = 'h7b200073;  // 0x860 (dret)
-  vrom[25] = 'h00000013;  // 0x864
-  vrom[26] = 'h00000013;  // 0x868
-  vrom[27] = 'h00000013;  // 0x86c
-  vrom[28] = 'h00000013;  // 0x870
-  vrom[29] = 'h00000013;  // 0x874
-  vrom[30] = 'h00000013;  // 0x878
-  vrom[31] = 'h00000013;  // 0x87c
-`endif
+  // upper 128 bytes
+  vrom[32] = 'h00c0006f;  // 0x880 (j _entry @ 0x88c) : entry
+  vrom[33] = 'h0500006f;  // 0x884 (j _resume @ 0x8d4) : resume
+  vrom[34] = 'h0300006f;  // 0x888 (j _exception @ 0x8b8) : exception
+  vrom[35] = 'h7b241073;  // 0x88c : _entry
+  vrom[36] = 'hf1402473;  // 0x890 : entry_loop
+  vrom[37] = 'h10802023;  // 0x894
+  vrom[38] = 'h40044403;  // 0x898
+  vrom[39] = 'h00147413;  // 0x89c
+  vrom[40] = 'h02041263;  // 0x8a0 (bnez s0, going @ 0x8c4)
+  vrom[41] = 'hf1402473;  // 0x8a4
+  vrom[42] = 'h40044403;  // 0x8a8
+  vrom[43] = 'h00247413;  // 0x8ac
+  vrom[44] = 'h02041263;  // 0x8b0 (bnez s0, _resume @ 0x8d4)
+  vrom[45] = 'hfddff06f;  // 0x8b4 (j entry_loop @ 0x890) : _exception
+  vrom[46] = 'h7b202473;  // 0x8b8
+  vrom[47] = 'h10002623;  // 0x8bc
+  vrom[48] = 'h00100073;  // 0x8c0 (ebreak)
+  vrom[49] = 'hf1402473;  // 0x8c4 : going
+  vrom[50] = 'h10802223;  // 0x8c8
+  vrom[51] = 'h7b202473;  // 0x8cc
+  vrom[52] = 'h30000067;  // 0x8d0 (jr whereto @ 0x300)
+  vrom[53] = 'hf1402473;  // 0x8d4 : _resume
+  vrom[54] = 'h10802423;  // 0x8d8
+  vrom[55] = 'h7b202473;  // 0x8dc
+  vrom[56] = 'h7b200073;  // 0x8e0 (dret)
+  vrom[57] = 'h00000013;  // 0x8e4
+  vrom[58] = 'h00000013;  // 0x8e8
+  vrom[59] = 'h00000013;  // 0x8ec
+  vrom[60] = 'h00000013;  // 0x8f0
+  vrom[61] = 'h00000013;  // 0x8f4
+  vrom[62] = 'h00000013;  // 0x8f8
+  vrom[63] = 'h00000013;  // 0x8fc
+`endif // debugrom_large
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
   for (Integer i = 0; i<nAbstractInstr; i = i + 1) begin
@@ -814,17 +888,22 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       `endif
       `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)",v_progbuf_reg[index]))
     end
-    else if (offset >= `ROMBASE && offset <= (`ROMBASE + 116) `ifndef axi4_128b && req.arsize == 2 `endif ) begin
-      Bit#(5) index = truncate((offset - `ROMBASE)>>2);
-      `ifndef axi4_128b
-        data = duplicate(vrom[index]);
-      `else
-        // Note: for 128-bit bus width
-        // TODO: non-power-of-2
-        data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
-      `endif
-      `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)",vrom[index]))
-    end
+    `ifndef debugrom_large  // normal debug ROM
+      else if (offset >= `ROMBASE && offset <= (`ROMBASE + 112) `ifndef axi4_128b && req.arsize == 2 `endif ) begin
+        Bit#(5) index = truncate((offset - `ROMBASE)>>2);
+    `else
+      else if (offset >= `ROMBASE && offset <= (`ROMBASE + 240) `ifndef axi4_128b && req.arsize == 2 `endif ) begin
+        Bit#(6) index = truncate((offset - `ROMBASE)>>2);
+    `endif
+        `ifndef axi4_128b
+          data = duplicate(vrom[index]);
+        `else
+          // Note: for 128-bit bus width
+          // TODO: non-power-of-2
+          data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
+        `endif
+        `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)", vrom[index]))
+    end // ROM access
     else begin
       succ = False;
     end
