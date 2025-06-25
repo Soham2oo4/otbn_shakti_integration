@@ -59,11 +59,7 @@ package err_slave;
     Reg#(Mem_State) write_state <- mkReg(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter <- mkReg(0);
 	  Reg#(Bit#(8)) rg_read_length <- mkReg(0);
-    `ifndef axi4_128b
-      Reg#(Bit#(4)) rg_rd_id <- mkReg(0);
-    `else
       Reg#(Bit#(id_width)) rg_rd_id <- mkReg(0);
-    `endif
 	  Reg#(AXI4_Wr_Resp	#(id_width, user_width)) rg_write_response <- mkReg(?);
     rule receive_read_request(read_state == Idle);
       let ar <- pop_o(s_xactor.o_rd_addr);

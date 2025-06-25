@@ -164,11 +164,20 @@ package bootrom_axi4;
       let {err, data0}<-dut.read_response;
       let transfer_size=rg_read_packet.arsize;
 
-      Bit#(data_width) data_extracted = zeroExtend (data0) >> (rg_read_packet.araddr[6:0] << 3);
+      Bit#(data_width) data_extracted = truncate((data0) >> ({rg_read_packet.araddr[3:0], 3'b000}));
+      data_extracted =case (transfer_size)
+              0 : duplicate(data_extracted[7:0]);
+              1 : duplicate(data_extracted[15:0]);
+              2 : duplicate(data_extracted[31:0]);
+              3 : duplicate(data_extracted[63:0]);
+                default: data_extracted; 
+		    endcase;	
+  
+ /*Bit#(data_width) data_extracted = zeroExtend (data0) >> (rg_read_packet.araddr[6:0] << 3);
       data_extracted = (transfer_size == 'h0) ? data_extracted & 'hff
                                               : ((transfer_size == 'h1) ? data_extracted & 'hffff
                                                                         : ( ((transfer_size == 'h2) ? data_extracted & 'hffffffff
-                                                                                                    : ((transfer_size == 'h3) ? data_extracted & 'hffffffffffffffff : data_extracted) ) ) );
+                                                                                                    : ((transfer_size == 'h3) ? data_extracted & 'hffffffffffffffff : data_extracted) ) ) );*/
 
       AXI4_Rd_Data#(id_width, data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data_extracted, 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};

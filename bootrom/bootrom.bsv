@@ -90,14 +90,14 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     endmethod
   endmodule
 
-  interface Ifc_bootrom_axi4#(numeric type addr_width, numeric type data_width, 
+  interface Ifc_bootrom_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, 
                               numeric type user_width, numeric type index_size);
-    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave; 
+    interface AXI4_Slave_IFC#(addr_width , id_width, data_width, user_width) slave; 
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, data_width,
+  module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, id_width, data_width,
                                                                           user_width, index_size))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
@@ -105,13 +105,13 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
              Mul#(32, c__, data_width), 
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_size) dut <- mkbootrom(slave_base);
-	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
+	  AXI4_Slave_Xactor_IFC #(addr_width, id_width ,data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+    Reg#(Bit#(id_width)) rg_rd_id <-mkRegA(0);
     Reg#(Mem_State) read_state <-mkRegA(Idle);
     Reg#(Mem_State) write_state <-mkRegA(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
-	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkRegA(?);
-	  Reg#(AXI4_Wr_Resp	#(user_width)) rg_write_response <-mkRegA(?);
+	  Reg#(AXI4_Rd_Addr	#(addr_width, id_width, user_width)) rg_read_packet <-mkRegA(?);
+	  Reg#(AXI4_Wr_Resp	#(id_width, user_width)) rg_write_response <-mkRegA(?);
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -162,7 +162,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     rule read_response;
       let {err, data0}<-dut.read_response;
   		let transfer_size=rg_read_packet.arsize;
-      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+      AXI4_Rd_Data#(id_width,data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
       `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
       s_xactor.i_rd_data.enq(r);
@@ -176,14 +176,14 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
   endinterface
 
 
-  module mkbootrom_axi4lite#(parameter Integer slave_base)(Ifc_bootrom_axi4lite#(addr_width,
+  module mkbootrom_axi4lite#(parameter Integer slave_base)(Ifc_bootrom_axi4lite#(addr_width, 
                                                               data_width, user_width, index_size))
     provisos(Add#(data_width, a, 64), 
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width));
     UserInterface#(addr_width, data_width, index_size) dut <- mkbootrom(slave_base);
-	  AXI4_Lite_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
+	  AXI4_Lite_Slave_Xactor_IFC #(addr_width,data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer byte_offset = valueOf(TDiv#(data_width, 32));
     Reg#(Bit#(2)) rg_size <-mkRegA(3);
     Reg#(Bit#(TAdd#(1, TDiv#(data_width, 32)))) rg_offset <-mkRegA(0);
