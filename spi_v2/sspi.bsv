@@ -1084,7 +1084,7 @@ module mkdummy_axi4lite(Ifc_sspi_axi4lite#(64, 32, 0));
 endmodule
 
 (*synthesize*)
-module mkdummy_axi4(Ifc_sspi_axi4#(64, 32, 0));
+module mkdummy_axi4(Ifc_sspi_axi4#(64,32, 32, 0));
 	let ifc();
   	mksspi_axi4 _temp(ifc);
   return ifc;

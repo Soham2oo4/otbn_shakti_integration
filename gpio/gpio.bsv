@@ -234,25 +234,25 @@ package gpio;
 	endmodule:mkgpio_axi4lite
 
 
-	interface Ifc_gpio_axi4#(numeric type addr_width, numeric type data_width,numeric type user_width, numeric type ionum);
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+	interface Ifc_gpio_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width,numeric type user_width, numeric type ionum);
+		interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
     interface GPIO#(ionum) io;
 	endinterface
 
-	module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
+	module mkgpio_axi4(Ifc_gpio_axi4#(addr_width,id_width, data_width,user_width,ionum))
 		provisos(
 				Add#(b__, data_width, 64),
         Add#(c__, ionum, 64)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
-		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
+		AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
 		
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);	
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);	
 
 		rule write_request(rg_wrburst_count==0);
 			let addreq <- pop_o (s_xactor.o_wr_addr);

@@ -82,14 +82,15 @@ interface Ifc_sdram_out#(numeric type io_width);
     interface Clock sdram_clk;    
 endinterface
 
-interface Ifc_sdram_axi4#(numeric type addr_width, 
+interface Ifc_sdram_axi4#(numeric type addr_width,
+                           numeric type id_width,
                            numeric type data_width, 
                            numeric type user_width,
                            numeric type io_width,
                            numeric type rfrsh_timer_width,
                            numeric type rfrsh_row_width);                       
-      interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave_mem;
-      interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave_cfg;
+      interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave_mem;
+      interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave_cfg;
       interface Ifc_sdram_out#(io_width) io;
 endinterface
 
@@ -156,6 +157,7 @@ endfunction
 //(*synthesize*)
     
 module mksdram_axi4#(Clock clk0, Reset rst0) (Ifc_sdram_axi4#(addr_width, 
+                                                      id_width,
                                                       data_width, 
                                                       user_width,
                                                       io_width,
@@ -392,17 +394,17 @@ Reg#(Bit#(3))          rg_packet_counter   <- mkRegA(0);
 Reg#(Write_state) rg_write_states <- mkRegA(IDLE,clocked_by clk0, reset_by rst0);
 Reg#(Read_state) rg_read_states <- mkRegA(IDLE,clocked_by clk0, reset_by rst0);
 
-FIFOF#(AXI4_Wr_Addr#(addr_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(13);
-FIFOF#(AXI4_Wr_Data#(data_width))        ff_wr_data        <- mkSizedFIFOF(13);
+FIFOF#(AXI4_Wr_Addr#(addr_width,id_width, user_width)) ff_wr_addr        <- mkSizedFIFOF(13);
+FIFOF#(AXI4_Wr_Data#(id_width,data_width))        ff_wr_data        <- mkSizedFIFOF(13);
 SyncFIFOIfc#(Bit#(data_width))           ff_ac_wr_data     <- mkSyncFIFOFromCC(13,clk0);
 SyncFIFOIfc#(Bit#(TDiv#(data_width,8)))                    ff_ac_wr_wstrb    <- mkSyncFIFOFromCC(13,clk0);
 
 SyncFIFOIfc#(Bool) ff_sync_write_response<-mkSyncFIFOToCC(1,clk0,rst0);
 
-   //FIFOF#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_addr <- mkSizedFIFOF(3);
+   //FIFOF#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) ff_rd_addr <- mkSizedFIFOF(3);
 FIFOF#(Bit#(data_width)) ff_rd_data <- mkSizedFIFOF(86,clocked_by clk0, reset_by rst0);
-SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_addr <- mkSyncFIFOFromCC(30,clk0);
-SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(13,clk0,rst0);
+SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width,id_width, user_width)) ff_rd_addr <- mkSyncFIFOFromCC(30,clk0);
+SyncFIFOIfc#(AXI4_Rd_Data#(id_width,data_width, user_width)) ff_sync_read_response <-mkSyncFIFOToCC(13,clk0,rst0);
 
 SyncFIFOIfc#(Tuple2#(Bit#(addr_width),Bit#(data_width))) ff_sync_ctrl_write<- mkSyncFIFOFromCC(1,clk0);
 SyncFIFOIfc#(Bit#(addr_width)) ff_sync_ctrl_read<- mkSyncFIFOFromCC(1,clk0);
@@ -416,8 +418,8 @@ Reg#(Bool)    rg_rd_trnc_flg <- mkRegA(False);
 Reg#(Bool)    rg_wr_trnc_flg <- mkRegA(False);
 Reg#(bit)     rg_odd_len     <- mkRegA(0);   
 // hardcoding the parameter value to resolve provisos
-AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Slave_Xactor;
-AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Slave_Xactor;
+AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor_sdram     <- mkAXI4_Slave_Xactor;
+AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor_cntrl_reg <- mkAXI4_Slave_Xactor;
 Ifc_sdram#(io_width, rfrsh_timer_width, rfrsh_row_width) sdr_cntrl <- mksdrc_top(clocked_by clk0, reset_by rst0);
 
 function Action fn_wr_cntrl_reg(Bit#(data_width) data, Bit#(addr_width) address);

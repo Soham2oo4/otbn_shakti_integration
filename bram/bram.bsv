@@ -113,9 +113,9 @@ package bram;
     endmethod
   endmodule
 
-  interface Ifc_bram_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width,
+  interface Ifc_bram_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width,
                                                                            numeric type index_size);
-    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+    interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
@@ -126,7 +126,7 @@ package bram;
     module mkbram_axi4#( parameter Integer slave_base, parameter String readfile,
         parameter String modulename )
   `endif
-        (Ifc_bram_axi4#(addr_width, data_width, user_width, index_size))
+        (Ifc_bram_axi4#(addr_width,id_width, data_width, user_width, index_size))
       provisos(
         Mul#(TDiv#(data_width, TDiv#(data_width, 8)), TDiv#(data_width, 8),data_width)  );
     `ifdef fesvr_sim
@@ -135,13 +135,13 @@ package bram;
       UserInterface#(addr_width, data_width, index_size) dut <- mkbram(slave_base, readfile,
         modulename);
     `endif
-	  AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+	  AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
     Reg#(Mem_State) read_state <-mkRegA(Idle);
     Reg#(Mem_State) write_state <-mkRegA(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
-	  Reg#(AXI4_Rd_Addr	#(addr_width, user_width)) rg_read_packet <-mkRegA(?);
-		Reg#(AXI4_Wr_Addr	#(addr_width, user_width)) rg_write_packet<-mkRegA(?);
+	  Reg#(AXI4_Rd_Addr	#(addr_width, id_width, user_width)) rg_read_packet <-mkRegA(?);
+		Reg#(AXI4_Wr_Addr	#(addr_width, id_width, user_width)) rg_write_packet<-mkRegA(?);
     Wire#(Bool) wr_read_ack <- mkWire();
 
     // If the request is single then simple send ERR. If it is a burst write request then change
@@ -200,7 +200,7 @@ package bram;
     rule read_response;
       wr_read_ack<=True;
       let {err, data0}<-dut.read_response;
-      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 ,
+      AXI4_Rd_Data#(id_width,data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 ,
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
       `logLevel( bram, 1, $format("",modulename,": Responding Read Request with Data: %h ",data0))
       s_xactor.i_rd_data.enq(r);

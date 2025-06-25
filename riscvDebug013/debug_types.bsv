@@ -168,7 +168,7 @@ package debug_types;
       interface Ifc_DM_DTM dtm;
       interface Debug_Hart_Ifc hart;
     `ifdef CORE_AXI4
-      interface AXI4_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
+      interface AXI4_Master_IFC#(DPADDR,`axi4_id_width, DXLEN, 0 ) debug_master;
     `elsif CORE_AXI4Lite
       interface AXI4_Lite_Master_IFC#(DPADDR, DXLEN, 0 ) debug_master;
     `endif

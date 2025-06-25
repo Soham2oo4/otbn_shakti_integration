@@ -331,14 +331,14 @@ module mkclic_axi4lite(Ifc_clic_axi4lite#(addr_width,data_width,user_width,numbe
 	interface io=clic.io;	
 endmodule
 
-interface Ifc_clic_axi4#(numeric type addr_width,numeric type data_width,numeric type user_width,numeric type number_of_interrupt);
-	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+interface Ifc_clic_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width,numeric type user_width,numeric type number_of_interrupt);
+	interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
 	//interface Get#(Bit#(1))	sb_clic_hvec;
 	interface Get#(Bit#(20)) sb_interrupt;	
 	interface Clic_io#(number_of_interrupt) io;
 endinterface
 
-module mkclic_axi4(Ifc_clic_axi4#(addr_width,data_width,user_width,number_of_interrupt))
+module mkclic_axi4(Ifc_clic_axi4#(addr_width,id_width,data_width,user_width,number_of_interrupt))
 			provisos(
 		Add#(a__, data_width, 64),
     	Add#(b__, 8, data_width),
@@ -349,14 +349,14 @@ module mkclic_axi4(Ifc_clic_axi4#(addr_width,data_width,user_width,number_of_int
 
 		);
 	User_ifc#(addr_width,data_width,user_width,number_of_interrupt) clic<-mkclic;
-	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+	AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 	
 
 	 	Reg#(Bit#(8)) rg_rdburst_count <- mkReg(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkReg(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkReg(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkReg(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkReg(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkReg(?);
 
 	 	rule axi_read_transaction(rg_rdburst_count==0);
 	 		let req <- pop_o(s_xactor.o_rd_addr);

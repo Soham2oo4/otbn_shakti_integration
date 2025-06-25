@@ -35,7 +35,7 @@ package gpio_template;
 		endmodule
 
 //(*synthesize*)
-//module mkdummy(Ifc_gpio_axi4#(32,32,0,64));
+//module mkdummy(Ifc_gpio_axi4#(32,32,32,0,64));
 //		let ifc();
 //		mkgpio_axi4 _temp(ifc);
 //		return ifc;

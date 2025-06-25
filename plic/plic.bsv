@@ -441,14 +441,14 @@ endmodule
 			interface intrpt_note_sb = plic.intrpt_note_sb;
 	endmodule
 
-	interface Ifc_plic_axi4#(numeric type addr_width, numeric type data_width, numeric type
+	interface Ifc_plic_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type
       user_width, numeric type no_of_ir_pins, numeric type no_of_ir_levels, numeric type no_nmi);
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+		interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
 	  method Action ifc_external_irq_io(Bit#(no_of_ir_pins) irq) ;
 		interface Get#(Tuple2#(Bool,Bool)) intrpt_note_sb;
 	endinterface
 
-	module mkplic_axi4#(parameter Integer slave_base)(Ifc_plic_axi4#(addr_width,data_width,user_width, no_of_ir_pins,no_of_ir_levels,
+	module mkplic_axi4#(parameter Integer slave_base)(Ifc_plic_axi4#(addr_width,id_width, data_width,user_width, no_of_ir_pins,no_of_ir_levels,
       no_nmi))
 			provisos(
 				    Add#(a__, data_width, 64),
@@ -470,14 +470,14 @@ endmodule
 
 		let strb_size = valueOf(TSub#(TDiv#(data_width,8),1));
 
-		AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+		AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 		User_ifc#(addr_width, data_width, no_of_ir_pins, no_of_ir_levels, no_nmi) plic <- mkplic(slave_base);
 
 	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
 		 (*preempts="rl_config_plic_reg_read,rl_config_plic_reg_write"*)

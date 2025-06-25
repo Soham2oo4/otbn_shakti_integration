@@ -35,7 +35,7 @@ package pwm_template;
 		endmodule
 
 //(*synthesize*)
-//module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4#(32,32,0,32,4));
+//module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_pwm_axi4#(32,32,32,0,32,4));
 //		let ifc();
 //		mkpwm_axi4#(ext_clock,ext_reset) _temp(ifc);
 //		return ifc;

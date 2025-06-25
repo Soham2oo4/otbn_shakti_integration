@@ -57,8 +57,8 @@ import Clocks::*;
 
 interface Ifc_NandFlashController;
     interface Onfi_Interface_top onfi_interface;
-    interface AXI4_Slave_IFC#(`PADDR, `Reg_width,`USERSPACE) axi4_slave_onfi;
-    interface AXI4_Slave_IFC#(`PADDR, `Reg_width,`USERSPACE) axi4_slave_onfi_cfg_reg;
+    interface AXI4_Slave_IFC#(`PADDR, `axi4_id_width, `Reg_width,`USERSPACE) axi4_slave_onfi;
+    interface AXI4_Slave_IFC#(`PADDR, `axi4_id_width, `Reg_width,`USERSPACE) axi4_slave_onfi_cfg_reg;
     interface Clock clk_new;
 endinterface
 
@@ -105,22 +105,22 @@ Ifc_NFC_Interface onfi_controller <- mkNandFlashController(clk_inv, rst_inv, clk
 Ifc_NFC_Interface onfi_controller <- mkNandFlashController(clk_inv, rst_inv, clk_mux.clock_out,rst_mux, clocked_by  clock_divider.slowclock, reset_by rst0);
 `endif
 
-AXI4_Slave_Xactor_IFC#(`PADDR,`Reg_width,`USERSPACE) s_xactor_onfi         <- mkAXI4_Slave_Xactor;
-AXI4_Slave_Xactor_IFC#(`PADDR,`Reg_width,`USERSPACE) s_xactor_onfi_cfg_reg <- mkAXI4_Slave_Xactor;
-FIFOF#(AXI4_Rd_Addr#(`PADDR,`USERSPACE)) ff_rd_addr <- mkSizedFIFOF(1);
+AXI4_Slave_Xactor_IFC#(`PADDR,`axi4_id_width, `Reg_width,`USERSPACE) s_xactor_onfi         <- mkAXI4_Slave_Xactor;
+AXI4_Slave_Xactor_IFC#(`PADDR,`axi4_id_width, `Reg_width,`USERSPACE) s_xactor_onfi_cfg_reg <- mkAXI4_Slave_Xactor;
+FIFOF#(AXI4_Rd_Addr#(`PADDR,`axi4_id_width,`USERSPACE)) ff_rd_addr <- mkSizedFIFOF(1);
 
 `ifdef Out_clock
 SyncFIFOIfc#(Bit#(`Reg_width)) ff_sync_write_io    <- mkSyncFIFOFromCC(5, clk0);
 SyncFIFOIfc#(Bit#(1)) ff_write_io_start <- mkSyncFIFOFromCC(1, clk0);
 SyncFIFOIfc#(Bit#(8)) ff_sync_read_io   <- mkSyncFIFOFromCC(1, clk0);
-SyncFIFOIfc#(AXI4_Rd_Data#(`Reg_width, `USERSPACE)) ff_sync_read_erase_cc_io   <- mkSyncFIFOToCC(9,
+SyncFIFOIfc#(AXI4_Rd_Data#(`axi4_id_width,`Reg_width, `USERSPACE)) ff_sync_read_erase_cc_io   <- mkSyncFIFOToCC(9,
 clk0, rst0);
 SyncFIFOIfc#(Tuple2#(Bit#(`PADDR),Bit#(`Reg_width))) ff_sync_ctrl_write <- mkSyncFIFOFromCC(1,clk0);
 `else
 SyncFIFOIfc#(Bit#(`Reg_width)) ff_sync_write_io <- mkSyncFIFOFromCC(5, clock_divider.slowclock);
 SyncFIFOIfc#(Bit#(1))          ff_write_io_start <- mkSyncFIFOFromCC(1, clock_divider.slowclock);
 SyncFIFOIfc#(Bit#(8)) ff_sync_read_io   <- mkSyncFIFOFromCC(1, clock_divider.slowclock);
-SyncFIFOIfc#(AXI4_Rd_Data#(`Reg_width, `USERSPACE)) ff_sync_read_erase_cc_io   <- mkSyncFIFOToCC(9,
+SyncFIFOIfc#(AXI4_Rd_Data#(`axi4_id_width,`Reg_width, `USERSPACE)) ff_sync_read_erase_cc_io   <- mkSyncFIFOToCC(9,
 clock_divider.slowclock, rst0);
 SyncFIFOIfc#(Tuple2#(Bit#(`PADDR),Bit#(`Reg_width))) ff_sync_ctrl_write <- mkSyncFIFOFromCC(1,clock_divider.slowclock);
 `endif

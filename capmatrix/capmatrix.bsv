@@ -115,15 +115,15 @@ package capmatrix;
 
 
 
-  interface Ifc_capmatrix_AXI4#(numeric type addr_width, numeric type data_width, numeric type user_width,
+  interface Ifc_capmatrix_AXI4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width,
 																																									numeric type mem_size);
-    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave; 
+    interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave; 
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
   module mkcapmatrix_AXI4#(Bit#(awidth) base, parameter String mem_init_file1, 
-        parameter String mem_init_file2, parameter String modulename)(Ifc_capmatrix_AXI4#(awidth, dwidth, uwidth, mem_size))
+        parameter String mem_init_file2, parameter String modulename)(Ifc_capmatrix_AXI4#(awidth, iwidth, dwidth, uwidth, mem_size))
     provisos(Add#(dwidth, a, 64), 
              Mul#(8, a__, dwidth), 
              Mul#(16, b__, dwidth), 
@@ -138,8 +138,8 @@ package capmatrix;
     Reg#(Mem_State) read_state <-mkReg(Idle);
     Reg#(Mem_State) write_state <-mkReg(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-	  Reg#(AXI4_Rd_Addr	#(awidth, uwidth)) rg_read_packet <-mkReg(?);
-		Reg#(AXI4_Wr_Addr	#(awidth, uwidth)) rg_write_packet<-mkReg(?); 
+	  Reg#(AXI4_Rd_Addr	#(awidth,iwidth, uwidth)) rg_read_packet <-mkReg(?);
+		Reg#(AXI4_Wr_Addr	#(awidth,iwidth, uwidth)) rg_write_packet<-mkReg(?); 
 
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -220,7 +220,7 @@ package capmatrix;
         data0=duplicate(data0[15:0]);
       else if(transfer_size=='d0)
         data0=duplicate(data0[7:0]);
-      AXI4_Rd_Data#(dwidth, uwidth) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+      AXI4_Rd_Data#(iwidth,dwidth, uwidth) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: rg_read_packet.aruser, rid:rg_read_packet.arid};
   		if(verbosity!=0) 
         $display($time, "\tCapMatrix : Responding Read Request with Data: %h ",data0);

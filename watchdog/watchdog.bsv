@@ -183,15 +183,15 @@ package watchdog;
   endmodule
 
 
-  interface Ifc_watchdog_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
-    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave; 
+  interface Ifc_watchdog_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width);
+    interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave; 
     (*always_ready, always_enabled*) method Bit#(1) reset_out;
     method Bit#(1) interrupt;
   endinterface
 
-  module mkwatchdog_axi4(Reset ext_rst, Integer wd_control, Integer reset_cycles, Ifc_watchdog_axi4#(addr_width, data_width, user_width) ifc)
+  module mkwatchdog_axi4(Reset ext_rst, Integer wd_control, Integer reset_cycles, Ifc_watchdog_axi4#(addr_width,id_width, data_width, user_width) ifc)
                              provisos(Add#(16, a__, data_width));
-    AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+    AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
     Ifc_watchdog#(addr_width, data_width) wdt <- mkwatchdog(reset_by ext_rst, wd_control, reset_cycles);
 
     rule rl_capture_read_req;

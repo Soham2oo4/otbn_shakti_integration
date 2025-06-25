@@ -111,7 +111,7 @@ interface User_ifc#(numeric type addr_width, numeric type data_width, numeric ty
 	method ActionValue#(Bool) write_resp;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
-	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+	interface AXI4_Master_IFC#(addr_width,id_width, data_width, user_width) master;
 endinterface
 
 
@@ -1083,14 +1083,14 @@ endfunction*/
 	interface master= m_xactor.axi_side;
 endmodule
 
-interface Ifc_DMA_AXI4#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);
-	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
-	interface AXI4_Slave_IFC#(config_addr_width, config_data_width, user_width) slave;
+interface Ifc_DMA_AXI4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_id_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);
+	interface AXI4_Master_IFC#(addr_width,id_width, data_width, user_width) master;
+	interface AXI4_Slave_IFC#(config_addr_width,config_id_width, config_data_width, user_width) slave;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
 endinterface
 
-module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
+module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, id_width, data_width, user_width, config_addr_width, config_id_width, config_data_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
 	 				Add#(numChannels, 0, 3),
@@ -1205,10 +1205,10 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		interface interrupt_to_proc= dma.interrupt_to_proc;
 endmodule
 
-interface Ifc_DMA_AXI4_Lite#(numeric type addr_width, numeric type data_width, numeric type user_width,
+interface Ifc_DMA_AXI4_Lite#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width,
                              numeric type config_addr_width, numeric type config_data_width,
                              numeric type numChannels, numeric type numPeripherals);
-	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+	interface AXI4_Master_IFC#(addr_width,id_width, data_width, user_width) master;
  	interface AXI4_Lite_Slave_IFC#(config_addr_width, config_data_width, user_width) slave;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;

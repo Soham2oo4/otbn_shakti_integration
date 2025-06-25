@@ -38,7 +38,7 @@ package clic_template;
 //           User_ifc#(64,8,0,16) clic <- mkclic;  
 			
 		  // Ifc_clic_axi4lite#(64,64,0,16) clic1<-mkclic_axi4lite;
-		   Ifc_clic_axi4#(64,64,0,16) clic2<-mkclic_axi4;
+		   Ifc_clic_axi4#(64,32,64,0,16) clic2<-mkclic_axi4;
 
 			Ifc_enc#(16) enc <- mkmain;
 	endmodule
@@ -48,7 +48,7 @@ package clic_template;
 module testbench(Empty);
 //
 //	User_ifc#(64,64,0,8) clic_main<-mkclic;
-	Ifc_clic_axi4#(64,64,0,16) clic_axi4<-mkclic_axi4;
+	Ifc_clic_axi4#(64,32,64,0,16) clic_axi4<-mkclic_axi4;
 	Ifc_enc#(1) encoder <-mkmain;
 	Vector#(16,Bit#(1)) clic_io = replicate(1);	//input to the io interface function		 
 

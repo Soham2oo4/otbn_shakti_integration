@@ -48,8 +48,8 @@ interface Ifc_sd_controller_out;
 endinterface
 
 interface Ifc_sd_controller;
-    interface AXI4_Slave_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_slave_sdc;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_master_sdc;
+    interface AXI4_Slave_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) axi4_slave_sdc;
+    interface AXI4_Master_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) axi4_master_sdc;
     interface Ifc_sd_controller_out sd_controller_out;
 endinterface
 
@@ -117,8 +117,8 @@ Reg#(bit)  wr_config                          <- mkDReg(0);
 Reg#(Bit#(3)) rg_new_count                    <- mkReg(0);
 
 
-AXI4_Slave_Xactor_IFC#(`PADDR, `Reg_width, `USERSPACE)  s_xactor_sdc_slave   <- mkAXI4_Slave_Xactor;
-AXI4_Master_Xactor_IFC#(`PADDR, `Reg_width, `USERSPACE) s_xactor_sdc_master <- mkAXI4_Master_Xactor;
+AXI4_Slave_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE)  s_xactor_sdc_slave   <- mkAXI4_Slave_Xactor;
+AXI4_Master_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) s_xactor_sdc_master <- mkAXI4_Master_Xactor;
 
 Ifc_sdc_controller sdc_controller <- mksdc_controller;
 

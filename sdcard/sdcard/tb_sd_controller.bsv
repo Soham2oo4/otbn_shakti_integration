@@ -121,8 +121,8 @@ endinterface
 
 
 interface Ifc_test_sdc;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) master_test;
-    interface AXI4_Slave_IFC#(`PADDR, `Reg_width, `USERSPACE) slave_test;
+    interface AXI4_Master_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) master_test;
+    interface AXI4_Slave_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) slave_test;
     interface Ifc_sdcard_in ifc_sdcard_in;
 endinterface
 
@@ -134,8 +134,8 @@ Reg#(Command_controller_state) rg_command_state    <- mkReg(SET_BD_ISER);
 
 Ifc_sdModelwrapper    sd_model     <- mksdModelwrapper;
 
-AXI4_Master_Xactor_IFC#(`PADDR, `Reg_width, `USERSPACE) tb_master_xactor <- mkAXI4_Master_Xactor;
-AXI4_Slave_Xactor_IFC#(`PADDR, `Reg_width, `USERSPACE)  tb_slave_xactor   <- mkAXI4_Slave_Xactor;
+AXI4_Master_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) tb_master_xactor <- mkAXI4_Master_Xactor;
+AXI4_Slave_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE)  tb_slave_xactor   <- mkAXI4_Slave_Xactor;
 
 Reg#(Bool)     wr_cmd_en            <- mkReg(False);
 Reg#(Bool)     wr_dat_en            <- mkReg(False);

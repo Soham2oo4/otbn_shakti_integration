@@ -38,7 +38,7 @@ module mkdummy#(Clock i2c_clock, Reset i2c_reset)(Empty);
 	let core_reset<-exposeCurrentReset;
 	//Ifc_uart_axi4lite#(32,16,0, 32) uart <- mkuart_axi4lite(uart_clock,uart_reset, 105);
 	Ifc_i2c_axi4lite#(32,32,0) i2c0 <- mki2c_axi4lite(i2c_clock,i2c_reset);
-	Ifc_i2c_axi4#(32,32,0) i2c1 <- mki2c_axi4(core_clock,core_reset);
+	Ifc_i2c_axi4#(32,32,32,0) i2c1 <- mki2c_axi4(core_clock,core_reset);
 endmodule
 endpackage
 

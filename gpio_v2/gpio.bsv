@@ -314,9 +314,9 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 
 
 		/*doc : interface : GPIO axi4 interface using AXI4. */
-		interface Ifc_gpio_axi4#(numeric type addr_width, numeric type data_width,numeric type user_width, numeric type ionum);
+		interface Ifc_gpio_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width,numeric type user_width, numeric type ionum);
 			/*doc : subifc : subinterface for AXI4 slave interface. */
-			interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+			interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
 		/*doc : subifc : subinterface for getting interrupt to PLIC. */
 		interface Get#(Vector#(ionum ,Bit#(1))) sb_gpio_to_plic;
 		/*doc : subifc : subinterface configure and control GPIO.. */
@@ -324,7 +324,7 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 	endinterface
 
 /*doc:module: gpio AXI4 module. This module is accessed from soc level and has complete control and configuring and accessing the GPIO port from AXI4 interface of core. */
-module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
+module mkgpio_axi4(Ifc_gpio_axi4#(addr_width,id_width, data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
@@ -332,12 +332,12 @@ module mkgpio_axi4(Ifc_gpio_axi4#(addr_width, data_width,user_width,ionum))
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
-		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
+		AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor <- mkAXI4_Slave_Xactor();
 		
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);	
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);	
 
 	/*doc:rule: This rule fires whenever write request from core of the AXI4lite is raised.  Configures the internal registers of GPIO through AXI4. Fires when burst count is equal to zero.*/
 	rule write_request(rg_wrburst_count==0);

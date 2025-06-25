@@ -49,7 +49,7 @@ package mcpu;
 	interface Ifc_mcpu_top;
   interface Mcpu_out proc_ifc;
 	interface  Data_bus_inf proc_dbus;
-  interface AXI4_Slave_IFC#(`PADDR,`Reg_width,`USERSPACE) slave_axi_mcpu;
+  interface AXI4_Slave_IFC#(`PADDR, `axi4_id_width, `Reg_width,`USERSPACE) slave_axi_mcpu;
 	method Action rd_ipl(Bit#(3) ip);
 		/*-============================================================================= */
 	endinterface

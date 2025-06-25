@@ -1567,14 +1567,16 @@ module mkqspi_axi4lite#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, 
 endmodule
 
 interface Ifc_qspi_axi4#(numeric type addr_width,
+					numeric type id_width,
 					numeric type data_width,
 					numeric type user_width); 
 	interface QSPI_out io;
-	interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+	interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
 	method Bit#(6) interrupts; // 0=TOF, 1=SMF, 2=Threshold, 3=TCF, 4=TEF 5 = request_ready
 endinterface
 
 module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#(32) end_mm_addr)(Ifc_qspi_axi4#(addr_width,
+														 id_width,
 														 data_width,
 														 user_width))
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
@@ -1583,7 +1585,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
 	Reg#(Bit#(4)) rg_wid <- mkRegA(0);
 
-	AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+	AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
 
 	SyncFIFOIfc#(Maybe#(Write_req#(addr_width,data_width))) ff_wr_req       	<- mkSyncFIFOFromCC(1, slow_clk);
   SyncFIFOIfc#(AXI4_Lite_Resp) 	ff_sync_wr_resp 	<- mkSyncFIFOToCC(1, slow_clk, slow_rst);

@@ -23,17 +23,18 @@ package debug_halt_loop;
   import BUtils::*;
 
   interface Ifc_debug_halt_loop_axi4#(numeric type awidth, 
+                                numeric type iwidth,
                                 numeric type dwidth, 
                                 numeric type uwidth);
-    interface AXI4_Slave_IFC#(awidth, dwidth, uwidth) slave;
+    interface AXI4_Slave_IFC#(awidth, iwidth, dwidth, uwidth) slave;
   endinterface
 
-  module mkdebug_halt_loop_axi4(Ifc_debug_halt_loop_axi4#(awidth, dwidth, uwidth))
+  module mkdebug_halt_loop_axi4(Ifc_debug_halt_loop_axi4#(awidth, iwidth, dwidth, uwidth))
     provisos(Add#(a__, dwidth, 128),
              Mul#(32, b__, dwidth),
              Mul#(16, c__, dwidth),
              Mul#(8, d__, dwidth));
-    AXI4_Slave_Xactor_IFC#(awidth, dwidth, uwidth) s_xactor <- mkAXI4_Slave_Xactor;
+    AXI4_Slave_Xactor_IFC#(awidth, iwidth, dwidth, uwidth) s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(32)) instr_array [4];
     instr_array[0] <- mkRegA('h0000100f); // fence.i
     instr_array[1] <- mkRegA('h00000013); // nop
@@ -43,7 +44,7 @@ package debug_halt_loop;
     rule recieve_read;
       let req <- pop_o(s_xactor.o_rd_addr);
 
-      AXI4_Rd_Data#(dwidth, uwidth) resp = AXI4_Rd_Data {rresp : AXI4_OKAY, rdata: ? , 
+      AXI4_Rd_Data#(iwidth, dwidth, uwidth) resp = AXI4_Rd_Data {rresp : AXI4_OKAY, rdata: ? , 
         rlast : True, ruser : req.aruser, rid : req.arid};
 
       Bit#(128) line = {instr_array[3], instr_array[2], instr_array[1], instr_array[0]};

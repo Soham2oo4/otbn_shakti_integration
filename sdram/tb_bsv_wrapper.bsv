@@ -37,8 +37,8 @@ import Connectable       :: *;
     endinterface
 
 interface Ifc_tb_bsv_wrapper;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_sdram;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_cntrl_reg;
+    interface AXI4_Master_IFC#(`PADDR,`axi4_id_width, `Reg_width, `USERSPACE) axi4_sdram;
+    interface AXI4_Master_IFC#(`PADDR,`axi4_id_width, `Reg_width, `USERSPACE) axi4_cntrl_reg;
     interface Ifc_tb_sdram_in ifc_tb_sdram_in;
     interface Inout#(Bit#(32)) dq_0 ;
     interface Inout#(Bit#(32)) dq_1;    
