@@ -49,8 +49,8 @@ typedef enum {None, IWalk, DWalk} PTWState deriving(Bits, Eq, FShow);
 `endif
 
 interface Ifc_ccore_axi4;
-	interface AXI4_Master_IFC#(`paddr, `buswidth, USERSPACE) master_d;
-	interface AXI4_Master_IFC#(`paddr, `buswidth, USERSPACE) master_i;
+	interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `buswidth, USERSPACE) master_d;
+	interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `buswidth, USERSPACE) master_i;
     interface Put#(Bit#(1)) sb_clint_msip;
 
 	/*doc:method: This method should receive the machine timer interrupt from the CLINT module*/
@@ -136,8 +136,8 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
     Ifc_ptwalk#(`asidwidth) ptwalk <- mkptwalk;
   `endif
 
-	AXI4_Master_Xactor_IFC #(`paddr, `buswidth, USERSPACE) fetch_xactor <- mkAXI4_Master_Xactor;
-	AXI4_Master_Xactor_IFC #(`paddr, `buswidth, USERSPACE) memory_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(`paddr, `axi4_id_width , `buswidth, USERSPACE) fetch_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(`paddr, `axi4_id_width ,`buswidth, USERSPACE) memory_xactor <- mkAXI4_Master_Xactor;
 `ifdef pmp
   /*doc:var: When pmp is enabled we capture the curernt pmp configurations and addresses that will
   * be required by the TLBs*/
@@ -159,7 +159,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 
   /*doc:reg: While performing burst writes during line eviction, this register indicates the amount
    * the line should be shifted to send the next beat of data on the bus*/
-  Reg#(Bit#(TLog#(TMul#(TMul#(`dwords, 8), `dblocks)))) rg_shift_amount <- mkReg(`dwords * 16 );
+  Reg#(Bit#(TLog#(TMul#(TMul#(`dwords, 8), `dblocks)))) rg_shift_amount <- mkReg(`buswidth);
 `endif
   /*doc: capture the current privilege mode under which the current transaction is being carried
   * out. TODO: This should ideally come form the caches themselves. Capturing here can have issues.
@@ -192,7 +192,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   * the fabric*/
   rule rl_handle_imem_line_request;
 		let request <- imem.get_read_mem_req.get;
-		AXI4_Rd_Addr#(`paddr, 0) imem_request = AXI4_Rd_Addr {araddr : truncate(request.address),
+		AXI4_Rd_Addr#(`paddr,`axi4_id_width, 0) imem_request = AXI4_Rd_Addr {araddr : truncate(request.address),
       aruser: ?, arlen : request.burst_len, arsize : request.burst_size, arburst : 'b10,
       arid : zeroExtend(pack(request.io)), arprot:{1'b1, 1'b0, curr_priv[1]} }; // arburst : 00 - FIXED 01 - INCR 10 - WRAP
 	  fetch_xactor.i_rd_addr.enq(imem_request);
@@ -245,18 +245,15 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 	  let req <- dmem.send_mem_io_req.get;
     `logLevel( core, 0, $format("CORE: Received io op: ",fshow(req)))
 
-    // resize the data and duplicate the bytes based on the size of the transaction
-     Bit#(`buswidth) lv_data = 0; 
-    if(req.size[2:0]== 0)
-     lv_data = duplicate(req.data[7 : 0]);
-    else if(req.size[2:0] == 1)
-     lv_data = duplicate(req.data[15 : 0]);
-    else if(req.size[2:0] == 2)
-      lv_data = duplicate(req.data[31 : 0]);
-     else if(req.size[2:0] == 3)
-      lv_data = duplicate(req.data[63 : 0]);
-      else 
-       lv_data = duplicate(req.data[63 : 0]);
+    // resize the data and duplicate the bytes based on the size of the transaction 
+   if(req.size[1:0]== 0)
+      req.data = duplicate(req.data[7 : 0]);
+    else if(req.size[1:0] == 1)
+      req.data = duplicate(req.data[15 : 0]);
+    else if(req.size[1:0] == 2)
+      req.data = duplicate(req.data[31 : 0]);
+     else 
+       req.data = duplicate(req.data[63 : 0]);
 
     // build the write-strobe based on the size of the request.
     Bit#(TDiv#(`buswidth, 8)) write_strobe = req.size[1:0] == 0?'b1 :
@@ -268,18 +265,18 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 
     // if read operation send transaction on the i_rd_addr channel
 	  if (!req.read_write) begin
-		  AXI4_Rd_Addr#(`paddr, 0) dmem_request = AXI4_Rd_Addr {araddr : truncate(req.address), aruser: ?,
+		  AXI4_Rd_Addr#(`paddr,`axi4_id_width, 0) dmem_request = AXI4_Rd_Addr {araddr : truncate(req.address), aruser: ?,
         arlen : 0, arsize : zeroExtend(req.size[1:0]), arburst : 'b00, // arburst : 00 - FIXED 01 - INCR 10 - WRAP
         arid : 1 ,arprot:{1'b0, 1'b0, curr_priv[1]} }; 
       memory_xactor.i_rd_addr.enq(dmem_request);
 	  end
 	  // if write operation send transaction on the i_wr_addr and i_wr_data channels
 	  else begin
-	    AXI4_Wr_Addr#(`paddr, 0) aw = AXI4_Wr_Addr {awaddr : truncate(req.address), awuser : 0,
+	    AXI4_Wr_Addr#(`paddr,`axi4_id_width, 0) aw = AXI4_Wr_Addr {awaddr : truncate(req.address), awuser : 0,
         awlen : 0, awsize : zeroExtend(req.size[1 : 0]), awburst : 'b0,
         awid : 1, awprot:{1'b0, 1'b0, curr_priv[1]} }; // arburst : 00 - FIXED 01 - INCR 10 - WRAP
 
-      let w  = AXI4_Wr_Data {wdata : truncate(lv_data), wstrb : write_strobe,
+	let w  = AXI4_Wr_Data {wdata : truncate(req.data), wstrb : write_strobe,
                              wlast : True, 
                              wid : 1};
 	    memory_xactor.i_wr_addr.enq(aw);
@@ -316,7 +313,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 
   /*doc:reg: This register when Valid, indicaets that there is pending read line operation which got
    * delayed because of a contentious write happening on the same line address*/
-  Reg#(Maybe#(AXI4_Rd_Addr#(`paddr, 0))) rg_read_line_req <- mkReg(tagged Invalid);
+  Reg#(Maybe#(AXI4_Rd_Addr#(`paddr,`axi4_id_width, 0))) rg_read_line_req <- mkReg(tagged Invalid);
 
   /*doc:reg: This register when Valid, indicates the address to which a line a request is in
    * progress. This is used to delay a read operation on the same line initiated by the cache*/
@@ -353,7 +350,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   rule rl_handle_dmem_line_read_request(rg_read_line_req matches tagged Invalid );
     Bool perform_req = True;
   	let req <- dmem.send_mem_rd_req.get;
-  	AXI4_Rd_Addr#(`paddr, 0) dmem_request = AXI4_Rd_Addr {araddr : truncate({req.address[31:4],4'b0}), aruser: ?,
+	AXI4_Rd_Addr#(`paddr,`axi4_id_width, 0) dmem_request = AXI4_Rd_Addr {araddr : truncate(req.address), aruser: ?,
       arlen : req.burst_len, arsize : req.burst_size, arburst : 'b10, // arburst : 00 - FIXED 01 - INCR 10 - WRAP
       arid : 0 ,arprot:{1'b0, 1'b0, curr_priv[1]} }; 
     if(wr_write_req matches tagged Valid .waddr) begin
@@ -403,7 +400,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   	// increment burst count to indicate one beat has been sent.
       rg_burst_count <= rg_burst_count + 1;
 
-	  AXI4_Wr_Addr#(`paddr, 0) aw = AXI4_Wr_Addr {awaddr : truncate({req.address[31:4],4'b0}), awuser : 0,
+      AXI4_Wr_Addr#(`paddr,`axi4_id_width, 0) aw = AXI4_Wr_Addr {awaddr : truncate(req.address), awuser : 0,
       awlen : req.burst_len, awsize : zeroExtend(req.burst_size), awburst : 'b01,
       awid : 0, awprot:{1'b0, 1'b0, curr_priv[1]} }; // arburst : 00 - FIXED 01 - INCR 10 - WRAP
 
