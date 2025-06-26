@@ -54,7 +54,7 @@ package bram;
 
     `ifdef fesvr_sim
       BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))),Bit#(data_width), TDiv#(data_width, 8)) dmemMSB <- mkBRAMCore2BE(valueOf(TExp#(TSub#(index_size, TLog#(TDiv#(data_width, 8))))),False);
-      Reg#(Bit#(1)) rg_initialized <- mkRegA(0);
+      Reg#(Bit#(1)) rg_initialized <- mkReg(0);
     `else
       BRAM_DUAL_PORT_BE#(Bit#(TSub#(index_size, TLog#(TDiv#(data_width, 8)))), Bit#(data_width),
                                                                     TDiv#(data_width,8)) dmemMSB <-

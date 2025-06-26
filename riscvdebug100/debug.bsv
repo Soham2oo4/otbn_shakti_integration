@@ -84,7 +84,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reset  dm_reset <- mkResetEither(dmactive_reset.new_rst,curr_reset);   // OR default and new_rst
   // ----------------------------------------------------------------------------------------------
   
-  Reg#(Maybe#(Bit#(34))) dmi_response <- mkRegA(tagged Invalid);
+  Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
 
 `ifndef debugrom_large  // normal debug ROM
   Vector#(32, Bit#(32)) vrom;
@@ -231,7 +231,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   Reg#(Bit#(32)) v_abstract_reg[nAbstractInstr];
   for (Integer i = 0; i<nAbstractInstr; i = i + 1) begin
-    v_abstract_reg[i] <- mkRegA(`NOP, reset_by dm_reset);
+    v_abstract_reg[i] <- mkReg(`NOP, reset_by dm_reset);
   end
 
   AXI4_Slave_Xactor_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) slave_xactor <- mkAXI4_Slave_Xactor;//(reset_by dm_reset);
@@ -273,21 +273,21 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   //TODO: assert that while writing to resumereq, hartreset, ackhavereset, setresethaltreq and
   //clresethaltreq, a max of one bit is set.
 
-  Reg#(Bit#(1)) haltreq           <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) resumereq         <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) hartreset         <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) ackhavereset      <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) ackunavail        <- mkRegA(0, reset_by dm_reset); // We may not support this. TODO
-  ConfigReg#(Bit#(1)) hasel       <- mkConfigRegA(0, reset_by dm_reset);
-  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) _hartsello        <- mkConfigRegA(0, reset_by dm_reset);
+  Reg#(Bit#(1)) haltreq           <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) resumereq         <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) hartreset         <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) ackhavereset      <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) ackunavail        <- mkReg(0, reset_by dm_reset); // We may not support this. TODO
+  ConfigReg#(Bit#(1)) hasel       <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) _hartsello        <- mkConfigReg(0, reset_by dm_reset);
   ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) hartsello   = hartselloReg(_hartsello, v_ncomponents);
   Reg#(Bit#(10)) hartselhi        = readOnlyReg(0); // 2^20 is just obnoxious. simple opt here.
   Reg#(Bit#(1)) setkeepalive      = readOnlyReg(0); // we do not support this feature
   Reg#(Bit#(1)) clrkeepalive      = readOnlyReg(0); // we do not support this feature
-  Reg#(Bit#(1)) setresethaltreq   <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) clrresethaltreq   <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) ndmreset          <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) dmactive          <- mkRegA(0);
+  Reg#(Bit#(1)) setresethaltreq   <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) clrresethaltreq   <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) ndmreset          <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) dmactive          <- mkReg(0);
 
   Wire#(Bool) wr_haltreq_wren <- mkDWire(False, reset_by dm_reset);
   Wire#(Bool) wr_resumereq_wren <- mkDWire(False, reset_by dm_reset);
@@ -317,26 +317,26 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                                       );
   // ----------------------------------------------------------------------------------------------
   // -------------------------------------- DMSTATUS ----------------------------------------------
-  Reg#(Bit#(1)) ndmresetpending <- mkRegA(0);
+  Reg#(Bit#(1)) ndmresetpending <- mkReg(0);
   Reg#(Bit#(1)) stickyunavail   = readOnlyReg(0);
   Reg#(Bit#(1)) impebreak       = readOnlyReg(fromInteger(cfg.implicitebreak));
-  Reg#(Bit#(1)) allhavereset    <- mkRegA(0);
-  Reg#(Bit#(1)) anyhavereset    <- mkRegA(0);
-  Reg#(Bit#(1)) allresumeack    <- mkRegA(1);
-  Reg#(Bit#(1)) anyresumeack    <- mkRegA(1);
-  Reg#(Bit#(1)) allnonexistent  <- mkRegA(0);
-  Reg#(Bit#(1)) anynonexistent  <- mkRegA(0);
-  Reg#(Bit#(1)) allunavail      <- mkRegA(0);
-  Reg#(Bit#(1)) anyunavail      <- mkRegA(0);
-  Reg#(Bit#(1)) allrunning      <- mkRegA(1);
-  Reg#(Bit#(1)) anyrunning      <- mkRegA(1);
-  Reg#(Bit#(1)) allhalted       <- mkRegA(0);
-  Reg#(Bit#(1)) anyhalted       <- mkRegA(0);
-  Reg#(Bit#(1)) authenticated   <- mkRegA(1); // TODO How do we want to authenticate ?
-  Reg#(Bit#(1)) authbusy        <- mkRegA(0);
-  Reg#(Bit#(1)) hasresethaltreq <- mkRegA(1);
-  Reg#(Bit#(1)) confstrptrvalid <- mkRegA(0);
-  Reg#(Bit#(4)) version         <- mkRegA(3);
+  Reg#(Bit#(1)) allhavereset    <- mkReg(0);
+  Reg#(Bit#(1)) anyhavereset    <- mkReg(0);
+  Reg#(Bit#(1)) allresumeack    <- mkReg(1);
+  Reg#(Bit#(1)) anyresumeack    <- mkReg(1);
+  Reg#(Bit#(1)) allnonexistent  <- mkReg(0);
+  Reg#(Bit#(1)) anynonexistent  <- mkReg(0);
+  Reg#(Bit#(1)) allunavail      <- mkReg(0);
+  Reg#(Bit#(1)) anyunavail      <- mkReg(0);
+  Reg#(Bit#(1)) allrunning      <- mkReg(1);
+  Reg#(Bit#(1)) anyrunning      <- mkReg(1);
+  Reg#(Bit#(1)) allhalted       <- mkReg(0);
+  Reg#(Bit#(1)) anyhalted       <- mkReg(0);
+  Reg#(Bit#(1)) authenticated   <- mkReg(1); // TODO How do we want to authenticate ?
+  Reg#(Bit#(1)) authbusy        <- mkReg(0);
+  Reg#(Bit#(1)) hasresethaltreq <- mkReg(1);
+  Reg#(Bit#(1)) confstrptrvalid <- mkReg(0);
+  Reg#(Bit#(4)) version         <- mkReg(3);
 
   Reg#(Bit#(32)) dmstatus = concatReg22( readOnlyReg(7'd0), readOnlyReg(ndmresetpending), 
                                        readOnlyReg(stickyunavail  ), 
@@ -364,27 +364,27 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   // -------------------------------------- HARTINFO ----------------------------------------------
   Reg#(HartInfo) v_hartinfo_reg [v_ncomponents];
   for (Integer i = 0; i<v_ncomponents; i = i + 1) begin
-    v_hartinfo_reg[i] <- mkRegA(reset_by dm_reset, HartInfo{nscratch:fromInteger(ndscratch),
+    v_hartinfo_reg[i] <- mkReg(reset_by dm_reset, HartInfo{nscratch:fromInteger(ndscratch),
                                        dataaccess: 1,
                                        datasize: fromInteger(v_nabstractdata),
                                        dataaddr: fromInteger(`DATA)});
   end
   // ----------------------------------------------------------------------------------------------
   // ------------------------------------ HART WINDOW[SEL] ----------------------------------------
-  Reg#(Bit#(TLog#(TDiv#(TMax#(ncomponents,`WINDOWSZ),`WINDOWSZ))))  hawindowsel <- mkRegA(0);
+  Reg#(Bit#(TLog#(TDiv#(TMax#(ncomponents,`WINDOWSZ),`WINDOWSZ))))  hawindowsel <- mkReg(0);
   // ----------------------------------------------------------------------------------------------
 
   // ----------------------------- Hart selection logic -------------------------------------------
-  ConfigReg#(Bit#(ncomponents)) hamask      <- mkConfigRegA(0, reset_by dm_reset);
-  Reg#(Bit#(ncomponents)) hahaltreq   <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(ncomponents)) haresetreq  <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(ncomponents)) haresumereq <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(ncomponents)) hahavereset[2] <- mkCRegA(2,0, reset_by dm_reset);
+  ConfigReg#(Bit#(ncomponents)) hamask      <- mkConfigReg(0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) hahaltreq   <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) haresetreq  <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) haresumereq <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) hahavereset[2] <- mkCReg(2,0, reset_by dm_reset);
 
   Wire#(Bit#(ncomponents)) wr_debug_enable <- mkWire();
 
-  Reg#(Bit#(ncomponents)) hahalted <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(ncomponents)) haresumeack <- mkRegA(0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) hahalted <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) haresumeack <- mkReg(0, reset_by dm_reset);
  
   Wire#(Bool) wr_harthalting_wren <- mkDWire(False, reset_by dm_reset);
   Wire#(Bit#(ncomponents)) wr_harthalting_id <- mkDWire(0,reset_by dm_reset);
@@ -401,9 +401,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   // ----------------------------------------------------------------------------------------------
   // ---------------------------------------- ABSTRACTCS -----------------------------------------
   Reg#(Bit#(5)) progbufsize = readOnlyReg(fromInteger(v_nprogbuf));
-  Reg#(Bit#(1)) busy        <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) relaxedpriv <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(3)) cmderr      <- mkRegA(0, reset_by dm_reset); 
+  Reg#(Bit#(1)) busy        <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) relaxedpriv <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(3)) cmderr      <- mkReg(0, reset_by dm_reset); 
   Reg#(Bit#(4)) datacount   = readOnlyReg(fromInteger(v_nabstractdata));
 
   Wire#(Bool) wr_cmderr_wren <- mkDWire(False, reset_by dm_reset);
@@ -426,8 +426,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Wire#(Bool) wr_errother <- mkDWire(False, reset_by dm_reset);
   // ----------------------------------------------------------------------------------------------
   // ----------------------------------ABSTRACT Command -------------------------------------------
-  ConfigReg#(Bit#(8))  cmdtype <- mkConfigRegA(0, reset_by dm_reset);
-  ConfigReg#(Bit#(24)) control <- mkConfigRegA(0, reset_by dm_reset);
+  ConfigReg#(Bit#(8))  cmdtype <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(24)) control <- mkConfigReg(0, reset_by dm_reset);
 
   Wire#(Bool)    wr_cmdtype_wren <- mkDWire(False, reset_by dm_reset);
   Wire#(Bit#(8)) wr_cmdtype_wrval <- mkDWire(reset_by dm_reset,?);
@@ -439,24 +439,24 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                                       );
   // ----------------------------------------------------------------------------------------------
   // ----------------------------------------Abstract Auto-----------------------------------------
-  Reg#(Bit#(nabstractdata)) autoexecdata <- mkRegA(0, reset_by dm_reset);
+  Reg#(Bit#(nabstractdata)) autoexecdata <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(TSub#(12,nabstractdata))) z1 = readOnlyReg(0);
-  Reg#(Bit#(nprogbuf)) autoexecprogbuf <- mkRegA(0, reset_by dm_reset);
+  Reg#(Bit#(nprogbuf)) autoexecprogbuf <- mkReg(0, reset_by dm_reset);
   Reg#(Bit#(TSub#(16,nprogbuf))) z2 = readOnlyReg(0);
   Reg#(Bit#(32)) abstractauto = concatReg5(z2, autoexecprogbuf, readOnlyReg(4'd0), z1, autoexecdata);
   // ----------------------------------------------------------------------------------------------
   // ---------------------------------------- System Bus Access Control/Status --------------------
   Reg#(Bit#(3)) sbversion = readOnlyReg(1);
-  Reg#(Bit#(1)) sbbusyerror <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) sbbusy <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) sbreadonaddr <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(3)) sbaccess <- mkRegA(2, reset_by dm_reset);
-  Reg#(Bit#(1)) sbautoincrement <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(1)) sbreadondata <- mkRegA(0, reset_by dm_reset);
+  Reg#(Bit#(1)) sbbusyerror <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) sbbusy <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) sbreadonaddr <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(3)) sbaccess <- mkReg(2, reset_by dm_reset);
+  Reg#(Bit#(1)) sbautoincrement <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(1)) sbreadondata <- mkReg(0, reset_by dm_reset);
 `ifdef axi4_128b
-  Reg#(Bit#(3)) sberr <- mkRegA(7, reset_by dm_reset); // sysbus for 128b bus not supported
+  Reg#(Bit#(3)) sberr <- mkReg(7, reset_by dm_reset); // sysbus for 128b bus not supported
 `else
-  Reg#(Bit#(3)) sberr <- mkRegA(0, reset_by dm_reset);
+  Reg#(Bit#(3)) sberr <- mkReg(0, reset_by dm_reset);
 `endif
   Reg#(Bit#(7)) sbasize = `ifdef axi4_128b readOnlyReg(0) `else readOnlyReg(`paddr) `endif ; // sysbus for 128b bus not supported
   Reg#(Bit#(1)) sbaccess128 = readOnlyReg(pack(`debug_bus_sz >= 128));
@@ -479,35 +479,35 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
                                     sbaccess32,
                                     sbaccess16,
                                     sbaccess8);
-  Reg#(Bool) rg_sbread_en <- mkRegA(False,reset_by dm_reset);
-  Reg#(Bool) rg_sbwrite_en <- mkRegA(False,reset_by dm_reset);
+  Reg#(Bool) rg_sbread_en <- mkReg(False,reset_by dm_reset);
+  Reg#(Bool) rg_sbwrite_en <- mkReg(False,reset_by dm_reset);
   // ----------------------------------------------------------------------------------------------
   // ---------------------------------- SBADDR/DATA -----------------------------------------------
-  Reg#(Bit#(32)) sbaddress0 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbaddress1 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbaddress2 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbaddress3 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbdata0 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbdata1 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbdata2 <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(32)) sbdata3 <- mkRegA(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbaddress0 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbaddress1 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbaddress2 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbaddress3 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbdata0 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbdata1 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbdata2 <- mkReg(0, reset_by dm_reset);
+  Reg#(Bit#(32)) sbdata3 <- mkReg(0, reset_by dm_reset);
   // ----------------------------------------------------------------------------------------------
 
   // declare array of programbuffers
   Reg#(Bit#(32)) v_progbuf_reg[v_nprogbuf];
   for (Integer i = 0; i<v_nprogbuf; i = i + 1) begin
-    v_progbuf_reg[i] <- mkRegA('h00000013, reset_by dm_reset);
+    v_progbuf_reg[i] <- mkReg('h00000013, reset_by dm_reset);
   end
   
   // declare array of data register
   Reg#(Bit#(32)) v_data_reg[v_nabstractdata];
   for (Integer i = 0; i<v_nabstractdata; i = i + 1) begin
-    v_data_reg[i] <- mkRegA(0, reset_by dm_reset);
+    v_data_reg[i] <- mkReg(0, reset_by dm_reset);
   end
 
   Reg#(Flags) v_flags [v_ncomponents];
   for (Integer i = 0; i<v_ncomponents; i = i + 1) begin
-    v_flags[i] <- mkRegA(unpack(0), reset_by dm_reset);
+    v_flags[i] <- mkReg(unpack(0), reset_by dm_reset);
   end
 
   //-------------------- local variables ----------------------------------------------------
@@ -518,7 +518,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   // ------------------- Rules ----------------------------------
 `ifdef simulate
-  Reg#(Bool) rg_init <- mkRegA(False);
+  Reg#(Bool) rg_init <- mkReg(False);
   /*doc:rule: */
   rule rl_loggers(!rg_init);
     rg_init <= True;
@@ -735,9 +735,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       0: begin writedata = duplicate(sbdata0[7:0]); writestrb = 'b1<<shamt; end
       1: begin writedata = duplicate(sbdata0[15:0]); writestrb = 'b11 << shamt; end
       2: begin writedata = duplicate(sbdata0); writestrb = 'b1111 << shamt ; end
-      `ifdef debug_datawidth64 
       3: begin writedata = duplicate({sbdata1,sbdata0}); writestrb = 'b11111111 << shamt; end
-      `endif
     endcase
 
     if (lv_err == SbSuccess) begin
@@ -874,19 +872,15 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
       data = duplicate(v_data_reg[index]);
-      `ifdef debug_datawidth64
       if (req.arsize==3)
         data[63:32] = v_data_reg[index+1];
-      `endif
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
       `ifndef axi4_128b
         data = duplicate(v_progbuf_reg[index]);
-        `ifdef debug_datawidth64
         if (req.arsize==3)
           data[63:32] = v_progbuf_reg[index+1];
-        `endif
       `else
         // Note: for 128-bit bus width
         // TODO: non-power-of-2

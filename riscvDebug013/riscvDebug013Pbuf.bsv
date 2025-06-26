@@ -51,37 +51,37 @@ package riscvDebug013Pbuf;
     Reset curr_reset<-exposeCurrentReset;
     MakeResetIfc dm_reset <-mkReset(0,False,curr_clk);
     Reset derived_reset <- mkResetEither(dm_reset.new_rst,curr_reset);
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_have_reset   <- replicateM(mkRegA(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_resume_ack   <- replicateM(mkRegA(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_have_reset   <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_resume_ack   <- replicateM(mkReg(0,reset_by derived_reset));
     Reg#(Bit#(HartCount)) rg_non_existent = readOnlyReg(0);
-    Reg#(Bit#(1)) rg_clear_resume_ack <- mkDRegA(0);   
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_unavailable  <- replicateM(mkRegA(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted       <- replicateM(mkRegA(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_hawsel       <- replicateM(mkRegA(0,reset_by derived_reset));
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted_sdw     <- replicateM(mkRegA(0,reset_by derived_reset)); 
-    Vector#(HartCount,Reg#(Bit#(1))) vrg_have_reset_sdw <- replicateM(mkRegA(0,reset_by derived_reset));
-    Reg#(Maybe#(Bit#(34))) dmi_response <- mkRegA(tagged Invalid);
-    Reg#(Bit#(1)) startSBAccess <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) sb_read_write <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(3)) abst_command_good <- mkRegA(0,reset_by derived_reset); // guards Abstract interface
+    Reg#(Bit#(1)) rg_clear_resume_ack <- mkDReg(0);   
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_unavailable  <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted       <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_hawsel       <- replicateM(mkReg(0,reset_by derived_reset));
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_halted_sdw     <- replicateM(mkReg(0,reset_by derived_reset)); 
+    Vector#(HartCount,Reg#(Bit#(1))) vrg_have_reset_sdw <- replicateM(mkReg(0,reset_by derived_reset));
+    Reg#(Maybe#(Bit#(34))) dmi_response <- mkReg(tagged Invalid);
+    Reg#(Bit#(1)) startSBAccess <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) sb_read_write <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(3)) abst_command_good <- mkReg(0,reset_by derived_reset); // guards Abstract interface
     // dmstatus DM h'11
     Reg#(Bit#(9)) dmstatusPad0  = readOnlyReg(0);
     Reg#(Bit#(1)) impEbreak     = readOnlyReg(0);
     Reg#(Bit#(2)) dmstatusPad1  = readOnlyReg(0);
-    Wire#(Bit#(1)) allHaveReset  <- mkRegA(1);
-    Wire#(Bit#(1)) anyHaveReset  <- mkRegA(1);
-    Wire#(Bit#(1)) allResumeAck  <- mkRegA(0);
-    Wire#(Bit#(1)) anyResumeAck  <- mkRegA(0);
-    Wire#(Bit#(1)) allNonExistent<- mkRegA(0);
-    Wire#(Bit#(1)) anyNonExistent<- mkRegA(0);
-    Wire#(Bit#(1)) allUnAvail    <- mkRegA(0);
-    Wire#(Bit#(1)) anyUnAvail    <- mkRegA(0);
-    Wire#(Bit#(1)) allRunning    <- mkRegA(1);
-    Wire#(Bit#(1)) anyRunning    <- mkRegA(1);
-    Wire#(Bit#(1)) allHalted     <- mkRegA(0);
-    Wire#(Bit#(1)) anyHalted     <- mkRegA(0);
-    Reg#(Bit#(1)) authenticated <- mkRegA(0);
-    Reg#(Bit#(1)) authbusy      <- mkRegA(0,reset_by derived_reset);
+    Wire#(Bit#(1)) allHaveReset  <- mkReg(1);
+    Wire#(Bit#(1)) anyHaveReset  <- mkReg(1);
+    Wire#(Bit#(1)) allResumeAck  <- mkReg(0);
+    Wire#(Bit#(1)) anyResumeAck  <- mkReg(0);
+    Wire#(Bit#(1)) allNonExistent<- mkReg(0);
+    Wire#(Bit#(1)) anyNonExistent<- mkReg(0);
+    Wire#(Bit#(1)) allUnAvail    <- mkReg(0);
+    Wire#(Bit#(1)) anyUnAvail    <- mkReg(0);
+    Wire#(Bit#(1)) allRunning    <- mkReg(1);
+    Wire#(Bit#(1)) anyRunning    <- mkReg(1);
+    Wire#(Bit#(1)) allHalted     <- mkReg(0);
+    Wire#(Bit#(1)) anyHalted     <- mkReg(0);
+    Reg#(Bit#(1)) authenticated <- mkReg(0);
+    Reg#(Bit#(1)) authbusy      <- mkReg(0,reset_by derived_reset);
     Reg#(Bit#(1)) hasResetHaltRequest = readOnlyReg(1);
     Reg#(Bit#(1)) confStrPtrValid = readOnlyReg(1);
     Reg#(Bit#(4)) version       = readOnlyReg(4'b0010);//! Version = 2 => Supports spec 0.13
@@ -93,19 +93,19 @@ package riscvDebug013Pbuf;
         readOnlyReg(authenticated),readOnlyReg(authbusy),hasResetHaltRequest,confStrPtrValid,
         version);
     // dmcontrol DM h'10
-    Reg#(Bit#(1)) haltReq       <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) resumeReq     <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) hartReset     <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) ackHaveReset  <- mkDRegA(0,reset_by derived_reset);
+    Reg#(Bit#(1)) haltReq       <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) resumeReq     <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) hartReset     <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) ackHaveReset  <- mkDReg(0,reset_by derived_reset);
     Reg#(Bit#(1)) dmcontrolPad0 = readOnlyReg(0);
     Reg#(Bit#(1)) haSel         = readOnlyReg(0);
     Reg#(Bit#(10))hartSelLo     = readOnlyReg(0);
     Reg#(Bit#(10))hartSelHi     = readOnlyReg(0);
     Reg#(Bit#(2)) dmcontrolPad1 = readOnlyReg(0);
-    Reg#(Bit#(1)) setResetHaltRequest<-mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) clrResetHaltReq <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) nDMReset      <- mkRegA(0,reset_by derived_reset);
-    Reg#(Bit#(1)) dmActive      <- mkRegA(0);
+    Reg#(Bit#(1)) setResetHaltRequest<-mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) clrResetHaltReq <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) nDMReset      <- mkReg(0,reset_by derived_reset);
+    Reg#(Bit#(1)) dmActive      <- mkReg(0);
     Reg#(Bit#(32)) dmcontrol = concatReg13( haltReq,resumeReq,hartReset,ackHaveReset,
         dmcontrolPad0,haSel,hartSelLo,hartSelHi,dmcontrolPad1,setResetHaltRequest,
         clrResetHaltReq,nDMReset,dmActive);
@@ -125,35 +125,35 @@ package riscvDebug013Pbuf;
     // hawindow DM 'h15
     // Correct this to chance with Hawindow sel.!
     Reg#(Bit#(31))hawindowPad0  = readOnlyReg(0);                         //- hawindow b31-1
-    Reg#(Bit#(1)) maskData      <- mkRegA(0,reset_by derived_reset);       //- hawindow b0       -RW
+    Reg#(Bit#(1)) maskData      <- mkReg(0,reset_by derived_reset);       //- hawindow b0       -RW
     Reg#(Bit#(32)) hawindow = concatReg2(hawindowPad0,maskData);
     // abstractcs DM 'h16
     Reg#(Bit#(3)) abstractcsPad0 = readOnlyReg(0);                        //- abstractcs b31-29
     Reg#(Bit#(5)) progBufSize   = readOnlyReg(16);                         //- abstractcs b28-24 - R
     Reg#(Bit#(11))abstractcsPad1 = readOnlyReg(0);                        //- abstractcs b23-13
-    Reg#(Bit#(1)) abst_busy     <- mkRegA(0,reset_by derived_reset);       //- abstractcs b12    - R
+    Reg#(Bit#(1)) abst_busy     <- mkReg(0,reset_by derived_reset);       //- abstractcs b12    - R
     Reg#(Bit#(1)) abstractcsPad2 = readOnlyReg(0);                        //- abstractcs b11
-    Reg#(Bit#(3)) abst_cmderr        <- mkRegA(0,reset_by derived_reset);       //- abstractcs b10-8  -RW
+    Reg#(Bit#(3)) abst_cmderr        <- mkReg(0,reset_by derived_reset);       //- abstractcs b10-8  -RW
     Reg#(Bit#(4)) abstractcsPad3 = readOnlyReg(0);                        //- abstractcs b7-4
     Reg#(Bit#(4)) dataCount     = readOnlyReg(12);                        //- abstractcs b3-0   - R
     Reg#(Bit#(32)) abstractcs = concatReg8( abstractcsPad0,progBufSize,abstractcsPad1,
         readOnlyReg(abst_busy),abstractcsPad2,readOnlyReg(abst_cmderr),abstractcsPad3,dataCount);
     // command DM 'h17
     /*  Only Abstract Register Reads are asupported Therefore that Template has been fixed.*/
-    Reg#(Bit#(8)) abst_ar_cmdType <- mkRegA(0,reset_by derived_reset);     //- command b31-24    -RW
+    Reg#(Bit#(8)) abst_ar_cmdType <- mkReg(0,reset_by derived_reset);     //- command b31-24    -RW
     Reg#(Bit#(1)) abst_ar_pad0  = readOnlyReg(0);                         //- command b23
-    Reg#(Bit#(3)) abst_ar_aarSize <- mkRegA(0,reset_by derived_reset);     //- command b22-20    -RW
-    Reg#(Bit#(1)) abst_ar_aarPostIncrement  <- mkRegA(0,reset_by derived_reset);//- command b19  -RW
-    Reg#(Bit#(1)) abst_ar_postExec  <- mkRegA(0,reset_by derived_reset);   //- command b18       -RW
-    Reg#(Bit#(1)) abst_ar_transfer  <- mkRegA(0,reset_by derived_reset);   //- command b17       -RW
-    Reg#(Bit#(1)) abst_ar_write <- mkRegA(0,reset_by derived_reset);       //- command b16       -RW
-    Reg#(Bit#(16))abst_ar_regno <- mkRegA(0,reset_by derived_reset);       //- command b15-0     -RW
+    Reg#(Bit#(3)) abst_ar_aarSize <- mkReg(0,reset_by derived_reset);     //- command b22-20    -RW
+    Reg#(Bit#(1)) abst_ar_aarPostIncrement  <- mkReg(0,reset_by derived_reset);//- command b19  -RW
+    Reg#(Bit#(1)) abst_ar_postExec  <- mkReg(0,reset_by derived_reset);   //- command b18       -RW
+    Reg#(Bit#(1)) abst_ar_transfer  <- mkReg(0,reset_by derived_reset);   //- command b17       -RW
+    Reg#(Bit#(1)) abst_ar_write <- mkReg(0,reset_by derived_reset);       //- command b16       -RW
+    Reg#(Bit#(16))abst_ar_regno <- mkReg(0,reset_by derived_reset);       //- command b15-0     -RW
     Reg#(Bit#(32)) abst_command = concatReg8(   abst_ar_cmdType,abst_ar_pad0,abst_ar_aarSize,
         abst_ar_aarPostIncrement,abst_ar_postExec,abst_ar_transfer,abst_ar_write,abst_ar_regno);
     // abstractauto DM 'h18
-    Reg#(Bit#(16))autoExecProgBuf <- mkRegA(0,reset_by derived_reset);     //-abstractauto b31-16-RW
+    Reg#(Bit#(16))autoExecProgBuf <- mkReg(0,reset_by derived_reset);     //-abstractauto b31-16-RW
     Reg#(Bit#(4)) abstractautoPad0 = readOnlyReg(0);                      //-abstractauto b15-12
-    Reg#(Bit#(12)) autoExecData  <- mkRegA(0,reset_by derived_reset);      //-abstractauto b11-0 -RW
+    Reg#(Bit#(12)) autoExecData  <- mkReg(0,reset_by derived_reset);      //-abstractauto b11-0 -RW
     Reg#(Bit#(32)) abstractauto = concatReg3(autoExecProgBuf,abstractautoPad0,autoExecData);
     // configstrptr0 DM 'h19-1c
     Reg#(Bit#(32))configstrptr0 = readOnlyReg(0);                         //- configstrptr0     - R
@@ -163,7 +163,7 @@ package riscvDebug013Pbuf;
     // nextdm   DM 'h1d
     Reg#(Bit#(32))nextdm    = readOnlyReg(0);                             //- nextdm b31-0      - R
     // authdata DM 'h30
-    Reg#(Bit#(32)) auth_data <- mkRegA(0,reset_by derived_reset);          //- {impl specific}   -RW
+    Reg#(Bit#(32)) auth_data <- mkReg(0,reset_by derived_reset);          //- {impl specific}   -RW
     // haltsum0 DM 'h40 , 'h13 , 'h34 , 'h35
     Reg#(Bit#(TSub#(32,HartCount))) hsum_padding = readOnlyReg(0);
     Reg#(Bit#(32)) haltSum0 = concatReg2(hsum_padding,vrg_halted[0]); //How to make vector? //haltSum0    - R
@@ -174,13 +174,13 @@ package riscvDebug013Pbuf;
     Reg#(Bit#(3)) sbVersion = readOnlyReg(1);                             // sbcs b31-29        - R
     /* 0=> old spec , 1 => current spec */
     Reg#(Bit#(6)) sbcsPad0  = readOnlyReg(0);                             // sbcs b28-23
-    Reg#(Bit#(1)) sbBusyError <- mkRegA(0,reset_by derived_reset);         // sbcs b22           -RW1c
-    Reg#(Bit#(1)) sbBusy    <- mkConfigRegA(0,reset_by derived_reset);           // sbcs b21           - R
-    Reg#(Bit#(1)) sbReadOnAddr <- mkRegA(0,reset_by derived_reset);        // sbcs b20           -RW
-    Reg#(Bit#(3)) sbAccess  <- mkRegA(2,reset_by derived_reset);           // sbcs b19-17        -RW
-    Reg#(Bit#(1)) sbAutoIncrement <- mkRegA(0,reset_by derived_reset);     // sbcs b16           -RW
-    Reg#(Bit#(1)) sbReadOnData <- mkRegA(0,reset_by derived_reset);        // sbcs b15           -RW
-    Reg#(Bit#(3)) sbError   <- mkRegA(0,reset_by derived_reset);           // sbcs b14-12        -RW1c
+    Reg#(Bit#(1)) sbBusyError <- mkReg(0,reset_by derived_reset);         // sbcs b22           -RW1c
+    Reg#(Bit#(1)) sbBusy    <- mkConfigReg(0,reset_by derived_reset);           // sbcs b21           - R
+    Reg#(Bit#(1)) sbReadOnAddr <- mkReg(0,reset_by derived_reset);        // sbcs b20           -RW
+    Reg#(Bit#(3)) sbAccess  <- mkReg(2,reset_by derived_reset);           // sbcs b19-17        -RW
+    Reg#(Bit#(1)) sbAutoIncrement <- mkReg(0,reset_by derived_reset);     // sbcs b16           -RW
+    Reg#(Bit#(1)) sbReadOnData <- mkReg(0,reset_by derived_reset);        // sbcs b15           -RW
+    Reg#(Bit#(3)) sbError   <- mkReg(0,reset_by derived_reset);           // sbcs b14-12        -RW1c
     Reg#(Bit#(7)) sbASize = readOnlyReg(`FIVO(DPADDR)); /* Addr Width */    // sbcs b11-5         - R
     /* sbAccessX => Supports X  bit accesses */
     Reg#(Bit#(1)) sbAccess128 = readOnlyReg(pack(valueOf(DXLEN)>64));      // sbcs b4            - R
@@ -192,32 +192,32 @@ package riscvDebug013Pbuf;
         readOnlyReg(sbBusy),sbReadOnAddr,sbAccess,sbAutoIncrement,sbReadOnData,readOnlyReg(sbError),
         sbASize,sbAccess128,sbAccess64,sbAccess32,sbAccess16,sbAccess8);
     // sbaddress0 DM 'h39 , 'h3a , 'h3b , 'h37
-    Reg#(Bit#(32)) sbAddress0 <- mkConfigRegA(0,reset_by derived_reset);         // sbAddress0 b31-0   -RW
-    Reg#(Bit#(32)) sbAddress1 <- mkConfigRegA(0,reset_by derived_reset);         // sbAddress1 b31-0   -RW
+    Reg#(Bit#(32)) sbAddress0 <- mkConfigReg(0,reset_by derived_reset);         // sbAddress0 b31-0   -RW
+    Reg#(Bit#(32)) sbAddress1 <- mkConfigReg(0,reset_by derived_reset);         // sbAddress1 b31-0   -RW
     Reg#(Bit#(32)) sbAddress2 =  readOnlyReg(0);                          // sbAddress2 b31-0   -RW
     Reg#(Bit#(32)) sbAddress3 =  readOnlyReg(0);                          // sbAddress3 b31-0   -RW
     // sbdata0  DM 'h3c , 'h3d , 'h3d , 'h3d
-    Reg#(Bit#(32)) sbData0 <- mkRegA(0,reset_by derived_reset);            // sbdata b31-0       -RW
-    Reg#(Bit#(32)) sbData1 <- mkRegA(0,reset_by derived_reset);            // sbdata1 b31-0      -RW
+    Reg#(Bit#(32)) sbData0 <- mkReg(0,reset_by derived_reset);            // sbdata b31-0       -RW
+    Reg#(Bit#(32)) sbData1 <- mkReg(0,reset_by derived_reset);            // sbdata1 b31-0      -RW
     Reg#(Bit#(32)) sbData2 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
     Reg#(Bit#(32)) sbData3 =  readOnlyReg(0);                             // sbdata1 b31-0      -RW
 
-    Reg#(Bit#(TLog#(TDiv#(DXLEN,8)))) rg_lower_addr_bits <- mkRegA(0);  //Store lower address bits
+    Reg#(Bit#(TLog#(TDiv#(DXLEN,8)))) rg_lower_addr_bits <- mkReg(0);  //Store lower address bits
     //      System Bus Slave Registers
     
     // data0 - 11   DM 'h04-'h0f
     Vector#(12, Reg#(Bit#(32))) abst_data;                                //- dataX b31-0       -RW
-    abst_data <- replicateM(mkRegA(0,reset_by derived_reset));
+    abst_data <- replicateM(mkReg(0,reset_by derived_reset));
 
     // progbuf0-15  DM 'h20-'h2f
     Vector#(16,Reg#(Bit#(32))) progbuf;                                   //- progbufX          -RW
-    progbuf <- replicateM(mkRegA(0,reset_by derived_reset));
+    progbuf <- replicateM(mkReg(0,reset_by derived_reset));
     Vector#(16,Wire#(Bit#(32))) progbuf_read;      
     progbuf_read <- replicateM(mkWire(reset_by derived_reset));
 
-    Reg#(Bit#(1)) rg_progBufReq <- mkRegA(0);
-    Reg#(Bool) rg_hartEbreakReached <- mkRegA(False);
-    Reg#(Bool) rg_hartExceptionReached <- mkRegA(False);
+    Reg#(Bit#(1)) rg_progBufReq <- mkReg(0);
+    Reg#(Bool) rg_hartEbreakReached <- mkReg(False);
+    Reg#(Bool) rg_hartExceptionReached <- mkReg(False);
     Wire#(Bool) wr_pbuf_ebreak <- mkDWire(False);
     Wire#(Bool) wr_pbuf_exception <- mkDWire(False);
     
@@ -644,9 +644,9 @@ package riscvDebug013Pbuf;
     // Writes to Haselx also cause the program buffer routine to fial
 // State Machine to handle Program Buffer with Quick access
 
-Reg#(Bit#(1)) rg_fail_program_buffer <- mkRegA(0);  
-Reg#(QA_PBuf_State) rg_qa_pbuf_state <- mkRegA(QA_PBuf_Disable);//mkRegA(QA_PBuf_Disable);
-Reg#(Bit#(1)) rg_sel_qa_pbuf <- mkRegA(0); // 0 => program Buffer Selected , 1 => quick access path.
+Reg#(Bit#(1)) rg_fail_program_buffer <- mkReg(0);  
+Reg#(QA_PBuf_State) rg_qa_pbuf_state <- mkReg(QA_PBuf_Disable);//mkReg(QA_PBuf_Disable);
+Reg#(Bit#(1)) rg_sel_qa_pbuf <- mkReg(0); // 0 => program Buffer Selected , 1 => quick access path.
 Wire#(Bit#(1)) wr_pbuf_ack <- mkDWire(0);
 
 rule rl_set_progbuf_read;

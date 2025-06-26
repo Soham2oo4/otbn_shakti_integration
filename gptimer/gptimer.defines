@@ -1,9 +1,3 @@
-`ifdef gpt_clk_gate_en
-`define gpt_clk_gate_loc_rst_en 
-`endif
-`ifdef gpt_loc_rst_en
-`define gpt_clk_gate_loc_rst_en 
-`endif
 `define GPTimer_ctrl			'h00
 `define GPTimer_clk_ctrl		'h04
 `define GPTimer_counter			'h08
@@ -14,4 +8,3 @@
 `ifdef IQC
     `define GPTimer_input_qual		'h1C
 `endif
-

@@ -34,10 +34,10 @@ package pwm_clock_divider;
 
   module mkpwm_clock_divider(Ifc_pwm_clock_divider#(width));
     let defclock <- exposeCurrentClock;
-    Reg#(Bit#(1)) clk <- mkRegA(1);
-    Reg#(Bit#(width)) rg_divisor <- mkRegA(0);
-	Reg#(Bit#(width)) rg_half_divisor <- mkRegA(0);
-    Reg#(Bit#(width)) rg_counter <- mkRegA(0);
+    Reg#(Bit#(1)) clk <- mkReg(1);
+    Reg#(Bit#(width)) rg_divisor <- mkReg(0);
+	Reg#(Bit#(width)) rg_half_divisor <- mkReg(0);
+    Reg#(Bit#(width)) rg_counter <- mkReg(0);
     MakeClockIfc#(Bit#(1)) new_clock <- mkUngatedClock(0);
     MuxClkIfc clock_selector <- mkUngatedClockMux(new_clock.new_clk,defclock);
     Bool clockmux_sel = rg_divisor!=0;

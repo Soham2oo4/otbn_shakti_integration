@@ -42,12 +42,7 @@ This file defines the functions and the types required to implement I2C routines
 `define SCL11   692
 `define SCL1    6992
 
-`ifdef i2c_clk_gate_en
-`define i2c_clk_gate_loc_rst_en 
-`endif
-`ifdef i2c_loc_rst_en
-`define i2c_clk_gate_loc_rst_en 
-`endif
+
 `define     S2             8'h00
 `define     Control        8'h08
 `define     S0             8'h10
@@ -56,10 +51,3 @@ This file defines the functions and the types required to implement I2C routines
 `define     S3             8'h28
 `define     Time           8'h30
 `define     SCL            8'h38
-`define     Length_reg     8'h40
-`define     FIFO_Status    8'h48
-`define     REPSTART_reg   8'h50
-`ifdef i2c_clk_gate_loc_rst_en
-`define	    I2C_Clk_En	   8'h58
-`endif
-`define     SDA_delay      8'h64

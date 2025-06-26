@@ -1,26 +1,16 @@
 `define verbose
-`ifdef qspi_clk_gate_en
-`define qspi_clk_gate_loc_rst_en 
-`endif
-`ifdef qspi_loc_rst_en
-`define qspi_clk_gate_loc_rst_en 
-`endif
-`define CR 		'h00          // control register
-`define DCR 	        'h04          // device configuration register
-`define SR		'h08          // status register
-`define FCR 	        'h0c          // flag clear register
-`define DLR		'h10          // data length register
-`define CCR 	        'h14          // communication configuration register 
-`define AR		'h18          // address register
-`define ABR		'h1c          // alternate-byte register 
-`define DR		'h20          // data registe
-`define PSMKR	        'h24          // polling status mask register    
-`define PSMAR	        'h28          // polling status match register
-`define PIR		'h2c          // polling interval register
-`define LPTR	        'h30          // low-power timeout register
-`ifdef qspi_clk_gate_loc_rst_en
-`define Qspi_Clk_En	'h34 
-`endif
 
-//`define STARTMM 'h0000000
-//`define ENDMM	'h007FFFF
+
+`define CR 		'h00
+`define DCR 	'h04
+`define SR		'h08
+`define FCR 	'h0c
+`define DLR		'h10
+`define CCR 	'h14
+`define AR		'h18
+`define ABR		'h1c
+`define DR		'h20
+`define PSMKR	'h24
+`define PSMAR	'h28
+`define PIR		'h2c
+`define LPTR	'h30

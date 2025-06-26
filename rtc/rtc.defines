@@ -1,6 +1,0 @@
-`define time_addr 'h0
-`define date_addr 'h4
-`define talrm_addr 'h8
-`define dalrm_addr 'hc
-`define ctrl_addr 'h10
-`define alrm_addr 'h14
