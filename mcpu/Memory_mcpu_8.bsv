@@ -71,10 +71,10 @@ String mcpu_slave_8 = " ";
 
 //Defining the slave interface lines
 
-Reg #(Bit#(1)) s_dsack_0_l<-mkReg(1);
-Reg #(Bit#(1)) s_dsack_1_l<-mkReg(1);
-Reg #(Bit#(1)) s_berr_l<-mkReg(1);
-Reg #(Bit#(1)) s_halt_l<-mkReg(1);
+Reg #(Bit#(1)) s_dsack_0_l<-mkRegA(1);
+Reg #(Bit#(1)) s_dsack_1_l<-mkRegA(1);
+Reg #(Bit#(1)) s_berr_l<-mkRegA(1);
+Reg #(Bit#(1)) s_halt_l<-mkRegA(1);
 Wire #(Bit #(1)) s_as_l<-mkDWire(1);
 Wire #(Bit #(1)) s_ds_l<-mkDWire(1);
 Wire #(Bit #(1)) s_siz0<-mkDWire(0);
@@ -95,11 +95,11 @@ Wire#(Bit#(8)) data_in_3<-mkDWire(0);
 Wire#(Bit#(8)) data_in_2<-mkDWire(0);
 Wire#(Bit#(8)) data_in_1<-mkDWire(0);
 
-Reg#(Bit#(8)) data_out_4<-mkReg(0);
-Reg#(Bit#(8)) data_out_3<-mkReg(0);
-Reg#(Bit#(8)) data_out_2<-mkReg(0);
-Reg#(Bit#(8)) data_out_1<-mkReg(0);
-Reg #(Bit#(4)) data_control <-mkReg(0);
+Reg#(Bit#(8)) data_out_4<-mkRegA(0);
+Reg#(Bit#(8)) data_out_3<-mkRegA(0);
+Reg#(Bit#(8)) data_out_2<-mkRegA(0);
+Reg#(Bit#(8)) data_out_1<-mkRegA(0);
+Reg #(Bit#(4)) data_control <-mkRegA(0);
 
 /*In REQ_RCV State_slave
 1.If read, sends acknowledge on detecting data strobe low

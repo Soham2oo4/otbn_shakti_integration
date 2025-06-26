@@ -64,8 +64,8 @@ package capmatrix;
 		BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,2)),Bit#(32),4) dmemLSB <- 
                    mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,2))),False,lsb_file,False);
   
-    Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
-		Reg#(Bool) rg_unlocked <- mkReg(True);
+    Reg#(Bool) read_request_sent[2] <-mkCRegA(2,False);
+		Reg#(Bool) rg_unlocked <- mkRegA(True);
     
 		method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
       let {addr, data, strb}=req;
@@ -134,12 +134,12 @@ package capmatrix;
     UserInterface#(awidth, dwidth, mem_size) dut <- mkcapmatrix(base, mem_init_file1, mem_init_file2, modulename);
 	  AXI4_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
-    Reg#(Bit#(id_width)) rg_rd_id <-mkReg(0);
-    Reg#(Mem_State) read_state <-mkReg(Idle);
-    Reg#(Mem_State) write_state <-mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-	  Reg#(AXI4_Rd_Addr	#(awidth,iwidth, uwidth)) rg_read_packet <-mkReg(?);
-		Reg#(AXI4_Wr_Addr	#(awidth,iwidth, uwidth)) rg_write_packet<-mkReg(?); 
+    Reg#(Bit#(id_width)) rg_rd_id <-mkRegA(0);
+    Reg#(Mem_State) read_state <-mkRegA(Idle);
+    Reg#(Mem_State) write_state <-mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
+	  Reg#(AXI4_Rd_Addr	#(awidth,iwidth, uwidth)) rg_read_packet <-mkRegA(?);
+		Reg#(AXI4_Wr_Addr	#(awidth,iwidth, uwidth)) rg_write_packet<-mkRegA(?); 
 
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -248,9 +248,9 @@ package capmatrix;
 	  AXI4_Lite_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(dwidth, 32));
-    Reg#(Bit#(2)) rg_size <-mkReg(3);
-    Reg#(Bit#(TAdd#(1, TDiv#(dwidth, 32)))) rg_offset <-mkReg(0);
-		Reg#(Bit#(uwidth)) rg_aruser <- mkReg(0);
+    Reg#(Bit#(2)) rg_size <-mkRegA(3);
+    Reg#(Bit#(TAdd#(1, TDiv#(dwidth, 32)))) rg_offset <-mkRegA(0);
+		Reg#(Bit#(uwidth)) rg_aruser <- mkRegA(0);
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
     rule write_request_address_channel;

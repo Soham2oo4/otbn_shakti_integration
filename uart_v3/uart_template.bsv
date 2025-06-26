@@ -21,45 +21,33 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
 IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
 OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --------------------------------------------------------------------------------------------------
-Author Names : Vinod.G, Ayush Mittal
-Email ID : g.vinod1993@gmail.com, 29ayush@gmail.com
 
-This file defines the functions and the types required to implement I2C routines 
+Author: Neel Gala
+Email id: neelgala@gmail.com
+Details:
+
+--------------------------------------------------------------------------------------------------
 */
-// ================================================
-// Types
+package uart_template;
+import uart::*;
+`include "uart.defines"
+import device_common::*;
 
-// Chip Clock Frequencies -- Assuming 50MHz Processor operating frequencies
-`define CLK3    15
-`define CLK443  9
-`define CLK6    6
-`define CLK8    4
-`define CLK12   2
+(*synthesize*)
+module mkdummy#(Clock uart_clock, Reset uart_reset)(Ifc_uart_axi4#(32, 64, 0, 16));
+	let core_clock<-exposeCurrentClock;
+	let core_reset<-exposeCurrentReset;
+  let ifc();
+  mkuart_axi4#(core_clock, core_reset, 5,0,0) _temp(ifc);
+  return ifc;
+endmodule
 
-//Bus Clock Frequencies -- Assuming 8MHz Chip Clock Frequency
-`define SCL90   81
-`define SCL45   180
-`define SCL11   692
-`define SCL1    6992
+(*synthesize*)
+module mktest(UserInterface#(32,64,16));
+  UserInterface#(32,64,16) uart<- mkuart_user(5,0,0);
+  interface io=uart.io;
+  method read_req=uart.read_req;
+  method write_req=uart.write_req;
+endmodule
 
-`ifdef i2c_clk_gate_en
-`define i2c_clk_gate_loc_rst_en 
-`endif
-`ifdef i2c_loc_rst_en
-`define i2c_clk_gate_loc_rst_en 
-`endif
-`define     S2             8'h00
-`define     Control        8'h08
-`define     S0             8'h10
-`define     Status         8'h18
-`define     S01            8'h20
-`define     S3             8'h28
-`define     Time           8'h30
-`define     SCL            8'h38
-`define     Length_reg     8'h40
-`define     FIFO_Status    8'h48
-`define     REPSTART_reg   8'h50
-`ifdef i2c_clk_gate_loc_rst_en
-`define	    I2C_Clk_En	   8'h58
-`endif
-`define     SDA_delay      8'h64
+endpackage

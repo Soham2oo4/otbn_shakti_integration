@@ -226,7 +226,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   Reg#(bit)		rg_nss			<- mkRegA(1);
   Reg#(bit)		rg_clk			<- mkRegA(0);
   Reg#(Bit#(8))		pre_scalar		<- mkRegA(1);
-  Wire#(bit)		wr_clk_en 		<- mkWire();
+  Wire#(bit)		wr_clk_gate_en 		<- mkWire();
   Wire#(Bool) 		wr_transfer_en 		<- mkDWire(False);
   Reg#(bit)          	rg_tx_eof   	  	<- mkRegA(1);
   Reg#(bit)          	rg_rx_eof   	  	<- mkRegA(1);
@@ -278,7 +278,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   endfunction
   
   rule rl_clock_phase_enable;
-      wr_clk_en <= (rg_cpha == 1 && rg_cpol == 1 && rg_clk == 0) ? 1 :
+      wr_clk_gate_en <= (rg_cpha == 1 && rg_cpol == 1 && rg_clk == 0) ? 1 :
      			  (rg_cpha == 1 && rg_cpol == 0 && rg_clk == 1) ? 1 :
      			  (rg_cpha == 0 && rg_cpol == 1 && rg_clk == 1) ? 1 :
      			  (rg_cpha == 0 && rg_cpol == 0 && rg_clk == 0) ? 1 : 0;
@@ -423,7 +423,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
    	 `logLevel( spi, 0, $format(" SPI : Transmit state has started rg_data_tx %x",tx_fifo.first()))
    	 $display($stime," SPI : Transmit state has started rg_data_tx %x",tx_fifo.first());
       end
-      else if(wr_clk_en == 0 && wr_transfer_en == True && rg_spe == 1 && rg_rx_imm_start == 0)begin
+      else if(wr_clk_gate_en == 0 && wr_transfer_en == True && rg_spe == 1 && rg_rx_imm_start == 0)begin
      	 rg_nss <= 1;
    	 rg_spi_start <= 0;
 	 rg_spe <= 0;
@@ -436,7 +436,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
  rule rl_transfer_data(rg_transmit_state == START_TRANSMIT && rg_nss == 0 );
   let data_tx = 0; // debug
  	if(rg_cpha == 0 && rg_bit_count == 0 )begin // to transmit first bit according to clock phase
- 	  	if(wr_clk_en == 1 || (wr_clk_en == 0 && rg_cpha == 1) && wr_transfer_en) begin
+ 	  	if(wr_clk_gate_en == 1 || (wr_clk_gate_en == 0 && rg_cpha == 1) && wr_transfer_en) begin
   		let data = 0;		
   		if(rg_lsbfirst == 1) begin
   			data = rg_data_tx[0];
@@ -456,7 +456,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   		end
   	end
  	else begin
-  		if(rg_data_counter < 7  && wr_transfer_en && wr_clk_en == 0 ) begin
+  		if(rg_data_counter < 7  && wr_transfer_en && wr_clk_gate_en == 0 ) begin
   			if(rg_lsbfirst == 1) begin
   				data_tx = rg_data_tx[0];
   				wr_spi_out_io1 <= rg_data_tx[0];
@@ -473,7 +473,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   	    			$display($stime," SPI : DATA_TRANSMIT case 1 data %x rg_data_counter %x rg_bit_count %d",data_tx,rg_data_counter, rg_bit_count);
   		end
 
-  		else if(rg_data_counter == 7  && wr_transfer_en && wr_clk_en == 0 ) begin
+  		else if(rg_data_counter == 7  && wr_transfer_en && wr_clk_gate_en == 0 ) begin
   				if(rg_lsbfirst == 1) begin
   					data_tx = rg_data_tx[0];
   					wr_spi_out_io1 <= rg_data_tx[0];
@@ -495,7 +495,7 @@ module mkspi(Ifc_spi#(addr_width, data_width))
   	end
 endrule
 
- rule rl_transfer_finish(rg_bit_count >= rg_total_bit_tx-8 && wr_transfer_en == True && wr_clk_en == 0 
+ rule rl_transfer_finish(rg_bit_count >= rg_total_bit_tx-8 && wr_transfer_en == True && wr_clk_gate_en == 0 
       && rg_transmit_state == START_TRANSMIT && rg_receive_state == IDLE );
  	let data_tx =0;
  	if(rg_bit_count == rg_total_bit_tx) begin	
@@ -532,7 +532,7 @@ endrule
 //********************************Receive Rules *******************************//
 
  rule rl_receive_start(rg_receive_state == START_RECEIVE && rg_nss == 0 && wr_transfer_en );
- 	if(rx_fifo.notFull && wr_clk_en == 1 && rg_bit_count < rg_total_bit_rx) begin
+ 	if(rx_fifo.notFull && wr_clk_gate_en == 1 && rg_bit_count < rg_total_bit_rx) begin
    		Bit#(8) data_rx = 0;
    		if(rg_data_counter < 7) begin
   			if(rg_lsbfirst == 1) begin
@@ -572,7 +572,7 @@ endrule
 endrule
 
  rule rl_receive_finish(rg_bit_count == rg_total_bit_rx && rg_receive_state == START_RECEIVE );
-	if(wr_clk_en==0 && wr_transfer_en) begin
+	if(wr_clk_gate_en==0 && wr_transfer_en) begin
 		rg_nss <= 1;
   		rg_data_counter <= 0;
   		rg_receive_state <= RECEIVE_DONE;

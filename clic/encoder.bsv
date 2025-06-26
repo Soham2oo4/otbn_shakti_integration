@@ -57,9 +57,9 @@ package encoder;
 	let limit = valueOf(number_of_interrupt);
 	
 
-    Vector#(number_of_interrupt,Reg#(Bit#(8))) rg <- replicateM(mkReg(0));
-    Reg#(Bit#(8)) rg_out <- mkReg(0);
-	Reg#(Bit#(10)) rg_index <- mkReg(0);
+    Vector#(number_of_interrupt,Reg#(Bit#(8))) rg <- replicateM(mkRegA(0));
+    Reg#(Bit#(8)) rg_out <- mkRegA(0);
+	Reg#(Bit#(10)) rg_index <- mkRegA(0);
     rule start_enc;
       Vector#(number_of_interrupt,Bit#(8)) t;
       for(Integer i=0;i<limit;i=i+1)
@@ -95,8 +95,8 @@ package encoder;
 //		LFSR#(Bit#(8)) lfsr [16];// creating the lfsr
 //		for(Integer i=0; i<16; i=i+1)
 //			lfsr[i]<- mkLFSR_8 ;
-//		Reg#(Bool)	done<- mkReg(False)	;
-//		Reg#(Bit#(8)) test_vec<-mkReg(15);//test vec
+//		Reg#(Bool)	done<- mkRegA(False)	;
+//		Reg#(Bit#(8)) test_vec<-mkRegA(15);//test vec
 //		rule rl1(!done);
 //			Vector#(16,Bit#(8))	input_vec=replicate(0);//instantiating the input vector
 ////			input_vec[15]=8'b11111111;//fixed for testing purpose

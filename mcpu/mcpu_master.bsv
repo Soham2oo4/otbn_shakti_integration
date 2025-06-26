@@ -132,26 +132,26 @@ Data_mode :01 byte
     FIFOF #(Resp_mcpu) ff_cpu_resp <- mkFIFOF;
     //............................................................//
     Reg#(State_master) rg_master_state <- mkReg (RCV_REQ);
-    Reg#(Bit#(2)) rg_mode <- mkReg(0);
-    Reg#(Bool) rg_mode_en <- mkReg(False);//Enable SIZ1,SIZ0
-    Reg#(Bit#(3)) rg_fun_code <- mkReg(0);
-    Reg#(Bool) rg_fun_code_en <- mkReg(False);
-    Reg#(Bit#(1))  rg_as_l <- mkReg(1);//address_stop
-    Reg#(Bit#(1))  rg_ds_l <- mkReg(1);//data_strobe
-    Reg#(Bit#(1))  rg_stop <- mkReg(0);//Indicates processor stopped
-    Reg#(Bit#(1))  rg_retry<- mkReg(0);//Indicates retry mode
+    Reg#(Bit#(2)) rg_mode <- mkRegA(0);
+    Reg#(Bool) rg_mode_en <- mkRegA(False);//Enable SIZ1,SIZ0
+    Reg#(Bit#(3)) rg_fun_code <- mkRegA(0);
+    Reg#(Bool) rg_fun_code_en <- mkRegA(False);
+    Reg#(Bit#(1))  rg_as_l <- mkRegA(1);//address_stop
+    Reg#(Bit#(1))  rg_ds_l <- mkRegA(1);//data_strobe
+    Reg#(Bit#(1))  rg_stop <- mkRegA(0);//Indicates processor stopped
+    Reg#(Bit#(1))  rg_retry<- mkRegA(0);//Indicates retry mode
     //............................................................//
     Wire#(Bit#(1)) dsack_0_l<-mkDWire(1);//ack from VIC controller,indicates port size 0-32 bit port,1-8 bit port,2-16 bit port
     Wire#(Bit#(1)) dsack_1_l<-mkDWire(1);
     Wire#(Bit#(1)) berr_l <-mkDWire(1);//Bus error from slave
     Wire#(Bit#(1)) halt_l<-mkDWire(1);//halt signal from the slave
     //Wire#(Bit#(3)) ipl_l<-mkDWire(1);//interrupt prioritylevel
-    Reg #(Bit#(32))  rg_addr       <- mkReg(0);//addr_bus
-    Reg #(Bool)      rg_addr_en    <- mkReg(False);
-    Reg #(Bit#(8))   rg_data_out_4 <- mkReg(0);//wr_data_4
-    Reg #(Bit#(8))   rg_data_out_3 <- mkReg(0);//wr_data_3
-    Reg #(Bit#(8))   rg_data_out_2 <- mkReg(0);//wr_data_2
-    Reg #(Bit#(8))   rg_data_out_1 <- mkReg(0);//wr_data_1
+    Reg #(Bit#(32))  rg_addr       <- mkRegA(0);//addr_bus
+    Reg #(Bool)      rg_addr_en    <- mkRegA(False);
+    Reg #(Bit#(8))   rg_data_out_4 <- mkRegA(0);//wr_data_4
+    Reg #(Bit#(8))   rg_data_out_3 <- mkRegA(0);//wr_data_3
+    Reg #(Bit#(8))   rg_data_out_2 <- mkRegA(0);//wr_data_2
+    Reg #(Bit#(8))   rg_data_out_1 <- mkRegA(0);//wr_data_1
 
     Wire #(Bit#(8)) rg_data_in_4 <- mkDWire(0);//rd_data_4
     Wire #(Bit#(8)) rg_data_in_3 <- mkDWire(0);//rd_data_3
@@ -160,9 +160,9 @@ Data_mode :01 byte
     Wire #(Req_mcpu) mcpu_req    <- mkWire();
     Wire #(Resp_mcpu) mcpu_resp  <- mkWire();
 
-    Reg #(Bit#(1))  rg_wr_l     <- mkReg(1'd1);//read : 1,write:0
-    Reg #(Bit#(4))  rg_data_control <-mkReg(0);//Enable bits to data and control registers
-    Reg #(Bit#(2))  rg_cntl_wd<-mkReg(0); //To synchronize if more than one cycle is required to r/w data
+    Reg #(Bit#(1))  rg_wr_l     <- mkRegA(1'd1);//read : 1,write:0
+    Reg #(Bit#(4))  rg_data_control <-mkRegA(0);//Enable bits to data and control registers
+    Reg #(Bit#(2))  rg_cntl_wd<-mkRegA(0); //To synchronize if more than one cycle is required to r/w data
 
     //............Tristate signals...............//
     /*

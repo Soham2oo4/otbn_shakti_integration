@@ -127,6 +127,8 @@ import DefaultValue::*;
 `include "sspi.defines"
 `include "Logger.bsv"
 
+// `define sclk_delay 3
+// `define mosi_delay 2
 export Ifc_sspi 			(..);
 export Ifc_sspi_io 			(..);
 export Ifc_sspi_axi4 		(..);
@@ -161,7 +163,11 @@ typedef enum{
 	   } Spi_state deriving(Bits, Eq, FShow);
 
 // sspi_io io interface with all the four inputs, outputs and output enables
+`ifndef sspi_clk_gate_en
+`ifndef sspi_multi_slave
 (*always_ready, always_enabled*)
+`endif
+`endif
 interface Ifc_sspi_io;
 		//mosi input output
 		method bit mosi_outen;
@@ -176,9 +182,26 @@ interface Ifc_sspi_io;
  		method Action miso_in(bit val);
 		method bit miso_out;
 		//ncs input output
-		method bit ncs_outen;
- 		method bit ncs_out;
-		method Action ncs_in(bit val);
+		//Multiple Slave for SPI
+		method bit ncs_outen0;
+ 		method bit ncs_out0;
+		method Action ncs_in0(bit val);
+		
+`ifdef sspi_multi_slave
+		method bit ncs_outen1;
+ 		method bit ncs_out1;
+		method Action ncs_in1(bit val);
+		
+		method bit ncs_outen2;
+ 		method bit ncs_out2;
+		method Action ncs_in2(bit val);
+		
+		method bit ncs_outen3;
+ 		method bit ncs_out3;
+		method Action ncs_in3(bit val);
+`endif
+		method Bit#(2) dma_ready;
+		
 endinterface
 
 // sspi axi interface which has write and read methods to receive write and read requests. It also the above sspi_io interface
@@ -205,13 +228,15 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 					 Mul#( 4, f__, data_width),
 					 Add#(16, g__, data_width)
 					);
-
+`ifdef sspi_multi_slave
+	Reg#(Bit#(2)) rg_slave_select	<- mkRegA(0); 
+`endif
 	/* doc : reg : holds the MOSI pin's output enable. If set, output is transmitted through this pin else input is read from this pin */
 	Reg#(bit) rg_mosi_output_enable <- mkRegA(1);
 	/* doc : reg : holds the MISO pin's output enable. If set, output is transmitted through this pin else input is read from this pin */
 	Reg#(bit) rg_miso_output_enable <- mkRegA(0);
 	/* doc : reg : holds the NCS pin's output enable. If set, the controller generates the ncs else ncs is expected from the spi device */
-	Reg#(bit) rg_ncs_output_enable  <- mkRegA(1);
+	Reg#(bit) rg_ncs_output_enable  <- mkRegA(0);
 	/* doc : reg : holds the SCLK pin's output enable. If set, the controller generates the sclk else sclk is expected from the spi device */
 	Reg#(bit) rg_sclk_output_enable <- mkRegA(1);
 	/* doc : reg : holds the total number of bits to be transmitted in a spi transaction */
@@ -227,9 +252,14 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	//unused register
 	Reg#(bit) rg_master_mode		<- mkRegA(1);
 	//doc : reg : concatenates all the communication control fields described before for AXI read and write to the memory map register
+`ifdef sspi_multi_slave
+	Reg#(Bit#(32)) rg_comm_ctrl = concatReg13(readOnlyReg(4'd0),rg_slave_select,rg_mosi_output_enable,rg_miso_output_enable,rg_ncs_output_enable,rg_sclk_output_enable,
+												rg_total_bit_rx,rg_total_bit_tx,rg_comm_mode,readOnlyReg(1'd0),rg_lsbfirst,rg_spi_en,rg_master_mode);
+`else
 	Reg#(Bit#(32)) rg_comm_ctrl = concatReg12(readOnlyReg(6'd0),rg_mosi_output_enable,rg_miso_output_enable,rg_ncs_output_enable,rg_sclk_output_enable,
 												rg_total_bit_rx,rg_total_bit_tx,rg_comm_mode,readOnlyReg(1'd0),rg_lsbfirst,rg_spi_en,rg_master_mode);
 
+`endif
 	/* doc : reg : holds the hold delay */
 	Reg#(Bit#(8)) rg_t_cs_delay <- mkRegA(0);
 	/* doc : reg : holds the setup delay */
@@ -270,6 +300,13 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	Reg#(Bit#(16)) rg_intr_en = concatReg10(readOnlyReg(7'd0),rg_rx_over_run_err_intr_en,rg_rx_fifo_full_intr_en,rg_rx_fifo_half_intr_en,rg_rx_fifo_quad_intr_en,rg_rx_fifo_empty_intr_en,
 											rg_tx_fifo_full_intr_en,rg_tx_fifo_half_intr_en,rg_tx_fifo_quad_intr_en,rg_tx_fifo_empty_intr_en);
 		
+	Reg#(Bit#(4))               sclk_delay      <- mkRegA(1);
+    Reg#(Bit#(4))               mosi_delay      <- mkRegA(1);
+	Reg#(Bit#(16))              rg_delay = concatReg3(readOnlyReg(8'd0),sclk_delay,mosi_delay);
+	Vector#(16, Reg#(Bit#(1)))   val_sclk_delay  <- replicateM(mkRegA(0));
+	Vector#(16, Reg#(Bit#(1)))   sclkEn_delay    <- replicateM(mkRegA(0));
+	Vector#(16, Reg#(Bit#(1)))   val_mosi_delay  <- replicateM(mkRegA(0));
+	Vector#(16, Reg#(Bit#(1)))   mosiEn_delay    <- replicateM(mkRegA(0));
 
 	/*doc : reg : Overrun bit. This will be set when there is an overrun during receive operation */
 	Reg#(bit) rg_over_run <- mkRegA(0);
@@ -387,7 +424,12 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	/* doc : Wire : holds the input qualified (output from IQC module) sclk value in slave mode */
 	Wire#(bit) wr_sclk_qual <- mkWire();
 	/* doc : Wire : holds the input qualified (output from IQC module) ncs value in slave mode */
-	Wire#(bit) wr_ncs_qual  <- mkWire();
+	Wire#(bit) wr_ncs_qual0  <- mkDWire(1);
+`ifdef sspi_multi_slave	
+	Wire#(bit) wr_ncs_qual1  <- mkDWire(1);
+	Wire#(bit) wr_ncs_qual2  <- mkDWire(1);
+	Wire#(bit) wr_ncs_qual3  <- mkDWire(1);
+`endif
 	/* doc : Wire : holds the input qualified (output from IQC module) spi input value in slave mode */
 	Wire#(bit) wr_spi_in_qual <- mkWire();
 
@@ -440,6 +482,26 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	(*conflict_free = "rl_mi_qualification,rl_receive_state"*)
 	(*conflict_free = "rl_si_qualification,rl_receive_state"*)
 	(*conflict_free = "rl_si_qualification,rl_mi_qualification"*)
+
+	rule rl_delay_sclk;
+
+		let lv_data_0 = shiftInAt0(readVReg(val_sclk_delay),rg_sclk);
+		writeVReg(val_sclk_delay, lv_data_0 )  ;
+  
+		let lv_data_1 = shiftInAt0(readVReg(sclkEn_delay),rg_sclk_output_enable);
+		writeVReg(sclkEn_delay, lv_data_1 )  ;
+		
+    endrule
+
+	rule rl_delay_mosi;
+
+		let lv_data_0 = shiftInAt0(readVReg(val_mosi_delay),rg_transmit_data);
+		writeVReg(val_mosi_delay, lv_data_0 )  ;
+  
+		let lv_data_1 = shiftInAt0(readVReg(mosiEn_delay),rg_mosi_output_enable);
+		writeVReg(mosiEn_delay, lv_data_1 )  ;
+		
+    endrule
 
 	/*doc:rule: This rule fires during the recieve state and when miso is configure as input. wr_spi_master_in value is read and sent to input qualification control module, if IQC is enabled else wr_spi_master_in value is directly assigned to wr_spi_in_qual  */
 	rule rl_mi_qualification(rg_receive_state == DATA_RECEIVE && rg_miso_output_enable == 0);
@@ -520,7 +582,19 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	/*doc:rule : This rule fires when ncs is input. When rg_spi_en is set, wr_ncs_qual value is assigned to rg_ncs register */
 	rule rl_chip_select_control_slave_mode(rg_ncs_output_enable == 0);
 		if(rg_spi_en == 1) begin
-			rg_ncs <= wr_ncs_qual;
+`ifdef sspi_multi_slave		       
+	     Bit#(1)  lv_ncs_qual=case (rg_slave_select)
+              0 : wr_ncs_qual0;
+              1 : wr_ncs_qual1;
+              2 : wr_ncs_qual2;
+	      3 : wr_ncs_qual3;
+                default: wr_ncs_qual0; 
+		endcase; 
+  
+			rg_ncs <= lv_ncs_qual;
+`else
+			rg_ncs <= wr_ncs_qual0;
+`endif
 			if(rg_ncs == 1) begin
 			  rg_busy <= 1;
 			  //if(rg_clk_phase == 0)
@@ -891,6 +965,8 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			data = duplicate(rg_comm_status);
 		else if(addr[7:0] == `Interrupt_enable && size == 1)
 			data = duplicate(rg_intr_en);
+		else if(addr[7:0] == `Delay_config && size == 1)
+			data = duplicate(rg_delay);
 		`ifdef IQC
 		else if(addr[7:0] == `Input_qualification && size == 0)
 			data = zeroExtend(rg_qual_cycles);
@@ -904,20 +980,20 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
  	interface subifc_io = interface Ifc_sspi_io;
 		//mosi input output
 		method bit mosi_outen;
-			return rg_mosi_output_enable;
+			return mosiEn_delay[mosi_delay-1];
 		endmethod
  		method bit mosi_out;
- 			return rg_transmit_data;
+ 			return val_mosi_delay[mosi_delay-1];
  		endmethod
 		method Action mosi_in(bit val);
 			wr_spi_slave_in <= val;
 		endmethod
 		//sclk input output
 		method bit sclk_outen;
-			return rg_sclk_output_enable;
+			return sclkEn_delay[sclk_delay-1];
 		endmethod
  		method bit sclk_out;
- 			return rg_sclk;
+ 			return val_sclk_delay[sclk_delay-1];
  		endmethod
 		method Action sclk_in(bit val);
 		`ifdef IQC
@@ -938,21 +1014,136 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			return rg_transmit_data;
 		endmethod
 		//ncs input output
-		method bit ncs_outen;
+`ifndef sspi_multi_slave		       
+		method bit ncs_outen0;
 			return rg_ncs_output_enable;
 		endmethod
- 		method bit ncs_out;
+ 		method bit ncs_out0;
  			return rg_ncs;
  		endmethod
-		method Action ncs_in(bit val);
+		method Action ncs_in0(bit val);
 		if(rg_ncs_output_enable == 0) begin
 		`ifdef IQC
 			let temp <- sspi_ncs_qual.qualify(val);
-			wr_ncs_qual <= temp;
+			wr_ncs_qual0 <= temp;
 		`else
-			wr_ncs_qual <= val;
+			wr_ncs_qual0 <= val;
 		`endif
 		end
+		endmethod
+`else
+		//Multiple slaves of SPI (4)
+		
+		method bit ncs_outen0;
+		if(rg_slave_select == 0)  
+			return rg_ncs_output_enable;
+		else
+		        return 0;   
+		endmethod
+		
+		method bit ncs_out0;
+		if(rg_slave_select == 0)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+ 		
+ 		method Action ncs_in0(bit val);
+ 		//if((rg_slave_select == 0)) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual0 <= temp;
+		`else
+			wr_ncs_qual0 <= val;
+		`endif
+		end
+		//end
+		endmethod
+ 		
+		method bit ncs_outen1;
+		if(rg_slave_select == 1)
+			return rg_ncs_output_enable;
+		else
+		        return 0;
+		endmethod
+		
+		method bit ncs_out1;
+		if(rg_slave_select == 1)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+		
+		method Action ncs_in1(bit val);
+		//if(rg_slave_select == 1) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual1 <= temp;
+		`else
+			wr_ncs_qual1 <= val;
+		`endif
+		end
+		//end
+		endmethod
+		
+		method bit ncs_outen2;
+		if(rg_slave_select == 2)
+			return rg_ncs_output_enable;
+		else
+		        return 0;
+		endmethod
+		
+		method bit ncs_out2;
+		if(rg_slave_select == 2)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+ 		
+ 		method Action ncs_in2(bit val);
+ 		//if(rg_slave_select == 2) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual2 <= temp;
+		`else
+			wr_ncs_qual2 <= val;
+		`endif
+		end
+		//end
+		endmethod
+		
+		method bit ncs_outen3;
+		if(rg_slave_select == 3)
+			return rg_ncs_output_enable;
+		else
+		        return 0;
+		endmethod
+		
+		method bit ncs_out3;
+		if(rg_slave_select == 3)
+ 			return rg_ncs;
+ 		else
+		        return 1;
+ 		endmethod
+ 		
+ 		method Action ncs_in3(bit val);
+ 		//if(rg_slave_select == 3) begin
+		if(rg_ncs_output_enable == 0) begin
+		`ifdef IQC
+			let temp <- sspi_ncs_qual.qualify(val);
+			wr_ncs_qual3 <= temp;
+		`else
+			wr_ncs_qual3 <= val;
+		`endif
+		end
+		//end
+		endmethod
+`endif
+		method Bit#(2) dma_ready;
+			return {pack(rx_fifo.count > 0), pack(tx_fifo.count <= 30)};			
 		endmethod
 	endinterface;
 	method mv_sb_sspi_interrupt = ((wr_rx_over_run_intr & rg_rx_over_run_err_intr_en) | (wr_rx_fifo_full_intr & rg_rx_fifo_full_intr_en) | (wr_rx_fifo_half_intr & rg_rx_fifo_half_intr_en) | (wr_rx_fifo_quad_intr & rg_rx_fifo_quad_intr_en) | 
@@ -968,22 +1159,81 @@ endmodule : mk_sspi
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 	endinterface
 
-	module mksspi_axi4lite(Ifc_sspi_axi4lite#(addr_width,data_width,user_width))
+	module mksspi_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_sspi_axi4lite#(addr_width,data_width,user_width))
 			provisos(Add#(a__, 32, data_width),
 					 Add#(b__,  4, data_width),
 					 Mul#(32, c__, data_width),
 					 Mul#( 8, d__, data_width),
 					 Mul#(16, e__, data_width),
 					 Mul#( 4, f__, data_width),
-					 Add#(16, g__, data_width)
+					 Add#(16, g__, data_width),
+					 Add#(h__, 8, data_width)
 					);
+		`ifdef sspi_clk_gate_en
+		GatedClockIfc spi_clk_gated <- mkGatedClockFromCC(False);
+		`endif
+		Reset core_reset<-exposeCurrentReset;
+		Clock core_clock<-exposeCurrentClock;
+		`ifdef sspi_clk_gate_en
+		Reg#(bit) rg_clk_en <- mkRegA(0);
+		`endif
+		`ifdef sspi_loc_rst_en
+		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
+		`endif
+		`ifdef sspi_clk_gate_loc_rst_en		
+        	Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0), `ifdef sspi_loc_rst_en rg_rst `else readOnlyReg(1'b0) `endif , `ifdef sspi_clk_gate_en rg_clk_en `else 	readOnlyReg(1'b0) `endif );
+		`endif
+		`ifdef sspi_loc_rst_en
+		MakeResetIfc reg_reset <-mkReset(0,False,core_clock);            // create a new reset for curr_clk
+        	Reset spi_curr_reset <- mkResetEither(reg_reset.new_rst,core_reset);     // OR default and new_rst
+		`endif
+		`ifdef sspi_clk_gate_en
+		`ifdef sspi_loc_rst_en
+		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(clocked_by spi_clk_gated.new_clk, reset_by spi_curr_reset);
+		`else
+		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(clocked_by spi_clk_gated.new_clk);
+	    `endif
+		rule clock_en;    
+	           spi_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	    endrule		
+		`else
+		`ifdef sspi_loc_rst_en
+		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi(reset_by spi_curr_reset);
+		rule reset_spi(rg_rst == 1);
+		  reg_reset.assertReset;
+		endrule
+		`else		
 		Ifc_sspi#(addr_width,data_width) sspi <- mk_sspi;
+		`endif
+		`endif
+
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
 		rule read_request;
-	  		let req <- pop_o (s_xactor.o_rd_addr);
-      		let {succ,data} <- sspi.mav_read_req(req.araddr,unpack(truncate(req.arsize)));
-	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+		Bool succ = False;
+		Bit#(data_width) data = 0 ; 
+		let req <- pop_o (s_xactor.o_rd_addr);
+		`ifdef sspi_clk_gate_loc_rst_en
+	       if (req.araddr[7:0] == `SPI_Clk_En && req.arsize == 0) begin 
+		           succ = True; 
+		           data = duplicate({rg_rst_clk});  	         
+	         end 
+		`ifdef sspi_clk_gate_en		
+	          else if(rg_clk_en == 1) begin  		
+      		          {succ,data} <- sspi.mav_read_req(req.araddr,unpack(truncate(req.arsize)));
+      		     end 
+			else begin
+				succ = False;
+			end
+		`else
+			else begin
+      			{succ,data} <- sspi.mav_read_req(req.araddr,unpack(truncate(req.arsize)));
+			end
+		`endif	 
+		`else
+      		{succ,data} <- sspi.mav_read_req(req.araddr,unpack(truncate(req.arsize)));
+		`endif	  		
+		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
                                     rdata:data, ruser: ?};
 	  		s_xactor.i_rd_data.enq(resp);
      	endrule
@@ -991,9 +1241,29 @@ endmodule : mk_sspi
      	rule write_request;
        		let addreq <- pop_o(s_xactor.o_wr_addr);
        		let datareq <- pop_o(s_xactor.o_wr_data);
-       		let succ <- sspi.mav_write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
-       		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
-       		s_xactor.i_wr_resp.enq(resp);
+ 		Bool succ = False;
+		`ifdef sspi_clk_gate_loc_rst_en
+					if (addreq.awaddr[7:0] == `SPI_Clk_En && addreq.awsize == 0) begin 
+						rg_rst_clk <= truncate(datareq.wdata); 
+						succ = True;
+					end 
+		`ifdef sspi_clk_gate_en
+					else if(rg_clk_en == 1) begin 
+						succ <- sspi.mav_write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+						end 
+					else begin
+							succ = False;
+					end
+		`else
+					else begin
+						succ <- sspi.mav_write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+					end
+		`endif
+		`else
+					succ <- sspi.mav_write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
+		`endif
+					let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+					s_xactor.i_wr_resp.enq(resp);
      	endrule
 		interface io = sspi.subifc_io;
 		method sb_sspi_interrupt = sspi.mv_sb_sspi_interrupt;
