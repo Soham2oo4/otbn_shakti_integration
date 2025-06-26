@@ -6,6 +6,7 @@
 `define EXCEPTION 'h10c
 `define WHERETO   'h300
 `define DATA      'h380
+`define USERSPACE   0
 
 `define FLAGS 'h400
 `define ROMBASE 'h800
