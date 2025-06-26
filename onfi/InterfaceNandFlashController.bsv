@@ -150,7 +150,7 @@ SyncFIFOIfc#(Tuple2#(Bit#(`PADDR),Bit#(`Reg_width))) ff_sync_ctrl_write <- mkSyn
     
 //Control Registers for NandflashController
 
-    Reg#(Bit#(4))  rg_axi_id         <- mkRegA(0);
+    Reg#(Bit#(id_width))  rg_axi_id         <- mkRegA(0);
 `ifdef Out_clock
 	SyncFIFOIfc#(Bit#(`Reg_width)) ff_read_cntrl_read_response <- mkSyncFIFOToCC(1, clk0, rst0);
 	SyncFIFOIfc#(Bit#(`PADDR))     ff_sync_read_response       <- mkSyncFIFOFromCC(1,clk0);

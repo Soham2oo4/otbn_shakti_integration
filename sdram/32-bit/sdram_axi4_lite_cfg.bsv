@@ -399,9 +399,9 @@ Wire#(Bool)                     wr_app_last_wr <- mkDWire(False,clocked_by clk0,
 Wire#(Bit#(data_width))                 wr_app_rd_data <- mkWire(clocked_by clk0, reset_by rst0);
 
 
-Reg#(Bit#(4))     rg_rid          <- mkRegA(0, clocked_by clk0, reset_by rst0);
+Reg#(Bit#(id_width))     rg_rid          <- mkRegA(0, clocked_by clk0, reset_by rst0);
 //Reg#(bit)         rg_rd_not_active_flag <- mkSyncRegToCC(0,clk0, rst0);
-Reg#(Bit#(4))     rg_wid          <- mkRegA(0);
+Reg#(Bit#(id_width))     rg_wid          <- mkRegA(0);
 
 Reg#(Write_split_states) rg_wr_split_states <- mkRegA(IDLE); 
 Reg#(Bit#(3))            rg_awsize          <- mkRegA(0);

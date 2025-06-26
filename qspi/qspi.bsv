@@ -1582,7 +1582,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
     provisos(Add#(a__, 28, addr_width),Mul#(32, b__, data_width),Add#(c__,addr_width,32));
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
-	Reg#(Bit#(4)) rg_rid <- mkRegA(0);
+	Reg#(Bit#(id_width)) rg_rid <- mkRegA(0);
 	Reg#(Bit#(4)) rg_wid <- mkRegA(0);
 
 	AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;

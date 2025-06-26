@@ -134,7 +134,7 @@ package capmatrix;
     UserInterface#(awidth, dwidth, mem_size) dut <- mkcapmatrix(base, mem_init_file1, mem_init_file2, modulename);
 	  AXI4_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
+    Reg#(Bit#(id_width)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
     Reg#(Mem_State) write_state <-mkReg(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);

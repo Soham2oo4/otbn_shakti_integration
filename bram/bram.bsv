@@ -136,7 +136,7 @@ package bram;
         modulename);
     `endif
 	  AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
+    Reg#(Bit#(id_width)) rg_rd_id <-mkRegA(0);
     Reg#(Mem_State) read_state <-mkRegA(Idle);
     Reg#(Mem_State) write_state <-mkRegA(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);

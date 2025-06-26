@@ -1111,11 +1111,11 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		AXI4_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 
 		Reg#(Bool) rg_is_rdburst[2] <- mkCRegA(2,False);
-		Reg#(Bit#(4)) rg_arid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(id_width)) rg_arid[2] <- mkCRegA(2,?);
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		
 		Reg#(Bool) rg_is_wrburst[2] <- mkCRegA(2,False);
-		Reg#(Bit#(4)) rg_awid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(id_width)) rg_awid[2] <- mkCRegA(2,?);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
 //	method Action read_req(Bit#(addr_width) addr, AccessSize size);

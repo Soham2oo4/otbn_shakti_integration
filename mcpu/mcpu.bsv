@@ -78,7 +78,7 @@ package mcpu;
 		AXI4_Slave_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
 	  Mcpu_master proc_master <-mkmcpumaster;
 		Reg#(Bit#(`Reg_width_mcpu_slave)) response_buff  <-mkReg(0);//To buffer multiple cycle transfers
-    FIFOF#(Bit#(4)) ff_id <-mkSizedFIFOF(2);//To store request address of instruction
+    FIFOF#(Bit#(id_width)) ff_id <-mkSizedFIFOF(2);//To store request address of instruction
     FIFOF#(Bit#(`Reg_width_mcpu_slave)) ff_address <-mkSizedFIFOF(2);//To store request address of instruction
 		FIFOF#(Data_mode) ff_req<-mkSizedFIFOF(2);//To keep track of last pending request
 		FIFOF#(Bool) ff_last<-mkSizedFIFOF(2);//To keep track of last pending request
@@ -94,7 +94,7 @@ package mcpu;
     Reg#(Bit#(`PADDR)) dw_read_addr <-mkReg(0);//Buffer addresses for double word transactions
     Reg#(Bit#(2)) rg_burst <-mkReg(0);//Buffer arburst for burst transfer
     Reg#(Bit#(8)) rg_arlen <-mkReg(0);//Buffer burst length
-    Reg#(Bit#(4)) rg_awid <-mkReg(0);//Buffer id
+    Reg#(Bit#(id_width)) rg_awid <-mkReg(0);//Buffer id
     Reg#(Bit#(8)) rg_counter <-mkReg(0);//Counter to initiate read bursts
     Reg#(Bit#(3)) rg_size <-mkReg(0);//Buffer burst size
     Reg#(Bit#(32))dw_data<-mkReg(0);//Buffer double word data

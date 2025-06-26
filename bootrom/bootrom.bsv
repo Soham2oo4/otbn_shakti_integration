@@ -106,7 +106,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_size) dut <- mkbootrom(slave_base);
 	  AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkRegA(0);
+    Reg#(Bit#(id_width)) rg_rd_id <-mkRegA(0);
     Reg#(Mem_State) read_state <-mkRegA(Idle);
     Reg#(Mem_State) write_state <-mkRegA(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
