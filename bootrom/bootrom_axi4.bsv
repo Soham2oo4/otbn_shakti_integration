@@ -36,7 +36,7 @@ package bootrom_axi4;
   // to make it synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
   module mkbootrom#(parameter Integer slave_base)(UserInterface#(addr_width, data_width, index_size))
-    provisos(Add#(data_width, a, `ifndef axi4_128b 64 `else 128 `endif ),
+    provisos(Add#(data_width, a, `ifndef iclass 64 `else 128 `endif ),
              Mul#(8, a__, data_width), // data_width should always be multiple of 8, 16 and 32.
              Mul#(16, b__, data_width),
              Mul#(32, c__, data_width));
