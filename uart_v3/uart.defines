@@ -1,0 +1,76 @@
+// slave_bound: 28 bytes
+// space-allocation: (R: reserved, U-Used)
+// 0x0: U U R R
+// 0x4: U R R R
+// 0x8: U R R R
+
+
+`ifdef uart_clk_gate_en
+`define uart_clk_gate_loc_rst_en 
+`endif
+`ifdef uart_loc_rst_en
+`define uart_clk_gate_loc_rst_en 
+`endif
+// Memory Map
+`define BaudReg     'h0		// 16-bit Register to change the baud-value of the UART.
+`define TxReg       'h4		// The 32-bit register to be written to send data out.
+`define RxReg       'h8		// The 32-bit register to read the incoming value.
+`define StatusReg   'hc		// The 16-bit register capturing the status of the modem in the first 4 bits
+				// and capturing the status of the rx/tx user side FIFOs in the last 8 bits 
+                            // Bit 15: Delta Clear To Send Indicator -> Only for UART Modem
+                            // Bit 14: Delta Dataset Ready Indicator -> Only for UART Modem
+                            // Bit 13: Trailing Edge of Ring Indicator -> Only for UART Modem
+                            // Bit 12: Delta Data Carrier Detect Indicator -> Only for UART Modem
+                            // Bit 11: Clear to Send Indicator -> Only for UART Modem
+                            // Bit 10: Data Set Ready Indicator -> Only for UART Modem
+                            // Bit  9: Ring Indicator -> Only for UART Modem
+                            // Bit 8: Indicates that the RX FIFO is ~80% full
+                            // Bit 7: Break Error
+                            // Bit 6: Frame Error 
+                            // Bit 5: Overrun
+                            // Bit 4: Parity Error
+                            // Bit 3: Receiver Full
+                            // Bit 2: Receiver Not Empty
+                            // Bit 1: Transmitter Full
+                            // Bit 0: Transmitter Empty
+`define DelayReg    'h10  // 16-bit Register to control the delay in sending the data through tx  
+`define ControlReg  'h14
+ // 32-bit Register to control various parameters of Modem and UART (16 bits if not UART Modem)
+                            // Bit  17      : Data Carrier Detect -> Only for UART Modem
+                            // Bit  16      : Auto RTS Enable	-> Only for UART Modem	            
+                            // Bit  15      : Data Terminal Ready -> Only for UART Modem
+                            // Bit  14      : Request To Send -> Only for UART Modem
+                            // Bit  13      : Output 1 -> Only for UART Modem
+                            // Bit  12      : Output 2 -> Only for UART Modem
+                            // Bit  11      : Local Loopback -> Only for UART Modem
+                            // Bits [10:5] : Character size 
+                            // Bits [4:3]  : Parity. 00-None, 01- Odd, 10- Even, 11-undefined
+                            // Bits [2:1]  : Stop bits.
+                                             //00: 1 Stop bit
+                                             //01: 1.5 Stop bits
+                                             //10: 2 Stop bits
+                            // Bit 0       : Stick Parity (If Odd Parity Enabled, set Parity=0, If Even Parity Enabled, set Parity=1) -> Only for UART Modem
+`define InterruptEn 'h18	// 16-bit Interrupt Enable register (8 bits if not UART Modem)
+                            // Bit 15:10 : All zeros
+                     	    // Bit 9: Modem Status Interrupt Enable -> Only for UART Modem
+                            // Bit 8: RX FIFO ~80% Full Interrupt Enable
+                            // Bit 7: Break Error Interrupt Enable
+                            // Bit 6: Frame Error Interrupt Enable
+                            // Bit 5: Overrun Interrupt Enable
+                            // Bit 4: Parity Error Interrupt Enable
+                            // Bit 3: Receiver Not Empty Interrupt Enable
+                            // Bit 2: Receiver Not Full Interrupt Enable
+                            // Bit 1: Transmitter Not Full Interrupt Enable
+                            // Bit 0: Transmission Done Interrupt Enable
+`ifdef IQC
+  `define IQ_cycles 'h1C    //8-bit register that indicates number of input qualification cycles
+`endif
+ 
+ `define RX_Threshold 'h20 //8-bit RX Threshold Register (We are not implementing the holding register logic)
+ 		            // Bit 7: RX FIFO Clear and TX FIFO Clear  -> Only for UART Modem
+                            // Bit 6: RX FIFO Clear  -> Only for UART Modem
+                            // Bit 5: TX FIFO Clear -> Only for UART Modem
+                            // Bit 4:0 : 32 Bit Threshold Value (00000-11111)
+`ifdef uart_clk_gate_loc_rst_en
+`define UART_Clk_en 'h24
+`endif
