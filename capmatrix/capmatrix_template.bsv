@@ -26,7 +26,7 @@ package capmatrix_template;
   import capmatrix::*;
   (*synthesize*)
   module mkdummy(Empty);
-		Ifc_capmatrix_AXI4#(32, 32, 64, 0, 8) cap_matrix <- mkcapmatrix_AXI4 ('h0000_3000, "cap.MSB", "cap.LSB", "CAPMatrix");
+		Ifc_capmatrix_AXI4#(32, 4, 64, 0, 8) cap_matrix <- mkcapmatrix_AXI4 ('h0000_3000, "cap.MSB", "cap.LSB", "CAPMatrix");
 		Ifc_capmatrix_AXI4Lite#(32, 64, 0, 8) cap_matrix <- mkcapmatrix_AXI4Lite ('h0000_3000, "cap.MSB", "cap.LSB", "CAPMatrix");
   endmodule
 endpackage

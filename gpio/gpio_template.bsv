@@ -71,7 +71,7 @@ package gpio_template;
 	(*synthesize*)
 	module mkdummy(Empty);
 		 Ifc_gpio_axi4lite#(32,32,0,60) gpio1 <- mkgpio_axi4lite;
-		 Ifc_gpio_axi4#(32,32,32,0,30) gpio2 <- mkgpio_axi4;
+		 Ifc_gpio_axi4#(32,4,32,32,0,30) gpio2 <- mkgpio_axi4;
      //User_ifc#(32,32,64) gpio <- mkgpio;
 	endmodule
 endpackage

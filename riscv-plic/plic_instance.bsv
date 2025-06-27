@@ -16,7 +16,7 @@ package plic_instance ;
     return ifc;
 	endmodule
 	(*synthesize*)
-	module mkdummy1(Ifc_plic_axi4#(32,32, 64,3,31,2,3));
+	module mkdummy1(Ifc_plic_axi4#(32,4, 64,3,31,2,3));
     let clk <- exposeCurrentClock;
     let rst <- exposeCurrentReset;
     let ifc();

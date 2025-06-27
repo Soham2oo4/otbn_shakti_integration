@@ -66,7 +66,7 @@ package watchdog;
     Reg#(Bit#(16)) rg_reset_counter <- mkConfigRegA(fromInteger(reset_cycles));
     Reg#(Bool) rg_reset_start <- mkRegA(False);
 
-    Reg#(Bool) rg_active <- mkDReg(False);
+    Reg#(Bool) rg_active <- mkDRegA(False);
 
     rule rl_decrement_watchdog_counter(!rg_reset_start && rg_control[2]==0);
       `logLevel( wdt, 1, $format("WDT: Counter: %d", rg_watchdog_counter))
@@ -91,10 +91,14 @@ package watchdog;
     endrule
 
     rule rl_gen_reset_signal(rg_reset_start);
-      rg_reset_counter<= rg_reset_counter-1;
       if(rg_reset_counter==1) begin
-        `logLevel( wdt, 1, $format("WDT: Done with soft reset..."))
+        `logLevel( wdt, 1, $format("WDT: Done with reset..."))
         rg_reset_start<= False;
+      	rg_reset_counter<= rg_reset_cycles;
+				rg_control[0]<= 0;	//Disable watchdog after reset is over.
+      end
+			else begin
+      	rg_reset_counter<= rg_reset_counter-1;
       end
     endrule
 
@@ -111,6 +115,7 @@ package watchdog;
       end
       else if(addr[7:0]=='h10) begin
         rg_reset_cycles<= truncate(data);
+      	rg_reset_counter<= truncate(data);
         return True;
       end
       else if(addr[7:0]=='h18) begin

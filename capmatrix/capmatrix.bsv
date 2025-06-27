@@ -64,7 +64,7 @@ package capmatrix;
 		BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,2)),Bit#(32),4) dmemLSB <- 
                    mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,2))),False,lsb_file,False);
   
-    Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
+    Reg#(Bool) read_request_sent[2] <-mkCRegA(2,False);
 		Reg#(Bool) rg_unlocked <- mkRegA(True);
     
 		method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);

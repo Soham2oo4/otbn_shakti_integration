@@ -89,10 +89,10 @@ Reg#(bit) rg_error_isr_reset                   <- mkRegA(0);
 Reg#(Bit#(`Reg_width)) rg_dat_in_m_rx_bd       <- mkRegA(0); //Data in to Rx_bd from Master
 Reg#(Bit#(`Reg_width)) rg_dat_in_m_tx_bd       <- mkRegA(0);
 
-Reg#(bit) rg_new_cmd                           <- mkDReg(0);
+Reg#(bit) rg_new_cmd                           <- mkDRegA(0);
 Reg#(bit) rg_int_busy                          <- mkRegA(0);
-Reg#(bit) rg_cmd_int_busy                      <- mkDReg(0);
-Reg#(bit) rg_we_ack                            <- mkDReg(0);
+Reg#(bit) rg_cmd_int_busy                      <- mkDRegA(0);
+Reg#(bit) rg_we_ack                            <- mkDRegA(0);
 Reg#(bit) rg_int_ack                           <- mkRegA(1);
 Reg#(bit) rg_ack_o                             <- mkRegA(0);
 Reg#(bit) rg_we_m_rx_bd                        <- mkRegA(0);
@@ -103,7 +103,7 @@ Reg#(bit)     rg_bd_rx                         <- mkRegA(0);
 Reg#(bit)     rg_bd_tx                         <- mkRegA(0);
 
 Reg#(Bit#(32))       rg_resp_data              <- mkRegA(0);
-Reg#(bit)            rg_m_wb_ack_i             <- mkDReg(0); 
+Reg#(bit)            rg_m_wb_ack_i             <- mkDRegA(0); 
 
 Reg#(bit)    rg_read_req_en                    <- mkRegA(0);
 Reg#(bit)    rg_disable_read_request           <- mkRegA(0);
@@ -112,7 +112,7 @@ Reg#(bit)    rg_en_cmd_int_busy                <- mkRegA(0);
 
 Reg#(Bit#(10)) rg_count                        <- mkRegA(0);
 
-Reg#(bit)  wr_config                          <- mkDReg(0);   
+Reg#(bit)  wr_config                          <- mkDRegA(0);   
 
 Reg#(Bit#(3)) rg_new_count                    <- mkRegA(0);
 

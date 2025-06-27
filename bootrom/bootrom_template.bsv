@@ -46,7 +46,7 @@ package bootrom_template;
   import bootrom::*;
   (*synthesize*)
   module mkdummy(Empty);
-    Ifc_bootrom_axi4#(32, 32, 0, 13) boot <-mkbootrom_axi4('h1000);
+    Ifc_bootrom_axi4#(32,4, 32, 0, 13) boot <-mkbootrom_axi4('h1000);
     Ifc_bootrom_axi4lite#(32, 32, 0, 13) bootlite <-mkbootrom_axi4lite('h1000);
 //    Ifc_bootrom_TLU#(32, 8, 4) boottlu <- mkbootrom_TLU('h1000);
   endmodule

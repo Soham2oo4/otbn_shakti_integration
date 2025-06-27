@@ -79,7 +79,7 @@ import device_common::*;
 module mkdummy#(Clock sdram_clock, Reset sdram_reset)(Empty);
 	let core_clock<-exposeCurrentClock;
 	let core_reset<-exposeCurrentReset;
-	Ifc_sdram_wrap_axi4#(32,32,32,32,32,0,32,12,3) sdram1 <- mksdram_wrap_axi4 `ifdef sdram_ext_clk ( sdram_clock,sdram_reset) `endif ;
+	Ifc_sdram_wrap_axi4#(32,4,32,32,4,32,0,32,12,3) sdram1 <- mksdram_wrap_axi4 `ifdef sdram_ext_clk ( sdram_clock,sdram_reset) `endif ;
 	Ifc_sdram_wrap_axi4lite#(32,32,32,32,0,32,12,3) sdram2 <- mksdram_wrap_axi4lite `ifdef sdram_ext_clk ( sdram_clock,sdram_reset) `endif ;
 
     rule rl_ipad;

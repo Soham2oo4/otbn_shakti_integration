@@ -278,8 +278,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(1)) hartreset         <- mkRegA(0, reset_by dm_reset);
   Reg#(Bit#(1)) ackhavereset      <- mkRegA(0, reset_by dm_reset);
   Reg#(Bit#(1)) ackunavail        <- mkRegA(0, reset_by dm_reset); // We may not support this. TODO
-  ConfigReg#(Bit#(1)) hasel       <- mkConfigReg(0, reset_by dm_reset);
-  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) _hartsello        <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(1)) hasel       <- mkConfigRegA(0, reset_by dm_reset);
+  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) _hartsello        <- mkConfigRegA(0, reset_by dm_reset);
   ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) hartsello   = hartselloReg(_hartsello, v_ncomponents);
   Reg#(Bit#(10)) hartselhi        = readOnlyReg(0); // 2^20 is just obnoxious. simple opt here.
   Reg#(Bit#(1)) setkeepalive      = readOnlyReg(0); // we do not support this feature
@@ -735,7 +735,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       0: begin writedata = duplicate(sbdata0[7:0]); writestrb = 'b1<<shamt; end
       1: begin writedata = duplicate(sbdata0[15:0]); writestrb = 'b11 << shamt; end
       2: begin writedata = duplicate(sbdata0); writestrb = 'b1111 << shamt ; end
+      `ifdef debug_datawidth64 
       3: begin writedata = duplicate({sbdata1,sbdata0}); writestrb = 'b11111111 << shamt; end
+      `endif
     endcase
 
     if (lv_err == SbSuccess) begin
