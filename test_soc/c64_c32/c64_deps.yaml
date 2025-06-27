@@ -1,15 +1,15 @@
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.3.0
+  checkout: 128-bit-c-class-change-dcache
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
   checkout: 3.0.0
 devices:
   url: https://gitlab.com/shaktiproject/uncore/devices
-  checkout: 8.0.3
+  checkout: 128-bit-c-class-support
 fabrics:
   url: https://gitlab.com/shaktiproject/uncore/fabrics
-  checkout: 1.3.3
+  checkout: master
 common_verilog:
   url: https://gitlab.com/shaktiproject/common_verilog
   checkout: 3.0.0
