@@ -209,11 +209,11 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
   let v_targets = valueOf(targets);
   let v_maxpriority = valueOf(maxpriority);
 
-  Vector#( nsources, Reg#(Bit#(lg_priority))) vrg_source_priority  <- replicateM(mkReg(0));
+  Vector#( nsources, Reg#(Bit#(lg_priority))) vrg_source_priority  <- replicateM(mkRegA(0));
   Vector#( nsources, Reg#(Bool) )             vrg_source_pending    <- replicateM(mkConfigReg(False));
   Vector#( targets, Vector#( nsources, Reg#(Bool) )) 
-                                              v_target_ie <- replicateM(replicateM(mkReg(False))) ;
-  Vector#( targets, Reg#(Bit#(lg_priority))) v_target_threshold <- replicateM(mkReg('1));
+                                              v_target_ie <- replicateM(replicateM(mkRegA(False))) ;
+  Vector#( targets, Reg#(Bit#(lg_priority))) v_target_threshold <- replicateM(mkRegA('1));
 
   Vector#( nsources, ConfigReg#(Bool) )             v_reg_source_busy  <- replicateM(mkConfigReg(False));
    

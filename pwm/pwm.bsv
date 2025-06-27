@@ -72,24 +72,24 @@ package pwm;
 		let bus_reset <- exposeCurrentReset;
 
 		//Input-registers
-		Vector#(channels,Reg#(Bit#(pwmwidth))) period_in <- replicateM(mkReg(0));
-		Vector#(channels,Reg#(Bit#(pwmwidth))) duty_cycle_in <- replicateM(mkReg(0));
+		Vector#(channels,Reg#(Bit#(pwmwidth))) period_in <- replicateM(mkRegA(0));
+		Vector#(channels,Reg#(Bit#(pwmwidth))) duty_cycle_in <- replicateM(mkRegA(0));
 
 		// ================= Control register ==================== //
 		// bits 15 to 13 are reserved
-		Vector#(channels,Reg#(Bit#(1))) cr_pwm_update_enable	 		<- replicateM(mkReg(0));//bit 12
-		Vector#(channels,Reg#(Bit#(1))) cr_rise_interrupt		 		<- replicateM(mkReg(0));//bit 11
-		Vector#(channels,Reg#(Bit#(1))) cr_fall_interrupt		 		<- replicateM(mkReg(0));//bit 10
-		Vector#(channels,Reg#(Bit#(1))) cr_halfperiod_interrupt 		<- replicateM(mkReg(0));//bit 9
-		Vector#(channels,Reg#(Bit#(1))) cr_rise_interrupt_enable 		<- replicateM(mkReg(0));//bit 8
-		Vector#(channels,Reg#(Bit#(1))) cr_fall_interrupt_enable 		<- replicateM(mkReg(0));//bit 7
-		Vector#(channels,Reg#(Bit#(1))) cr_halfperiod_interrupt_enable <- replicateM(mkReg(0));//bit 6
-		Vector#(channels,Reg#(Bit#(1))) cr_comp_out_enable				<- replicateM(mkReg(0));//bit 5
-		Vector#(channels,Reg#(Bit#(1))) cr_counter_reset 				<- replicateM(mkReg(0));//bit 4
-		Vector#(channels,Reg#(Bit#(1))) cr_output_polarity 			<- replicateM(mkReg(0));//bit 3
-		Vector#(channels,Reg#(Bit#(1))) cr_output_enable 				<- replicateM(mkReg(0));//bit 2
-		Vector#(channels,Reg#(Bit#(1))) cr_pwm_start 					<- replicateM(mkReg(0));//bit 1
-		Vector#(channels,Reg#(Bit#(1))) cr_pwm_enable 					<- replicateM(mkReg(0));//bit 0
+		Vector#(channels,Reg#(Bit#(1))) cr_pwm_update_enable	 		<- replicateM(mkRegA(0));//bit 12
+		Vector#(channels,Reg#(Bit#(1))) cr_rise_interrupt		 		<- replicateM(mkRegA(0));//bit 11
+		Vector#(channels,Reg#(Bit#(1))) cr_fall_interrupt		 		<- replicateM(mkRegA(0));//bit 10
+		Vector#(channels,Reg#(Bit#(1))) cr_halfperiod_interrupt 		<- replicateM(mkRegA(0));//bit 9
+		Vector#(channels,Reg#(Bit#(1))) cr_rise_interrupt_enable 		<- replicateM(mkRegA(0));//bit 8
+		Vector#(channels,Reg#(Bit#(1))) cr_fall_interrupt_enable 		<- replicateM(mkRegA(0));//bit 7
+		Vector#(channels,Reg#(Bit#(1))) cr_halfperiod_interrupt_enable <- replicateM(mkRegA(0));//bit 6
+		Vector#(channels,Reg#(Bit#(1))) cr_comp_out_enable				<- replicateM(mkRegA(0));//bit 5
+		Vector#(channels,Reg#(Bit#(1))) cr_counter_reset 				<- replicateM(mkRegA(0));//bit 4
+		Vector#(channels,Reg#(Bit#(1))) cr_output_polarity 			<- replicateM(mkRegA(0));//bit 3
+		Vector#(channels,Reg#(Bit#(1))) cr_output_enable 				<- replicateM(mkRegA(0));//bit 2
+		Vector#(channels,Reg#(Bit#(1))) cr_pwm_start 					<- replicateM(mkRegA(0));//bit 1
+		Vector#(channels,Reg#(Bit#(1))) cr_pwm_enable 					<- replicateM(mkRegA(0));//bit 0
 
 		Vector#(channels,Reg#(Bit#(16))) control;
 		for(Integer i=0; i<valueOf(channels); i=i+1) begin
@@ -102,10 +102,10 @@ package pwm;
 		end
 
 		// ================ Clock Control Register ===============//
-		Reg#(Bit#(15)) clk_prescaller 		<- mkReg(0);
-		Reg#(Bit#(1))  clk_select 			<- mkReg(0);
+		Reg#(Bit#(15)) clk_prescaller 		<- mkRegA(0);
+		Reg#(Bit#(1))  clk_select 			<- mkRegA(0);
 		Reg#(Bit#(16)) rg_clk_control = concatReg2(clk_prescaller,clk_select);
-		Vector#(channels,Reg#(Bit#(16))) deadbanddelay_in 		<- replicateM(mkReg(0));
+		Vector#(channels,Reg#(Bit#(16))) deadbanddelay_in 		<- replicateM(mkRegA(0));
 
 		MakeResetIfc control_reset <- mkReset(1,False,bus_clock);
 		rule generate_reset;
@@ -134,18 +134,18 @@ package pwm;
 	
 		// ======= Actual Counter and PWM signal generation ======== //
 		// Registers at Down clock
-	    Vector#(channels,Reg#(Bit#(1))) pwm_output 		<- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
-		Vector#(channels,Reg#(Bit#(1))) pwm_comp_output <- replicateM(mkReg(0,clocked_by downclock, reset_by downreset));
-	    Vector#(channels,Reg#(Bit#(pwmwidth))) counter 	<- replicateM(mkReg(100,clocked_by downclock,reset_by downreset));
-	    Vector#(channels,Reg#(Bit#(1))) interrupt 		<- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
-		Vector#(channels,Reg#(Bit#(1))) pwm_rise_interrupt <- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
-		Vector#(channels,Reg#(Bit#(1))) pwm_fall_interrupt <- replicateM(mkReg(0,clocked_by downclock,reset_by downreset));
-		Vector#(channels,Reg#(Bit#(1))) pwm_halfperiod_interrupt <- replicateM(mkReg(0,clocked_by downclock, reset_by downreset));	
+	    Vector#(channels,Reg#(Bit#(1))) pwm_output 		<- replicateM(mkRegA(0,clocked_by downclock,reset_by downreset));
+		Vector#(channels,Reg#(Bit#(1))) pwm_comp_output <- replicateM(mkRegA(0,clocked_by downclock, reset_by downreset));
+	    Vector#(channels,Reg#(Bit#(pwmwidth))) counter 	<- replicateM(mkRegA(100,clocked_by downclock,reset_by downreset));
+	    Vector#(channels,Reg#(Bit#(1))) interrupt 		<- replicateM(mkRegA(0,clocked_by downclock,reset_by downreset));
+		Vector#(channels,Reg#(Bit#(1))) pwm_rise_interrupt <- replicateM(mkRegA(0,clocked_by downclock,reset_by downreset));
+		Vector#(channels,Reg#(Bit#(1))) pwm_fall_interrupt <- replicateM(mkRegA(0,clocked_by downclock,reset_by downreset));
+		Vector#(channels,Reg#(Bit#(1))) pwm_halfperiod_interrupt <- replicateM(mkRegA(0,clocked_by downclock, reset_by downreset));	
 
 		// Registers at bus clock
-		Vector#(channels,Reg#(Bit#(pwmwidth))) duty_cycle 	<- replicateM(mkReg(0));                           
-        Vector#(channels,Reg#(Bit#(pwmwidth))) period 		<- replicateM(mkReg(0));
-		Vector#(channels,Reg#(Bit#(16))) deadbanddelay 		<- replicateM(mkReg(0));
+		Vector#(channels,Reg#(Bit#(pwmwidth))) duty_cycle 	<- replicateM(mkRegA(0));                           
+        Vector#(channels,Reg#(Bit#(pwmwidth))) period 		<- replicateM(mkRegA(0));
+		Vector#(channels,Reg#(Bit#(16))) deadbanddelay 		<- replicateM(mkRegA(0));
 
 		// Wires which sync value from down clock to bus clock
 		Vector#(channels,ReadOnly#(Bit#(1))) pwm_signal;

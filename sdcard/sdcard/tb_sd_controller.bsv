@@ -130,29 +130,29 @@ endinterface
 module mktb_sd_controller(Ifc_test_sdc);
 
 
-Reg#(Command_controller_state) rg_command_state    <- mkReg(SET_BD_ISER);
+Reg#(Command_controller_state) rg_command_state    <- mkRegA(SET_BD_ISER);
 
 Ifc_sdModelwrapper    sd_model     <- mksdModelwrapper;
 
 AXI4_Master_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) tb_master_xactor <- mkAXI4_Master_Xactor;
 AXI4_Slave_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE)  tb_slave_xactor   <- mkAXI4_Slave_Xactor;
 
-Reg#(Bool)     wr_cmd_en            <- mkReg(False);
-Reg#(Bool)     wr_dat_en            <- mkReg(False);
-Reg#(Bit#(1))  wr_cmd_dat           <- mkReg(0);
-Reg#(Bit#(4))  wr_sd_dat_i          <- mkReg(0);
-Reg#(Bit#(64)) rg_response_data     <- mkReg(0);
-Reg#(bit)      rg_resp              <- mkReg(0);
-Reg#(bit)      rg_set_write_second  <- mkReg(0);
-Reg#(bit)      rg_sd_clk            <- mkReg(0);
+Reg#(Bool)     wr_cmd_en            <- mkRegA(False);
+Reg#(Bool)     wr_dat_en            <- mkRegA(False);
+Reg#(Bit#(1))  wr_cmd_dat           <- mkRegA(0);
+Reg#(Bit#(4))  wr_sd_dat_i          <- mkRegA(0);
+Reg#(Bit#(64)) rg_response_data     <- mkRegA(0);
+Reg#(bit)      rg_resp              <- mkRegA(0);
+Reg#(bit)      rg_set_write_second  <- mkRegA(0);
+Reg#(bit)      rg_sd_clk            <- mkRegA(0);
 
-Reg#(Bit#(10)) rg_count             <- mkReg(0);
+Reg#(Bit#(10)) rg_count             <- mkRegA(0);
 
-Reg#(Bit#(10)) rg_data_count        <- mkReg(0);
+Reg#(Bit#(10)) rg_data_count        <- mkRegA(0);
 
-Reg#(bit)   rg_set_second_write_seq <- mkReg(0);
+Reg#(bit)   rg_set_second_write_seq <- mkRegA(0);
 
-Reg#(bit)   rg_switch_data          <- mkReg(0);
+Reg#(bit)   rg_switch_data          <- mkRegA(0);
 //TriState#(Bit#(1))   tri_cmd        <- mkTriState(wr_cmd_en, wr_cmd_dat);
 //TriState#(Bit#(4))   tri_dat        <- mkTriState(wr_dat_en, wr_sd_dat_i);
 //
