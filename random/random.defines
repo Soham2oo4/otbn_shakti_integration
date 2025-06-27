@@ -1,0 +1,3 @@
+// Memory Map
+`define enb_reg 		'h0
+`define res_reg 	    'h8
