@@ -17,7 +17,7 @@ c-class:
         - source /tools/setup_local.sh
         - pip install --upgrade pip
         - pip uninstall -r requirements.txt -y
-        - pip uninstall soc_config
+        - pip uninstall soc_config -y
         - pip install -r requirements.txt
         - repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml --clean &> /dev/null
         - repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup &> /dev/null
@@ -60,7 +60,7 @@ check-mr-build:
         - source /tools/setup_local.sh
         - pip install --upgrade pip
         - pip uninstall -r requirements.txt -y
-        - pip uninstall soc_config
+        - pip uninstall soc_config -y
         - pip install -r requirements.txt
         - repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml --clean &> /dev/null
         - repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup &> /dev/null
