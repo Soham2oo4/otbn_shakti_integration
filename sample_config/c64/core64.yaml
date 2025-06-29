@@ -57,6 +57,7 @@ bus_protocol_configuration:
   axi4_lite_transactor_fifo_depth: 2
   axi4_lite_internal_fifo_depth: 2
   axi4_id_width: 4
+  userspace_width: 0
 bsc_compile_options:
   test_memory_size: 67108864
   assertions: true
