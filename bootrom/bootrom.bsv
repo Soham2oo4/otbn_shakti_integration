@@ -92,7 +92,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
 
   interface Ifc_bootrom_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, 
                               numeric type user_width, numeric type index_size);
-    interface AXI4_Slave_IFC#(addr_width , id_width, data_width, user_width) slave; 
+    interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave; 
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
@@ -105,7 +105,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
              Mul#(32, c__, data_width), 
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_size) dut <- mkbootrom(slave_base);
-	  AXI4_Slave_Xactor_IFC #(addr_width, id_width ,data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+	  AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
     Reg#(Bit#(id_width)) rg_rd_id <-mkRegA(0);
     Reg#(Mem_State) read_state <-mkRegA(Idle);
     Reg#(Mem_State) write_state <-mkRegA(Idle);
@@ -162,7 +162,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     rule read_response;
       let {err, data0}<-dut.read_response;
   		let transfer_size=rg_read_packet.arsize;
-      AXI4_Rd_Data#(id_width,data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+      AXI4_Rd_Data#(id_width, data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
       `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
       s_xactor.i_rd_data.enq(r);
