@@ -113,7 +113,7 @@ package bram;
     endmethod
   endmodule
 
-  interface Ifc_bram_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width,
+  interface Ifc_bram_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width,
                                                                            numeric type index_size);
     interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
   endinterface
