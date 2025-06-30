@@ -140,8 +140,8 @@ package bram;
     Reg#(Mem_State) read_state <-mkRegA(Idle);
     Reg#(Mem_State) write_state <-mkRegA(Idle);
 	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
-	  Reg#(AXI4_Rd_Addr	#(addr_width,id_width,user_width)) rg_read_packet <-mkRegA(?);
-		Reg#(AXI4_Wr_Addr	#(addr_width, id_width,user_width)) rg_write_packet<-mkRegA(?);
+	  Reg#(AXI4_Rd_Addr	#(addr_width, id_width, user_width)) rg_read_packet <-mkRegA(?);
+		Reg#(AXI4_Wr_Addr	#(addr_width, id_width, user_width)) rg_write_packet<-mkRegA(?);
     Wire#(Bool) wr_read_ack <- mkWire();
 
     // If the request is single then simple send ERR. If it is a burst write request then change
