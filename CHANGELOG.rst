@@ -4,14 +4,11 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
-[4.5.1] - 2025-07-01
---------------------
-- ci fix
-
-[4.5.0] - 2025-06-29
+[4.5.0] - 2025-07-01
 --------------------
 - Debug fix for illegal priv write 
 - FPGA setup additions 
+- ci fix
 
 [4.4.0] - 2025-06-04
 --------------------
