@@ -7,6 +7,7 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 [4.6.0] - 2025-07-02
 --------------------
 - Support for 128-bit AXI4 interface
+- Changes to support updated AXI4 interface and parameters
 - Updated tags for caches_mmu, fabrics and devices (for 128-bit AXI4)
 
 [4.5.0] - 2025-07-01
