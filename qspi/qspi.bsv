@@ -1670,7 +1670,7 @@ module mkqspi_axi4#(Clock slow_clk, Reset slow_rst, Bit#(32) start_mm_addr, Bit#
 
 	Reg#(bit) rg_req_en <- mkRegA(0);
 	Reg#(Bit#(id_width)) rg_rid <- mkRegA(0);
-	Reg#(Bit#(4)) rg_wid <- mkRegA(0);
+	Reg#(Bit#(id_width)) rg_wid <- mkRegA(0);
 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);
 	Reg#(Bit#(8)) rg_rdburst_count_rsp <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);
 	Reg#(Bit#(8)) rg_rsp_burst_len <- mkRegA(0,clocked_by slow_clk, reset_by slow_rst);

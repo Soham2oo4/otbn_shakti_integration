@@ -58,7 +58,7 @@ module mksd_controller(Ifc_sd_controller);
 Wire#(bit) wr_wb_cyc   <- mkDWire(0);
 Wire#(bit) wr_wb_stb   <- mkDWire(0);
 
-Reg#(Bit#(4)) rg_axi_id <- mkRegA(0);
+Reg#(Bit#(`axi4_id_width)) rg_axi_id <- mkRegA(0);
 Reg#(bit)     rg_we     <- mkRegA(0);
 
 // Configuration register
