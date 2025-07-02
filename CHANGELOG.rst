@@ -4,6 +4,12 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.5.0] - 2025-07-01
+--------------------
+- Debug fix for illegal priv write 
+- FPGA setup additions 
+- ci fix
+
 [4.4.0] - 2025-06-04
 --------------------
 - Updated for C-Class hardfloat support: fixed ifdefs, missing gate inputs, fdiv and fcvt_w instructions. 
