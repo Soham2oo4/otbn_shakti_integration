@@ -97,7 +97,7 @@ package Soc;
     (*always_ready, always_enabled*)
     interface AXI4_Lite_Master_IFC#(`paddr, 32, 0) xadc_master;
     interface AXI4_Lite_Master_IFC#(`paddr, 32, 0) eth_master;
-    interface AXI4_Master_IFC#(`paddr, ELEN, 0) mem_master;
+    interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `buswidth, 0) mem_master;
 //    interface IOCellSide iocell_io;
 /*
     (*always_enabled,always_ready*)
@@ -273,14 +273,14 @@ package Soc;
 
     Ifc_ccore_axi4 ccore <- mkccore_axi4(`resetpc, 0);
 
-    AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr, ELEN, USERSPACE) 
+    AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr, `buswidth, USERSPACE) 
                                                     fabric <- mkAXI4_Fabric(fn_slave_map_fast);
-    Ifc_clint_axi4#(`paddr, ELEN, 0, 1, 512) clint <- mkclint_axi4();
+    Ifc_clint_axi4#(`paddr, `buswidth, 0, 1, 512) clint <- mkclint_axi4();
   // remove this: not required as debug ROM is defined in debug 1.0 module
   //`ifdef debug
-    //Ifc_debug_halt_loop_axi4#(`paddr, ELEN, USERSPACE) debug_memory <- mkdebug_halt_loop_axi4;
+    //Ifc_debug_halt_loop_axi4#(`paddr, `buswidth, USERSPACE) debug_memory <- mkdebug_halt_loop_axi4;
   //`endif
-    Ifc_err_slave_axi4#(`paddr,ELEN,0) fast_err_slave <- mkerr_slave_axi4;
+    Ifc_err_slave_axi4#(`paddr,`buswidth,0) fast_err_slave <- mkerr_slave_axi4;
 
     AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, 32, USERSPACE) 
                                                         slow_fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
