@@ -98,7 +98,7 @@ package Soc;
     interface AXI4_Lite_Master_IFC#(`paddr, 32, 0) xadc_master;
     interface AXI4_Lite_Master_IFC#(`paddr, 32, 0) eth_master;
     interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `buswidth, 0) mem_master;
-//    interface IOCellSide iocell_io;
+    interface IOCellSide iocell_io;
 /*
     (*always_enabled,always_ready*)
     method Action  gpio_4(Bit#(1) in);
@@ -239,8 +239,8 @@ package Soc;
     method Maybe#(CommitLogPacket) commitlog;
   `endif
   `ifdef debug
-    interface AXI4_Slave_IFC#(`paddr, `elen, USERSPACE) to_debug_master;
-    interface AXI4_Master_IFC#(`paddr, `elen, USERSPACE) to_debug_slave;
+    interface AXI4_Slave_IFC#(`paddr,`axi4_id_width, `elen, USERSPACE) to_debug_master;
+    interface AXI4_Master_IFC#(`paddr,`axi4_id_width, `elen, USERSPACE) to_debug_slave;
     method Action ma_hart_interrupts (Bit#(`num_harts) i);
     method Bit#(`num_harts) mv_harts_have_reset;
     method Bit#(`num_harts) mv_core_debugenable;
@@ -273,14 +273,14 @@ package Soc;
 
     Ifc_ccore_axi4 ccore <- mkccore_axi4(`resetpc, 0);
 
-    AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr, `buswidth, USERSPACE) 
+    AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr,`axi4_id_width, `buswidth, USERSPACE) 
                                                     fabric <- mkAXI4_Fabric(fn_slave_map_fast);
-    Ifc_clint_axi4#(`paddr, `buswidth, 0, 1, 512) clint <- mkclint_axi4();
+    Ifc_clint_axi4#(`paddr, `axi4_id_width, `buswidth, 0, 1, 512) clint <- mkclint_axi4();
   // remove this: not required as debug ROM is defined in debug 1.0 module
   //`ifdef debug
     //Ifc_debug_halt_loop_axi4#(`paddr, `buswidth, USERSPACE) debug_memory <- mkdebug_halt_loop_axi4;
   //`endif
-    Ifc_err_slave_axi4#(`paddr,`buswidth,0) fast_err_slave <- mkerr_slave_axi4;
+    Ifc_err_slave_axi4#(`paddr,`axi4_id_width,`buswidth,0) fast_err_slave <- mkerr_slave_axi4;
 
     AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, 32, USERSPACE) 
                                                         slow_fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
@@ -289,7 +289,7 @@ package Soc;
     Ifc_spi_cluster spi_cluster <- mkspi_cluster;
     Ifc_mixed_cluster mixed_cluster <- mkmixed_cluster;
     Ifc_err_slave_axi4lite#(`paddr,32,0) err_slave <- mkerr_slave_axi4lite;
-    Ifc_bram_axi4#(`paddr, XLEN, 0,  15) boot <- mkbram_axi4('h1000, "boot.mem","BOOT");
+    Ifc_bram_axi4#(`paddr,`axi4_id_width, XLEN, 0,  15) boot <- mkbram_axi4('h1000, "boot.mem","BOOT");
     `ifdef simulate
       Ifc_sign_dump signature <- mksign_dump();
     `endif
@@ -426,6 +426,14 @@ package Soc;
 						  mixed_cluster.gpio_io.gpio_out_en[1],
 						  mixed_cluster.gpio_io.gpio_out_en[0]} );
 */
+      mixed_cluster.pinmuxtop_peripheral_side.pwm0.out.put(0);
+      mixed_cluster.pinmuxtop_peripheral_side.pwm1.out.put(0);
+      mixed_cluster.pinmuxtop_peripheral_side.pwm2.out.put(0);
+      mixed_cluster.pinmuxtop_peripheral_side.pwm3.out.put(0);
+      mixed_cluster.pinmuxtop_peripheral_side.pwm4.out.put(0);
+      mixed_cluster.pinmuxtop_peripheral_side.pwm5.out.put(0);
+      mixed_cluster.pinmuxtop_peripheral_side.gpioa.out.put(0);
+    	mixed_cluster.pinmuxtop_peripheral_side.gpioa.out_en.put(0);
 
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.clk_out.put(spi_cluster.spi1_io.sclk_out);
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.clk_outen.put(spi_cluster.spi1_io.sclk_outen);
@@ -478,6 +486,7 @@ package Soc;
 			  pinmux_gpio_in[0]	});
 		   mixed_cluster.gpio_io.gpio_in(gpio_in_combined);
 */
+		   let pinmux_gpio_in <- (mixed_cluster.pinmuxtop_peripheral_side.gpioa.in.get);
 		   let pinmux_spi1_miso <- mixed_cluster.pinmuxtop_peripheral_side.mspi.miso_in.get;
 		   let pinmux_spi1_mosi <- mixed_cluster.pinmuxtop_peripheral_side.mspi.mosi_in.get;
 		   let pinmux_spi1_clk <- mixed_cluster.pinmuxtop_peripheral_side.mspi.clk_in.get;
@@ -624,7 +633,7 @@ package Soc;
 
 //		method  i2c0_out = mixed_cluster.i2c0_out;									//I2c IO interface
 //		method  i2c1_out = mixed_cluster.i2c1_out;									//I2c IO interface
-//    interface iocell_io = mixed_cluster.pinmuxtop_iocell_side;						//GPIO IO interface
+    interface iocell_io = mixed_cluster.pinmuxtop_iocell_side;						//GPIO IO interface
     interface xadc_master = mixed_cluster.xadc_master;
     interface eth_master = slow_fabric.v_to_slaves[`Eth_slave_num];
     interface mem_master = fabric.v_to_slaves [`Memory_slave_num];
