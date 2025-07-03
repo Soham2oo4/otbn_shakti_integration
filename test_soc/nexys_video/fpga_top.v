@@ -87,6 +87,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
     inout gpio_29,
     inout gpio_30,
     inout gpio_31,
+    
 
 
     // ---- System Reset ------//
@@ -520,20 +521,20 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
 		   .mem_master_RID    (s_axi_rid),
 		   .mem_master_RREADY(s_axi_rready),
 			  //I2C ports
-        .i2c0_out_scl_out (i2c0_scl_out),
+        /*.i2c0_out_scl_out (i2c0_scl_out),
         .i2c0_out_scl_in_in(i2c0_scl_in),
         .i2c0_out_scl_out_en(i2c0_scl_out_en),
         .i2c0_out_sda_out(i2c0_sda_out),
         .i2c0_out_sda_in_in(i2c0_sda_in),
-        .i2c0_out_sda_out_en(i2c0_sda_out_en),
+        .i2c0_out_sda_out_en(i2c0_sda_out_en),*/
 
 			  //I2C ports
-        .i2c1_out_scl_out (i2c1_scl_out),
+        /*.i2c1_out_scl_out (i2c1_scl_out),
         .i2c1_out_scl_in_in(i2c1_scl_in),
         .i2c1_out_scl_out_en(i2c1_scl_out_en),
         .i2c1_out_sda_out(i2c1_sda_out),
         .i2c1_out_sda_in_in(i2c1_sda_in),
-        .i2c1_out_sda_out_en(i2c1_sda_out_en),
+        .i2c1_out_sda_out_en(i2c1_sda_out_en),*/
 
         //pin muxed pins
     	  .iocell_io_io7_cell_in_in(io7_cell_in),
@@ -573,7 +574,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
         
 
         //GPIO
-        .gpio_4_in(gpio_4_in),
+        /*.gpio_4_in(gpio_4_in),
         .gpio_7_in(gpio_7_in),
         .gpio_8_in(gpio_8_in),
         .gpio_14_in(gpio_14_in),
@@ -635,7 +636,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
         .gpio_28_outen(gpio_28_en),
         .gpio_29_outen(gpio_29_en),
         .gpio_30_outen(gpio_30_en),
-        .gpio_31_outen(gpio_31_en),
+        .gpio_31_outen(gpio_31_en),*/
 
         .ext_interrupts_i(interrupts)
    );

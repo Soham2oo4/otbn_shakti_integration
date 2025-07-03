@@ -49,7 +49,15 @@ dcache_configuration:
   one_hot_select: false
   rwports: '1rw'
 reset_pc: 4096
-bus_protocol: AXI4
+bus_protocol_configuration:
+  bus_protocol: AXI4
+  bus_width: 64
+  axi4_transactor_fifo_depth: 2
+  axi4_internal_fifo_depth: 2
+  axi4_lite_transactor_fifo_depth: 2
+  axi4_lite_internal_fifo_depth: 2
+  axi4_id_width: 4
+  userspace_width: 0
 bsc_compile_options:
   test_memory_size: 67108864
   assertions: true
