@@ -291,7 +291,8 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
   `endif
     `ifdef arith_trap
       rule rl_fbox_arith_en;
-        fbox.rd_arith_excep_en(unpack(stage5.csrs.mv_cacheenable[3]));
+        //fbox.rd_arith_excep_en(unpack(stage5.csrs.mv_cacheenable[3]));
+        fbox.rd_arith_excep_en(unpack(1));
       endrule
     `endif
   `endif

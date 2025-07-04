@@ -333,7 +333,7 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       Bool arith_trap = False;
       Bit#(`causesize) arith_cause = 0;
       if (_r.arith_trap_en == 1) begin
-        if(_r.fflags!=0)
+        if(_r.fflags!=0 && _r.fflags[0]!=1) //Inexact need not be trap.
           arith_trap = True;
         if (_r.fflags[4]==1)
           arith_cause =`FP_invalid; //Invalid
