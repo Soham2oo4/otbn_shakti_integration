@@ -31,7 +31,7 @@ hart0:
       address: 0x7C2
       priv_mode: M
     customcontrol:
-      reset-val: 0x0000000000000017
+      reset-val: 0x000000000000001f
       rv32:
         accessible: false
       rv64:
@@ -66,7 +66,7 @@ hart0:
         arith_excep:
           implemented: true
           type:
-            ro_constant: 0x0
+            ro_constant: 0x1
           description: bit for enabling arithmetic exceptions, part of rg_customcontrol
           shadow:
           shadow_type:
