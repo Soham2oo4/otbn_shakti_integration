@@ -312,8 +312,8 @@ package riscvDebug013Pbuf;
 
     /*    System Bus ACCESS   */
   `ifdef CORE_AXI4
-    AXI4_Master_Xactor_IFC#(DPADDR,D_AXI_BUS_WIDTH , `USERSPACE ) master_xactor <- mkAXI4_Master_Xactor;
-    AXI4_Slave_Xactor_IFC#(DPADDR, D_AXI_BUS_WIDTH , `USERSPACE ) slave_xactor <- mkAXI4_Slave_Xactor;
+    AXI4_Master_Xactor_IFC#(DPADDR, `axi4_id_width, D_AXI_BUS_WIDTH , `USERSPACE ) master_xactor <- mkAXI4_Master_Xactor;
+    AXI4_Slave_Xactor_IFC#(DPADDR, `axi4_id_width, D_AXI_BUS_WIDTH , `USERSPACE ) slave_xactor <- mkAXI4_Slave_Xactor;
   `elsif CORE_AXI4Lite
     AXI4_Lite_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Lite_Master_Xactor;
     AXI4_Lite_Slave_Xactor_IFC#(DPADDR,DXLEN,0) slave_xactor <- mkAXI4_Lite_Slave_Xactor;
@@ -595,7 +595,7 @@ package riscvDebug013Pbuf;
           end
       end
       
-      AXI4_Rd_Data#(D_AXI_BUS_WIDTH, `USERSPACE ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
+      AXI4_Rd_Data#(`axi4_id_width, D_AXI_BUS_WIDTH, `USERSPACE ) r = AXI4_Rd_Data {rresp: AXI4_OKAY,
         rdata: lv_response, 
         rlast:True ,
         ruser: 0,

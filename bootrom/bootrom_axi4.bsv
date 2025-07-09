@@ -36,7 +36,7 @@ package bootrom_axi4;
   // to make it synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
   module mkbootrom#(parameter Integer slave_base)(UserInterface#(addr_width, data_width, index_size))
-    provisos(Add#(data_width, a, `ifndef iclass 64 `else 128 `endif ),
+    provisos(Add#(data_width, a, `ifndef axi4_128b 64 `else 128 `endif ),
              Mul#(8, a__, data_width), // data_width should always be multiple of 8, 16 and 32.
              Mul#(16, b__, data_width),
              Mul#(32, c__, data_width));
@@ -89,29 +89,29 @@ package bootrom_axi4;
     endmethod
   endmodule
 
-  interface Ifc_bootrom_axi4#(numeric type addr_width, numeric type data_width, 
+  interface Ifc_bootrom_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, 
                               numeric type user_width, numeric type index_size);
-  interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave; 
+  interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave; 
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
-  module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, data_width,
+  module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, id_width, data_width,
                                                                           user_width, index_width))
-    provisos(Add#(data_width, a, `ifndef iclass 64 `else 128 `endif ),
+    provisos(Add#(data_width, a, `ifndef axi4_128b 64 `else 128 `endif ),
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width),
              Mul#(64, e__, data_width),
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
-    AXI4_Slave_Xactor_IFC #(addr_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
+    AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
+    Reg#(Bit#(id_width)) rg_rd_id <-mkReg(0);
     Reg#(Mem_State) read_state <-mkReg(Idle);
     Reg#(Mem_State) write_state <-mkReg(Idle);
     Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-    Reg#(AXI4_Rd_Addr#(addr_width, user_width)) rg_read_packet <-mkReg(?);
-    Reg#(AXI4_Wr_Resp#(user_width)) rg_write_response <-mkReg(?);
+    Reg#(AXI4_Rd_Addr#(addr_width, id_width, user_width)) rg_read_packet <-mkReg(?);
+    Reg#(AXI4_Wr_Resp#(id_width, user_width)) rg_write_response <-mkReg(?);
     Integer byte_offset = valueOf(TLog#(TDiv#(data_width, 8)));
 
     // If the request is single then send ERR. If it is a burst write request then change
@@ -163,9 +163,25 @@ package bootrom_axi4;
     rule read_response;
       let {err, data0}<-dut.read_response;
       let transfer_size=rg_read_packet.arsize;
-      AXI4_Rd_Data#(data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+
+      Bit#(data_width) data_extracted = truncate((data0) >> ({rg_read_packet.araddr[3:0], 3'b000}));
+      data_extracted =case (transfer_size)
+              0 : duplicate(data_extracted[7:0]);
+              1 : duplicate(data_extracted[15:0]);
+              2 : duplicate(data_extracted[31:0]);
+              3 : duplicate(data_extracted[63:0]);
+                default: data_extracted; 
+		    endcase;	
+  
+ /*Bit#(data_width) data_extracted = zeroExtend (data0) >> (rg_read_packet.araddr[6:0] << 3);
+      data_extracted = (transfer_size == 'h0) ? data_extracted & 'hff
+                                              : ((transfer_size == 'h1) ? data_extracted & 'hffff
+                                                                        : ( ((transfer_size == 'h2) ? data_extracted & 'hffffffff
+                                                                                                    : ((transfer_size == 'h3) ? data_extracted & 'hffffffffffffffff : data_extracted) ) ) );*/
+
+      AXI4_Rd_Data#(id_width, data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data_extracted, 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
-      `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
+      `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data_extracted))
       s_xactor.i_rd_data.enq(r);
     endrule
     interface slave = s_xactor.axi_side;

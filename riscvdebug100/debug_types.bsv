@@ -50,8 +50,9 @@ interface Ifc_debug#( numeric type nprogbuf,
                       numeric type nabstractdata,
                       numeric type ncomponents
                    );
-  interface AXI4_Slave_IFC#(`paddr, `debug_bus_sz, 0) debug_slave;
-  interface AXI4_Master_IFC#(`paddr, `debug_bus_sz, 0) debug_master;
+
+  interface AXI4_Slave_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) debug_slave;
+  interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `debug_bus_sz, `USERSPACE) debug_master;
   interface Ifc_debug_dtm dtm_access;
   interface Reset ifc_dm_reset;
   method Bit#(1) mv_ndm_reset;

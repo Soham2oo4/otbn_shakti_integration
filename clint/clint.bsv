@@ -21,7 +21,7 @@ package clint;
 
   export Ifc_clint_axi4       (..);
   export mkclint_axi4;
-  `ifndef iclass
+  `ifndef axi4_128b
     export Ifc_clint_axi4lite   (..);
     export mkclint_axi4lite;
   `endif
@@ -49,7 +49,7 @@ package clint;
 
 	module mkclint(User_ifc#(addr_width,data_width,msip_size, tick_count))
 		provisos(
-    `ifndef iclass
+    `ifndef axi4_128b
       Add#(b__, data_width, 64),
       Add#(d__, TDiv#(data_width, 8), 8),
       Mul#(msip_size, a__, 64),
@@ -101,7 +101,7 @@ package clint;
 
 			Bit#(data_width) data=0;
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
-      `ifndef iclass
+      `ifndef axi4_128b
         Bit#(64) temp=0;
       `else
         Bit#(128) temp=0;
@@ -132,7 +132,7 @@ package clint;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize
         size);
         Bool success=True;
-        `ifndef iclass
+        `ifndef axi4_128b
           Bit#(64) temp = 0;
           Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
         `else
@@ -147,7 +147,7 @@ package clint;
         endcase;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
-        `ifndef iclass
+        `ifndef axi4_128b
           Bit#(64) datamask=duplicate(data)&mask;
         `else
           Bit#(128) datamask=duplicate(data)&mask;
@@ -156,7 +156,7 @@ package clint;
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
-          `ifndef iclass
+          `ifndef axi4_128b
             csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
           `else
             csr_mtimecmp <= truncate((zeroExtend(csr_mtimecmp) & notmask) | datamask);
@@ -186,7 +186,7 @@ package clint;
     endmethod:ma_stop_count
 	endmodule:mkclint
 
-  `ifndef iclass
+  `ifndef axi4_128b
 	 interface Ifc_clint_axi4lite#(numeric type addr_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
@@ -234,9 +234,9 @@ package clint;
 	 endmodule:mkclint_axi4lite
   `endif
 
-	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type data_width, 
+	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
-	 	interface AXI4_Slave_IFC#(addr_width,data_width,user_width) slave;
+	 	interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
     interface Get#(Bit#(msip_size)) sb_clint_msip;
     interface Get#(Bit#(1)) sb_clint_mtip;
     interface Get#(Bit#(64)) sb_clint_mtime;
@@ -244,9 +244,9 @@ package clint;
 	 endinterface
 
 
-	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,data_width,user_width,msip_size,tick_count))
+	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,id_width,data_width,user_width,msip_size,tick_count))
 		provisos(
-        `ifndef iclass
+        `ifndef axi4_128b
           Add#(b__, data_width, 64),
           Add#(d__, TDiv#(data_width, 8), 8),
           Mul#(msip_size, a__, 64),
@@ -259,19 +259,19 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    `ifndef iclass
+    `ifndef axi4_128b
       Mul#(data_width, c__, 64)
     `else
       Mul#(data_width, c__, 128)
     `endif
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
-	 	AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+	 	AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 	 	Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 	 	rule axi_read_transaction(rg_rdburst_count==0);
 	 		let req <- pop_o(s_xactor.o_rd_addr);
