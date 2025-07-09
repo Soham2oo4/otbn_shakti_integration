@@ -2,14 +2,14 @@
  import ConcatReg ::*;
  import RegFile :: * ;     
  import BUtils::*;
-import MIMO_MODIFY::*;
+ import MIMO_MODIFY::*;
  import DefaultValue::*;
  import Vector :: * ;
-//  import AXI4_Lite_Types   :: *;
-//  import AXI4_Lite_Fabric  :: *;
-//  import AXI4_Types::*;
-//  import AXI4_Fabric::*;
-//  import Semi_FIFOF::*;
+ import AXI4_Lite_Types   :: *;
+ import AXI4_Lite_Fabric  :: *;
+ import AXI4_Types::*;
+ import AXI4_Fabric::*;
+ import Semi_FIFOF::*;
 
   typedef enum{
 	NIL,EXCEPTION,
@@ -99,8 +99,8 @@ typedef struct{
      method ActionValue#(Bool) write_req (Bit#(addr_width) addr,Bit#(data_width) data);
      method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr ); 
      method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-     //method Bit#(1) trace_interrupt;    
-    //  interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;   	      
+     method Bit#(1) trace_interrupt;    
+     interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;   	      
    endinterface 
    
 
@@ -155,7 +155,7 @@ provisos(Add#(a__, 16, data_width),
         
         Reg#(Bit#(1))  rg_last_was_updiscon <- mkRegA(0);
         
-        // AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
+       AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
         
        
 	  MIMOConfiguration cfg = defaultValue;
@@ -171,10 +171,10 @@ provisos(Add#(a__, 16, data_width),
 			 return (ifc.i_type==UNINFERABLE_JUMP || ifc.i_type==UNINFERABLE_CALL || ifc.i_type==UNINFERABLE_TAIL_CALL || ifc.i_type==OTHER_UNINFERABLE_JUMP || ifc.i_type==RETURN || ifc.i_type==EXCEPTION_OR_INTERRUPT_RETURN);
 		endfunction
                       
-      rule extra_compress_&_sinkenq  (rg_enque_sink_buff[0]== 1) ;
+     // rule extra_compress_&_sinkenq  (rg_enque_sink_buff[0]== 1) ;
       rule extra_compress_sinkenq  (rg_enque_sink_buff[0]== 1) ;
 
-       if(rg_packet[7:0] == 2'b10)begin  
+       if(rg_packet[1:0] == 2'b10)begin  
           rg_last_was_updiscon <= 1;  
          end
          else begin
@@ -532,26 +532,26 @@ lv_payload[0]=rg_packet[87:80];
       if (trace_sink_buffer.deqReadyN(8) && rg_address[2:0] == 0) begin
                       writestrb = 'b11111111;
                       wrsize = 3;                    
-                      writedata  = duplicate({trace_sink_buffer.first[0],trace_sink_buffer.first[1],trace_sink_buffer.first[2],trace_sink_buffer.first[3],trace_sink_buffer.first[4],trace_sink_buffer.first[5],trace_sink_buffer.first[6],trace_sink_buffer.first[7]});       
-                     //$display("inside 64 bit= %h strob:- %b",writedata,writestrb);               
+                      writedata  = duplicate({trace_sink_buffer.first[7],trace_sink_buffer.first[6],trace_sink_buffer.first[5],trace_sink_buffer.first[4],trace_sink_buffer.first[3],trace_sink_buffer.first[2],trace_sink_buffer.first[1],trace_sink_buffer.first[0]});       
+                      //$display("inside 64 bit= %h",writedata );               
                     end                     
        else if (trace_sink_buffer.deqReadyN(4) && rg_address[1:0] == 0) begin
                       writestrb = 'b1111 << shamt ;
                       wrsize = 2;  
-                      writedata = duplicate({trace_sink_buffer.first[4],trace_sink_buffer.first[5],trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
-                      //$display("inside 32 bit= %h strob:- %b",writedata,writestrb); 
+                      writedata = duplicate({trace_sink_buffer.first[7],trace_sink_buffer.first[6],trace_sink_buffer.first[5],trace_sink_buffer.first[4]});
+                      //$display("inside 32 bit= %h",writedata ); 
                     end 
        else if (trace_sink_buffer.deqReadyN(2) && rg_address[0] == 0) begin
                       writestrb = 'b11 << shamt;
                       wrsize = 1;  
-                      writedata = duplicate({trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
-                      //$display("inside 16 bit= %h strob:- %b",writedata,writestrb); 
+                      writedata = duplicate({trace_sink_buffer.first[7],trace_sink_buffer.first[6]});
+                      //$display("inside 16 bit= %h",writedata ); 
                     end
         else if (trace_sink_buffer.deqReadyN(1)) begin
                       writestrb = 'b1 << shamt;
                       wrsize = 0; 
                       writedata = duplicate(trace_sink_buffer.first[7]);
-                      //$display("inside 8 bit= %h strob:- %b",writedata,writestrb); 
+                      //$display("inside 8 bit= %h",writedata ); 
                     end 
                      rg_waiting_resp <= 1; 
                      rg_size<=wrsize[1:0]; 
@@ -932,204 +932,204 @@ lv_payload[0]=rg_packet[87:80];
         	return tuple2(success, result);     
      endmethod 
      
-     //method trace_interrupt = (trace_sink_buffer.deqReadyN(4))? 1 : 0;
+     method trace_interrupt = (trace_sink_buffer.deqReadyN(4))? 1 : 0;
      
-    //  interface master= master_xactor.axi_side;
+      interface master= master_xactor.axi_side;
   
 
 endmodule
 
 
-// interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
-// 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
-// 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-// 		//method Bit#(1) trace_interrupt;
-// 	endinterface
+interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
+		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
+		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+		//method Bit#(1) trace_interrupt;
+	endinterface
 
-// 	module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,data_width,user_width))
-// 			provisos(Add#(a__, 32, data_width),
-// 					 Add#(b__,  4, data_width),
-// 					 Mul#(32, c__, data_width),
-// 					 Mul#( 8, d__, data_width),
-// 					 Mul#(16, e__, data_width),
-// 					 Mul#( 4, f__, data_width),
-// 					 Add#(16, g__, data_width),
-// 					 Mul#(64, h__, data_width),
-// 					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
-// 					 Add#(j__, 4, addr_width)
+	module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,data_width,user_width))
+			provisos(Add#(a__, 32, data_width),
+					 Add#(b__,  4, data_width),
+					 Mul#(32, c__, data_width),
+					 Mul#( 8, d__, data_width),
+					 Mul#(16, e__, data_width),
+					 Mul#( 4, f__, data_width),
+					 Add#(16, g__, data_width),
+					 Mul#(64, h__, data_width),
+					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
+					 Add#(j__, 4, addr_width)
 
-// 					);
-// 		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
-// 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
+					);
+		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
+		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
-// 		rule read_request;
-// 	  		let req <- pop_o (s_xactor.o_rd_addr);
-//       		let {succ,data} <- trace.read_req(req.araddr);
-// 	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
-//                                     rdata:data, ruser: ?};
-// 	  		s_xactor.i_rd_data.enq(resp);
-//      	endrule
+		rule read_request;
+	  		let req <- pop_o (s_xactor.o_rd_addr);
+      		let {succ,data} <- trace.read_req(req.araddr);
+	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+                                    rdata:data, ruser: ?};
+	  		s_xactor.i_rd_data.enq(resp);
+     	endrule
 
-//      	rule write_request;
-//        		let addreq <- pop_o(s_xactor.o_wr_addr);
-//        		let datareq <- pop_o(s_xactor.o_wr_data);
-//        		let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
-//        		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
-//        		s_xactor.i_wr_resp.enq(resp);
-//      	endrule
+     	rule write_request;
+       		let addreq <- pop_o(s_xactor.o_wr_addr);
+       		let datareq <- pop_o(s_xactor.o_wr_data);
+       		let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
+       		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+       		s_xactor.i_wr_resp.enq(resp);
+     	endrule
 		
-//      	interface slave = s_xactor.axi_side;
-//      	          method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-//                     trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize);    
-//                    endmethod
-//                   // method trace_interrupt = trace.trace_interrupt;
-// 	endmodule
+     	interface slave = s_xactor.axi_side;
+     	          method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+                    trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize);    
+                   endmethod
+                  // method trace_interrupt = trace.trace_interrupt;
+	endmodule
 
-// 	//axi4
-// 	interface Ifc_trace_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
-// 	        interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
-// 		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
-// 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-// 		//method Bit#(1) trace_interrupt;
-// 	endinterface
-// 	module mktrace_axi4(Ifc_trace_axi4#(addr_width,data_width,user_width))
-// 			provisos(Add#(a__, 32, data_width),
-// 					 Add#(b__,  4, data_width),
-// 					 Mul#(32, c__, data_width),
-// 					 Mul#( 8, d__, data_width),
-// 					 Mul#(16, e__, data_width),
-// 					 Mul#( 4, f__, data_width),
-// 					 Add#(16, g__, data_width),
-// 					 Mul#(64, h__, data_width),
-// 					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
-// 					 Add#(j__, 4, addr_width)
-// 					);
-// 		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
-// 		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
-// 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
-// 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
+	//axi4
+	interface Ifc_trace_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
+	        interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
+		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+		//method Bit#(1) trace_interrupt;
+	endinterface
+	module mktrace_axi4(Ifc_trace_axi4#(addr_width,data_width,user_width))
+			provisos(Add#(a__, 32, data_width),
+					 Add#(b__,  4, data_width),
+					 Mul#(32, c__, data_width),
+					 Mul#( 8, d__, data_width),
+					 Mul#(16, e__, data_width),
+					 Mul#( 4, f__, data_width),
+					 Add#(16, g__, data_width),
+					 Mul#(64, h__, data_width),
+					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
+					 Add#(j__, 4, addr_width)
+					);
+		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
+		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
+		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
+		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-// 		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
-//  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
-// 		rule read_request(rg_rdburst_count==0);
-// 			let req<-pop_o(s_xactor.o_rd_addr);
-// 			let {succ,data}<-trace.read_req(req.araddr);
-// 			rg_rdpacket<=req;	
+		rule read_request(rg_rdburst_count==0);
+			let req<-pop_o(s_xactor.o_rd_addr);
+			let {succ,data}<-trace.read_req(req.araddr);
+			rg_rdpacket<=req;	
 
-// 			if(req.arlen!=0)
-// 				rg_rdburst_count<=1;
-// 			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:req.arid,rlast:(req.arlen==0),rdata:data, ruser: ?};
-// 			s_xactor.i_rd_data.enq(resp);
-// 		endrule
+			if(req.arlen!=0)
+				rg_rdburst_count<=1;
+			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:req.arid,rlast:(req.arlen==0),rdata:data, ruser: ?};
+			s_xactor.i_rd_data.enq(resp);
+		endrule
 		
-// 		rule read_burst(rg_rdburst_count!=0);
-// 			let rd_req=rg_rdpacket;
-// 			let {succ,data}<-trace.read_req(rd_req.araddr);
-// 			succ=False;
-// 			if(rg_rdburst_count==rd_req.arlen)
-// 				rg_rdburst_count<=0;
-// 			else
-// 				rg_rdburst_count<=rg_rdburst_count+1;
-// 			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:rd_req.arid,rlast:(rd_req.arlen==0),rdata:data, ruser: ?};
-// 			s_xactor.i_rd_data.enq(resp);
-// 		endrule
+		rule read_burst(rg_rdburst_count!=0);
+			let rd_req=rg_rdpacket;
+			let {succ,data}<-trace.read_req(rd_req.araddr);
+			succ=False;
+			if(rg_rdburst_count==rd_req.arlen)
+				rg_rdburst_count<=0;
+			else
+				rg_rdburst_count<=rg_rdburst_count+1;
+			let resp= AXI4_Rd_Data{rresp:succ?AXI4_OKAY:AXI4_SLVERR, rid:rd_req.arid,rlast:(rd_req.arlen==0),rdata:data, ruser: ?};
+			s_xactor.i_rd_data.enq(resp);
+		endrule
 
-// 		rule write_request(rg_wrburst_count==0);
-// 			let addreq <- pop_o(s_xactor.o_wr_addr);
-// 	        let datareq <- pop_o(s_xactor.o_wr_data);
-// 	        rg_wrpacket<=addreq;
-// 	        let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
-// 	        if(addreq.awlen!=0)
-// 	        	rg_wrburst_count<=1;
+		rule write_request(rg_wrburst_count==0);
+			let addreq <- pop_o(s_xactor.o_wr_addr);
+	        let datareq <- pop_o(s_xactor.o_wr_data);
+	        rg_wrpacket<=addreq;
+	        let succ <- trace.write_req(addreq.awaddr, datareq.wdata);
+	        if(addreq.awlen!=0)
+	        	rg_wrburst_count<=1;
 	        
-// 	        let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
-// 	        if(datareq.wlast)
-// 	        	s_xactor.i_wr_resp.enq(resp);
-// 		endrule
+	        let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
+	        if(datareq.wlast)
+	        	s_xactor.i_wr_resp.enq(resp);
+		endrule
 		
-// 		rule write_burst(rg_wrburst_count!=0);
-// 			let addreq=rg_wrpacket;
-// 	        let datareq <- pop_o(s_xactor.o_wr_data);
-// 	 		Bool succ=False;
-// 			let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
-// 			if(datareq.wlast)begin
-// 	      		s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
-// 	      		rg_wrburst_count<=0;
-// 	      	end
-// 		endrule
-// 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
-//                        trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize); 
-//                  endmethod
-//                  interface master= trace.master;
-// 		interface slave = s_xactor.axi_side;
-// 		//method trace_interrupt = trace.trace_interrupt;
-// 	endmodule
+		rule write_burst(rg_wrburst_count!=0);
+			let addreq=rg_wrpacket;
+	        let datareq <- pop_o(s_xactor.o_wr_data);
+	 		Bool succ=False;
+			let resp = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: ?, bid:addreq.awid};
+			if(datareq.wlast)begin
+	      		s_xactor.i_wr_resp.enq(resp);//enqueuing the write response
+	      		rg_wrburst_count<=0;
+	      	end
+		endrule
+		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
+                       trace.trace_interface(itype,cause,tval,priv,iaddr,iretire,ilastsize); 
+                 endmethod
+                 interface master= trace.master;
+		interface slave = s_xactor.axi_side;
+		//method trace_interrupt = trace.trace_interrupt;
+	endmodule
 
 
-  module tbmktrace();      
+  // module tbmktrace();      
                      
-          Reg#(Bit#(32)) rg_state <- mkReg(0);
-          Reg#(Bit#(64)) count <- mkReg(0);
+  //         Reg#(Bit#(32)) rg_state <- mkReg(0);
+  //         Reg#(Bit#(64)) count <- mkReg(0);
           
-          RegFile#(Bit#(64),Bit#(64)) registers_ingress <- mkRegFileLoad("input.txt",0,2269627);    // +6
+  //         RegFile#(Bit#(64),Bit#(64)) registers_ingress <- mkRegFileLoad("input.txt",0,2269627);    // +6
           
-           IFC_trace_engine#(32,64,0) trace <- mktrace_engine();
+  //          IFC_trace_engine#(32,64,0) trace <- mktrace_engine();
            
-            rule step1(rg_state == 0);
-                 let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021f);
-                 $display("config done = %h", resp); 
-                 $display("\n");
-                 rg_state <= 1 ; 
-            endrule
+  //           rule step1(rg_state == 0);
+  //                let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021f);
+  //                $display("config done = %h", resp); 
+  //                $display("\n");
+  //                rg_state <= 1 ; 
+  //           endrule
             
-            rule step2(rg_state == 1);
-                 let {resp,data}  <- trace.read_req(32'h0000_0000);//,2'h2);
-                 $display("config read= %h", data); 
-                 $display("\n");
-                 rg_state <= 2 ; 
-            endrule
+  //           rule step2(rg_state == 1);
+  //                let {resp,data}  <- trace.read_req(32'h0000_0000);//,2'h2);
+  //                $display("config read= %h", data); 
+  //                $display("\n");
+  //                rg_state <= 2 ; 
+  //           endrule
             
              
-            rule step3(rg_state == 2);
-                 //let data= registers.sub(count);
-                  if(count == 2269627) begin    // +1
-                  $finish(0); end
+  //           rule step3(rg_state == 2);
+  //                //let data= registers.sub(count);
+  //                 if(count == 2269627) begin    // +1
+  //                 $finish(0); end
                   
-                   if(count == 2269624) begin
-                  let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021d);
-                  end
+  //                  if(count == 2269624) begin
+  //                 let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021d);
+  //                 end
                       
-                //let {resp_0,buffer_status} <- trace.read_req(32'h0000_0008,2'h2);
-                //$display("buffer_status= %d", buffer_status);
+  //               //let {resp_0,buffer_status} <- trace.read_req(32'h0000_0008,2'h2);
+  //               //$display("buffer_status= %d", buffer_status);
                       
                      
-                     let {resp_1,data}  <- trace.read_req(32'h0000_0010);//,2'h3);
-                     if (resp_1)begin 
-                     $display("%h", data);end  
+  //                    let {resp_1,data}  <- trace.read_req(32'h0000_0010);//,2'h3);
+  //                    if (resp_1)begin 
+  //                    $display("%h", data);end  
                     
 
-                 count<= count + 1;
-            endrule
+  //                count<= count + 1;
+  //           endrule
       
-          rule step4 (count <= 2269627) ;          
-           trace.trace_interface(
-           registers_ingress.sub(count)[63:60],
-           registers_ingress.sub(count)[59:56],
-           zeroExtend(registers_ingress.sub(count)[55:52]),
-           //registers_ingress.sub(count)[51:48],
-             registers_ingress.sub(count)[50:48],
-             {32'h0,registers_ingress.sub(count)[47:16]},
-           //registers_ingress.sub(count)[15:12],
-           //registers_ingress.sub(count)[11:8],
-           //registers_ingress.sub(count)[7:4],
-             registers_ingress.sub(count)[5:4],
-           //registers_ingress.sub(count)[3:0]
-             registers_ingress.sub(count)[0] );
-             endrule 
+  //         rule step4 (count <= 2269627) ;          
+  //          trace.trace_interface(
+  //          registers_ingress.sub(count)[63:60],
+  //          registers_ingress.sub(count)[59:56],
+  //          zeroExtend(registers_ingress.sub(count)[55:52]),
+  //          //registers_ingress.sub(count)[51:48],
+  //            registers_ingress.sub(count)[50:48],
+  //            {32'h0,registers_ingress.sub(count)[47:16]},
+  //          //registers_ingress.sub(count)[15:12],
+  //          //registers_ingress.sub(count)[11:8],
+  //          //registers_ingress.sub(count)[7:4],
+  //            registers_ingress.sub(count)[5:4],
+  //          //registers_ingress.sub(count)[3:0]
+  //            registers_ingress.sub(count)[0] );
+  //            endrule 
 
-          endmodule
+  //         endmodule
   
 
 // Created re_support_gen RegA
