@@ -181,7 +181,14 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   TX#(Instruction_type)   tx_instrtype <- mkTX;
 
   /*doc:mod FIFO interface to send the operands meta data to the next stage.*/
+  
   TX#(OpMeta)   tx_opmeta <- mkTX;
+  
+`ifdef etrace_support
+  TX#(Bit#(8))   tx_ingress_opcode <- mkTX;
+  RX#(Bit#(1))   rx_ingress_opcode <- mkRX;
+ `endif 
+  
 `ifdef rtldump
   // fifo interface used to transmit the trace of the instruction for rtl.dump generation
   TX#(CommitLogPacket) tx_commitlog <- mkTX;
@@ -262,10 +269,10 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
   // Description : This rule decodes the current fetched instruction, fetches the operands from the
   // registerfile and sends the required struct to the next stage.
   rule decode_and_opfetch(!rg_stall && rx_pipe1.u.notEmpty && tx_instrtype.u.notFull && !rg_wfi);
-
+   
     // --- extract the fields from the packet received from the stage1 ---- //
     let pc = rx_pipe1.u.first.program_counter;
-    let inst = rx_pipe1.u.first.instruction;
+    let inst = rx_pipe1.u.first.instruction; //bring to stage 3 for etrace
     let epochs = rx_pipe1.u.first.epochs;
     let trap = rx_pipe1.u.first.trap;
     let trapcause = rx_pipe1.u.first.cause;
@@ -352,7 +359,10 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
     `ifdef rtldump
       rx_commitlog.u.deq;
     `endif
-
+    
+    `ifdef etrace_support    
+      rx_ingress_opcode.u.deq;
+       `endif
     end
     else begin
       if (instrType == WFI) begin
@@ -421,7 +431,11 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
         end
         tx_commitlog.u.enq(clogpkt);
       `endif
-   
+      `ifdef etrace_support
+       let lv_compressed = rx_ingress_opcode.u.first;
+       tx_ingress_opcode.u.enq({lv_compressed,inst[6:0]});
+        `endif
+       
         let _op1 = FwdType{ valid: True, addr: decoded.op_addr.rs1addr, data: op1, epochs: wEpoch
                           `ifdef no_wawstalls ,id: ? `endif
                           `ifdef spfpu ,rdtype: (decoded.op_type.rs1type==FloatingRF)?FRF:IRF `endif
@@ -449,6 +463,9 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
     `ifdef rtldump
       rx_commitlog.u.deq;
     `endif
+    `ifdef etrace_support
+    rx_ingress_opcode.u.deq;
+     `endif
     end
   endrule
 
@@ -465,6 +482,9 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
     interface tx_mtval_to_stage3  = tx_mtval.e;
     interface tx_instrtype_to_stage3 = tx_instrtype.e;
     interface tx_opmeta_to_stage3= tx_opmeta.e;
+    `ifdef etrace_support
+    interface tx_ingress_opcode= tx_ingress_opcode.e;
+     `endif
   `ifdef rtldump
     interface tx_commitlog= tx_commitlog.e;
   `endif
@@ -475,6 +495,9 @@ module mkstage2#(parameter Bit#(`xlen) hartid) (Ifc_stage2);
     interface rx_commitlog = rx_commitlog.e;
   `endif
 	  interface rx_from_stage1 = rx_pipe1.e;
+	  `ifdef etrace_support
+	  interface rx_ingress_opcode =  rx_ingress_opcode.e;
+	   `endif
 	endinterface;
 
   interface common = interface Ifc_s2_common

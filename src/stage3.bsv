@@ -205,6 +205,13 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
   * bypass from the youngest instruction and the highest index indicates bypass from the oldest
   * instruction*/
   Wire#(Vector#(`bypass_sources, FwdType)) wr_bypass <- mkWire();
+  
+  `ifdef etrace_support 
+  RX#(Bit#(8)) rx_ingress_opcode <- mkRX;
+  // tx fifo to send the instructino sequence for rtl.dump feature.
+  TX#(Bit#(14)) tx_ingress_opcode <- mkTX;
+   `endif
+   
 
 `ifdef rtldump
   // rx fifo to receive the instruction sequence for rtl.dump feature.
@@ -236,7 +243,7 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
 
   /*doc:wire: holds value of operand1 after checking the bypass signals from downstream isbs and
   * regfile*/
-  Wire#(Bit#(`xlen)) wr_fwd_op1 <- mkWire();
+  Wire#(Bit#(`xlen)) wr_fwd_op1 <- mkWire();  
 
   /*doc:wire: holds value of operand2 after checking the bypass signals from downstream isbs and
   * regfile*/
@@ -251,7 +258,7 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
   * latest value of operand1 is available or not. If not then we need stall on instructions waiting
   * for this value.*/
   Wire#(Bool) wr_op1_avail <- mkWire();
-  Probe#(Bool) wr_op1_avail_probe <- mkProbe();
+  Probe#(Bool) wr_op1_avail_probe <- mkProbe();  
 
 
   /*doc:wire: after checking the bypass signals from downstream ISBs, this wire indicates if the
@@ -336,6 +343,9 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
     rx_mtval.u.deq;
     rx_instrtype.u.deq;
     rx_opmeta.u.deq;
+  `ifdef etrace_support 
+    rx_ingress_opcode.u.deq;
+    `endif
   `ifdef rtldump
     rx_commitlog.u.deq;
   `endif
@@ -472,6 +482,10 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
       tx_fuid.u.enq(common_pkt);
       deq_rx;
       `logLevel( stage3, 0, $format("[%2d]STAGE3: System Op completed : ",hartid,fshow(systemout)))
+      `ifdef etrace_support 
+     let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({ 1'b0,opmeta.rs1addr,lv_opcode_ingress}); 
+     `endif
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -507,6 +521,10 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
     tx_fuid.u.enq(common_pkt);
     deq_rx;
     `logLevel( stage3, 0, $format("[%2d]STAGE3: Trap received and completed: ",hartid,fshow(trapout)))
+    `ifdef etrace_support 
+    let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({ 1'b0, opmeta.rs1addr,lv_opcode_ingress});
+     `endif
   `ifdef rtldump
     let clogpkt = rx_commitlog.u.first;
     tx_commitlog.u.enq(clogpkt);
@@ -543,6 +561,10 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
       tx_fuid.u.enq(common_pkt);
       deq_rx;
       `logLevel( stage3, 0, $format("[%2d]STAGE3: Base ALU Op completed: ",hartid,fshow(baseoutput)))
+      `ifdef etrace_support 
+      let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({ 1'b0,opmeta.rs1addr,lv_opcode_ingress});
+     `endif
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -663,6 +685,10 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
     `endif
       tx_fuid.u.enq(common_pkt);
       deq_rx;
+      `ifdef etrace_support 
+     let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({ 1'b0, opmeta.rs1addr,lv_opcode_ingress});            
+     `endif           
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       CommitLogMem _pkt = ?;
@@ -823,6 +849,11 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
       rg_eEpoch         <= pack(redirection)^rg_eEpoch;
       wr_redirect_pc    <= redirect_pc;
       wr_flush_from_exe <= redirection;
+      `ifdef etrace_support 
+      let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({btaken, opmeta.rs1addr,lv_opcode_ingress});
+     `endif
+         
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -879,6 +910,11 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
     `ifdef perfmonitors
       wr_count_muldiv <= 1;
     `endif
+    `ifdef etrace_support 
+    let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({1'b0, opmeta.rs1addr,lv_opcode_ingress});
+    `endif
+    
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -946,6 +982,10 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
     `ifdef perfmonitors
       wr_count_floats<= 1;
     `endif
+    `ifdef etrace_support 
+    let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq({ 1'b0,opmeta.rs1addr,lv_opcode_ingress});
+     `endif
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -966,6 +1006,9 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
     interface rx_mtval_from_stage2  = rx_mtval.e;
     interface rx_instrtype_from_stage2 = rx_instrtype.e;
     interface rx_opmeta_from_stage2= rx_opmeta.e;
+    `ifdef etrace_support 
+    interface rx_ingress_opcode =  rx_ingress_opcode.e;
+    `endif
   `ifdef rtldump
     interface rx_commitlog = rx_commitlog.e;
   `endif
@@ -979,6 +1022,9 @@ module mkstage3#(parameter Bit#(`xlen) hartid) (Ifc_stage3);
   	interface tx_trapout_to_stage4= tx_trapout.e;
   	interface tx_systemout_to_stage4 = tx_systemout.e;
   	interface tx_memoryout_to_stage4 = tx_memoryout.e;
+  	`ifdef etrace_support 
+        interface tx_ingress_opcode = tx_ingress_opcode.e;
+        `endif
   `ifdef rtldump
     interface tx_commitlog = tx_commitlog.e;
   `endif

@@ -56,7 +56,9 @@ import csrbox       :: * ;
 import csr_types    :: * ;
 import ccore_types  :: * ;
 import DReg         :: * ;
-
+`ifdef etrace_support
+import itype_detect        :: * ;
+`endif
 
 interface Ifc_stage5;
 `ifdef debug
@@ -70,6 +72,9 @@ interface Ifc_stage5;
   interface Ifc_s5_common common;
   interface Ifc_s5_cache cache;
   interface Ifc_s5_csrs csrs;
+`ifdef etrace_support
+  interface Ifc_s5_etrace etrace_ingress_port;
+`endif
 endinterface:Ifc_stage5
 
 `ifdef stage5_noinline
@@ -94,6 +99,10 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   RX#(BaseOut)   rx_baseout <- mkRX;
   RX#(WBMemop)   rx_memio <- mkRX;
   RX#(CUid)      rx_fuid <- mkRX;
+  `ifdef etrace_support
+  RX#(Bit#(14)) rx_ingress_opcode <- mkRX;
+  `endif
+  
 `ifdef rtldump
   RX#(CommitLogPacket) rx_commitlog <- mkRX;
 `endif
@@ -165,7 +174,52 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     `logLevel( stage5, 0, $format("[%2d]STAGE5: No Instr to commit", hartid))
   endrule: rl_no_op
 `endif
-
+  `ifdef etrace_support
+    IFC_ingress ingress_port <- mkingress();
+    
+    Wire#(Bit#(1)) wr_trap_ingress <- mkDWire(0);
+    
+       
+    Wire#(Bit#(4)) wr_trapout_ingress_cause <- mkDWire(0);
+    Wire#(Bit#(64)) wr_trapout_ingress_mtval <- mkDWire(0);
+    Wire#(Bit#(1)) wr_trapout_ingress_cause_msb <- mkDWire(0);
+    Wire#(Bit#(1)) wr_trapout_ingress_is_microtrap <- mkDWire(0);
+    
+     Wire#(Bit#(3)) wr_itype <- mkWire(); 
+     Wire#(Bit#(4)) wr_cause <- mkWire(); 
+     Wire#(Bit#(64)) wr_tval <- mkWire(); 
+     Wire#(Bit#(2)) wr_priv <- mkWire(); 
+     Wire#(Bit#(64)) wr_iaddr <- mkWire(); 
+     Wire#(Bit#(1)) wr_iretire <- mkWire(); 
+     Wire#(Bit#(1)) wr_ilastsize <- mkWire();
+    
+    
+    rule rl_ingress_conn( (rx_fuid.u.first.insttype == TRAP && wr_trapout_ingress_is_microtrap == 0) || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  (rx_fuid.u.first.insttype == MEMORY && pack(rg_ioop_init) ==0) ); 
+    // $display("ingress firing cond",rx_fuid.u.first.insttype);
+   if (epochs_match ) begin
+     let fuid_ingress = rx_fuid.u.first;     
+    Bit#(2) priv_in =pack(csr.mv_prv);  
+    let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rx_ingress_opcode.u.first, fuid_ingress.rd,wr_trapout_ingress_cause, wr_trapout_ingress_mtval, priv_in, fuid_ingress.pc,wr_trapout_ingress_cause_msb , wr_trap_ingress);
+      // $display("ingress_out_ready");
+    // $display( "itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")  ; 
+    // $display("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize);      
+      wr_itype             <=   itype;
+      wr_cause             <=   cause;
+      wr_tval              <=   tval;
+      wr_priv              <=   priv;
+      wr_iaddr             <=   iaddr;
+      wr_iretire           <=   iretire;
+      wr_ilastsize         <=   ilastsize;   
+    end         
+      
+  endrule
+     
+ rule rl_ingress_conn_deq( rx_fuid.u.first.insttype == TRAP || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  rx_fuid.u.first.insttype == MEMORY);   
+    rx_ingress_opcode.u.deq;
+     endrule
+ 
+ `endif
+ 
   /*doc:rule: This rule handles all traps there were detected/raised in any of the previous stages
   * for any given instruction. The rule also checks if the micro-trap is generated and acts
   * accordingly. For a regular trap like load-access/load-page-fault, the load instruction would
@@ -175,6 +229,12 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   rule rl_writeback_trap(rx_fuid.u.first.insttype == TRAP );
     let trapout = rx_trapout.u.first;
     let fuid = rx_fuid.u.first;
+   `ifdef etrace_support     
+     wr_trapout_ingress_cause <= truncate(trapout.cause);
+     wr_trapout_ingress_mtval <= trapout.mtval; 
+     wr_trapout_ingress_cause_msb <= truncateLSB(trapout.cause);
+     wr_trapout_ingress_is_microtrap <= pack(trapout.is_microtrap);   
+     `endif
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : Trap: ",hartid, fshow(trapout)))
     wr_commit <= CommitData{addr: fuid.rd, data: ?, unlock_only:True
@@ -203,6 +263,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
         end
       end
       else `endif begin
+      `ifdef etrace_support
+        wr_trap_ingress <= 1; 
+        `endif
         let tvec <- csr.mav_upd_on_trap(trapout.cause, fuid.pc, trapout.mtval 
           `ifdef hypervisor , trapout.mtval2 `endif );
         wr_flush <= WBFlush{flush: True, newpc : tvec, fencei: False 
@@ -225,6 +288,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
       `endif
     end
     else begin
+    `ifdef etrace_support
+    wr_trap_ingress <= 1;
+    `endif
       `logLevel( stage5, 0, $format("[%2d]STAGE5 : Dropping instruction",hartid))
       rx_trapout.u.deq;
       rx_fuid.u.deq;
@@ -477,12 +543,28 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     csr.ma_incr_minstret(1);
   endrule:rl_incr_minstret
 
+  
+  `ifdef etrace_support
+  interface etrace_ingress_port = interface Ifc_s5_etrace
+    interface itype  = wr_itype;
+    interface cause  = wr_cause;
+    interface tval   = wr_tval;
+    interface priv   = wr_priv;
+    interface iaddr  = wr_iaddr;
+    interface iretire = wr_iretire;
+    interface ilastsize = wr_ilastsize;           
+  endinterface;
+   `endif
+
   interface rx = interface Ifc_s5_rx
     interface rx_systemout_from_stage4  = rx_systemout.e;
     interface rx_trapout_from_stage4  = rx_trapout.e;
     interface rx_baseout_from_stage4 = rx_baseout.e;
     interface rx_memio_from_stage4 = rx_memio.e;
     interface rx_fuid_from_stage4 = rx_fuid.e;
+    `ifdef etrace_support
+     interface rx_ingress_opcode = rx_ingress_opcode.e;
+     `endif
   `ifdef rtldump
     interface rx_commitlog = rx_commitlog.e;
   `endif

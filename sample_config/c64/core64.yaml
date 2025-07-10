@@ -65,6 +65,7 @@ bsc_compile_options:
   sva_assertions: False
   ovl_path: ""
   trace_dump: True
+  etrace_port: False
   compile_target: 'sim'
   suppress_warnings: ["none"]
   verilog_dir: build/hw/verilog

@@ -74,6 +74,11 @@ interface Ifc_ccore_axi4;
    * external interrupt*/
 	method Action sb_plic_ueip(Bit#(1) ex_i);
 `endif
+
+`ifdef etrace_support          
+      interface Ifc_s5_etrace etrace_ingress_port;
+      `endif  
+
 `ifdef rtldump
   /*doc:sbifc: This interface is available only for simulation when intruction trace dump has been 
   enabled. This method is used to read the value of the csrs in the next cycle after csr-ops are
@@ -578,6 +583,11 @@ _shift_amount:%d",hartid, req.data, rg_burst_count, last, rg_shift_amount))
 `endif
 	interface master_i = fetch_xactor.axi_side;
 	interface master_d = memory_xactor.axi_side;
+  
+   `ifdef etrace_support          
+         interface etrace_ingress_port =  riscv.etrace_ingress_port;
+      `endif
+	
 `ifdef rtldump
   interface commitlog = riscv.commitlog;
   interface sbread = riscv.sbread;

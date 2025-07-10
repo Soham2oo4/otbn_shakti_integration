@@ -110,6 +110,11 @@ package riscv;
     method Bit#(1) mv_stop_timer;
     method Bit#(1) mv_stop_count;
   `endif
+  
+   `ifdef etrace_support          
+      interface Ifc_s5_etrace etrace_ingress_port;
+      `endif  
+      
   `ifdef rtldump
     method Maybe#(CommitLogPacket) commitlog;
     interface Sbread sbread;
@@ -409,6 +414,11 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
     method Bit#(1) mv_stop_timer = stage5.debug.mv_stop_timer;
     method Bit#(1) mv_stop_count = stage5.debug.mv_stop_count;
   `endif
+  
+  `ifdef etrace_support          
+      interface etrace_ingress_port =  stage5.etrace_ingress_port;
+      `endif
+      
   `ifdef rtldump
     method commitlog = stage5.common.mv_commit_log;
     interface sbread = stage5.csrs.sbread;
