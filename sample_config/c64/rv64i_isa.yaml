@@ -682,7 +682,16 @@ hart0:
               - "scounteren[31:0] bitmask [0x0000001f, 0x00000000]"
             wr_illegal:
               - Unchanged
-        
+    menvcfg:
+      rv32:
+        accessible: False
+      rv64:
+        accessible: True
+    senvcfg:
+      rv32:
+        accessible: False
+      rv64:
+        accessible: True
     mhpmcounter3:
         rv32:
             accessible: false
