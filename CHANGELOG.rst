@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.6.1] - 2025-07-03
+--------------------
+- Upstream for test_soc
+
 [4.6.0] - 2025-07-02
 --------------------
 - Support for 128-bit AXI4 interface
