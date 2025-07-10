@@ -4,6 +4,11 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.7.0] - 2025-07-10
+--------------------
+- Removal of FPInexact Trap
+- Addition of MENVCFG and SENVCFG as dummy read/write registers
+
 [4.6.0] - 2025-07-02
 --------------------
 - Support for 128-bit AXI4 interface
