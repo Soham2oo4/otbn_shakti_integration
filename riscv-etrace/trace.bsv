@@ -95,16 +95,16 @@ typedef struct{
 					
 }Hart_to_encoder_interface deriving(Bits,Eq);
   
-  interface IFC_trace_engine#(numeric type addr_width, numeric type data_width , numeric type user_width);            
+  interface IFC_trace_engine#(numeric type addr_width,numeric type id_width, numeric type data_width , numeric type user_width);            
      method ActionValue#(Bool) write_req (Bit#(addr_width) addr,Bit#(data_width) data);
      method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr ); 
      method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
      method Bit#(1) trace_interrupt;    
-     interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;   	      
+     interface AXI4_Master_IFC#(addr_width,id_width,data_width, user_width) master;   	      
    endinterface 
    
 
-module mktrace_engine(IFC_trace_engine#(addr_width,data_width,user_width))
+module mktrace_engine(IFC_trace_engine#(addr_width,id_width,data_width,user_width))
 provisos(Add#(a__, 16, data_width),         
           Mul#(64, c__, data_width),
           Mul#(32, d__, data_width),
@@ -155,7 +155,7 @@ provisos(Add#(a__, 16, data_width),
         
         Reg#(Bit#(1))  rg_last_was_updiscon <- mkRegA(0);
         
-       AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
+       AXI4_Master_Xactor_IFC#(addr_width, id_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
         
        
 	  MIMOConfiguration cfg = defaultValue;
@@ -556,7 +556,7 @@ lv_payload[0]=rg_packet[87:80];
                      rg_waiting_resp <= 1; 
                      rg_size<=wrsize[1:0]; 
       
-    AXI4_Wr_Addr#(addr_width,user_width) wr_addr_request = AXI4_Wr_Addr{
+    AXI4_Wr_Addr#(addr_width,id_width,user_width) wr_addr_request = AXI4_Wr_Addr{
                                       awaddr  : truncate(rg_address),
                                       awuser  : 0, 
                                       awlen   : 0, 
@@ -565,7 +565,7 @@ lv_payload[0]=rg_packet[87:80];
                                       awid    : 0, 
                                       awprot  :'d3 };
        //$display("bro i did ma work written into mem :-ct:- %d",trace_sink_buffer.count);                                  
-      AXI4_Wr_Data#(data_width) wr_data_request = AXI4_Wr_Data{ 
+      AXI4_Wr_Data#(id_width,data_width) wr_data_request = AXI4_Wr_Data{ 
                                                   wdata: writedata, 
                                                   wstrb: writestrb, 
                                                   wlast: True};
@@ -940,13 +940,13 @@ lv_payload[0]=rg_packet[87:80];
 endmodule
 
 
-interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
+interface Ifc_trace_axi4lite#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
 		//method Bit#(1) trace_interrupt;
 	endinterface
 
-	module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,data_width,user_width))
+	module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,id_width,data_width,user_width))
 			provisos(Add#(a__, 32, data_width),
 					 Add#(b__,  4, data_width),
 					 Mul#(32, c__, data_width),
@@ -959,7 +959,7 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
 					 Add#(j__, 4, addr_width)
 
 					);
-		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
+		IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine();
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
 		rule read_request;
@@ -986,13 +986,13 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
 	endmodule
 
 	//axi4
-	interface Ifc_trace_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width);
-	        interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
+	interface Ifc_trace_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width);
+	        interface AXI4_Master_IFC#(addr_width, id_width, data_width, user_width) master;
+		interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width)	slave;
 		method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
 		//method Bit#(1) trace_interrupt;
 	endinterface
-	module mktrace_axi4(Ifc_trace_axi4#(addr_width,data_width,user_width))
+	module mktrace_axi4(Ifc_trace_axi4#(addr_width,id_width,data_width,user_width))
 			provisos(Add#(a__, 32, data_width),
 					 Add#(b__,  4, data_width),
 					 Mul#(32, c__, data_width),
@@ -1004,13 +1004,13 @@ interface Ifc_trace_axi4lite#(numeric type addr_width, numeric type data_width, 
 					 Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
 					 Add#(j__, 4, addr_width)
 					);
-		IFC_trace_engine#(addr_width,data_width,user_width) trace <- mktrace_engine();
-		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
+		IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine();
+		AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 
 		rule read_request(rg_rdburst_count==0);
