@@ -92,7 +92,11 @@ package stage1;
 
     // FIFO to interface with the next pipeline stage
 		TX#(PIPE1) tx_tostage2 <- mkTX;
-
+`ifdef etrace_support	
+		TX#(Bit#(1))   tx_ingress_opcode <- mkTX;
+  
+ `endif 
+ 
   `ifdef rtldump
 		TX#(CommitLogPacket) tx_commitlog <- mkTX;
   `endif
@@ -379,6 +383,11 @@ package stage1;
         rg_receiving_upper))
     `endif
       if(enque_instruction) begin
+      
+      `ifdef etrace_support
+      tx_ingress_opcode.u.enq(pack(compressed));
+      `endif
+      
       `ifdef rtldump
         tx_commitlog.u.enq(CommitLogPacket{instruction: inst, pc: stage0pc.address, mode: ?,
             inst_type: tagged None});
@@ -425,6 +434,10 @@ package stage1;
     // Description : This method will transmit the instruction to the next stage.
     interface tx = interface Ifc_s1_tx
   		interface tx_to_stage2 = tx_tostage2.e;
+    `ifdef etrace_support
+  		interface tx_ingress_opcode = tx_ingress_opcode.e;
+    `endif
+    
     `ifdef rtldump
 	  	interface tx_commitlog = tx_commitlog.e;
     `endif

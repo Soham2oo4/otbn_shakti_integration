@@ -76,6 +76,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
     RX#(SystemOut) rx_systemout <- mkRX;
     RX#(MemoryOut) rx_memoryout <- mkRX;
     RX#(FUid) rx_fuid <- mkRX;
+    
+   `ifdef etrace_support 
+    RX#(Bit#(14)) rx_ingress_opcode <- mkRX;
+    `endif
+    
   `ifdef rtldump
     RX#(CommitLogPacket) rx_commitlog <- mkRX;
   `endif
@@ -96,6 +101,10 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
     TX#(BaseOut)   tx_baseout <- mkTX;
     TX#(WBMemop)   tx_memio <- mkTX;
     TX#(CUid)      tx_fuid <- mkTX;
+    `ifdef etrace_support 
+    TX#(Bit#(14))  tx_ingress_opcode <- mkTX;
+    `endif
+    
   `ifdef rtldump
     TX#(CommitLogPacket) tx_commitlog <- mkTX;
   `endif
@@ -121,6 +130,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       rx_fuid.u.deq;
       `logLevel( stage4, 0, $format("[%2d]STAGE4: PC:%h",hartid,rx_fuid.u.first.pc))
       `logLevel( stage4, 0, $format("[%2d]STAGE4: Buffering Base ALU Output",hartid))
+      `ifdef etrace_support 
+      let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq(lv_opcode_ingress);
+     rx_ingress_opcode.u.deq;
+     `endif
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       CommitLogReg _pkt =?;
@@ -142,6 +156,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       rx_fuid.u.deq;
       `logLevel( stage4, 0, $format("[%2d]STAGE4: PC:%h",hartid,rx_fuid.u.first.pc))
       `logLevel( stage4, 0, $format("[%2d]STAGE4: Buffering System Output",hartid))
+      `ifdef etrace_support 
+      let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq(lv_opcode_ingress);
+     rx_ingress_opcode.u.deq;
+     `endif
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -158,6 +177,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       rx_fuid.u.deq;
       `logLevel( stage4, 0, $format("[%2d]STAGE4: PC:%h",hartid,rx_fuid.u.first.pc))
       `logLevel( stage4, 0, $format("[%2d]STAGE4: Buffering Trap Output",hartid))
+      `ifdef etrace_support 
+      let lv_opcode_ingress = rx_ingress_opcode.u.first;
+     tx_ingress_opcode.u.enq(lv_opcode_ingress);
+     rx_ingress_opcode.u.deq;
+     `endif
     `ifdef rtldump
       let clogpkt = rx_commitlog.u.first;
       tx_commitlog.u.enq(clogpkt);
@@ -198,6 +222,10 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       else begin
         rx_fuid.u.deq;
         rx_memoryout.u.deq;
+        `ifdef etrace_support 
+        let lv_opcode_ingress = rx_ingress_opcode.u.first;
+        rx_ingress_opcode.u.deq;
+        `endif
       `ifdef rtldump
         rx_commitlog.u.deq;
         let clogpkt = rx_commitlog.u.first;
@@ -214,6 +242,9 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
           tx_trapout.u.enq(trapout);
           tx_fuid.u.enq(fuid);
           `logLevel( stage4, 0, $format("[%2d]STAGE4: Memory responded with trap: ",hartid, fshow(trapout)))
+          `ifdef etrace_support 
+           tx_ingress_opcode.u.enq(lv_opcode_ingress);
+           `endif
         `ifdef rtldump
           tx_commitlog.u.enq(clogpkt);
         `endif
@@ -227,6 +258,9 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
           fuid.insttype = MEMORY;
           tx_fuid.u.enq(fuid);
           `logLevel( stage4, 0, $format("[%2d]STAGE4: Mem response received:",hartid, fshow(lv_memop)))
+          `ifdef etrace_support 
+           tx_ingress_opcode.u.enq(lv_opcode_ingress);
+           `endif
         `ifdef rtldump
           tx_commitlog.u.enq(clogpkt);
         `endif
@@ -243,6 +277,9 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
           tx_baseout.u.enq(baseout);
           tx_fuid.u.enq(fuid);
           `logLevel( stage4, 0, $format("[%2d]STAGE4: Memory responded with data:",hartid, fshow(baseout)))
+          `ifdef etrace_support 
+           tx_ingress_opcode.u.enq(lv_opcode_ingress);
+           `endif
         `ifdef rtldump
           if (memop.memaccess == Atomic && !mem_response.entry_alloc && memop.atomicop=='b0111) begin
             clogpkt.inst_type = tagged REG (CommitLogReg{wdata: mem_response.word, rd:
@@ -284,6 +321,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
           tx_trapout.u.enq(trapout);
           tx_fuid.u.enq(fuid);
           rx_fuid.u.deq;
+          `ifdef etrace_support 
+          let lv_opcode_ingress = rx_ingress_opcode.u.first;
+          tx_ingress_opcode.u.enq(lv_opcode_ingress);
+         rx_ingress_opcode.u.deq;
+         `endif
           `ifdef rtldump
             let clogpkt = rx_commitlog.u.first;
             tx_commitlog.u.enq(clogpkt);
@@ -297,6 +339,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
         fuid.insttype = BASE;
         tx_fuid.u.enq(fuid);
         rx_fuid.u.deq;
+        `ifdef etrace_support 
+        let lv_opcode_ingress = rx_ingress_opcode.u.first;
+        tx_ingress_opcode.u.enq(lv_opcode_ingress);
+        rx_ingress_opcode.u.deq;
+        `endif
         `ifdef rtldump
           let clogpkt = rx_commitlog.u.first;
           CommitLogReg _pkt =?;
@@ -333,7 +380,7 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       Bool arith_trap = False;
       Bit#(`causesize) arith_cause = 0;
       if (_r.arith_trap_en == 1) begin
-        if(_r.fflags!=0)
+        if(_r.fflags!=0  && _r.fflags!=5'b00001) //Inexact need not be trap.
           arith_trap = True;
         if (_r.fflags[4]==1)
           arith_cause =`FP_invalid; //Invalid
@@ -356,6 +403,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
         tx_trapout.u.enq(trapout);
         tx_fuid.u.enq(fuid);
         rx_fuid.u.deq;
+        `ifdef etrace_support 
+        let lv_opcode_ingress = rx_ingress_opcode.u.first;
+        tx_ingress_opcode.u.enq(lv_opcode_ingress);
+        rx_ingress_opcode.u.deq;
+        `endif
         `ifdef rtldump
           let clogpkt = rx_commitlog.u.first;
           tx_commitlog.u.enq(clogpkt);
@@ -370,6 +422,11 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
         fuid.insttype = BASE;
         tx_fuid.u.enq(fuid);
         rx_fuid.u.deq;
+        `ifdef etrace_support 
+        let lv_opcode_ingress = rx_ingress_opcode.u.first;
+        tx_ingress_opcode.u.enq(lv_opcode_ingress);
+        rx_ingress_opcode.u.deq;
+        `endif
       `ifdef rtldump
         let clogpkt = rx_commitlog.u.first;
         CommitLogReg _pkt =?;
@@ -393,6 +450,9 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       interface rx_systemout_from_stage3  = rx_systemout.e;
       interface rx_memoryout_from_stage3 = rx_memoryout.e;
       interface rx_fuid_from_stage3 = rx_fuid.e;
+      `ifdef etrace_support 
+      interface rx_ingress_opcode = rx_ingress_opcode.e;
+      `endif
     `ifdef rtldump
       interface rx_commitlog = rx_commitlog.e;
     `endif
@@ -404,6 +464,9 @@ module mkstage4#(parameter Bit#(`xlen) hartid)(Ifc_stage4);
       interface tx_baseout_to_stage5 = tx_baseout.e;
       interface tx_memio_to_stage5 = tx_memio.e;
       interface tx_fuid_to_stage5 = tx_fuid.e;
+      `ifdef etrace_support 
+      interface tx_ingress_opcode = tx_ingress_opcode.e;
+      `endif
     `ifdef rtldump
       interface tx_commitlog = tx_commitlog.e;
     `endif

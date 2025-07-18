@@ -79,6 +79,9 @@ endinterface:Ifc_s1_rx
 interface Ifc_s1_tx;
   // instruction along with other results to be sent to the next stage
   interface TXe#(PIPE1) tx_to_stage2;
+  `ifdef etrace_support
+  interface TXe#(Bit#(1)) tx_ingress_opcode;   //v
+   `endif
 `ifdef rtldump
   interface TXe#(CommitLogPacket) tx_commitlog;
 `endif
@@ -118,6 +121,9 @@ interface Ifc_s3_rx;
   interface RXe#(Instruction_type)    rx_instrtype_from_stage2;
   /*doc: subifc: interface to receive the operand metadata value from stage2*/
   interface RXe#(OpMeta)              rx_opmeta_from_stage2;
+  `ifdef etrace_support
+  interface RXe#(Bit#(8))             rx_ingress_opcode;   //v
+   `endif
 `ifdef rtldump 
   // interface to receive the instruction sequence for the rtl dump feature
   interface RXe#(CommitLogPacket)     rx_commitlog;
@@ -135,6 +141,10 @@ interface Ifc_s3_tx;
   interface TXe#(MemoryOut)           tx_memoryout_to_stage4;
   /*doc:subifc: interface to send common meta information to the memory stage.*/
 	interface TXe#(FUid)        tx_fuid_to_stage4;
+	`ifdef etrace_support
+	
+	interface TXe#(Bit#(14))     tx_ingress_opcode;  //v
+	 `endif
 `ifdef rtldump
   // interface to send the instruction sequence for the rtl dump feature
   interface TXe#(CommitLogPacket)     tx_commitlog;
@@ -301,6 +311,9 @@ endinterface: Ifc_s3_common
 interface Ifc_s2_rx;
   /*doc:subifc: recieve instruction and pc packet from stage1*/
 	interface RXe#(PIPE1) rx_from_stage1;
+	`ifdef etrace_support
+	interface RXe#(Bit#(1)) rx_ingress_opcode;   //v
+	 `endif
 `ifdef rtldump
   /*doc:subifc: receive instruction of trace from previous stage */
   interface RXe#(CommitLogPacket) rx_commitlog;
@@ -318,7 +331,10 @@ interface Ifc_s2_tx;
   interface TXe#(Instruction_type) tx_instrtype_to_stage3;
 
   interface TXe#(OpMeta) tx_opmeta_to_stage3;
-
+  `ifdef etrace_support
+ 
+  interface TXe#(Bit#(8)) tx_ingress_opcode;     //v
+  `endif
 `ifdef rtldump
   /*doc:subifc: send instruction trace to next stage */
   interface TXe#(CommitLogPacket) tx_commitlog;
@@ -403,6 +419,10 @@ endinterface:Ifc_s2_debug
     interface RXe#(MemoryOut)           rx_memoryout_from_stage3;
     /*doc:subifc: interface from send common meta information from the memory stage.*/
   	interface RXe#(FUid)        rx_fuid_from_stage3;
+  	
+  	`ifdef etrace_support
+  	interface RXe#(Bit#(14))     rx_ingress_opcode;
+  	 `endif
   `ifdef rtldump
     // interface to send the instruction sequence for the rtl dump feature
     interface RXe#(CommitLogPacket)     rx_commitlog;
@@ -415,6 +435,11 @@ endinterface:Ifc_s2_debug
     interface TXe#(BaseOut)         tx_baseout_to_stage5;
     interface TXe#(WBMemop)         tx_memio_to_stage5;
     interface TXe#(CUid)            tx_fuid_to_stage5;
+    `ifdef etrace_support
+    
+     interface TXe#(Bit#(14))       tx_ingress_opcode;
+    
+     `endif
   `ifdef rtldump
     interface TXe#(CommitLogPacket) tx_commitlog;
   `endif
@@ -447,10 +472,28 @@ interface Ifc_s5_rx;
   interface RXe#(BaseOut)         rx_baseout_from_stage4;
   interface RXe#(WBMemop)         rx_memio_from_stage4;
   interface RXe#(CUid)            rx_fuid_from_stage4;
+  `ifdef etrace_support
+  
+   interface RXe#( Bit#(14)) rx_ingress_opcode;
+   `endif
+  
 `ifdef rtldump
   interface RXe#(CommitLogPacket) rx_commitlog;
 `endif
 endinterface:Ifc_s5_rx
+
+
+ `ifdef etrace_support
+interface Ifc_s5_etrace; 
+    interface Bit#(3)  itype     ;
+    interface Bit#(4) cause     ;
+    interface Bit#(64) tval      ;
+    interface Bit#(2) priv      ;
+    interface Bit#(64) iaddr     ;
+    interface Bit#(1) iretire   ;
+    interface Bit#(1) ilastsize ;
+ endinterface
+`endif
 
 interface Ifc_s5_interrupts;
   method Action ma_clint_msip (Bit#(1) intrpt);
@@ -544,6 +587,9 @@ endinterface:Ifc_s5_perfmonitors
 
   module mkPipe_s1_s2#(Ifc_s1_tx s1, Ifc_s2_rx s2)(Tuple2#(Bool,FIFOF#(PIPE1)));
     FIFOF#(PIPE1) ff_pipe1 <- mkSizedFIFOF( `isb_s1s2 );
+    `ifdef etrace_support
+    FIFOF#(Bit#(1)) ff_ingress <- mkSizedFIFOF( `isb_s1s2 );
+     `endif
   `ifdef rtldump 
     FIFOF#(CommitLogPacket) ff_commitlog <- mkSizedFIFOF( `isb_s1s2 );
   `endif
@@ -553,6 +599,12 @@ endinterface:Ifc_s5_perfmonitors
     mkConnection(s1.tx_commitlog, ff_commitlog);
     mkConnection(ff_commitlog, s2.rx_commitlog);
   `endif
+  
+  `ifdef etrace_support
+    mkConnection(s1.tx_ingress_opcode, ff_ingress); // 
+    mkConnection(ff_ingress, s2.rx_ingress_opcode); // 
+     `endif
+    
   return tuple2(ff_pipe1.notEmpty, ff_pipe1);
   endmodule:mkPipe_s1_s2
 
@@ -561,6 +613,9 @@ endinterface:Ifc_s5_perfmonitors
     FIFOF#(Bit#(`xlen)) ff_mtval <- mkLFIFOF();
     FIFOF#(Instruction_type) ff_insttype <- mkLFIFOF();
     FIFOF#(OpMeta) ff_opmeta <- mkLFIFOF();
+    `ifdef etrace_support
+    FIFOF#(Bit#(8)) ff_ingress <- mkLFIFOF();
+     `endif
   `ifdef rtldump
     FIFOF#(CommitLogPacket) ff_commitlog <- mkLFIFOF();
   `endif
@@ -578,6 +633,11 @@ endinterface:Ifc_s5_perfmonitors
     mkConnection(s2.tx_commitlog, ff_commitlog);
     mkConnection(ff_commitlog, s3.rx_commitlog);
   `endif
+        
+        `ifdef etrace_support
+    mkConnection(s2.tx_ingress_opcode, ff_ingress); // 
+    mkConnection(ff_ingress, s3.rx_ingress_opcode); // 
+           `endif
     return ff_meta.notEmpty;
   endmodule:mkPipe_s2_s3
 
@@ -595,6 +655,9 @@ endinterface:Ifc_s5_perfmonitors
     FIFOF#(SystemOut)           ff_systemout <- mkSizedFIFOF( `isb_s3s4 );
     FIFOF#(MemoryOut)           ff_memoryout <- mkSizedFIFOF( `isb_s3s4 );
   	FIFOF#(FUid)                ff_fuid <- mkSizedFIFOF( `isb_s3s4 );
+  	`ifdef etrace_support
+  	FIFOF#(Bit#(14))     ff_ingress <- mkSizedFIFOF( `isb_s3s4 );
+  	 `endif
   `ifdef rtldump
     FIFOF#(CommitLogPacket)     ff_commitlog <- mkSizedFIFOF( `isb_s3s4 );
   `endif
@@ -634,6 +697,12 @@ endinterface:Ifc_s5_perfmonitors
     mkConnection(s3.tx_commitlog, ff_commitlog);
     mkConnection(ff_commitlog, s4.rx_commitlog);
   `endif
+    
+    `ifdef etrace_support
+    mkConnection(s3.tx_ingress_opcode, ff_ingress); // 
+    mkConnection(ff_ingress, s4.rx_ingress_opcode); // 
+     `endif
+  
     return tuple2(ff_fuid.notEmpty, wr_bypass);
   endmodule:mkPipe_s3_s4
 
@@ -643,6 +712,10 @@ endinterface:Ifc_s5_perfmonitors
     FIFOF#(BaseOut) ff_baseout <- mkSizedFIFOF( `isb_s4s5 );
     FIFOF#(WBMemop) ff_wbmemop <- mkSizedFIFOF( `isb_s4s5 );
     FIFOF#(CUid) ff_fuid <- mkSizedFIFOF( `isb_s4s5 );
+    
+    `ifdef etrace_support
+     FIFOF#(Bit#(14)) ff_ingress <- mkSizedFIFOF( `isb_s4s5 ); 
+      `endif
   `ifdef rtldump
     FIFOF#(CommitLogPacket) ff_commitlog <- mkSizedFIFOF( `isb_s4s5 );
   `endif
@@ -681,6 +754,13 @@ endinterface:Ifc_s5_perfmonitors
     mkConnection(s4.tx_commitlog, ff_commitlog);
     mkConnection(ff_commitlog, s5.rx_commitlog);
   `endif
+  
+  `ifdef etrace_support
+  
+    mkConnection(s4.tx_ingress_opcode, ff_ingress); // 
+    mkConnection(ff_ingress, s5.rx_ingress_opcode); // 
+    
+    `endif
     return tuple2(ff_fuid.notEmpty, wr_bypass);
   endmodule:mkPipe_s4_s5
 

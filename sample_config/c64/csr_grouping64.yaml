@@ -40,6 +40,8 @@ grp1:
     - SIE
     - MCOUNTEREN
     - SCOUNTEREN
+    - MENVCFG
+    - SENVCFG
 grp2:
     - DPC
     - DSCRATCH0

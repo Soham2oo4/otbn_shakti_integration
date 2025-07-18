@@ -27,6 +27,10 @@ package Soc;
   import bootrom_axi4 :: *;
    `endif
   import csrbox :: * ;
+   `ifdef etrace_support
+       import trace :: * ;
+   `endif
+  import pipe_ifcs::*;
 
 `ifdef debug
   import debug_types::*;                                                                          
@@ -34,7 +38,12 @@ package Soc;
 
   typedef 0 Sign_master_num;
   typedef (TAdd#(TMul#(`num_harts,2), `ifdef debug 1 `else 0 `endif )) Debug_master_num;
+`ifdef etrace_support
+  typedef 4 Trace_master_num ;
+  typedef (TAdd#(Debug_master_num, 2)) Num_Masters;
+`else
   typedef (TAdd#(Debug_master_num, 1)) Num_Masters;
+`endif
  
     function Bit#(TLog#(`Num_Slaves)) fn_slave_map (Bit#(`paddr) addr);
       Bit#(TLog#(`Num_Slaves)) slave_num = 0;
@@ -48,6 +57,12 @@ package Soc;
         slave_num = `Clint_slave_num;
       else if(addr>= `SignBase && addr<= `SignEnd)
         slave_num = `Sign_slave_num;
+        `ifdef etrace_support 
+      else if(addr>= `TraceBase && addr<= `TraceEnd)
+        slave_num =  `Trace_slave_num;
+      else if(addr >= `MemtraceBase && addr<= `MemtraceEnd)
+        slave_num = `Memtrace_slave_num;
+        `endif
     `ifdef debug
       else if(addr>= `DebugBase && addr<= `DebugEnd)
         slave_num = `Debug_slave_num;
@@ -109,6 +124,11 @@ package Soc;
     Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, USERSPACE, `Addr_space) main_memory <- mkbram_axi4(`MemoryBase,
                                                 "code.mem", "MainMEM");
                   Ifc_bootrom_axi4#(`paddr, `axi4_id_width, `buswidth, USERSPACE, `ifdef axi4_128b 12 `else 13 `endif ) bootrom <-mkbootrom_axi4(`BootRomBase);
+`ifdef etrace_support 
+    Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,0) trace <- mktrace_axi4;
+    Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
+                                                "trace.mem", "TraceMEM");
+`endif
 
   `ifdef debug
     Bit#(`num_harts) lv_haveresets=0;
@@ -137,7 +157,9 @@ package Soc;
      	mkConnection(ccore[i].master_i, fabric.v_from_masters[i*2+2]);
     end
    	mkConnection(signature.master, fabric.v_from_masters[valueOf(Sign_master_num) ]);
-
+     `ifdef etrace_support 
+       mkConnection (trace.master, fabric.v_from_masters[valueOf(Trace_master_num) ]); 
+     `endif
  	  mkConnection (fabric.v_to_slaves [`Uart_slave_num ],uart.slave);
   	mkConnection (fabric.v_to_slaves [`Clint_slave_num ],clint.slave);
     mkConnection (fabric.v_to_slaves [`Sign_slave_num ] , signature.slave);
@@ -145,8 +167,34 @@ package Soc;
   	mkConnection(fabric.v_to_slaves[`Memory_slave_num] , main_memory.slave);
 		mkConnection(fabric.v_to_slaves[`BootRom_slave_num] , bootrom.slave);
 
+   `ifdef etrace_support 	
+       mkConnection(fabric.v_to_slaves[`Trace_slave_num]   , trace.slave); 
+       mkConnection(fabric.v_to_slaves[`Memtrace_slave_num]
+       , main_memory_trace.slave);         
 
+       for (Integer i = 0; i<`num_harts; i = i + 1) begin
+       rule ing_in;
+       trace.trace_interface(
+             zeroExtend(ccore[i].etrace_ingress_port.itype),
+                         ccore[i].etrace_ingress_port.cause,
+                         ccore[i].etrace_ingress_port.tval,
+              zeroExtend(ccore[i].etrace_ingress_port.priv),
+                         ccore[i].etrace_ingress_port.iaddr,
+              zeroExtend(ccore[i].etrace_ingress_port.iretire),
+                       ccore[i].etrace_ingress_port.ilastsize);  
 
+               /*$display( "in_soc_val:= %d,%d,%h,%d,%h,0,0,%d,%d",
+                         ccore[i].etrace_ingress_port.itype,
+                         ccore[i].etrace_ingress_port.cause,
+                         ccore[i].etrace_ingress_port.tval,
+                         ccore[i].etrace_ingress_port.priv,
+                         ccore[i].etrace_ingress_port.iaddr,
+                         ccore[i].etrace_ingress_port.iretire,
+                         ccore[i].etrace_ingress_port.ilastsize  )  ;    */  
+       endrule
+     end
+    `endif
+     
     // sideband connection
     for (Integer i = 0; i<`num_harts; i = i + 1) begin    
       mkConnection(ccore[i].sb_clint_mtip,clint.sb_clint_mtip);
