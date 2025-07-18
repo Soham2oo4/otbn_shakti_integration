@@ -6,10 +6,11 @@ isb_sizes:
     isb_s4s5: 8
 num_harts: 1
 merged_rf: False
+hardfloat: False
 s_extension:
   itlb_size: 4
   dtlb_size: 4
-total_events : 31
+total_events : 32
 iepoch_size: 2
 m_extension:
   mul_stages_in : 1
@@ -48,23 +49,34 @@ dcache_configuration:
   one_hot_select: false
   rwports: '1rw'
 reset_pc: 4096
-bus_protocol: AXI4
+bus_protocol_configuration:
+  bus_protocol: AXI4
+  bus_width: 64
+  axi4_transactor_fifo_depth: 2
+  axi4_internal_fifo_depth: 2
+  axi4_lite_transactor_fifo_depth: 2
+  axi4_lite_internal_fifo_depth: 2
+  axi4_id_width: 4
+  userspace_width: 0
 bsc_compile_options:
-  test_memory_size: 268435456
+  test_memory_size: 67108864
   assertions: true
   ovl_assertions: False
   sva_assertions: False
   ovl_path: ""
   trace_dump: True
+  etrace_port: False
   compile_target: 'sim'
   suppress_warnings: ["none"]
   verilog_dir: build/hw/verilog
   build_dir: build/hw/intermediate
   top_module: mkTbSoc
   top_file: TbSoc.bsv
-  top_dir: test_soc
+  top_dir: test_soc/c64_c32
   open_ocd: False
   cocotb_sim: False
+  static_check: True
+  verbosity: 0
 verilator_configuration:
   coverage: none
   trace: false

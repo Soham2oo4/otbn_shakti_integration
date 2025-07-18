@@ -1,72 +1,85 @@
 grp1:
     - MISA
     - MSCRATCH
-    - SSCRATCH
-    - VSSCRATCH
-    - VSATP
-    - VSEPC
     - MVENDORID
     - MSTATUS
-    - SSTATUS
-    - HSTATUS
-    - HIE
-    - HIP
-    - HVIP
-    - VSSTATUS
     - MIE
-    - SIE
-    - VSIE
     - MIP
-    - SIP
-    - VSIP
     - MTVEC
-    - STVEC
-    - VSTVEC
     - MEPC
-    - SEPC
     - MCAUSE
-    - SCAUSE
-    - VSCAUSE
     - MTVAL
     - MTVAL2
     - MTINST
+    - MCYCLE
+    - MINSTRET
+    - MHARTID
+    - MARCHID
+    - MIMPID
+    - TIME
+    - CYCLE
+    - MCOUNTINHIBIT
+    - INSTRET
+    - MIDELEG
+    - MEDELEG
+    - PMPCFG0
+    - PMPADDR0
+    - PMPADDR1
+    - PMPADDR2
+    - PMPADDR3
+    - CUSTOMCONTROL
+    - FCSR
+    - FFLAGS
+    - FRM
+    - SSCRATCH
+    - SSTATUS
+    - SATP
     - STVAL
-    - VSTVAL
+    - SCAUSE
+    - SEPC
+    - STVEC
+    - SIP
+    - SIE
+    - MCOUNTEREN
+    - SCOUNTEREN
+    - MENVCFG
+    - SENVCFG
     - HTVAL
     - HTINST
     - HGEIP
     - HGEIE
     - HGATP
     - HTIMEDELTA
-    - TIME
-    - MCYCLE
-    - MINSTRET
-    - MHARTID
-    - MARCHID
-    - MIMPID
-    - CYCLE
-    - MCOUNTINHIBIT
-    - INSTRET
-    - SATP
-    - MIDELEG
-    - MEDELEG
     - HEDELEG
     - HIDELEG
+    - HSTATUS
+    - HIE
+    - HIP
+    - HVIP
     - HCOUNTEREN
+    - VSTVAL
+    - VSCAUSE
+    - VSTVEC
+    - VSSCRATCH
+    - VSATP
+    - VSEPC
+    - VSIP
+    - VSSTATUS
+    - VSIE
 grp2:
-    - PMPCFG0
-    - PMPADDR0
-    - PMPADDR1
-    - PMPADDR2
-    - PMPADDR3
+    - DPC
+    - DSCRATCH0
+    - DSCRATCH1
+    - DCSR
     - MHPMCOUNTER3
     - MHPMEVENT3
     - MHPMCOUNTER4
     - MHPMEVENT4
-    - CUSTOMCONTROL
-    - SCOUNTEREN
-    - MCOUNTEREN
-    - DPC
-    - DCSR
-    - DSCRATCH0
-    - DSCRATCH1
+    - MHPMCOUNTER5
+    - MHPMEVENT5
+    - MHPMCOUNTER6
+    - MHPMEVENT6
+    - HPMCOUNTER3
+    - HPMCOUNTER4
+    - HPMCOUNTER5
+    - HPMCOUNTER6

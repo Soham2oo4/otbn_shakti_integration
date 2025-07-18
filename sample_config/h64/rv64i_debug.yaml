@@ -12,6 +12,13 @@ hart0: &hart0
         accessible: true
         prv:
           implemented: true
+          type: 
+            warl: 
+              dependency_fields: []
+              legal:
+                - prv[1:0] in [0x0,0x1,0x3]
+              wr_illegal:
+                - unchanged
         step:
           implemented: true
         nmip:
@@ -34,23 +41,22 @@ hart0: &hart0
           implemented: True
         ebreaku:
           implemented: True
-          type:
+          type :
             warl:
               dependency_fields: []
               legal:
-                - ebreaku[0] in [0x0, 0x1]
+                  - ebreaku[0] in [0x0, 0x1]
               wr_illegal:
-                - unchanged
+                  - unchanged
         ebreaks:
           implemented: True
-          type:
+          type :
             warl:
               dependency_fields: []
               legal:
-                - ebreaks[0] in [0x0, 0x1]
+                  - ebreaks[0] in [0x0, 0x1]
               wr_illegal:
-                - unchanged
-
+                  - unchanged
         ebreakm:
           implemented: True
         ebreakvu:
