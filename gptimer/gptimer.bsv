@@ -573,7 +573,7 @@ package gptimer;
 							 Add#(g__,4,data_width),
 							 Mul#(4,h__,data_width)
 							);
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(ext_clock, ext_reset);
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer;
 		AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);

@@ -597,7 +597,7 @@ package uart;
                            numeric type data_width, 
                            numeric type user_width, 
                            numeric type depth);
-		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
 `ifndef uart_clk_gate_en
 		(*always_ready,always_enabled*)
 `endif
