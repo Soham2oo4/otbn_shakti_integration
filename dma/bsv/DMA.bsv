@@ -112,8 +112,7 @@ endfunction
 // The DMA interface has two sub-interfaces
 //  A AXI4 Slave interface for config
 //  A AXI4 Master interface for data transfers
-
-interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
+interface User_ifc#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
 	method Action read_req(Bit#(config_addr_width) addr, AccessSize size, Bool prot);
 	method ActionValue#(Tuple2#(Bool, Bit#(config_data_width))) read_resp;
 	method Action write_req(Bit#(config_addr_width) addr, Bit#(config_data_width) data, AccessSize size, Bool prot);
@@ -154,7 +153,7 @@ endinstance
 (* descending_urgency = "writeConfig, handle_interrupts" *)
 (* descending_urgency = "writeConfig, rl_finishRead" *)
 (* descending_urgency = "writeConfig, rl_startWrite" *)
-module mkDMA( User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) )
+module mkDMA( User_ifc#(addr_width, id_width, data_width, user_width, config_addr_width ,config_data_width, numChannels, numPeripherals) )
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
 	 				Add#(numChannels, 0, 7),
@@ -174,7 +173,8 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 					Mul#(32, n__, data_width),
 					Mul#(8, o__, data_width),
 					Add#(p__, TLog#(TDiv#(data_width, 8)), data_width),
-					Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width)
+					Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width),
+					Add#(1, r__, id_width)
 );
 
 	let val_numChannels= valueOf(numChannels);
@@ -229,7 +229,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	Wire#(Vector#(numPeripherals,Bit#(1))) wr_peripheral_interrupt <- mkDWire(replicate(0));
 
 	//Wire to set the TEIF
-	Wire#(Maybe#(Bit#(4))) wr_bus_err <- mkDWire(tagged Invalid);
+	Wire#(Maybe#(Bit#(id_width))) wr_bus_err <- mkDWire(tagged Invalid);
 
 	// We also want to pass the destination address for each read over
 	// to the write "side", along with some other metadata.
@@ -1135,23 +1135,24 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 						Mul#(32, n__, data_width),
 						Mul#(8, o__, data_width),
 						Add#(p__, TLog#(TDiv#(data_width, 8)), data_width),
-						Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width)
+						Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width),
+						Add#(1, r__, id_width)
 );
 		`ifdef dma_clk_gate_en
 		GatedClockIfc dma_clk_gated <- mkGatedClockFromCC(False);
 		`endif
-		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
-		AXI4_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+		User_ifc#(addr_width, id_width, data_width, user_width, config_addr_width , config_data_width, numChannels, numPeripherals) dma <- mkDMA;
+		AXI4_Slave_Xactor_IFC#(config_addr_width, config_id_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 
 		Reg#(Bool) rg_is_rdburst[2] <- mkCRegA(2,False);
-		Reg#(Bit#(id_width)) rg_arid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(config_id_width)) rg_arid[2] <- mkCRegA(2,?);
 		`ifdef dma_clk_gate_en
 		Reg#(Bool) rg_is_rdclk_en[2] <- mkCRegA(2,False);
 		`endif
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		
 		Reg#(Bool) rg_is_wrburst[2] <- mkCRegA(2,False);
-		Reg#(Bit#(id_width)) rg_awid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(config_id_width)) rg_awid[2] <- mkCRegA(2,?);
 		`ifdef dma_clk_gate_en
 		Reg#(Bool) rg_is_wrclk_en[2] <- mkCRegA(2,False);
 		`endif
@@ -1284,7 +1285,7 @@ interface Ifc_DMA_AXI4_Lite#(numeric type addr_width, numeric type id_width, num
 	interface Get#(Bit#(1)) interrupt_to_proc;
 endinterface
 
-module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
+module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, id_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
 	 				Add#(numChannels, 0, 7),
@@ -1305,7 +1306,8 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 						Mul#(8, o__, data_width),
 						Add#(p__, TLog#(TDiv#(data_width, 8)), data_width),
 						Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width),
-						Add#(r__, 1, config_data_width)
+						Add#(r__, 1, config_data_width),
+						Add#(1, s__, id_width)
 
 );
 
@@ -1320,7 +1322,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			dma_clk_gated.setGateCond(unpack(rg_clk_en));	         
 		endrule
 		`endif
-		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
+		User_ifc#(addr_width, id_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
 		AXI4_Lite_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 	 	rule axi_read_req;
 	 		let req <- pop_o(s_xactor.o_rd_addr);
