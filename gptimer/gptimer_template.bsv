@@ -40,7 +40,7 @@ package gptimer_template;
 		endmodule
 
   //(*synthesize*)
-	//module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4#(64,4,0,32));
+	//module mkdummy#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4#(64,4,32,0,32));
 	//		let ifc();
 	//		mkgptimer_axi4#(ext_clock,ext_reset) _temp(ifc);
 	//		return ifc;
