@@ -45,7 +45,7 @@ package bootrom_axi4;
     Bit#(addr_width) base_address=fromInteger(slave_base);
 
     BRAM_PORT#(Bit#(index_size), Bit#(data_width)) boot <- mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "bootfile", False);
-    Reg#(Bool) read_request_sent <-mkDReg(False);
+    Reg#(Bool) read_request_sent <-mkDRegA(False);
     Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
     `ifdef fesvr_sim
       Reg#(Bit#(1)) rg_initialized <- mkRegA(0);

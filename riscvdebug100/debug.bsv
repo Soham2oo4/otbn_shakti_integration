@@ -375,11 +375,11 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   // ----------------------------------------------------------------------------------------------
 
   // ----------------------------- Hart selection logic -------------------------------------------
-  ConfigReg#(Bit#(ncomponents)) hamask      <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(ncomponents)) hamask      <- mkConfigRegA(0, reset_by dm_reset);
   Reg#(Bit#(ncomponents)) hahaltreq   <- mkRegA(0, reset_by dm_reset);
   Reg#(Bit#(ncomponents)) haresetreq  <- mkRegA(0, reset_by dm_reset);
   Reg#(Bit#(ncomponents)) haresumereq <- mkRegA(0, reset_by dm_reset);
-  Reg#(Bit#(ncomponents)) hahavereset[2] <- mkCReg(2,0, reset_by dm_reset);
+  Reg#(Bit#(ncomponents)) hahavereset[2] <- mkCRegA(2,0, reset_by dm_reset);
 
   Wire#(Bit#(ncomponents)) wr_debug_enable <- mkWire();
 
@@ -426,8 +426,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Wire#(Bool) wr_errother <- mkDWire(False, reset_by dm_reset);
   // ----------------------------------------------------------------------------------------------
   // ----------------------------------ABSTRACT Command -------------------------------------------
-  ConfigReg#(Bit#(8))  cmdtype <- mkConfigReg(0, reset_by dm_reset);
-  ConfigReg#(Bit#(24)) control <- mkConfigReg(0, reset_by dm_reset);
+  ConfigReg#(Bit#(8))  cmdtype <- mkConfigRegA(0, reset_by dm_reset);
+  ConfigReg#(Bit#(24)) control <- mkConfigRegA(0, reset_by dm_reset);
 
   Wire#(Bool)    wr_cmdtype_wren <- mkDWire(False, reset_by dm_reset);
   Wire#(Bit#(8)) wr_cmdtype_wrval <- mkDWire(reset_by dm_reset,?);
