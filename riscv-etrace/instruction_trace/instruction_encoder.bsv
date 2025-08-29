@@ -10,6 +10,8 @@
  import AXI4_Types::*;
  import AXI4_Fabric::*;
  import Semi_FIFOF::*;
+ import FIFOF        :: * ;
+ import SpecialFIFOs :: * ;
 
   typedef enum{
 	NIL,EXCEPTION,
@@ -135,7 +137,8 @@ provisos(Add#(a__, 16, data_width),
         Reg#(Bit#(16)) rg_prev_trace_control	<- mkRegA(0);
         Reg#(Bit#(9))  rg_resync_count <- mkRegA(0); 
         Reg#(Bit#(1))  rg_reported <- mkRegA(0); 
-        Reg#(Bit#(256))rg_packet <- mkRegA(0); 
+        //Reg#(Bit#(256))rg_packet <- mkRegA(0); 
+        FIFOF#(Bit#(256)) fifo_packet <- mkSizedBypassFIFOF(2);
          
         Reg#(Bit#(1))  rg_pac_gen <- mkRegA(0);
         Reg#(Bit#(31)) rg_test_count <- mkRegA(0); 
@@ -144,7 +147,6 @@ provisos(Add#(a__, 16, data_width),
         Reg#(Bit#(1))  rg_notify <- mkRegA(0);
         Reg#(Bit#(1))  rg_updiscon <- mkRegA(0);
         Reg#(Bit#(1))  rg_irreport <- mkRegA(0);
-        Reg#(Bit#(1))  rg_enque_sink_buff[2] <- mkCRegA(2,0);
         
         Reg#(Bit#(1))  rg_waiting_resp <- mkRegA(0);
         Reg#(Bit#(2))  rg_size <- mkRegA(0);
@@ -154,6 +156,7 @@ provisos(Add#(a__, 16, data_width),
         Wire#(Bit#(1))                   wr_compress_en <- mkDWire(0);
         
         Reg#(Bit#(1))  rg_last_was_updiscon <- mkRegA(0);
+        Reg#(Bit#(1))  rg_flush_pipeline <- mkRegA(0);
         
        AXI4_Master_Xactor_IFC#(addr_width, id_width, data_width, user_width) master_xactor <- mkAXI4_Master_Xactor(); 
         
@@ -171,17 +174,314 @@ provisos(Add#(a__, 16, data_width),
 			 return (ifc.i_type==UNINFERABLE_JUMP || ifc.i_type==UNINFERABLE_CALL || ifc.i_type==UNINFERABLE_TAIL_CALL || ifc.i_type==OTHER_UNINFERABLE_JUMP || ifc.i_type==RETURN || ifc.i_type==EXCEPTION_OR_INTERRUPT_RETURN);
 		endfunction
                       
-     // rule extra_compress_&_sinkenq  (rg_enque_sink_buff[0]== 1) ;
-      rule extra_compress_sinkenq  (rg_enque_sink_buff[0]== 1) ;
+     
+            
+      
+    rule compress( wr_compress_en == 1 || rg_Active == 0  ) ; 
+    
+      //$display("rule compress fired");
+    
+      //  wr_ingress_in_ready <= 1; 
+          // $display("trace_interface_firing");                   
+        if(rg_teEnable == 1 && wr_trace_in.qual == 1 ) begin    
+          rg_prev <=  rg_curr ;   
+          rg_curr <=  rg_next ;     
+          rg_next <=  wr_trace_in ;   end  
+          //$display("inside_rule_wr_trace_in:-  %d,%d,%d,%d,%h,0,0,%d,%d" , wr_trace_in.i_type, wr_trace_in.cause, wr_trace_in.tval, wr_trace_in.priv , wr_trace_in.iaddr ,wr_trace_in.iretire ,wr_trace_in.ilastsize); end
+          // $display("%d,%d,%d,%d,%h,%d,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize, rg_iTracing);end
+          // rg_next <=  unpack({ rg_iTracing, ilastsize,iretire, iaddr , priv , tval , cause, itype   }); end                                              
+          else if (rg_flush_pipeline == 1) begin  
+            rg_prev <= unpack(0);   
+            rg_curr <= unpack(0);     
+            rg_next <= unpack(0);
+          end 
+                            
+        rg_prev_trace_control <= rg_trace_control; 
+      
+          SYNC_T lv_format = START; 
+		
+		 IEXCEPTION lv_iexception = IPREV ;
+		 Bit#(1) lv_thaddr =  0 ;
+		 Bit#(1) lv_en  = 0 ;
+		 Bit#(1) lv_with_address = 0 ; //rg_pac_gen
+		 Bit#(1) lv_pac_gen = 0 ;  
+		 Bit#(1) lv_which_packet  = 0;
+		 let lv_qual_status  = NO_CHANGE;
+			                      
+		 let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
+		 let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5           
+		 let lv_ppccd =  rg_curr.priv != rg_prev.priv;  
+		 let lv_ppccd_br = rg_next.priv !=rg_curr.priv; 
+		 let lv_is_branch=rg_curr.i_type ==  TAKEN_BRANCH;         
+		 let lv_resync_count_max = rg_resync_count == lv_resyncmax;  
+		 let lv_fast_branches = (lv_branch)? rg_branches +1 : rg_branches;  
+		 let lv_fast_branch_map = (!lv_is_branch && lv_branch)? rg_branch_map | 1 << rg_branches : rg_branch_map;  
+			 
+		 let lv_address_handler_nc_full = rg_curr.iaddr[63 :1];
+		 let lv_address_handler_nc_diff = (rg_curr.iaddr [63 :1] - rg_iaddr_last_reported[63 :1]);  
+		 let lv_addr_full = (rg_comp_ext== 0 ) ? signExtend(lv_address_handler_nc_full[62:1]) : lv_address_handler_nc_full;
+		 let lv_addr_diff = (rg_comp_ext== 0) ? signExtend(lv_address_handler_nc_diff[62:1]): lv_address_handler_nc_diff; 
+		 
+		 let lv_notify = lv_address_handler_nc_diff[62] ;            
+		 let lv_updiscon =pack((is_updiscons(rg_prev))&&(is_exceptions(rg_next)||(lv_ppccd)|| lv_resync_count_max ))^ lv_notify;
+		 let lv_irreport = lv_updiscon ; 
+      
+     
+		 
+		 //$display("rg_trace_control %h \n", rg_trace_control);
+			 //$display("rg_prev_trace_control %h \n", rg_prev_trace_control);
+		if(re_support_gen==1) begin
+		lv_pac_gen=1;
+		lv_format=SUPPORT;
+		lv_which_packet=1;
+		lv_qual_status=ENDED_REP;
+		re_support_gen<=1'b0;  
+    rg_flush_pipeline<=0;      
+		end
 
+		else if (rg_prev_trace_control != rg_trace_control) begin                     
+		if (rg_prev_trace_control[1]==1'b0 /*|| rg_last_was_updiscon == 1'b1*/ ) begin    // for start 
+		  lv_pac_gen = 1; 
+		  lv_format= SUPPORT;                  
+		  lv_which_packet = 1;
+		  lv_qual_status=(rg_prev_trace_control[1]==1'b0)?NO_CHANGE:ENDED_NTR;  // for alreasy udiscon report 
+		end                     
+  else begin   // for end 
+		  lv_pac_gen = 1;
+		  lv_with_address=1;
+		  lv_which_packet = 0;
+      re_support_gen <=1; 
+      rg_flush_pipeline <= 1;                    
+        end  
+                     
+      //   lv_qual_status = { rg_last_was_updiscon,rg_prev_trace_control[1]};    /**/
+            
+      //   $display("format 3,subformat 3 \n");
+        /*$display("rg_trace_control %h \n", rg_trace_control);
+        $display("rg_prev_trace_control %h \n", rg_prev_trace_control);
+        $display("lv_pac_gen %h \n", lv_pac_gen); 
+        $display("lv_format %h \n", lv_format); 
+        $display("lv_which_packet %h \n", lv_which_packet);*/
+      end
+
+      // else if ( re_support_gen == 1'b1 ) begin
+      //     lv_
+                                          
+      else if ( rg_curr.qual == 1 && rg_teEnable==1 ) begin   
+       
+      /*$display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
+        $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
+        $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
+        $display(" rg_prev.i_type %h  \n" , rg_prev.i_type);
+        $display(" rg_curr.cause %h  \n" , rg_curr.cause);
+        $display(" rg_prev.cause %h  \n" , rg_prev.cause);
+        $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
+        $display(" rg_branches \n" , rg_branches);  
+        $display(" rg_branch_map \n" , rg_branch_map);*/
+                      
+        if(is_exceptions(rg_prev)) begin                      
+          if (is_exceptions(rg_curr)&& rg_curr.iretire == 0) begin  
+            rg_reported <= 1;  
+        		lv_pac_gen = 1; 
+            lv_format= TRAP;
+            lv_thaddr= 0 ; 
+            lv_which_packet = 1;  
+            lv_iexception = IPREV;
+          end
+                            
+          else begin
+            if (rg_reported == 1) begin 
+              rg_reported <= 0; 
+              lv_pac_gen = 1;
+              lv_format= START ;
+              lv_which_packet = 1;
+            end 
+                              
+            else begin
+              lv_pac_gen = 1;
+              lv_format= TRAP ;
+              lv_thaddr= 1; 
+              lv_which_packet = 1; 
+              lv_iexception = IPREV;
+            end        
+          end                                
+        end
+                        
+        else if (lv_ppccd || rg_resync_count > lv_resyncmax || ((rg_curr.qual == 1  && rg_prev.qual ==0) && (rg_iaddr_last_reported != rg_curr.iaddr))  ) begin                    
+          
+          lv_pac_gen = 1;
+          lv_format= START ;
+          lv_which_packet = 1;                                                                 
+        end
+                                                    
+        else if (is_updiscons(rg_prev)) begin                            
+          if (is_exceptions(rg_curr) && rg_curr.iretire == 0  ) begin                     
+            rg_reported <= 1;
+            lv_pac_gen = 1;
+            lv_format= TRAP ; 
+            lv_thaddr= 0 ; 
+            lv_which_packet = 1; 
+            lv_iexception = ICURR;
+          end
+          else begin 
+            lv_pac_gen = 1; 
+            lv_with_address=1;  
+            lv_which_packet = 0;                                       
+          end  
+        end                  
+        
+        else if ((lv_resync_count_max && (lv_fast_branches !=0)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr)))) begin                                  
+		      lv_pac_gen = 1;
+		      lv_with_address=1;
+		      lv_which_packet = 0;
+		                     
+        end 
+        else if  ((is_exceptions(rg_next) && rg_next.iretire == 0)|| lv_ppccd_br) begin
+          lv_pac_gen = 1;                     
+          lv_with_address=1; 
+          lv_which_packet = 0;
+                        
+        end                                                     
+        else if (lv_fast_branches == 31 ) begin   
+         	lv_pac_gen = 1;
+         	lv_with_address=0; 
+         	lv_which_packet = 0;                                              
+        end   
+      end 
+                      
+                                      
+        if (lv_pac_gen == 1) begin 
+                    
+                                           
+          if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
+            rg_resync_count<=0; 
+            rg_iaddr_last_reported<=rg_curr.iaddr; 
+          end 
+          else begin rg_resync_count <= rg_resync_count+1; 
+            //$display("resync count %d", rg_resync_count);    
+          end                           
+                                           
+          if (lv_which_packet == 1 ) begin  
+                
+            Bit#(1) lv_br_pac = (lv_branch && lv_is_branch)? 0 : 1;                                      
+                                                  
+            case(lv_format)
+              START: begin				    				              
+                  fifo_packet.enq(signExtend({lv_addr_full,32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11}));
+                  //$display("%d",rg_test_count +3," rg_packet:- %h", rg_packet);
+                  //$display("%d",rg_test_count," format3, subformat 0 ");
+                   //$display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac,pack(rg_curr.priv));					   
+                    rg_test_count <= rg_test_count + 1;				    
+              end
+            
+              TRAP: begin  
+                  // $display("%d",rg_test_count," format3,, subformat 1 ");
+                  let lv_iexception_reg = (lv_iexception == IPREV)? rg_prev : rg_curr;       
+                  if (lv_iexception_reg.i_type==INTERRUPT)begin
+                    // $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b1,pack(rg_curr.priv)[1:0],lv_thaddr);
+                     fifo_packet.enq(signExtend({lv_addr_full,lv_thaddr,1'b1,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11}));
+                  end 		                 
+                  else  begin 
+                     //$display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b0,pack(rg_curr.priv)[1:0],lv_thaddr,pack(rg_curr.tval));
+                     fifo_packet.enq(signExtend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,1'b0,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11}));
+                  end  
+                  rg_test_count <= rg_test_count + 1;
+              end
+                
+              CONTEXT: begin	 // unusable right now
+                  fifo_packet.enq(signExtend({pack(rg_curr.priv)[1:0],pack(lv_format),2'b11}));
+                //  $display("%d",rg_test_count+3," format3, , subformat 2 ");
+                 //$display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch);
+                  rg_test_count <= rg_test_count + 1;
+              end
+              
+              SUPPORT: begin
+                 fifo_packet.enq(signExtend({1'b0,pack(lv_qual_status),1'b0,rg_teEnable,pack(lv_format),2'b11}));
+               // $display("%d",rg_test_count," format3, , subformat 3 ");
+                // $display("%d,%d,_,_,_,_,_,_,_,_,%d,%d,_,_,_,_,%d,_,%d,_,_,_,_,_,_,_",2'b11,pack(lv_format),rg_teEnable,1'b0,1'b0,pack(lv_qual_status));//pack(rg_curr.qual));
+                rg_test_count <= rg_test_count + 1;
+              end
+      
+            endcase
+          end 
+          else   begin                                
+                                // $display("rg_branches           %d" ,rg_branches );
+                                  //$display("rg_branch_map %d" ,rg_branch_map );                                 
+            if(lv_with_address ==1) begin   
+              rg_iaddr_last_reported<=rg_curr.iaddr;
+              if (lv_fast_branches !=0 ) begin // Create branch packet WITH address 
+                //$display("%d",rg_test_count," format1, Create branch packet WITH address");
+                rg_test_count <= rg_test_count + 1;
+                rg_branches <=0;
+                rg_branch_map <=0;         	
+                if(lv_fast_branches[4]==1) begin	
+                   fifo_packet.enq(signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map,lv_fast_branches,2'b1}));	
+                 //$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
+                end
+                else if(lv_fast_branches[3]==1) begin
+                   fifo_packet.enq(signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[14:0],lv_fast_branches,2'b1}));						
+                 // $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[3:0],lv_fast_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
+                end
+                else if(lv_fast_branches[2]==1) begin
+                   fifo_packet.enq(signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[6:0],lv_fast_branches,2'b1}));						
+                  //   $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[2:0],lv_fast_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
+                end	
+                else if(lv_fast_branches[1]==1) begin
+                   fifo_packet.enq(signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[2:0],lv_fast_branches,2'b1})); 
+                //$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[1:0],lv_fast_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
+                end
+                else begin
+                   fifo_packet.enq(signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[0],lv_fast_branches,2'b1})); 
+                //$display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[0],lv_fast_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
+                  
+                /*for (Integer i = 0; i<5; i = i + 1) begin	  
+                if(lv_fast_branches[i]==1) begin	
+                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[(ei-1):0],lv_fast_branches,2'b1});	
+                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
+                
+                end*/
+                end
+		          end
+              else begin  // Address, without a branch-map
+                //  $display("%d",rg_test_count," format2, Create address packet");	
+                 fifo_packet.enq(signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,2'b10}));
+               // $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff,lv_irreport,lv_notify,lv_updiscon); 		                  	
+                rg_test_count <= rg_test_count + 1;
+              end 
+		        end  	 
+        
+            else begin //Create branch packet WITHOUT address
+              //$display("%d",rg_test_count," format1, Create branch packet WITHOUT address");
+                  rg_test_count <= rg_test_count + 1;
+                  rg_branches <=0;
+                  rg_branch_map <=0;
+                   fifo_packet.enq(signExtend({lv_fast_branch_map,5'b0,2'b1}));
+                //$display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,lv_fast_branch_map);
+            end
+	        end 
+	              	               	              	
+	      end 
+        else if(lv_branch && rg_curr.qual == 1 )begin   
+          rg_branches <= rg_branches + 1;               
+          if (!lv_is_branch) begin  
+            rg_branch_map <= rg_branch_map | 1 << rg_branches; 
+          end                                             
+        end                  
+            
+      endrule 
+       
+        rule extra_compress_sinkenq  (fifo_packet.notEmpty) ;
+       
+       let rg_packet = fifo_packet.first;
+         fifo_packet.deq();
+        
        if(rg_packet[1:0] == 2'b10)begin  
           rg_last_was_updiscon <= 1;  
          end
          else begin
             rg_last_was_updiscon <= 0;
-           end    
-        
-       rg_enque_sink_buff[0]<=0 ;
+           end   
+
        let lv_comp_var = rg_packet[255:248];
        Vector#(32, Bit#(8)) lv_payload = newVector();
 	       
@@ -192,7 +492,7 @@ lv_payload[20]=rg_packet[87:80];lv_payload[19]=rg_packet[95:88];lv_payload[18]=r
 lv_payload[2]=rg_packet[231:224];lv_payload[1]=rg_packet[239:232]; lv_payload[0]=rg_packet[247:240];
 	                         trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
 	                         
-	                          $display("payload= %h",lv_payload);
+	                          $display("0x%h",lv_payload);
                              end  //1
                              
             else if ( rg_packet[239:232] != lv_comp_var ||  rg_packet[232] != rg_packet[231] )begin
@@ -203,7 +503,7 @@ lv_payload[19]=rg_packet[87:80];lv_payload[18]=rg_packet[95:88];lv_payload[17]=r
 lv_payload[1]=rg_packet[231:224];lv_payload[0]=rg_packet[239:232]; 
                             
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                               $display("payload= %h",{lv_payload[30],lv_payload[29],lv_payload[28],lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                               $display("0x%h",{lv_payload[30],lv_payload[29],lv_payload[28],lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end   //2
                              
@@ -215,7 +515,7 @@ lv_payload[1]=rg_packet[231:224];lv_payload[0]=rg_packet[239:232];
 lv_payload[18]=rg_packet[87:80];lv_payload[17]=rg_packet[95:88];lv_payload[16]=rg_packet[103:96];lv_payload[15]=rg_packet[111:104];lv_payload[14]=rg_packet[119:112];lv_payload[13]=rg_packet[127:120];lv_payload[12]=rg_packet[135:128];lv_payload[11]=rg_packet[143:136];lv_payload[10]=rg_packet[151:144];	                      lv_payload[9]=rg_packet[159:152];lv_payload[8]=rg_packet[167:160];lv_payload[7]=rg_packet[175:168];lv_payload[6]=rg_packet[183:176];lv_payload[5]=rg_packet[191:184];lv_payload[4]=rg_packet[199:192];lv_payload[3]=rg_packet[207:200];lv_payload[2]=rg_packet[215:208];lv_payload[1]=rg_packet[223:216];
 lv_payload[0]=rg_packet[231:224];
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[29],lv_payload[28],lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                $display("0x%h",{lv_payload[29],lv_payload[28],lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end  //3
                              
@@ -227,7 +527,7 @@ lv_payload[0]=rg_packet[231:224];
 lv_payload[17]=rg_packet[87:80];lv_payload[16]=rg_packet[95:88];lv_payload[15]=rg_packet[103:96];lv_payload[14]=rg_packet[111:104];lv_payload[13]=rg_packet[119:112];lv_payload[12]=rg_packet[127:120];lv_payload[11]=rg_packet[135:128];lv_payload[10]=rg_packet[143:136];lv_payload[9]=rg_packet[151:144];	                      lv_payload[8]=rg_packet[159:152];lv_payload[7]=rg_packet[167:160];lv_payload[6]=rg_packet[175:168];lv_payload[5]=rg_packet[183:176];lv_payload[4]=rg_packet[191:184];lv_payload[3]=rg_packet[199:192];lv_payload[2]=rg_packet[207:200];lv_payload[1]=rg_packet[215:208];lv_payload[0]=rg_packet[223:216];
 
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                  $display("payload= %h",{lv_payload[28],lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                  $display("0x%h",{lv_payload[28],lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end    //4                                
       
@@ -238,7 +538,7 @@ lv_payload[17]=rg_packet[87:80];lv_payload[16]=rg_packet[95:88];lv_payload[15]=r
 lv_payload[16]=rg_packet[87:80];lv_payload[15]=rg_packet[95:88];lv_payload[14]=rg_packet[103:96];lv_payload[13]=rg_packet[111:104];lv_payload[12]=rg_packet[119:112];lv_payload[11]=rg_packet[127:120];lv_payload[10]=rg_packet[135:128];lv_payload[9]=rg_packet[143:136];lv_payload[8]=rg_packet[151:144];	                      lv_payload[7]=rg_packet[159:152];lv_payload[6]=rg_packet[167:160];lv_payload[5]=rg_packet[175:168];lv_payload[4]=rg_packet[183:176];lv_payload[3]=rg_packet[191:184];lv_payload[2]=rg_packet[199:192];lv_payload[1]=rg_packet[207:200];lv_payload[0]=rg_packet[215:208];
 
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[27],lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end    //5
                 
@@ -249,7 +549,7 @@ lv_payload[16]=rg_packet[87:80];lv_payload[15]=rg_packet[95:88];lv_payload[14]=r
 lv_payload[15]=rg_packet[87:80];lv_payload[14]=rg_packet[95:88];lv_payload[13]=rg_packet[103:96];lv_payload[12]=rg_packet[111:104];lv_payload[11]=rg_packet[119:112];lv_payload[10]=rg_packet[127:120];lv_payload[9]=rg_packet[135:128];lv_payload[8]=rg_packet[143:136];lv_payload[7]=rg_packet[151:144];	                      lv_payload[6]=rg_packet[159:152];lv_payload[5]=rg_packet[167:160];lv_payload[4]=rg_packet[175:168];lv_payload[3]=rg_packet[183:176];lv_payload[2]=rg_packet[191:184];lv_payload[1]=rg_packet[199:192];lv_payload[0]=rg_packet[207:200];
 
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                  $display("payload= %h",{lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                  $display("0x%h",{lv_payload[26],lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end  //6
                              
@@ -260,7 +560,7 @@ lv_payload[15]=rg_packet[87:80];lv_payload[14]=rg_packet[95:88];lv_payload[13]=r
 lv_payload[14]=rg_packet[87:80];lv_payload[13]=rg_packet[95:88];lv_payload[12]=rg_packet[103:96];lv_payload[11]=rg_packet[111:104];lv_payload[10]=rg_packet[119:112];lv_payload[9]=rg_packet[127:120];lv_payload[8]=rg_packet[135:128];lv_payload[7]=rg_packet[143:136];lv_payload[6]=rg_packet[151:144];	                      lv_payload[5]=rg_packet[159:152];lv_payload[4]=rg_packet[167:160];lv_payload[3]=rg_packet[175:168];lv_payload[2]=rg_packet[183:176];lv_payload[1]=rg_packet[191:184];lv_payload[0]=rg_packet[199:192];
 
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[25],lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end   //7
                              
@@ -271,7 +571,7 @@ lv_payload[14]=rg_packet[87:80];lv_payload[13]=rg_packet[95:88];lv_payload[12]=r
 lv_payload[13]=rg_packet[87:80];lv_payload[12]=rg_packet[95:88];lv_payload[11]=rg_packet[103:96];lv_payload[10]=rg_packet[111:104];lv_payload[9]=rg_packet[119:112];lv_payload[8]=rg_packet[127:120];lv_payload[7]=rg_packet[135:128];lv_payload[6]=rg_packet[143:136];lv_payload[5]=rg_packet[151:144];	                      lv_payload[4]=rg_packet[159:152];lv_payload[3]=rg_packet[167:160];lv_payload[2]=rg_packet[175:168];lv_payload[1]=rg_packet[183:176];lv_payload[0]=rg_packet[191:184];
 
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                $display("0x%h",{lv_payload[24],lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end     //8                                
       
@@ -282,7 +582,7 @@ lv_payload[13]=rg_packet[87:80];lv_payload[12]=rg_packet[95:88];lv_payload[11]=r
 lv_payload[12]=rg_packet[87:80];lv_payload[11]=rg_packet[95:88];lv_payload[10]=rg_packet[103:96];lv_payload[9]=rg_packet[111:104];lv_payload[8]=rg_packet[119:112];lv_payload[7]=rg_packet[127:120];lv_payload[6]=rg_packet[135:128];lv_payload[5]=rg_packet[143:136];lv_payload[4]=rg_packet[151:144];	                      lv_payload[3]=rg_packet[159:152];lv_payload[2]=rg_packet[167:160];lv_payload[1]=rg_packet[175:168];lv_payload[0]=rg_packet[183:176];
                             
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[23],lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end     //9
                
@@ -293,7 +593,7 @@ lv_payload[12]=rg_packet[87:80];lv_payload[11]=rg_packet[95:88];lv_payload[10]=r
 lv_payload[11]=rg_packet[87:80];lv_payload[10]=rg_packet[95:88];lv_payload[9]=rg_packet[103:96];lv_payload[8]=rg_packet[111:104];lv_payload[7]=rg_packet[119:112];lv_payload[6]=rg_packet[127:120];lv_payload[5]=rg_packet[135:128];lv_payload[4]=rg_packet[143:136];lv_payload[3]=rg_packet[151:144];	                      lv_payload[2]=rg_packet[159:152];lv_payload[1]=rg_packet[167:160];lv_payload[0]=rg_packet[175:168];
                              
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[22],lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end  //10
                              
@@ -304,7 +604,7 @@ lv_payload[11]=rg_packet[87:80];lv_payload[10]=rg_packet[95:88];lv_payload[9]=rg
 lv_payload[10]=rg_packet[87:80];lv_payload[9]=rg_packet[95:88];lv_payload[8]=rg_packet[103:96];lv_payload[7]=rg_packet[111:104];lv_payload[6]=rg_packet[119:112];lv_payload[5]=rg_packet[127:120];lv_payload[4]=rg_packet[135:128];lv_payload[3]=rg_packet[143:136];lv_payload[2]=rg_packet[151:144];	                      lv_payload[1]=rg_packet[159:152];lv_payload[0]=rg_packet[167:160];
                               
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                               $display("payload= %h",{lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                               $display("0x%h",{lv_payload[21],lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]}); 
                            end    //11
                              
@@ -315,7 +615,7 @@ lv_payload[10]=rg_packet[87:80];lv_payload[9]=rg_packet[95:88];lv_payload[8]=rg_
 lv_payload[9]=rg_packet[87:80];lv_payload[8]=rg_packet[95:88];lv_payload[7]=rg_packet[103:96];lv_payload[6]=rg_packet[111:104];lv_payload[5]=rg_packet[119:112];lv_payload[4]=rg_packet[127:120];lv_payload[3]=rg_packet[135:128];lv_payload[2]=rg_packet[143:136];lv_payload[1]=rg_packet[151:144];lv_payload[0]=rg_packet[159:152];
                              
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                $display("0x%h",{lv_payload[20],lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end     //12                               
       
@@ -326,7 +626,7 @@ lv_payload[9]=rg_packet[87:80];lv_payload[8]=rg_packet[95:88];lv_payload[7]=rg_p
 lv_payload[8]=rg_packet[87:80];lv_payload[7]=rg_packet[95:88];lv_payload[6]=rg_packet[103:96];lv_payload[5]=rg_packet[111:104];lv_payload[4]=rg_packet[119:112];lv_payload[3]=rg_packet[127:120];lv_payload[2]=rg_packet[135:128];lv_payload[1]=rg_packet[143:136];lv_payload[0]=rg_packet[151:144];	                      
                            
                             trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                             $display("payload= %h",{lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                             $display("0x%h",{lv_payload[19],lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end      //13
                
@@ -337,7 +637,7 @@ lv_payload[8]=rg_packet[87:80];lv_payload[7]=rg_packet[95:88];lv_payload[6]=rg_p
 lv_payload[7]=rg_packet[87:80];lv_payload[6]=rg_packet[95:88];lv_payload[5]=rg_packet[103:96];lv_payload[4]=rg_packet[111:104];lv_payload[3]=rg_packet[119:112];lv_payload[2]=rg_packet[127:120];lv_payload[1]=rg_packet[135:128];lv_payload[0]=rg_packet[143:136];
                               
                                  trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[18],lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end      //14
                              
@@ -348,7 +648,7 @@ lv_payload[7]=rg_packet[87:80];lv_payload[6]=rg_packet[95:88];lv_payload[5]=rg_p
 lv_payload[6]=rg_packet[87:80];lv_payload[5]=rg_packet[95:88];lv_payload[4]=rg_packet[103:96];lv_payload[3]=rg_packet[111:104];lv_payload[2]=rg_packet[119:112];lv_payload[1]=rg_packet[127:120];lv_payload[0]=rg_packet[135:128];
                               
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[17],lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end      //15
                              
@@ -359,7 +659,7 @@ lv_payload[6]=rg_packet[87:80];lv_payload[5]=rg_packet[95:88];lv_payload[4]=rg_p
 lv_payload[5]=rg_packet[87:80];lv_payload[4]=rg_packet[95:88];lv_payload[3]=rg_packet[103:96];lv_payload[2]=rg_packet[111:104];lv_payload[1]=rg_packet[119:112];lv_payload[0]=rg_packet[127:120];
                              
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[16],lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end      //16                               
       
@@ -370,7 +670,7 @@ lv_payload[5]=rg_packet[87:80];lv_payload[4]=rg_packet[95:88];lv_payload[3]=rg_p
 lv_payload[4]=rg_packet[87:80];lv_payload[3]=rg_packet[95:88];lv_payload[2]=rg_packet[103:96];lv_payload[1]=rg_packet[111:104];lv_payload[0]=rg_packet[119:112];
 
                                   trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                  $display("payload= %h",{lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                  $display("0x%h",{lv_payload[15],lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end      //17
                             
@@ -381,7 +681,7 @@ lv_payload[4]=rg_packet[87:80];lv_payload[3]=rg_packet[95:88];lv_payload[2]=rg_p
 lv_payload[3]=rg_packet[87:80];lv_payload[2]=rg_packet[95:88];lv_payload[1]=rg_packet[103:96];lv_payload[0]=rg_packet[111:104];
                              
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                               $display("payload= %h",{lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                               $display("0x%h",{lv_payload[14],lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end    //18
                              
@@ -392,7 +692,7 @@ lv_payload[3]=rg_packet[87:80];lv_payload[2]=rg_packet[95:88];lv_payload[1]=rg_p
 lv_payload[2]=rg_packet[87:80];lv_payload[1]=rg_packet[95:88];lv_payload[0]=rg_packet[103:96];
                              
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[13],lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end    //19
                              
@@ -403,7 +703,7 @@ lv_payload[2]=rg_packet[87:80];lv_payload[1]=rg_packet[95:88];lv_payload[0]=rg_p
 lv_payload[1]=rg_packet[87:80];lv_payload[0]=rg_packet[95:88];
                              
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                $display("0x%h",{lv_payload[12],lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                            end    //20                                 
       
@@ -414,7 +714,7 @@ lv_payload[1]=rg_packet[87:80];lv_payload[0]=rg_packet[95:88];
 lv_payload[0]=rg_packet[87:80];
                           
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                              $display("payload= %h",{lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                              $display("0x%h",{lv_payload[11],lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end     //21
                 
@@ -425,7 +725,7 @@ lv_payload[0]=rg_packet[87:80];
           lv_payload[10]=lv_header;lv_payload[9]=rg_packet[7:0];lv_payload[8]=rg_packet[15:8];lv_payload[7]=rg_packet[23:16];lv_payload[6]=rg_packet[31:24];lv_payload[5]=rg_packet[39:32];lv_payload[4]=rg_packet[47:40];lv_payload[3]=rg_packet[55:48];lv_payload[2]=rg_packet[63:56];lv_payload[1]=rg_packet[71:64];lv_payload[0]=rg_packet[79:72];
 
                                  trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[10],lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end  //22
                              
@@ -435,7 +735,7 @@ lv_payload[0]=rg_packet[87:80];
                            
                             lv_payload[9]=lv_header;lv_payload[8]=rg_packet[7:0];lv_payload[7]=rg_packet[15:8];lv_payload[6]=rg_packet[23:16];lv_payload[5]=rg_packet[31:24];lv_payload[4]=rg_packet[39:32];lv_payload[3]=rg_packet[47:40];lv_payload[2]=rg_packet[55:48];lv_payload[1]=rg_packet[63:56];lv_payload[0]=rg_packet[71:64];
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[9],lv_payload[8],lv_payload[7]
+                                $display("0x%h",{lv_payload[9],lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end   //23
                              
@@ -445,7 +745,7 @@ lv_payload[0]=rg_packet[87:80];
                               
                              lv_payload[8]=lv_header;lv_payload[7]=rg_packet[7:0];lv_payload[6]=rg_packet[15:8];lv_payload[5]=rg_packet[23:16];lv_payload[4]=rg_packet[31:24];lv_payload[3]=rg_packet[39:32];lv_payload[2]=rg_packet[47:40];lv_payload[1]=rg_packet[55:48];lv_payload[0]=rg_packet[63:56];  
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[8],lv_payload[7]
+                                 $display("0x%h",{lv_payload[8],lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end    //24                                
       
@@ -455,7 +755,7 @@ lv_payload[0]=rg_packet[87:80];
                               
                               lv_payload[7]=lv_header;lv_payload[6]=rg_packet[7:0];lv_payload[5]=rg_packet[15:8];lv_payload[4]=rg_packet[23:16];lv_payload[3]=rg_packet[31:24];lv_payload[2]=rg_packet[39:32];lv_payload[1]=rg_packet[47:40];lv_payload[0]=rg_packet[55:48];
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[7]
+                                 $display("0x%h",{lv_payload[7]
                                ,lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end    //25
                
@@ -465,7 +765,7 @@ lv_payload[0]=rg_packet[87:80];
                        
                              lv_payload[6]=lv_header;lv_payload[5]=rg_packet[7:0];lv_payload[4]=rg_packet[15:8];lv_payload[3]=rg_packet[23:16];lv_payload[2]=rg_packet[31:24];lv_payload[1]=rg_packet[39:32];lv_payload[0]=rg_packet[47:40];
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
+                                $display("0x%h",{lv_payload[6],lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end   //26
                              
                else if ( rg_packet[39:32] != lv_comp_var  ||  rg_packet[32] != rg_packet[31]   )begin 
@@ -474,7 +774,7 @@ lv_payload[0]=rg_packet[87:80];
                               
                             lv_payload[5]=lv_header;lv_payload[4]=rg_packet[7:0];lv_payload[3]=rg_packet[15:8];lv_payload[2]=rg_packet[23:16];lv_payload[1]=rg_packet[31:24];lv_payload[0]=rg_packet[39:32];
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                 $display("payload= %h",{lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
+                                 $display("0x%h",{lv_payload[5],lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end    //27
                              
                else if ( rg_packet[31:24] != lv_comp_var ||  rg_packet[24] != rg_packet[23]  )begin 
@@ -483,7 +783,7 @@ lv_payload[0]=rg_packet[87:80];
                    
                             lv_payload[4]=lv_header;lv_payload[3]=rg_packet[7:0];lv_payload[2]=rg_packet[15:8];lv_payload[1]=rg_packet[23:16];lv_payload[0]=rg_packet[31:24];
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                               $display("payload= %h",{lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
+                               $display("0x%h",{lv_payload[4],lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end       //28                               
       
                else if ( rg_packet[23:16] != lv_comp_var   ||  rg_packet[16] != rg_packet[15]   )begin
@@ -492,7 +792,7 @@ lv_payload[0]=rg_packet[87:80];
                    
                             lv_payload[3]=lv_header;lv_payload[2]=rg_packet[7:0];lv_payload[1]=rg_packet[15:8];lv_payload[0]=rg_packet[23:16];
                                trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                               $display("payload= %h",{lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
+                               $display("0x%h",{lv_payload[3],lv_payload[2],lv_payload[1],lv_payload[0]});
                           end     //29
                
                else if ( rg_packet[15:8] != lv_comp_var ||  rg_packet[8] != rg_packet[7]  )begin 
@@ -501,7 +801,7 @@ lv_payload[0]=rg_packet[87:80];
                    
                             lv_payload[2]=lv_header;lv_payload[1]=rg_packet[7:0];lv_payload[0]=rg_packet[15:8];
                                 trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                                $display("payload= %h",{lv_payload[2],lv_payload[1],lv_payload[0]});
+                                $display("0x%h",{lv_payload[2],lv_payload[1],lv_payload[0]});
                            end       //30                             
              else begin
                    let lv_size = 5'h1 ;
@@ -509,7 +809,7 @@ lv_payload[0]=rg_packet[87:80];
                     
                     lv_payload[1]=lv_header;lv_payload[0]=rg_packet[7:0];
                         trace_sink_buffer.enq(zeroExtend(lv_size + 1),lv_payload); 
-                         $display("payload= %h",{lv_payload[1],lv_payload[0]});
+                         $display("0x%h",{lv_payload[1],lv_payload[0]});
                           end      //31                                        
       
       // $display("trace_sink_buffer.count = %d ", trace_sink_buffer.count);
@@ -599,310 +899,17 @@ lv_payload[0]=rg_packet[87:80];
                      trace_sink_buffer.deq(unpack(zeroExtend(offset)));                                 
                  end               
             endrule   
-            
-            
-            rule compress( wr_compress_en == 1 || rg_Active == 0  ) ; 
-            
-             //$display("rule compress fired");
-            
-              //  wr_ingress_in_ready <= 1; 
-                  // $display("trace_interface_firing");          
-                        
-             if(rg_teEnable == 1 ) begin    
-                rg_prev <=  rg_curr ;   
-                rg_curr <=  rg_next ;     
-                rg_next <=  wr_trace_in ; end    
-               // $display("%d,%d,%d,%d,%h,%d,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize, rg_iTracing);end
-               // rg_next <=  unpack({ rg_iTracing, ilastsize,iretire, iaddr , priv , tval , cause, itype   }); end
-                //                                                
-               else begin  
-                  rg_prev <= unpack(0);   
-                  rg_curr <= unpack(0);     
-                  rg_next <= unpack(0);
-                end 
-                  
-                                               
-                rg_prev_trace_control <= rg_trace_control; 
-             
-                 SYNC_T lv_format = START; 
-		
-		 IEXCEPTION lv_iexception = IPREV ;
-		 Bit#(1) lv_thaddr =  0 ;
-		 Bit#(1) lv_en  = 0 ;
-		 Bit#(1) lv_with_address = 0 ; //rg_pac_gen
-		 Bit#(1) lv_pac_gen = 0 ;  
-		 Bit#(1) lv_which_packet  = 0;
-		 let lv_qual_status  = NO_CHANGE;
-			                      
-		 let lv_resyncmax = 1 << (rg_ResyncMax + 4); 
-		 let lv_branch = rg_curr.i_type == NON_TAKEN_BRANCH || rg_curr.i_type == TAKEN_BRANCH; //4,5           
-		 let lv_ppccd =  rg_curr.priv != rg_prev.priv;  
-		 let lv_ppccd_br = rg_next.priv !=rg_curr.priv; 
-		 let lv_is_branch=rg_curr.i_type ==  TAKEN_BRANCH;         
-		 let lv_resync_count_max = rg_resync_count == lv_resyncmax;  
-		 let lv_fast_branches = (lv_branch)? rg_branches +1 : rg_branches;  
-		 let lv_fast_branch_map = (!lv_is_branch && lv_branch)? rg_branch_map | 1 << rg_branches : rg_branch_map;  
-			 
-		 let lv_address_handler_nc_full = rg_curr.iaddr[63 :1];
-		 let lv_address_handler_nc_diff = (rg_curr.iaddr [63 :1] - rg_iaddr_last_reported[63 :1]);  
-		 let lv_addr_full = (rg_comp_ext== 0 ) ? signExtend(lv_address_handler_nc_full[62:1]) : lv_address_handler_nc_full;
-		 let lv_addr_diff = (rg_comp_ext== 0) ? signExtend(lv_address_handler_nc_diff[62:1]): lv_address_handler_nc_diff; 
-		 
-		 let lv_notify = lv_address_handler_nc_diff[62] ;            
-		 let lv_updiscon =pack((is_updiscons(rg_prev))&&(is_exceptions(rg_next)||(lv_ppccd)|| lv_resync_count_max ))^ lv_notify;
-		 let lv_irreport = lv_updiscon ; 
-		 
-		 //$display("rg_trace_control %h \n", rg_trace_control);
-			 //$display("rg_prev_trace_control %h \n", rg_prev_trace_control);
-		if(re_support_gen==1) begin
-		lv_pac_gen=1;
-		lv_format=SUPPORT;
-		lv_which_packet=1;
-		lv_qual_status=ENDED_REP;
-		re_support_gen<=1'b0;      
-		end
-
-		else if (rg_prev_trace_control != rg_trace_control) begin                     
-		if (rg_prev_trace_control[1]==1'b0 || rg_last_was_updiscon == 1'b1 ) begin   
-		  lv_pac_gen = 1; 
-		  lv_format= SUPPORT;                  
-		  lv_which_packet = 1;
-		  lv_qual_status=(rg_prev_trace_control[1]==1'b0)?NO_CHANGE:ENDED_NTR; 
-		end                     
-		else begin
-		  lv_pac_gen = 1;
-		  lv_with_address=1;
-		  lv_which_packet = 0;
-                  re_support_gen <=1;                    
-        end  
-                     
-      //   lv_qual_status = { rg_last_was_updiscon,rg_prev_trace_control[1]};    /**/
-            
-      //   $display("format 3,subformat 3 \n");
-        /*$display("rg_trace_control %h \n", rg_trace_control);
-        $display("rg_prev_trace_control %h \n", rg_prev_trace_control);
-        $display("lv_pac_gen %h \n", lv_pac_gen); 
-        $display("lv_format %h \n", lv_format); 
-        $display("lv_which_packet %h \n", lv_which_packet);*/
-      end
-
-      // else if ( re_support_gen == 1'b1 ) begin
-      //     lv_
-                                          
-      else if ( rg_curr.qual == 1 && rg_teEnable==1 ) begin 
-      /*  $display("inside encode \n" );            
-        $display(" rg_curr.iadd %h  \n" , rg_curr.iaddr);
-        $display(" rg_prev.iadd %h \n" , rg_prev.iaddr);
-        $display(" rg_curr.i_type %h  \n" , rg_curr.i_type);
-        $display(" rg_prev.i_type %h  \n" , rg_prev.i_type);
-        $display(" rg_curr.cause %h  \n" , rg_curr.cause);
-        $display(" rg_prev.cause %h  \n" , rg_prev.cause);
-        $display(" rg_iaddr_last_reported %h  \n" , rg_iaddr_last_reported);
-        $display(" rg_branches \n" , rg_branches);  
-        $display(" rg_branch_map \n" , rg_branch_map);*/
-                      
-                      
-        if(is_exceptions(rg_prev)) begin                      
-          if (is_exceptions(rg_curr)&& rg_curr.iretire == 0) begin  
-            rg_reported <= 1;  
-        		lv_pac_gen = 1; 
-            lv_format= TRAP;
-            lv_thaddr= 0 ; 
-            lv_which_packet = 1;  
-            lv_iexception = IPREV;
-          end
-                            
-          else begin
-            if (rg_reported == 1) begin 
-              rg_reported <= 0; 
-              lv_pac_gen = 1;
-              lv_format= START ;
-              lv_which_packet = 1;
-            end 
-                              
-            else begin
-              lv_pac_gen = 1;
-              lv_format= TRAP ;
-              lv_thaddr= 1; 
-              lv_which_packet = 1; 
-              lv_iexception = IPREV;
-            end        
-          end                                
-        end
-                        
-        else if (lv_ppccd || rg_resync_count > lv_resyncmax || ((rg_curr.qual == 1  && rg_prev.qual ==0) && (rg_iaddr_last_reported != rg_curr.iaddr))  ) begin                    
-          
-          lv_pac_gen = 1;
-          lv_format= START ;
-          lv_which_packet = 1;                                                                 
-        end
-                                                    
-        else if (is_updiscons(rg_prev)) begin                            
-          if (is_exceptions(rg_curr) && rg_curr.iretire == 0  ) begin                     
-            rg_reported <= 1;
-            lv_pac_gen = 1;
-            lv_format= TRAP ; 
-            lv_thaddr= 0 ; 
-            lv_which_packet = 1; 
-            lv_iexception = ICURR;
-          end
-          else begin 
-            lv_pac_gen = 1; 
-            lv_with_address=1;  
-            lv_which_packet = 0;                                       
-          end  
-        end                  
-        
-        else if ((lv_resync_count_max && (lv_fast_branches !=0)) || (rg_curr.iretire > 0  &&(is_exceptions(rg_curr)))) begin                                  
-		      lv_pac_gen = 1;
-		      lv_with_address=1;
-		      lv_which_packet = 0;
-		                     
-        end 
-        else if  ((is_exceptions(rg_next) && rg_next.iretire == 0)|| lv_ppccd_br) begin
-          lv_pac_gen = 1;                     
-          lv_with_address=1; 
-          lv_which_packet = 0;
-                        
-        end                                                     
-        else if (lv_fast_branches == 31 ) begin   
-         	lv_pac_gen = 1;
-         	lv_with_address=0; 
-         	lv_which_packet = 0;                                              
-        end   
-      end 
-                      
-                                      
-        if (lv_pac_gen == 1) begin 
-                    
-          rg_enque_sink_buff[1] <= 1;
-                                           
-          if ( lv_which_packet == 1 && (lv_format == START || lv_format == TRAP)) begin 
-            rg_resync_count<=0; 
-            rg_iaddr_last_reported<=rg_curr.iaddr; 
-          end 
-          else begin rg_resync_count <= rg_resync_count+1; 
-            //$display("resync count %d", rg_resync_count);    
-          end                           
-                                           
-          if (lv_which_packet == 1 ) begin  
-                
-            Bit#(1) lv_br_pac = (lv_branch && lv_is_branch)? 0 : 1;                                      
-                                                  
-            case(lv_format)
-              START: begin				    				              
-                  rg_packet <= signExtend({lv_addr_full,32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
-                  //$display("%d",rg_test_count +3," rg_packet:- %h", rg_packet);
-                  //$display("%d",rg_test_count," format3, subformat 0 ");
-                  $display("%d,%d,%h,%d,_,_,_,_,0,_,_,_,_,_,_,_,_,%d,_,_,_,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac,pack(rg_curr.priv));					   
-                    rg_test_count <= rg_test_count + 1;					    
-              end
-            
-              TRAP: begin  
-                  // $display("%d",rg_test_count," format3,, subformat 1 ");
-                  let lv_iexception_reg = (lv_iexception == IPREV)? rg_prev : rg_curr;       
-                  if (lv_iexception_reg.i_type==INTERRUPT)begin
-                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,_,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b1,pack(rg_curr.priv)[1:0],lv_thaddr);
-                    rg_packet <= signExtend({lv_addr_full,lv_thaddr,1'b1,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
-                  end 		                 
-                  else  begin 
-                    $display("%d,%d,%h,%d,_,_,_,_,0,%d,_,_,%d,_,_,_,_,%d,_,_,%d,%h,_,_,_,_",2'b11,pack(lv_format),lv_addr_full,lv_br_pac ,pack(lv_iexception_reg.cause),1'b0,pack(rg_curr.priv)[1:0],lv_thaddr,pack(rg_curr.tval));
-                    rg_packet <= signExtend({pack(rg_curr.tval),lv_addr_full,lv_thaddr,1'b0,{1'b0,pack(lv_iexception_reg.cause)},32'b0,pack(rg_curr.priv)[1:0],lv_br_pac,pack(lv_format),2'b11});
-                  end  
-                  rg_test_count <= rg_test_count + 1;
-              end
-                
-              CONTEXT: begin	 // unusable right now
-                rg_packet <= signExtend({pack(rg_curr.priv)[1:0],pack(lv_format),2'b11});
-                //  $display("%d",rg_test_count+3," format3, , subformat 2 ");
-                $display("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",2'b11,pack(lv_format),lv_addr_full,lv_is_branch);
-                  rg_test_count <= rg_test_count + 1;
-              end
-              
-              SUPPORT: begin
-                rg_packet <= signExtend({1'b0,pack(lv_qual_status),1'b0,rg_teEnable,pack(lv_format),2'b11});
-                //$display("%d",rg_test_count," format3, , subformat 3 ");
-                $display("%d,%d,_,_,_,_,_,_,_,_,%d,%d,_,_,_,_,%d,_,%d,_,_,_,_,_,_,_",2'b11,pack(lv_format),rg_teEnable,1'b0,1'b0,pack(lv_qual_status));//pack(rg_curr.qual));
-                rg_test_count <= rg_test_count + 1;
-              end
-      
-            endcase
-          end 
-          else   begin                                
-                                // $display("rg_branches           %d" ,rg_branches );
-                                  //$display("rg_branch_map %d" ,rg_branch_map );                                 
-            if(lv_with_address ==1) begin   
-              rg_iaddr_last_reported<=rg_curr.iaddr;
-              if (lv_fast_branches !=0 ) begin // Create branch packet WITH address 
-                //$display("%d",rg_test_count," format1, Create branch packet WITH address");
-                rg_test_count <= rg_test_count + 1;
-                rg_branches <=0;
-                rg_branch_map <=0;         	
-                if(lv_fast_branches[4]==1) begin	
-                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map,lv_fast_branches,2'b1});	
-                $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
-                end
-                else if(lv_fast_branches[3]==1) begin
-                  rg_packet <=  signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[14:0],lv_fast_branches,2'b1});						
-                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[3:0],lv_fast_branch_map[14:0],lv_irreport,lv_notify,lv_updiscon);
-                end
-                else if(lv_fast_branches[2]==1) begin
-                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[6:0],lv_fast_branches,2'b1});						
-                      $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[2:0],lv_fast_branch_map[6:0],lv_irreport,lv_notify,lv_updiscon);
-                end	
-                else if(lv_fast_branches[1]==1) begin
-                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[2:0],lv_fast_branches,2'b1}); 
-                $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[1:0],lv_fast_branch_map[2:0],lv_irreport,lv_notify,lv_updiscon);
-                end
-                else begin
-                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[0],lv_fast_branches,2'b1}); 
-                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches[0],lv_fast_branch_map[0],lv_irreport,lv_notify,lv_updiscon);
-                  
-                /*for (Integer i = 0; i<5; i = i + 1) begin	  
-                if(lv_fast_branches[i]==1) begin	
-                  rg_packet <= signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,lv_fast_branch_map[(ei-1):0],lv_fast_branches,2'b1});	
-                  $display("%d,_,%h,_,%d,%d,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b1,lv_addr_diff,lv_fast_branches,lv_fast_branch_map,lv_irreport,lv_notify,lv_updiscon);
-                
-                end*/
-                end
-		          end
-              else begin  // Address, without a branch-map
-                //  $display("%d",rg_test_count," format2, Create address packet");	
-                rg_packet <=signExtend({lv_irreport,lv_updiscon,lv_notify,lv_addr_diff,2'b10});
-                $display("%d,_,%h,_,_,_,_,_,_,_,_,_,_,%d,_,%d,_,_,_,_,_,_,%d,_,_,_",2'b10,lv_addr_diff,lv_irreport,lv_notify,lv_updiscon); 		                  	
-                rg_test_count <= rg_test_count + 1;
-              end 
-		        end  	 
-        
-            else begin //Create branch packet WITHOUT address
-              //$display("%d",rg_test_count," format1, Create branch packet WITHOUT address");
-                  rg_test_count <= rg_test_count + 1;
-                  rg_branches <=0;
-                  rg_branch_map <=0;
-                  rg_packet <=  signExtend({lv_fast_branch_map,5'b0,2'b1});
-              $display("%d,_,_,_,0,%d,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_",2'b1,lv_fast_branch_map);
-            end
-	        end 
-	              	               	              	
-	      end 
-        else if(lv_branch && rg_curr.qual == 1 )begin   
-          rg_branches <= rg_branches + 1;               
-          if (!lv_is_branch) begin  
-            rg_branch_map <= rg_branch_map | 1 << rg_branches; 
-          end                                             
-        end                  
-            
-      endrule 
                    
                       
      
        method Action trace_interface(Bit#(4) itype ,Bit#(4) cause,Bit#(64) tval,Bit#(3) priv,Bit#(64) iaddr,Bit#(2) iretire,Bit#(1) ilastsize) if(rg_Active == 1);
-        Bit#(1) lv_filter = 1;  
-                     // if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
-                     //     lv_filter = 1 ;                      
-                    //  end
-          //$display("trace_interface fired");
+        Bit#(1) lv_filter = 0;  
+                      if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
+                          lv_filter = 1 ; 
+                          //wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) });                      
+                      end
            wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) }); 
+           // $display("inside trace interface:-  %d,%d,%d,%d,%h,0,0,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize);
            wr_compress_en <= 1; 
          
      endmethod 
@@ -1107,7 +1114,7 @@ interface Ifc_trace_axi4lite#(numeric type addr_width,numeric type id_width, num
                      
   //                    let {resp_1,data}  <- trace.read_req(32'h0000_0010);//,2'h3);
   //                    if (resp_1)begin 
-  //                    $display("%h", data);end  
+  //                    $display("%d", data);end  
                     
 
   //                count<= count + 1;
@@ -1137,4 +1144,3 @@ interface Ifc_trace_axi4lite#(numeric type addr_width,numeric type id_width, num
 // Added if statement for re_suppport_packet
 // Added rg_teEnable == 1 ocndition with rg_curr.qual == 1
  
-
