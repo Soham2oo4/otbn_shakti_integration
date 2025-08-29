@@ -28,7 +28,7 @@ package Soc;
    `endif
   import csrbox :: * ;
    `ifdef etrace_support
-       import trace :: * ;
+       import instruction_encoder :: * ;
    `endif
   import pipe_ifcs::*;
 
