@@ -250,6 +250,13 @@ generate_boot_files: ## to generate boot files for simulation
     else cp bin/boot.MSB bin/boot.LSB;\
   fi
 
+.PHONY: generate_tsoc_boot_files
+generate_tsoc_boot_files: ## to generate boot files for simulation
+	@echo "XLEN=128" > boot/Makefile.inc
+	@mkdir -p bin
+	@cd boot/; make;
+	@head -n 4096 boot/boot.hex > bin/bootfile
+
 .PHONY: ip_build
 ip_build: ## build Xilinx Core-IPs used in this project
 	vivado -log ipbuild.log -nojournal -mode tcl -notrace -source $(TOP_DIR)/tcl/create_ip_project.tcl \
