@@ -177,14 +177,14 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   `ifdef etrace_support
     IFC_ingress ingress_port <- mkingress();
     
-    Wire#(Bit#(1)) wr_trap_ingress <- mkDWire(0);
-    
-       
-    Wire#(Bit#(4)) wr_trapout_ingress_cause <- mkDWire(0);
-    Wire#(Bit#(64)) wr_trapout_ingress_mtval <- mkDWire(0);
-    Wire#(Bit#(1)) wr_trapout_ingress_cause_msb <- mkDWire(0);
-    Wire#(Bit#(1)) wr_trapout_ingress_is_microtrap <- mkDWire(0);
-    
+     Reg#(Bit#(1)) rg_trap_ingress <- mkReg(0);
+
+     Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkReg(0);
+     Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkReg(0);
+     Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkReg(0);
+     Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkReg(0);
+     Reg#(CUid)      rg_fuid <- mkReg(unpack(0));    
+     Reg#(Bit#(14)) rg_ingress_opcode <- mkReg(0);
      Wire#(Bit#(3)) wr_itype <- mkWire(); 
      Wire#(Bit#(4)) wr_cause <- mkWire(); 
      Wire#(Bit#(64)) wr_tval <- mkWire(); 
@@ -194,15 +194,16 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
      Wire#(Bit#(1)) wr_ilastsize <- mkWire();
     
     
-    rule rl_ingress_conn( (rx_fuid.u.first.insttype == TRAP && wr_trapout_ingress_is_microtrap == 0) || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  (rx_fuid.u.first.insttype == MEMORY && pack(rg_ioop_init) ==0) ); 
+    rule rl_ingress_conn((rg_fuid.insttype == TRAP && rg_trapout_ingress_is_microtrap == 0) || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  (rg_fuid.insttype == MEMORY && pack(rg_ioop_init) ==0) ); 
     // $display("ingress firing cond",rx_fuid.u.first.insttype);
    if (epochs_match ) begin
-     let fuid_ingress = rx_fuid.u.first;     
+    let fuid_ingress = rg_fuid;     
     Bit#(2) priv_in =pack(csr.mv_prv);  
-    let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rx_ingress_opcode.u.first, fuid_ingress.rd,wr_trapout_ingress_cause, wr_trapout_ingress_mtval, priv_in, fuid_ingress.pc,wr_trapout_ingress_cause_msb , wr_trap_ingress);
-      // $display("ingress_out_ready");
-    // $display( "itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")  ; 
-    // $display("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize);      
+    rg_ingress_opcode     <= rx_ingress_opcode.u.first; 
+    let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress);
+      $display("ingress_out_ready");
+    $display( "itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")  ; 
+    $display("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize);      
       wr_itype             <=   itype;
       wr_cause             <=   cause;
       wr_tval              <=   tval;
@@ -214,7 +215,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
       
   endrule
      
- rule rl_ingress_conn_deq( rx_fuid.u.first.insttype == TRAP || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  rx_fuid.u.first.insttype == MEMORY);   
+ rule rl_ingress_conn_deq( rg_fuid.insttype == TRAP || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  rg_fuid.insttype == MEMORY);   
     rx_ingress_opcode.u.deq;
      endrule
  
@@ -229,12 +230,13 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   rule rl_writeback_trap(rx_fuid.u.first.insttype == TRAP );
     let trapout = rx_trapout.u.first;
     let fuid = rx_fuid.u.first;
-   `ifdef etrace_support     
-     wr_trapout_ingress_cause <= truncate(trapout.cause);
-     wr_trapout_ingress_mtval <= trapout.mtval; 
-     wr_trapout_ingress_cause_msb <= truncateLSB(trapout.cause);
-     wr_trapout_ingress_is_microtrap <= pack(trapout.is_microtrap);   
-     `endif
+   `ifdef etrace_support 
+     rg_fuid <= rx_fuid.u.first;       
+     rg_trapout_ingress_cause <= truncate(trapout.cause);
+     rg_trapout_ingress_mtval <= trapout.mtval; 
+     rg_trapout_ingress_cause_msb <= truncateLSB(trapout.cause);
+     rg_trapout_ingress_is_microtrap <= pack(trapout.is_microtrap);
+   `endif
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : Trap: ",hartid, fshow(trapout)))
     wr_commit <= CommitData{addr: fuid.rd, data: ?, unlock_only:True
@@ -264,7 +266,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
       end
       else `endif begin
       `ifdef etrace_support
-        wr_trap_ingress <= 1; 
+        rg_trap_ingress <= 1;
         `endif
         let tvec <- csr.mav_upd_on_trap(trapout.cause, fuid.pc, trapout.mtval 
           `ifdef hypervisor , trapout.mtval2 `endif );
@@ -289,7 +291,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     end
     else begin
     `ifdef etrace_support
-    wr_trap_ingress <= 1;
+    rg_trap_ingress <= 1;
     `endif
       `logLevel( stage5, 0, $format("[%2d]STAGE5 : Dropping instruction",hartid))
       rx_trapout.u.deq;
@@ -307,6 +309,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   rule rl_writeback_system(rx_fuid.u.first.insttype == SYSTEM ) ;
     let systemout = rx_systemout.u.first;
     let fuid = rx_fuid.u.first;
+   `ifdef etrace_support     
+     rg_fuid <= rx_fuid.u.first;   
+   `endif
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : ",hartid, fshow(systemout)))
     Bool exit = False;
@@ -383,6 +388,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   * CommitLogMem for Loads which has to be passed on as is to the test-bench*/
   rule rl_writeback_baseout(rx_fuid.u.first.insttype == BASE);
     let fuid = rx_fuid.u.first;
+   `ifdef etrace_support     
+     rg_fuid <= rx_fuid.u.first;   
+   `endif
     let baseout = rx_baseout.u.first;
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,rx_fuid.u.first.pc))
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : Base Op ",hartid, fshow(baseout)))
@@ -428,6 +436,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   rule rl_writeback_memop(rx_fuid.u.first.insttype == MEMORY );
     let memop = rx_memio.u.first;
     let fuid = rx_fuid.u.first;
+   `ifdef etrace_support     
+     rg_fuid <= rx_fuid.u.first;   
+   `endif
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
   `ifdef rtldump
     let clogpkt = rx_commitlog.u.first;
