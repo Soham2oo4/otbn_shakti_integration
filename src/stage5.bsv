@@ -177,14 +177,14 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   `ifdef etrace_support
     IFC_ingress ingress_port <- mkingress();
     
-     Reg#(Bit#(1)) rg_trap_ingress <- mkReg(0);
+     Reg#(Bit#(1)) rg_trap_ingress <- mkDReg(0);
 
-     Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkReg(0);
-     Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkReg(0);
-     Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkReg(0);
-     Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkReg(0);
-     Reg#(CUid)      rg_fuid <- mkReg(unpack(0));    
-     Reg#(Bit#(14)) rg_ingress_opcode <- mkReg(0);
+     Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkDReg(0);
+     Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkDReg(0);
+     Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkDReg(0);
+     Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkDReg(0);
+     Reg#(CUid)      rg_fuid <- mkDReg(unpack(0));    
+     Reg#(Bit#(14)) rg_ingress_opcode <- mkDReg(0);
      Wire#(Bit#(3)) wr_itype <- mkWire(); 
      Wire#(Bit#(4)) wr_cause <- mkWire(); 
      Wire#(Bit#(64)) wr_tval <- mkWire(); 
@@ -199,8 +199,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
    if (epochs_match ) begin
     let fuid_ingress = rg_fuid;     
     Bit#(2) priv_in =pack(csr.mv_prv);  
-    rg_ingress_opcode     <= rx_ingress_opcode.u.first; 
+    rg_ingress_opcode     <= rx_ingress_opcode.u.first;
     let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress);
+        $display("sending..... ingress_opcode:%h, fuid.rd:%h,trapout_ingress_cause:%h, trapout_ingress_mtval:%h, priv_in:%h, fuid.pc:%h,trapout_ingress_cause_msb:%h , trap_ingress:%h",rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress); 
       $display("ingress_out_ready");
     $display( "itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")  ; 
     $display("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize);      
