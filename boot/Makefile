@@ -33,8 +33,8 @@ append8:
 .PHONY: append16
 append16:
 	@printf '0182b283f14025730202859300000297\n00000000800000000000000000028067\n' | cat - boot.hex > temp && mv temp boot.hex
-	@for number in $$(seq 1 8127) ; do \
-    echo "0000000000000000" >> boot.hex; \
+	@for number in $$(seq 1 8118) ; do \
+    echo "00000000000000000000000000000000" >> boot.hex; \
   done;
 
 .PHONY: create_hex
@@ -48,7 +48,12 @@ endif
 	@head -n -1 config.c-class > 1
 	@mv 1 config.c-class
 ifeq ($(XLEN),128)
-	@cat config.c-class| awk '{print $$5 $$4 $$3 $$2}' > temp
+	@cat config.c-class | awk '{print $$5 $$4 $$3 $$2}' > temp
+	@head -n -1 temp > 1
+	@echo -n "000000000000" > 2
+	@tail -n 1 temp | cut -b11-30 >> 2
+	@cat 1 2 > temp
+	@rm 1 2
 endif
 ifeq ($(XLEN),64)
 	@cat config.c-class| awk '{print $$3 $$2}' > temp

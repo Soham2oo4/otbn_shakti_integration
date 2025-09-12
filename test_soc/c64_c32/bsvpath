@@ -19,6 +19,7 @@ devices/bram
 devices/riscvdebug100
 devices/jtagdtm/
 devices/err_slave
-devices/riscv-etrace
+devices/riscv-etrace/instruction_trace
+devices/riscv-etrace/data_trace
 common_bsv/
 common_verilog/bsvwrappers/
