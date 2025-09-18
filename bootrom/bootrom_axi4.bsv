@@ -36,7 +36,7 @@ package bootrom_axi4;
   // to make it synthesizable replace addr_width with Physical Address width
   // data_width with data lane width
   module mkbootrom#(parameter Integer slave_base)(UserInterface#(addr_width, data_width, index_size))
-    provisos(Add#(data_width, a, `ifndef axi4_128b 64 `else 128 `endif ),
+    provisos(Add#(data_width, a, `buswidth ),
              Mul#(8, a__, data_width), // data_width should always be multiple of 8, 16 and 32.
              Mul#(16, b__, data_width),
              Mul#(32, c__, data_width));
@@ -46,7 +46,7 @@ package bootrom_axi4;
 
     BRAM_PORT#(Bit#(index_size), Bit#(data_width)) boot <- mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "bootfile", False);
     Reg#(Bool) read_request_sent <-mkDRegA(False);
-    Reg#(Tuple2#(Bit#(TAdd#(1,TDiv#(data_width,32))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
+    Reg#(Tuple2#(Bit#(TAdd#(1,(TLog#(TDiv#(data_width, 8))))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
     `ifdef fesvr_sim
       Reg#(Bit#(1)) rg_initialized <- mkRegA(0);
     `endif
@@ -98,7 +98,7 @@ package bootrom_axi4;
 
   module mkbootrom_axi4#(parameter Integer slave_base)(Ifc_bootrom_axi4#(addr_width, id_width, data_width,
                                                                           user_width, index_width))
-    provisos(Add#(data_width, a, `ifndef axi4_128b 64 `else 128 `endif ),
+    provisos(Add#(data_width, a, `buswidth),
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width),
@@ -163,8 +163,10 @@ package bootrom_axi4;
     rule read_response;
       let {err, data0}<-dut.read_response;
       let transfer_size=rg_read_packet.arsize;
-
-      Bit#(data_width) data_extracted = truncate((data0) >> ({rg_read_packet.araddr[3:0], 3'b000}));
+      
+       Bit#(TLog#(data_width)) shift_amt = {rg_read_packet.araddr[byte_offset-1:0],3'b000};         
+     
+      Bit#(data_width) data_extracted = data0 >>  shift_amt;
       data_extracted =case (transfer_size)
               0 : duplicate(data_extracted[7:0]);
               1 : duplicate(data_extracted[15:0]);
