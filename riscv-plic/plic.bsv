@@ -29,8 +29,13 @@ function Bit#(m) reSize (Bit#(n) din) provisos( Add#(m,n,mn) );
 endfunction:reSize
 
 function Bit#(2) strb2size_2(Bit#(n) strb)
-    provisos(Add#(a__, n,  TDiv#(`buswidth, 8)));
+  `ifndef axi4_128b
+    provisos(Add#(a__, n, 8));
     Bit#(8) _t = zeroExtend(strb);
+  `else
+    provisos(Add#(a__, n, 16));
+    Bit#(16) _t = zeroExtend(strb);
+  `endif
   Bool isSz4 = ((_t>>3)&_t) != 0;
   Bool isSz2 = ((_t>>1)&_t) != 0;
   if (&_t == 1) return 3;
@@ -38,6 +43,8 @@ function Bit#(2) strb2size_2(Bit#(n) strb)
   else if (isSz2) return 1;
   else return 0;
 endfunction
+
+
 
 
 
