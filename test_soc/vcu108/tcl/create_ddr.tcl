@@ -35,7 +35,7 @@ set_property -dict [list \
       CONFIG.C0.DDR4_CustomParts                  {no_file_loaded} \
       CONFIG.C0.DDR4_DIVCLK_DIVIDE                {2} \
       CONFIG.C0.DDR4_DataMask                     {DM_NO_DBI} \
-      CONFIG.C0.DDR4_DataWidth                    {128} \
+      CONFIG.C0.DDR4_DataWidth                    {64} \
       CONFIG.C0.DDR4_Ecc                          {false} \
       CONFIG.C0.DDR4_MCS_ECC                      {false} \
       CONFIG.C0.DDR4_Mem_Add_Map                  {ROW_COLUMN_BANK} \
