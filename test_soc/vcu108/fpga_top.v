@@ -119,7 +119,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire [2:0]                        c0_ddr4_s_axi_awprot;
   wire                              c0_ddr4_s_axi_awvalid;
   wire                              c0_ddr4_s_axi_awready;    
-  wire [63:0]                       c0_ddr4_s_axi_wdata;
+  wire [127:0]                       c0_ddr4_s_axi_wdata;
   wire [7:0]                        c0_ddr4_s_axi_wstrb;
   wire                              c0_ddr4_s_axi_wlast;
   wire                              c0_ddr4_s_axi_wvalid;
@@ -140,7 +140,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire                              c0_ddr4_s_axi_arready;    
   wire                              c0_ddr4_s_axi_rready;
   wire [AXI_ID_WIDTH-1:0]           c0_ddr4_s_axi_rid;
-  wire [63:0]                      c0_ddr4_s_axi_rdata;
+  wire [127:0]                      c0_ddr4_s_axi_rdata;
   wire [1:0]                        c0_ddr4_s_axi_rresp;
   wire                              c0_ddr4_s_axi_rlast;
   wire                              c0_ddr4_s_axi_rvalid;   
@@ -155,7 +155,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire [2:0]                        s_axi_awprot;
   wire                              s_axi_awvalid;
   wire                              s_axi_awready;    
-  wire [63:0]                       s_axi_wdata;
+  wire [127:0]                       s_axi_wdata;
   wire [7:0]                        s_axi_wstrb;
   wire                              s_axi_wlast;
   wire                              s_axi_wvalid;
@@ -176,7 +176,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire                              s_axi_arready;
   wire                              s_axi_rready;
   wire [AXI_ID_WIDTH-1:0]           s_axi_rid;
-  wire [63:0]                       s_axi_rdata;
+  wire [127:0]                       s_axi_rdata;
   wire [1:0]                        s_axi_rresp;
   wire                              s_axi_rlast;
   wire                              s_axi_rvalid;   
