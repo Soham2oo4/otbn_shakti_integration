@@ -120,7 +120,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire                              c0_ddr4_s_axi_awvalid;
   wire                              c0_ddr4_s_axi_awready;    
   wire [127:0]                       c0_ddr4_s_axi_wdata;
-  wire [7:0]                        c0_ddr4_s_axi_wstrb;
+  wire [15:0]                        c0_ddr4_s_axi_wstrb;
   wire                              c0_ddr4_s_axi_wlast;
   wire                              c0_ddr4_s_axi_wvalid;
   wire                              c0_ddr4_s_axi_wready;   
@@ -156,7 +156,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire                              s_axi_awvalid;
   wire                              s_axi_awready;    
   wire [127:0]                       s_axi_wdata;
-  wire [7:0]                        s_axi_wstrb;
+  wire [15:0]                        s_axi_wstrb;
   wire                              s_axi_wlast;
   wire                              s_axi_wvalid;
   wire                              s_axi_wready;
