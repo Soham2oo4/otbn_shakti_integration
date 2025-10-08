@@ -874,15 +874,15 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
       Bit#(TLog#(nabstractdata)) index = resize(offset-fromInteger(`DATA)>>2);
       data = duplicate(v_data_reg[index]);
-      if (req.arsize==3)
-        data[63:32] = v_data_reg[index+1];
+      //if (req.arsize==3)
+      //  data[63:32] = v_data_reg[index+1];
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
       `ifndef axi4_128b
         data = duplicate(v_progbuf_reg[index]);
-        if (req.arsize==3)
-          data[63:32] = v_progbuf_reg[index+1];
+        //if (req.arsize==3)
+        //  data[63:32] = v_progbuf_reg[index+1];
       `else
         // Note: for 128-bit bus width
         // TODO: non-power-of-2

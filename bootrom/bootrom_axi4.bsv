@@ -102,7 +102,7 @@ package bootrom_axi4;
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width),
-             Mul#(64, e__, data_width),
+             //Mul#(64, e__, data_width),
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
     AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
@@ -171,7 +171,7 @@ package bootrom_axi4;
               0 : duplicate(data_extracted[7:0]);
               1 : duplicate(data_extracted[15:0]);
               2 : duplicate(data_extracted[31:0]);
-              3 : duplicate(data_extracted[63:0]);
+              //3 : duplicate(data_extracted[63:0]);
                 default: data_extracted; 
 		    endcase;	
   
