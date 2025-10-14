@@ -2,6 +2,7 @@ include ./makefile.inc
 
 ISA=RV64IMAFDCSU
 JOBS:=$(shell nproc)
+buswidth := $(word 2,$(subst =, ,$(filter buswidth=%,$(BSC_DEFINES))))
 SHAKTI_HOME:=$(CURDIR)
 
 WORKING_DIR := $(shell pwd)
@@ -32,6 +33,15 @@ else ifeq ($(BOARD), vcu118)
 else ifeq ($(BOARD), vcu108)
 	FPGA:=xcvu095-ffva2104-2-e
 	MCS:=false
+endif
+
+
+ifeq ($(buswidth), 128)
+  BUS_WIDTH:=BUS_WIDTH128
+else ifeq ($(buswidth), 64)
+  BUS_WIDTH:=BUS_WIDTH64
+else ifeq ($(buswidth), 32)
+  BUS_WIDTH:=BUS_WIDTH32
 endif
 
 # ------------------------------------- Makefile TARGETS ----------------------------------------- #
@@ -260,12 +270,12 @@ generate_tsoc_boot_files: ## to generate boot files for simulation
 .PHONY: ip_build
 ip_build: ## build Xilinx Core-IPs used in this project
 	vivado -log ipbuild.log -nojournal -mode tcl -notrace -source $(TOP_DIR)/tcl/create_ip_project.tcl \
-		-tclargs $(FPGA) $(XLEN) $(ISA) $(JOBS) \
+		-tclargs $(FPGA) $(XLEN) $(ISA) $(JOBS) $(buswidth) \
 		|| (echo "Could not create IP project"; exit 1)
 
 .PHONY: board_build
 board_build:
-	vivado -nojournal -nolog -mode tcl -notrace -source $(TOP_DIR)/tcl/create_project.tcl -tclargs fpga_top $(FPGA) $(ISA) $(JTAG_TYPE) $(VERILOGDIR)\
+	vivado -nojournal -nolog -mode tcl -notrace -source $(TOP_DIR)/tcl/create_project.tcl -tclargs fpga_top $(FPGA) $(ISA) $(JTAG_TYPE) $(VERILOGDIR) $(BUS_WIDTH)\
 	|| (echo "Could not create core project"; exit 1)
 	vivado -nojournal -log artybuild.log -notrace -mode tcl -source $(TOP_DIR)/tcl/run.tcl \
 		-tclargs $(JOBS) || (echo "ERROR: While running synthesis")

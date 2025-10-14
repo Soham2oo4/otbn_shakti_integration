@@ -19,7 +19,7 @@ set_property -dict [list \
       CONFIG.C0.DDR4_AutoPrecharge                {false} \
       CONFIG.C0.DDR4_AxiAddressWidth              {31} \
       CONFIG.C0.DDR4_AxiArbitrationScheme         {RD_PRI_REG} \
-      CONFIG.C0.DDR4_AxiDataWidth                 {128} \
+      CONFIG.C0.DDR4_AxiDataWidth                 $bus_width \
       CONFIG.C0.DDR4_AxiIDWidth                   {4} \
       CONFIG.C0.DDR4_AxiNarrowBurst               {true} \
       CONFIG.C0.DDR4_AxiSelection                 {true} \
