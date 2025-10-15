@@ -30,7 +30,7 @@ endfunction:reSize
 
 function Bit#(2) strb2size_2(Bit#(n) strb)
     provisos(Add#(a__, n,  TDiv#(`buswidth, 8)));
-    Bit#(8) _t = zeroExtend(strb);
+    Bit#(TDiv#(`buswidth, 8)) _t = zeroExtend(strb);
   Bool isSz4 = ((_t>>3)&_t) != 0;
   Bool isSz2 = ((_t>>1)&_t) != 0;
   if (&_t == 1) return 3;
