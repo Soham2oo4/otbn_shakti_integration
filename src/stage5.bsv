@@ -194,12 +194,8 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
      Wire#(Bit#(1)) wr_iretire <- mkWire(); 
      Wire#(Bit#(1)) wr_ilastsize <- mkWire();
     
-    
-    rule rl_ingress_conn(rg_fuid.insttype == TRAP  || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  (rg_fuid.insttype == MEMORY) /* && rg_deq_done */); 
-    $display("ingress firing cond",rx_fuid.u.first.insttype);
-    rg_deq_done <= False;     
-    if ((!(rg_fuid.insttype == TRAP) || (rg_fuid.insttype == TRAP && rg_trapout_ingress_is_microtrap == 0)) || (!(rg_fuid.insttype == MEMORY) || (rg_fuid.insttype == MEMORY && pack(rg_ioop_init) ==0)) ) 
-    begin
+    rule rl_ingress_conn(rx_fuid.u.first.insttype == TRAP || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  rx_fuid.u.first.insttype == MEMORY);     
+    $display("ingress firing cond",rg_fuid.insttype);
     // run the block
    if (epochs_match ) begin
     let fuid_ingress = rg_fuid;
@@ -216,16 +212,14 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
       wr_iaddr             <=   iaddr;
       wr_iretire           <=   iretire;
       wr_ilastsize         <=   ilastsize;   
-    end         
     end  
   endrule
      
- rule rl_ingress_conn_deq( (rg_fuid.insttype == TRAP || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  rg_fuid.insttype == MEMORY) /*&& !rg_deq_done */ );
+ rule rl_ingress_conn_deq( (rg_fuid.insttype == TRAP || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  rg_fuid.insttype == MEMORY) /* && !rg_deq_done */);
      rg_ingress_opcode     <= rx_ingress_opcode.u.first;
     $display("Dequeing.....");       
     rx_ingress_opcode.u.deq;
-    rg_deq_done <= True;
-     endrule
+ endrule
  
  `endif
  
@@ -238,15 +232,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   rule rl_writeback_trap(rx_fuid.u.first.insttype == TRAP );
     let trapout = rx_trapout.u.first;
     let fuid = rx_fuid.u.first;
-   `ifdef etrace_support 
-     rg_fuid <= rx_fuid.u.first;       
-     rg_trapout_ingress_cause <= truncate(trapout.cause);
-     rg_trapout_ingress_mtval <= trapout.mtval; 
-     rg_trapout_ingress_cause_msb <= truncateLSB(trapout.cause);
-     rg_trapout_ingress_is_microtrap <= pack(trapout.is_microtrap);
-   `endif
-    `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
-    `logLevel( stage5, 0, $format("[%2d]STAGE5 : Trap: ",hartid, fshow(trapout)))
+    //$display("rl_writeback_trap");
+    //$display("[%2d]STAGE5 : PC:%h",hartid,fuid.pc);
+    //$display("[%2d]STAGE5 : Trap: ",hartid, fshow(trapout));
     wr_commit <= CommitData{addr: fuid.rd, data: ?, unlock_only:True
                           `ifdef no_wawstalls , id: fuid.id `endif
                            `ifdef spfpu ,rdtype: fuid.rdtype `endif };
@@ -274,8 +262,13 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
       end
       else `endif begin
       `ifdef etrace_support
+        rg_fuid <= rx_fuid.u.first;       
+        rg_trapout_ingress_cause <= truncate(trapout.cause);
+        rg_trapout_ingress_mtval <= trapout.mtval; 
+        rg_trapout_ingress_cause_msb <= truncateLSB(trapout.cause);
+        rg_trapout_ingress_is_microtrap <= pack(trapout.is_microtrap);
         rg_trap_ingress <= 1;
-        `endif
+      `endif
         let tvec <- csr.mav_upd_on_trap(trapout.cause, fuid.pc, trapout.mtval 
           `ifdef hypervisor , trapout.mtval2 `endif );
         wr_flush <= WBFlush{flush: True, newpc : tvec, fencei: False 
