@@ -4,6 +4,11 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.10.0] - 2025-10-23
+--------------------
+- Upstream devices 
+- Fix FPGA setups
+
 [4.9.0] - 2025-09-08
 --------------------
 - 128-bit config bug fix on mtime reads

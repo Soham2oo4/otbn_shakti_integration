@@ -118,9 +118,20 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire [3:0]                        c0_ddr4_s_axi_awcache;
   wire [2:0]                        c0_ddr4_s_axi_awprot;
   wire                              c0_ddr4_s_axi_awvalid;
-  wire                              c0_ddr4_s_axi_awready;    
+  wire                              c0_ddr4_s_axi_awready; 
+`ifdef BUS_WIDTH128   
+  wire [127:0]                       c0_ddr4_s_axi_wdata;
+  wire [15:0]                        c0_ddr4_s_axi_wstrb;
+`elsif BUS_WIDTH64
   wire [63:0]                       c0_ddr4_s_axi_wdata;
   wire [7:0]                        c0_ddr4_s_axi_wstrb;
+`elsif BUS_WIDTH32
+  wire [31:0]                       c0_ddr4_s_axi_wdata;
+  wire [3:0]                        c0_ddr4_s_axi_wstrb;
+`else
+  wire [127:0]                       c0_ddr4_s_axi_wdata;
+  wire [15:0]                        c0_ddr4_s_axi_wstrb;
+`endif
   wire                              c0_ddr4_s_axi_wlast;
   wire                              c0_ddr4_s_axi_wvalid;
   wire                              c0_ddr4_s_axi_wready;   
@@ -140,7 +151,15 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire                              c0_ddr4_s_axi_arready;    
   wire                              c0_ddr4_s_axi_rready;
   wire [AXI_ID_WIDTH-1:0]           c0_ddr4_s_axi_rid;
-  wire [63:0]                      c0_ddr4_s_axi_rdata;
+`ifdef BUS_WIDTH128   
+  wire [127:0]                       c0_ddr4_s_axi_rdata;
+`elsif BUS_WIDTH64
+  wire [63:0]                       c0_ddr4_s_axi_rdata;
+`elsif BUS_WIDTH32
+  wire [31:0]                       c0_ddr4_s_axi_rdata;
+`else
+  wire [127:0]                       c0_ddr4_s_axi_rdata;
+`endif
   wire [1:0]                        c0_ddr4_s_axi_rresp;
   wire                              c0_ddr4_s_axi_rlast;
   wire                              c0_ddr4_s_axi_rvalid;   
@@ -155,8 +174,19 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire [2:0]                        s_axi_awprot;
   wire                              s_axi_awvalid;
   wire                              s_axi_awready;    
+`ifdef BUS_WIDTH128   
+  wire [127:0]                       s_axi_wdata;
+  wire [15:0]                        s_axi_wstrb;
+`elsif BUS_WIDTH64
   wire [63:0]                       s_axi_wdata;
   wire [7:0]                        s_axi_wstrb;
+`elsif BUS_WIDTH32
+  wire [31:0]                       s_axi_wdata;
+  wire [3:0]                        s_axi_wstrb;
+`else
+  wire [127:0]                       s_axi_wdata;
+  wire [15:0]                        s_axi_wstrb;
+`endif
   wire                              s_axi_wlast;
   wire                              s_axi_wvalid;
   wire                              s_axi_wready;
@@ -176,7 +206,15 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 31)
   wire                              s_axi_arready;
   wire                              s_axi_rready;
   wire [AXI_ID_WIDTH-1:0]           s_axi_rid;
+`ifdef BUS_WIDTH128   
+  wire [127:0]                      s_axi_rdata;
+`elsif BUS_WIDTH64
   wire [63:0]                       s_axi_rdata;
+`elsif BUS_WIDTH32
+  wire [31:0]                       s_axi_rdata;
+`else
+  wire [127:0]                      s_axi_rdata;
+`endif
   wire [1:0]                        s_axi_rresp;
   wire                              s_axi_rlast;
   wire                              s_axi_rvalid;   
