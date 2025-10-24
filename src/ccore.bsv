@@ -257,14 +257,21 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
       req.data = duplicate(req.data[15 : 0]);
     else if(req.size[1:0] == 2)
       req.data = duplicate(req.data[31 : 0]);
+  `ifdef RV64
      else 
        req.data = duplicate(req.data[63 : 0]);
-
+  `endif
     // build the write-strobe based on the size of the request.
+  `ifdef RV64
     Bit#(TDiv#(`buswidth, 8)) write_strobe = req.size[1:0] == 0?'b1 :
                                         req.size[1:0] == 1?'b11 :
                                         req.size[1:0] == 2?'hf : 
                                         req.size[1:0] == 3?'hff :   '1;
+  `else
+    Bit#(TDiv#(`buswidth, 8)) write_strobe = req.size[1:0] == 0?'b1 :
+                                        req.size[1:0] == 1?'b11 :
+                                        req.size[1:0] == 2?'hf :    '1;
+  `endif
     Bit#(TAdd#(1, TDiv#(`buswidth, 32))) byte_offset = truncate(req.address);
     write_strobe = write_strobe<<byte_offset;
 
