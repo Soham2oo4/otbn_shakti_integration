@@ -18,7 +18,7 @@ hart0:
         cause_name: debug_interrupt
         on_reset_enable: 1
         priv_mode : M
-    ISA: RV32IMACSUZicsr_Zifencei
+    ISA: RV32IMAFCSUZicsr_Zifencei
     User_Spec_Version: '2.3'
     pmp_granularity: 1
     physical_addr_sz: 32
@@ -422,9 +422,9 @@ hart0:
         rv64:
             accessible: false
         rv32:
-            accessible: false
+            accessible: true
             frm:
-              implemented: false
+              implemented: true
               type:
                 warl:
                     dependency_fields: []
@@ -433,7 +433,7 @@ hart0:
                     wr_illegal:
                       - Unchanged
             fflags:
-              implemented: false
+              implemented: true
               type:
                 warl:
                     dependency_fields: []

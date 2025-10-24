@@ -30,6 +30,9 @@ grp1:
     - PMPADDR1
     - PMPADDR2
     - PMPADDR3
+    - FCSR
+    - FFLAGS
+    - FRM
     - CUSTOMCONTROL
     - SSCRATCH
     - SSTATUS
