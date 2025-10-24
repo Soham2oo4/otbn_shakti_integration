@@ -37,8 +37,8 @@ icache_configuration:
 dcache_configuration:
   instantiate: true
   sets: 64
-  word_size: 8
-  block_size: 8
+  word_size: 4
+  block_size: 16
   ways: 4
   fb_size: 9
   sb_size: 2
