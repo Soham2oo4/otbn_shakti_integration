@@ -4,6 +4,11 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.11.0] - 2025-10-24
+-------------------- 
+- RV32 Fixes
+- Adding YAML files for RV32IMAFCSU 
+
 [4.10.0] - 2025-10-23
 --------------------
 - Upstream devices 
