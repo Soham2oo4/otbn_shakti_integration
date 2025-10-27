@@ -54,7 +54,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   provisos(
     Add#(TLog#(ncomponents), a__, 10), // This indicates that hartsello can't cross 10-bits. which is fair assumption as this point
     Add#(b__, TLog#(TDiv#(TMax#(ncomponents, 32), 32)), 32) // for size of hawindowsel
-    ,Add#(TMax#(1, TLog#(ncomponents)), c__, 10) // hartsello can't be more than 10bits
+    ,Add#(TMax#(1, TLog#(TAdd#(ncomponents, 1))), c__, 10) // hartsello can't be more than 10bits
     ,Add#(d__, TLog#(ncomponents), 12) // there can be only 0x800-0x400 flags. Hence only so many harts supported
   );
 
@@ -279,8 +279,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   Reg#(Bit#(1)) ackhavereset      <- mkRegA(0, reset_by dm_reset);
   Reg#(Bit#(1)) ackunavail        <- mkRegA(0, reset_by dm_reset); // We may not support this. TODO
   ConfigReg#(Bit#(1)) hasel       <- mkConfigRegA(0, reset_by dm_reset);
-  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) _hartsello        <- mkConfigRegA(0, reset_by dm_reset);
-  ConfigReg#(Bit#(TMax#(1,TLog#(ncomponents)))) hartsello   = hartselloReg(_hartsello, v_ncomponents);
+  ConfigReg#(Bit#(TMax#(1,TLog#(TAdd#(ncomponents, 1))))) _hartsello        <- mkConfigRegA(0, reset_by dm_reset);
+  ConfigReg#(Bit#(TMax#(1,TLog#(TAdd#(ncomponents, 1))))) hartsello   = hartselloReg(_hartsello, v_ncomponents);
   Reg#(Bit#(10)) hartselhi        = readOnlyReg(0); // 2^20 is just obnoxious. simple opt here.
   Reg#(Bit#(1)) setkeepalive      = readOnlyReg(0); // we do not support this feature
   Reg#(Bit#(1)) clrkeepalive      = readOnlyReg(0); // we do not support this feature
@@ -512,7 +512,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   //-------------------- local variables ----------------------------------------------------
 
-  Bit#(TMax#(1,TLog#(ncomponents))) lv_selected_hart = hartsello;
+  Bit#(TMax#(1,TLog#(TAdd#(ncomponents, 1)))) lv_selected_hart = hartsello;
   Bit#(ncomponents) lv_finalhamask = (hasel==0? 0 : hamask) ;
   lv_finalhamask[lv_selected_hart] = 1;
 
