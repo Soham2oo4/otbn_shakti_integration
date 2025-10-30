@@ -45,11 +45,12 @@ import  BUtils            ::*;
 import  Semi_FIFOF       ::*;
 import  Clocks::*;
 import  FIFO::*;
+  import  MIMO_MODIFY :: *;
 import  Vector :: * ;
 `include "i2c.defs"
 `include "Logger.bsv"
 
-`define sda_delay 10
+  // `define SDA_delay 10
 
 typedef union tagged {
   void Dead;
@@ -103,9 +104,7 @@ function Reg#(t) readOnlyReg(t r);
 endfunction
 
 function Reg#(t) writeOnlyReg(Reg#(t) r)
-    provisos(
-        Literal#(t)
-            );
+    provisos(Literal#(t));
     return (interface Reg;
         method t _read = 0;
         method Action _write(t x);
@@ -113,6 +112,7 @@ function Reg#(t) writeOnlyReg(Reg#(t) r)
         endmethod
     endinterface);
 endfunction
+
 function Reg#(t) conditionalWrite(Reg#(t) r, Bool a);
     return (interface Reg;
         method t _read = r._read;
@@ -122,9 +122,12 @@ function Reg#(t) conditionalWrite(Reg#(t) r, Bool a);
         endmethod
     endinterface);
 endfunction
+
 // ================================================
 // Interface Declarations
+`ifndef i2c_clk_gate_en
    (*always_enabled, always_ready*)
+`endif
    interface I2C_out;
        method Bit#(1) scl_out;
        method Action scl_in(Bit#(1) in);
@@ -136,12 +139,12 @@ endfunction
 
 
     interface Ifc_i2c_user#(numeric type addr_width, numeric type data_width, numeric type user_width);
-		  method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr,
-																									AccessSize size);
-		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data,
-																									AccessSize size);
+    method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, AccessSize size);
+    method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
       interface I2C_out io;
+      `ifndef i2c_clk_gate_en
       (* always_enabled, always_ready *)
+      `endif
       method Bit#(1) isint();
       method Bit#(1) timerint();
       method Bit#(1) isber();
@@ -165,41 +168,43 @@ endfunction
       String i2c = "";
 
         //Timing Registers
-      Reg#(Bit#(1))               val_SCL        <-  mkReg(1);                    // SCL value that is sent through the inout pin using tristate
-      Reg#(Bit#(1))               val_SCL_in     <-  mkReg(1);
-      Reg#(Bit#(1))               val_SDA        <-  mkReg(1);                    // SDA value that is sent through the inout pin using tristate
-      Reg#(Bit#(1))               val_SDA_in     <- mkReg(1);
-      Vector#(`sda_delay, Reg#(Bit#(1)))   val_sda_delay   <- replicateM(mkReg(0));
-      Reg#(Bool)                  dOutEn         <-  mkReg(False);                 // Data out Enable for the SDA Tristate Buffer
-      Vector#(`sda_delay, Reg#(Bool))      dOutEn_delay    <- replicateM(mkReg(False));                 // Data out Enable for the SDA Tristate Buffer
-      Reg#(Bool)                  cOutEn         <-  mkReg(False);                 // Data out Enable for the SCL Tristate Buffer
+      Reg#(Bit#(1))               val_SCL        <-  mkRegA(1);                    // SCL value that is sent through the inout pin using tristate
+      Reg#(Bit#(1))               val_SCL_in     <-  mkRegA(1);
+      Reg#(Bit#(1))               val_SDA        <-  mkRegA(1);                    // SDA value that is sent through the inout pin using tristate
+      Reg#(Bit#(1))               val_SDA_in     <- mkRegA(1);
+    Reg#(Bit#(8))               sda_delay      <- mkRegA(1);
+    Vector#(8, Reg#(Bit#(1)))   val_SDA_delay   <- replicateM(mkRegA(0));
+      Reg#(Bool)                  dOutEn         <-  mkRegA(False);                 // Data out Enable for the SDA Tristate Buffer
+    Vector#(8, Reg#(Bool))      dOutEn_delay    <- replicateM(mkRegA(False));                 // Data out Enable for the SDA Tristate Buffer
+      Reg#(Bool)                  cOutEn         <-  mkRegA(False);                 // Data out Enable for the SCL Tristate Buffer
 
-      Reg#(Bit#(8))              cprescaler     <-  mkReg(0);                    // Prescaler Counter for the Chip clock
-      Reg#(Bit#(8))              rprescaler     <-  mkReg(0);                    // Prescaler Counter Restorer for the chip clock
-      Reg#(Bit#(32))              coSCL          <-  mkReg(0);                    // SCL Counter for the SCL clock
-      Reg#(Bit#(32))              reSCL          <-  mkReg(0);                    // SCL Counter Restorer for the SCL clock
-      Reg#(Bit#(10))              cycwaste       <-  mkReg(0);                    // Waste Cycle count
-      Reg#(Bit#(32))              c_scl       <-  mkReg(0);                    // Waste Cycle count
+      Reg#(Bit#(8))              cprescaler     <-  mkRegA(0);                    // Prescaler Counter for the Chip clock
+      Reg#(Bit#(8))              rprescaler     <-  mkRegA(0);                    // Prescaler Counter Restorer for the chip clock
+      Reg#(Bit#(32))              coSCL          <-  mkRegA(0);                    // SCL Counter for the SCL clock
+      Reg#(Bit#(32))              reSCL          <-  mkRegA(0);                    // SCL Counter Restorer for the SCL clock
+      Reg#(Bit#(10))              cycwaste       <-  mkRegA(0);                    // Waste Cycle count
+      Reg#(Bit#(32))              c_scl       <-  mkRegA(0);                    // Waste Cycle count
 
       //Programmable Registers (Will be used by the Device Drivers to Initialize - Based On PCF8584)
-      Reg#(I2C_RegWidth)          s01            <-  mkReg(0);                    //I2C Own Address Slave Register
-      Reg#(I2C_RegWidth)          s2             <-  mkReg('b11000000);           //Clock Register - Use to set the module and SCL clock
-      Reg#(I2C_RegWidth)         drv0_rg     <-  mkReg(1);
-      Reg#(I2C_RegWidth)         drv1_rg     <-  mkReg(1);
-      Reg#(I2C_RegWidth)         drv2_rg     <-  mkReg(0);
-      Reg#(I2C_RegWidth)         pd_rg       <-  mkReg(0);
-      Reg#(I2C_RegWidth)         ppen_rg     <-  mkReg(0);
-      Reg#(I2C_RegWidth)         prg_slew_rg <-  mkReg(1);
-      Reg#(I2C_RegWidth)         puq_rg      <-  mkReg(0);
-      Reg#(I2C_RegWidth)         pwrupzhl_rg <-  mkReg(0);
-      Reg#(I2C_RegWidth)         pwrup_pull_en_rg     <-  mkReg(0);
+      Reg#(I2C_RegWidth)          s01            <-  mkRegA(0);                    //I2C Own Address Slave Register
+      Reg#(I2C_RegWidth)          s2             <-  mkRegA('b11000000);           //Clock Register - Use to set the module and SCL clock
+      Reg#(I2C_RegWidth)         drv0_rg     <-  mkRegA(1);
+      Reg#(I2C_RegWidth)         drv1_rg     <-  mkRegA(1);
+      Reg#(I2C_RegWidth)         drv2_rg     <-  mkRegA(0);
+      Reg#(I2C_RegWidth)         pd_rg       <-  mkRegA(0);
+      Reg#(I2C_RegWidth)         ppen_rg     <-  mkRegA(0);
+      Reg#(I2C_RegWidth)         prg_slew_rg <-  mkRegA(1);
+      Reg#(I2C_RegWidth)         puq_rg      <-  mkRegA(0);
+      Reg#(I2C_RegWidth)         pwrupzhl_rg <-  mkRegA(0);
+      Reg#(I2C_RegWidth)         pwrup_pull_en_rg     <-  mkRegA(0);
+
       // Clock Reg Syntax difference from PCF5854 (maybe internally it does so  but who knows)
       // MSB = 1 By default
       // Intialization Of clock register will be accepted only if MSB = 0 ;
       // Once the initial initialization has been done and I2C Controller has started we dont care about that bit
       // Maybe the ultimate reset can be synced using it /~/Discuss
 
-      Reg#(I2C_RegWidth)          s3             <-  mkReg(9);                    //Interrupt Vector Register
+      Reg#(I2C_RegWidth)          s3             <-  mkRegA(9);                    //Interrupt Vector Register
 
       //~/Discuss : If there are only 4-5 interupts why use a 8 bit register And decide upon final values for interupts
 
@@ -208,34 +213,33 @@ endfunction
 
 
       // Control Registers
-      Reg#(Bit#(1))               pin            <-  mkReg(1);             // Used as a software reset. If pin is 1 all status bits are reset.Used as transmission complete status in polled applications
-      Reg#(Bit#(1))               eso            <-  mkReg(0);             // Enable Serial Output. ESO = 0 - Registers can be initialized. ESO = 1 - I2C Serial Transmission
-      Reg#(Bit#(1))               es1            <-  mkReg(0);             // Selection of registers. Not used currently
-      Reg#(Bit#(1))               es2            <-  mkReg(0);             // Selection of registers. Not used currently.
-      Reg#(Bit#(1))               eni            <-  mkReg(0);             // Enables the external interrupt output, which is generated when the PIN is active (active low - 0)
-      Reg#(Bit#(1))               sta            <-  mkReg(0);             // STA and STO generates the START and STOP bit for the processor
-      Reg#(Bit#(1))               sto            <-  mkReg(0);
-      Reg#(Bit#(1))               ack            <-  mkReg(1);             // This is normally set to 1. I2C automatically sends an acknowledge after a read/write transaction
+      Reg#(Bit#(1))               pin            <-  mkRegA(1);             // Used as a software reset. If pin is 1 all status bits are reset.Used as transmission complete status in polled applications
+      Reg#(Bit#(1))               eso            <-  mkRegA(0);             // Enable Serial Output. ESO = 0 - Registers can be initialized. ESO = 1 - I2C Serial Transmission
+      Reg#(Bit#(1))               es1            <-  mkRegA(0);             // Selection of registers. Not used currently
+      Reg#(Bit#(1))               es2            <-  mkRegA(0);             // Selection of registers. Not used currently.
+      Reg#(Bit#(1))               eni            <-  mkRegA(0);             // Enables the external interrupt output, which is generated when the PIN is active (active low - 0)
+      Reg#(Bit#(1))               sta            <-  mkRegA(0);             // STA and STO generates the START and STOP bit for the processor
+      Reg#(Bit#(1))               sto            <-  mkRegA(0);
+      Reg#(Bit#(1))               ack            <-  mkRegA(1);             // This is normally set to 1. I2C automatically sends an acknowledge after a read/write transaction
 
       //  Status Registers - Many of the status bits are unused for now since only single master support is present
-      Reg#(Bit#(1))               configchange           <-  mkReg(0);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
+      Reg#(Bit#(1))               configchange           <-  mkRegA(0);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
 
-      Reg#(Bit#(1))               zero           <-  mkReg(1);             // Should be set to 0 by the driver. No purpose -- Maybe can be checked if driver is initializing properly
-      Reg#(Bit#(1))               sts            <-  mkReg(0);             // Used only Slave receiver mode to detect STOP. Not used
-      Reg#(Bit#(1))               ber            <-  mkReg(0);             // Bus Error - Set to 1 when there is a misplaced START, STOP bit
-      Reg#(Bit#(1))               ad0_lrb        <-  mkReg(0);             // LRB - holds the last received bit through I2C bus. AD0 - Generall Call bit used for broadcast. Valid only while PIN=0
-      Reg#(Bit#(1))               aas            <-  mkReg(0);             // Addressed as slave - Used in Slave Receiver mode
-      Reg#(Bit#(1))               lab            <-  mkReg(0);             // Lost Arbitration bit - Used in Multiple Master systems only to denote that the master lost the arbitration
-      Reg#(Bit#(1))               bb             <-  mkReg(1);             // ~Bus Busy bit - Indicates that the bus is busy(0 = busy). Also used in multi master systems only // 0 = busy
-      Reg#(Bit#(16))              i2ctime        <-  mkReg(0);  //~/Discuss :- Should We have it configurable PCA9654 does
+      Reg#(Bit#(1))               intr           <-  mkRegA(0);             // Interrupt pin - Set to 1 when the transaction is done
+      Reg#(Bit#(1))               sts            <-  mkRegA(0);             // Used only Slave receiver mode to detect STOP. Not used
+      Reg#(Bit#(1))               ber            <-  mkRegA(0);             // Bus Error - Set to 1 when there is a misplaced START, STOP bit
+      Reg#(Bit#(1))               ad0_lrb        <-  mkRegA(0);             // LRB - holds the last received bit through I2C bus. AD0 - Generall Call bit used for broadcast. Valid only while PIN=0
+      Reg#(Bit#(1))               aas            <-  mkRegA(0);             // Addressed as slave - Used in Slave Receiver mode
+      Reg#(Bit#(1))               lab            <-  mkRegA(0);             // Lost Arbitration bit - Used in Multiple Master systems only to denote that the master lost the arbitration
+      Reg#(Bit#(1))               bb             <-  mkRegA(1);             // ~Bus Busy bit - Indicates that the bus is busy(0 = busy). Also used in multi master systems only // 0 = busy
+      Reg#(Bit#(16))              i2ctime        <-  mkRegA(0);  //~/Discuss :- Should We have it configurable PCA9654 does
 
       ////########## COnfigurable Registers Over.....
-	    /// Unused Pins : zero
-	    ///             : s3 4 MSB s2 5,6 bit
+    /// Unused Pins : s3 4 MSB s2 5,6 bit
 	    ////########################################
 
       //Custom added MM registers be read or written by the processor master in buffered mode. Support not added yet
-      Reg#(Bit#(14))              i2ctimeout     <-  mkReg(1);  //~/Discuss :- Should We have it configurable PCA9654 does
+      Reg#(Bit#(14))              i2ctimeout     <-  mkRegA(1);  //~/Discuss :- Should We have it configurable PCA9654 does
 
       // Concatenated CSRs TODO
       Reg#(I2C_RegWidth)          mcontrolReg    =   concatReg8(pin,writeOnlyReg(eso),
@@ -243,26 +247,25 @@ endfunction
                                                      writeOnlyReg(eni),writeOnlyReg(sta),
                                                      writeOnlyReg(sto),writeOnlyReg(ack));
 
-      Reg#(I2C_RegWidth)          mstatusReg     =   concatReg8(pin,readOnlyReg(zero),
+    Reg#(I2C_RegWidth)          mstatusReg     =   concatReg8(pin,readOnlyReg(intr),
                                                       readOnlyReg(sts),readOnlyReg(ber),
                                                       readOnlyReg(ad0_lrb),readOnlyReg(aas),
                                                       readOnlyReg(lab),readOnlyReg(bb));
       //FSM Registers
-      Reg#(MTrans_State)          mTransFSM      <-  mkReg(Idle);
-      Reg#(Bool)                  mod_start      <-  mkReg(False);  //Redundant actually
-      Reg#(Bool)                  scl_start      <-  mkReg(False);
-      Reg#(Bool)                  st_toggle      <-  mkReg(False);
+      Reg#(MTrans_State)          mTransFSM      <-  mkRegA(Idle);
+      Reg#(Bool)                  mod_start      <-  mkRegA(False);  //Redundant actually
+      Reg#(Bool)                  scl_start      <-  mkRegA(False);
+      Reg#(Bool)                  st_toggle      <-  mkRegA(False);
       PulseWire                   pwI2C          <-  mkPulseWire;
       PulseWire                   pwSCL          <-  mkPulseWire;
 
       //Maintenance variables
-      Reg#(Bit#(4))               dataBit        <-  mkReg(9);
-      Reg#(Bool)                  last_byte_read <-  mkReg(False);
+      Reg#(Bit#(4))               dataBit        <-  mkRegA(9);
+      Reg#(Bool)                  last_byte_read <-  mkRegA(False);
       Reg#(I2C_RegWidth)          controlReg     =   concatReg8(pin,eso,es1,es2,eni,sta,sto,ack);
-      Reg#(Bit#(7))               statusReg      =   concatReg7(zero,sts,ber,ad0_lrb,aas,lab,bb);
-      Reg#(Transaction)           operation      <-  mkReg(Write);
-      Bool                        pwesoCond      = (pwI2C && eso == 1'b1);
-      //pwI2C not required if the clock itself is going to be stepped down
+    Reg#(Bit#(7))               statusReg      =   concatReg7(intr,sts,ber,ad0_lrb,aas,lab,bb);
+      Reg#(Transaction)           operation      <-  mkRegA(Write);
+    Bool                        pwesoCond      = (pwI2C && eso == 1'b1);       // pwI2C not required if the clock itself is going to be stepped down
       Bool                        pwsclCond      = (pwSCL && eso == 1'b1);
       Bool                        sclSync        = (pwsclCond && val_SCL == 1);  // Sends a tick on falling edge
       Bool                        sclnSync       = (pwsclCond && val_SCL == 0); // Sends a tick on risisng edge
@@ -273,26 +276,43 @@ endfunction
       Bool                        intCond        = mTransFSM == Intrpt;
       Bit#(3)                     startSig       = 3'b110; //To prevent quick transitions which might result in a spike
       Bit#(3)                     stopSig        = 3'b001;
-      Reg#(Bit#(2))               sendInd        <- mkReg(2);
+      Reg#(Bit#(2))               sendInd        <- mkRegA(2);
 
 
       //Intrupt Register
-      Reg#(Bit#(1)) rstsig <- mkReg(0); //~/ Use wire Creg is costly
-      Reg#(Bit#(6)) resetcount <- mkReg(0); // To count no. of cycles reset pin has been high
+      Reg#(Bit#(1)) rstsig <- mkRegA(0); //~/ Use wire Creg is costly
+      Reg#(Bit#(6)) resetcount <- mkRegA(0); // To count no. of cycles reset pin has been high
 
-      //Module Instantiations
-      //AXI4_Lite_Slave_Xactor_IFC #(`PADDR, `Reg_width, `USERSPACE)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
+    // FIFO Buffers
+    MIMOConfiguration cfg = defaultValue;
+    cfg.unguarded = True;
 
-      /*doc:rule: */
+    MIMO#(1,1,32,I2C_RegWidth) tx_fifo <- mkMIMO(cfg);    // FIFO Size is taken as 32. Can be configured
+    MIMO#(1,1,32,I2C_RegWidth) rx_fifo <- mkMIMO(cfg);
+
+    Reg#(I2C_RegWidth) length_reg <- mkRegA(0);     // To track number of bytes to be transmitted or received
+    Reg#(I2C_RegWidth) rx_data <- mkRegA(0);        // Temporarily store I2C Read Data before storing it in RX FIFO
+    Reg#(Bit#(1)) reg_to_tx_fifo <- mkRegA(0);      // Set to 1 when TX FIFO needs to be updated with new data
+    Reg#(Bit#(1)) rx_fifo_to_reg <- mkRegA(0);      // Set to 1 when RX FIFO is being read
+    Reg#(Bool) rx_fifo_deq <- mkRegA(False);        // If 1, the rx_fifo is dequed
+
+    // REPSTART programmer
+    Reg#(I2C_RegWidth) repstart_prog <- mkRegA(0);   // for automating the repstart functionality
+
+    // Introduces a delay before storing SDA Data
       rule rl_delay_sda;
-        for (Integer i = 1; i<`sda_delay; i = i + 1) begin
-          val_sda_delay[i] <= val_sda_delay[i-1];
-          dOutEn_delay[i] <= dOutEn_delay[i-1];
-        end
-        val_sda_delay[0] <= val_SDA;
-        dOutEn_delay[0] <= dOutEn;
+
+      let lv_data_0 = shiftInAt0(readVReg(val_SDA_delay),val_SDA);
+      writeVReg(val_SDA_delay, lv_data_0 )  ;
+
+      let lv_data_1 = shiftInAt0(readVReg(dOutEn_delay),dOutEn);
+      writeVReg(dOutEn_delay, lv_data_1 )  ;
+      
       endrule
 
+    /*=====================================================================
+    FUNCTIONS
+    ======================================================================*/
 
       //Function to access Registers
       function Tuple2#(Bool,Bit#(data_width)) get_i2c(Bit#(8) i2c_state);
@@ -305,20 +325,32 @@ endfunction
           `S3              : return tuple2(False,duplicate(s3));
           `Time            : return tuple2(False,duplicate(i2ctime));
           `SCL             : return tuple2(False,duplicate(c_scl));
+        `Length_reg      : return tuple2(False,duplicate(length_reg));
+        `SDA_delay      : return tuple2(False,duplicate(sda_delay));
+        `FIFO_Status     : begin
+          let c1 = pack(rx_fifo.count);
+          let c2 = pack(tx_fifo.count);
+          Bit#(8) c3 = zeroExtend(c1);
+          Bit#(8) c4 = zeroExtend(c2);
+          return tuple2(False,duplicate({c3, c4}));
+        end
+        `REPSTART_reg    : return tuple2(False,duplicate(repstart_prog));
           default : return tuple2(True,0);
         endcase
       endfunction
 
       //Function to write into the registers
-      function ActionValue#(Bool) set_i2c(Bit#(8) i2c_state,Bit#(32) value )= actionvalue
+    function ActionValue#(Bool) set_i2c(Bit#(8) i2c_state,Bit#(32) value);
+    actionvalue
           Bool err=False;
           case(i2c_state)
             `Control : begin
-              zero <= 0;  //Indicates to the Driver that the control register has been written in the beginning
               `logLevel( i2c, 2, $format("Control Written"))
-              if(!intCond && mTransFSM != NAck)
-              	configchange <=1;
-              if(value[2:1] == 2 && (intCond || mTransFSM == NAck) && bb == 0 ) begin  //RT START  CONDITIONS
+
+          if(!intCond && mTransFSM != NAck) configchange <=1;
+
+          // RT START  CONDITIONS
+          if(value[2:1] == 2 && (intCond || mTransFSM == NAck) && bb == 0 ) begin 
                 dataBit <= 9;
 		            st_toggle <= True;
             	  mTransFSM <= RTSTA;
@@ -328,7 +360,14 @@ endfunction
             	  controlReg <= 8'hc5 | truncate(value);       //TODO 45h Check this out
             	  val_SDA <= 1;
             	  sendInd <= 2;
+
+            for (Integer i = 0; i < 8; i = i + 1) begin
+                val_SDA_delay[i] <= 0;
               end
+            
+          end
+
+          // Invalid RT Start
               else if(value[2:1] == 2 && bb == 0) begin
               	`logLevel( i2c, 2, $format("Invalid Rt Start"))
               	mTransFSM <= End;
@@ -337,11 +376,30 @@ endfunction
               	sendInd <= 2;
               	ber <=1; //~ add bus error functionality
               end
+
+          // Update Control Reg with value
               else
                 mcontrolReg._write(truncate(value));
             end
-            `S01: begin s01._write(truncate(value)); `logLevel( i2c, 2, $format("S01 written")) end
-            `S0 : begin s0._write(truncate(value)); `logLevel( i2c, 2, $format("S0 written")) pin <=1; end
+
+        `S01: begin 
+          s01._write(truncate(value)); 
+          `logLevel( i2c, 2, $format("S01 written")) 
+        end
+
+        `S0 : begin 
+          s0._write(truncate(value)); 
+          // pin <= 1; 
+          reg_to_tx_fifo <= 1; 
+          `logLevel( i2c, 2, $format("S0 written")) 
+        end
+
+        `Length_reg: begin
+          intr <= 0;
+          length_reg <= truncate(value); 
+          `logLevel(i2c,2,$format("Transaction Length written")) 
+        end
+
             `S2 : begin
               if(eso == 0) begin
                 mod_start <= True;
@@ -352,7 +410,9 @@ endfunction
               end
               `logLevel( i2c, 2, $format("S2 written"))
             end
+
             `S3 :  s3._write(truncate(value));  //~ default
+
             `SCL: begin
 				      if(eso == 0) begin
                 mod_start <= True;
@@ -363,16 +423,32 @@ endfunction
 				      end
 				      `logLevel( i2c, 2, $format("Received scl but eso was %d",eso))
 			      end
+
             `Time    : i2ctime._write(truncate(value));
+
+        `REPSTART_reg : begin
+          repstart_prog <= truncate(value); 
+          `logLevel(i2c,2,$format("Repeated start written")) 
+        end
+
+        `SDA_delay: begin
+          intr <= 0;
+          sda_delay <= truncate(value); 
+          `logLevel(i2c,2,$format("SDA delay written")) 
+        end
+
             default : err=True;
           endcase
           return err;
-        endactionvalue;
+    endactionvalue
+    endfunction
 
-
-      (* doc = "This sets the module's operating frequency based on the values in s2 register",
-         doc = "Assuming Processor operates at 50MHz for now",
-         doc = "PreScaler is an approximation of the available values" *)
+    /*===================================================================
+    PRESCALER
+    - This sets the module's operating frequency based on the values in s2 register
+    - Assuming Processor operates at 50MHz for now
+    - PreScaler is an approximation of the available values 
+    ====================================================================*/
 
       (* descending_urgency = "wait_interrupt,toggle_scl" *)
       (* descending_urgency = "send_stop_condition, toggle_scl" *)
@@ -436,8 +512,40 @@ endfunction
         val_SCL <= ~val_SCL;
       endrule
 
-      //////////////State Machine Implementation ////////////////////////////////
-      /*
+    /* ================================================================================
+    FIFO OPERATIONS
+    ================================================================================ */
+    // This rule transfers data from S0 Register to TX FIFO whenever new data is written to S0
+    rule s0_to_tx_fifo(reg_to_tx_fifo == 1);
+      if(tx_fifo.enqReady) begin
+        Vector#(1,I2C_RegWidth) temp = newVector;
+        temp[0] = s0;
+        tx_fifo.enq(1,temp);
+      end
+      reg_to_tx_fifo <= 0;
+      `logLevel(i2c,2,$format("Data transferred from s0 to tx_fifo. Count = %d", tx_fifo.count))
+    endrule
+
+    // This rule transfers data from RX FIFO to S0 Register whenever a new byte is received over I2C
+    rule rx_fifo_to_s0(rx_fifo_to_reg == 1);
+      I2C_RegWidth temp = rx_fifo.first[0];
+      s0 <= temp; 
+      rx_fifo_to_reg <= 0;
+      `logLevel(i2c,2,$format("Data transferred from rx_fifo to s0. Count = %d", rx_fifo.count))
+    endrule
+
+    // This Rule deques data from RX FIFO once it is read
+    rule rl_deq_fifo(rx_fifo_deq && rx_fifo_to_reg == 0);
+      if(rx_fifo.deqReady) begin
+        rx_fifo.deq(1);
+        rx_fifo_to_reg <= 1;
+      end
+      rx_fifo_deq <= False;
+    endrule
+
+    /* ================================================================================
+    STATE MACHINE IMPLEMENTATION   
+
        Initially, Module Is Off Eso = 0.
        Only Check Config Register And write into register rules should fire.
 
@@ -458,10 +566,9 @@ endfunction
           11.) 0AH = RT Strart sent // If int then it means enter address
           12.) 0BH = Start Sent
           13.) 0CH = timeout
-          14.)
-      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      */
+    ================================================================================ */
 
+    // IDLE State. Initialization happens here
 	    rule idler(mTransFSM == Idle);
 		    if(cycwaste == 0) begin
 	        cycwaste <= cycwaste + 1;
@@ -472,13 +579,15 @@ endfunction
     			cycwaste <= 0;
 		      sendInd <= 2;
      	    i2ctimeout <= 1;
-     	    // Should it leave control of SCL And SDA Line
-		 	    statusReg  <= 1;
+        // Should it leave control of SCL And SDA Line?
+        sts <= 0; ber <= 0; ad0_lrb <= 0; aas <= 0; lab <= 0; bb <= 1;
+        // statusReg  <= 1;
      	    resetcount <= 0 ;
 		    end
 		    else
 			    cycwaste <= cycwaste + 1;
 	    endrule
+
       (* mutually_exclusive = "check_control_reg, send_start_trans" *)
       (* doc = "Checks the control Reg (after Driver updates it) and based on byte loaded goes to Write/Read" *)
       rule check_control_reg(configchange == 1 && pwesoCond && !intCond && mTransFSM != Idle
@@ -508,6 +617,8 @@ endfunction
 
       (*  doc = "Reset the I2C State Machine and wait for another transaction request" *)
       rule reset_state(mTransFSM == ResetI2C && pwI2C && ber == 0);
+      tx_fifo.clear;
+      rx_fifo.clear;
         st_toggle <= False;
         dOutEn <= False;
         cOutEn <= False;
@@ -520,10 +631,23 @@ endfunction
         mTransFSM  <= Idle;
           //~/ should we have a reset interupt
       endrule
-
+    // Sets FSM into Reset mode when reset is received
+    rule resetfilter;
+      if(rstsig == 1) begin
+        resetcount <= resetcount + 1;
+        if(resetcount == 'd59) begin
+          ber <= 0;
+          mTransFSM <= ResetI2C;
+          `logLevel( i2c, 2, $format("Resetting"))
+          s3 <= 'h07;
+        end
+      end
+      else
+        resetcount <= 0 ;
+    endrule
       (* doc = "Send Start bit to the Slave" *)
       //~ pwi2c & i2c on & both transrec - sta
-      rule send_start_trans(val_SCL_in == 1 && startBit && pwesoCond && bb == 1);
+    rule send_start_trans(val_SCL_in == 1 && startBit && pwesoCond && bb == 1 && tx_fifo.deqReadyN(1));
         `logLevel( i2c, 2, $format("Came Here",sendInd))
         if(val_SDA == 0) begin
           mTransFSM <= SendAddr;  //~Once Cycle Delay whats 0-1 ?
@@ -534,12 +658,14 @@ endfunction
           dataBit <= 9;
         end
         else begin
-          val_SDA <= startSig[sendInd];
-          sendInd <= sendInd-1;
-       	end         //TODO check what happens when multiple start has to be send!!!!
+        // val_SDA <= startSig[sendInd];
+        // sendInd <= sendInd-1;
+        val_SDA <= 0;
+      end         //TODO check what happens when multiple start has to be send!!!!module
       endrule
-      //~ pwi2c & i2c on & both transrec - sta
-      rule send_rtstart_trans(val_SCL_in == 1 && mTransFSM == RTSTA  && pwesoCond );
+
+    // Repeated Start
+    rule send_rtstart_trans(val_SCL_in == 1 && mTransFSM == RTSTA  && pwesoCond && tx_fifo.deqReadyN(1));
         `logLevel( i2c, 2, $format("Here"))
         if(val_SDA == 0)begin //If I read val_SDA - Next transaction is x or it is normal--- Why?  //~ it was because of code bug send ind going to -1
           mTransFSM <= Intrpt;  //~Once Cycle Delay whats 0-1 ?
@@ -551,7 +677,8 @@ endfunction
           s3 <= 'h0A;
         end
         else begin
-          val_SDA <= startSig[sendInd];
+        // val_SDA <= startSig[sendInd];
+        val_SDA <= 0;
           sendInd <= sendInd-1;
         end         //TODO check what happens when multiple start has to be send!!!!
       endrule
@@ -560,33 +687,30 @@ endfunction
     //      rule send_addr(sendAddr && sclSync); // Fires On Falling Edge
     rule send_addr(sendAddr); // Fires On Falling Edge
       sendInd <= 2;
-      if (dataBit > 1 && sclSync)
-        begin
+      if (dataBit > 1 && sclSync) begin
+        I2C_RegWidth temp = tx_fifo.first[0];
           dataBit <= dataBit - 1;
-          val_SDA <= s0[dataBit - 2];
-          `logLevel( i2c, 2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit - 1,s0[dataBit-1]))
+        val_SDA <= temp[dataBit-2];
+        `logLevel( i2c, 2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit-1,temp[dataBit-1]))
+        
+        if(temp[0] == 0)
+          operation <= Write;
+        else 
+          operation <= Read;
         end
-        else if(dataBit == 1 && sclSync)
-        begin
+      else if(dataBit == 1 && sclSync) begin
+        tx_fifo.deq(1);
         dOutEn <= False;
         mTransFSM <= Ack;
         s3 <= 8'b1;
-        if(s0[0] == 0)
-          begin
-            operation <= Write;
             dataBit <= 8;
-          end
-        else
-          begin
-            dataBit <= 8;
-            operation <= Read;
-          end
         `logLevel( i2c, 2, $format("Address Sent"))
         end
     endrule
 
+    // This rule checks for the I2C acknowledgement bit
     rule check_Ack(ackCond && pwsclCond);  //Should Fire When SCL is high  //~shouldn't it be pwsclcond or sclsync
-       //`logLevel( i2c, 2, $format("Value : %d ,Condition : ",line_SDA,line_SDA!=0 ))
+      `logLevel( i2c, 2, $format("Value : %d ,Condition : ",val_SDA,val_SDA!=0 ))
        dataBit <= 9;
        i2ctimeout <= 1;
        if(val_SDA_in != 0 && val_SCL == 1 ) begin //Line SCL is actually high
@@ -603,20 +727,24 @@ endfunction
          `logLevel( i2c, 2, $format("Acknowledgement Not Received Bus Error"))
        end
        else if(val_SDA_in == 0 && val_SCL == 1) begin // Acknowledgement is done // Here line scl is actually low
-         pin <= 0;
         `logLevel( i2c, 2, $format("eni : %d",eni))
          if(mTransFSM == SendAddr || mTransFSM == SendData )
            s3 <= 'h02;
          else
            s3 <= 'h06;
+        pin <= 0;
          ad0_lrb <= 0;
          dOutEn<= True;
          mTransFSM <= Intrpt;
-         `logLevel( i2c, 2, $format("Acknowledgement Received. Waiting For Interupt Serve "))
+
+        // Sets intr pin when the write transaction ends
+        if(length_reg == 0)
+          intr <= 1;
        end
      endrule
 
-(* doc = "Wait for the generated interrupt to be serviced" *)
+    // Waits for the generated interrupt to be serviced in Polling method
+    // Waits till FIFO is empty/full and continues the transaction if length register is not zero
  rule wait_interrupt(intCond && pwesoCond && val_SCL_in ==0 );
    if(pin == 1'b0) begin
      val_SCL <= 0;
@@ -625,41 +753,79 @@ endfunction
 
      if(i2ctimeout <= i2ctime[13:0] )        //14 as enable int 15 as int
      begin    //Reset state
-       mTransFSM <= End; i2ctime[15] <=1;
+          // mTransFSM <= End; 
+          i2ctime[15] <=1;
        s3 <= 'h0C;
+        end
+        // else
+        //   st_toggle <= False;
+
+        if(length_reg == 0)                   // Checks if length register is 0
+          controlReg <= 8'b11000011;          // PIN + ESO + STO + ACK
+        else if(length_reg == repstart_prog) begin
+          dataBit <= 9;
+          // st_toggle <= True;
+          // mTransFSM <= RTSTA;
+          dOutEn <= True;
+          cOutEn <=True;
+          `logLevel( i2c, 2, $format("Repeated Start Instruction received"))
+          controlReg <= 8'hc5 | 8'b01000101;       //TODO 45h Check this out
+          val_SDA <= 1;
+          sendInd <= 2;
+          repstart_prog <= 0;
+        end
+        else begin
+          if(length_reg == 1 && operation == Read)      // Sets ack to 0 if the last byte is going to be read
+            ack <= 0;
+          if(operation == Write && tx_fifo.deqReady || operation == Read && rx_fifo.enqReady) 
+            pin <= 1;                         // Checks if FIFO is empty/full and sets pin accordingly
+        end
+
+        // next state
+        if (i2ctimeout <= i2ctime[13:0])
+          mTransFSM <= End;
+        else if (length_reg == repstart_prog) begin
+          mTransFSM <= RTSTA;
+          st_toggle <= True;
      end
      else
        st_toggle <= False;
+
    end
    else begin
-     `logLevel( i2c, 2, $format("Interupt Is Served. Along with pin & control reg - %d & operation - %d ",
-                                                                         controlReg,operation))
+        `logLevel(i2c, 2, $format("Interupt Is Served. Along with pin & control reg - %d & operation - %d ", controlReg,operation))
      i2ctimeout <= 1;
      st_toggle <= True;
+        I2C_RegWidth temp = tx_fifo.first[0];
+
      if(controlReg[2:1] == 2) begin
        `logLevel( i2c, 2, $format("Invalid Start"))
        ber <=1 ;
        mTransFSM <= ResetI2C;
      end
+
      else if(controlReg[2:1] == 1) begin       //Signalling the end of transaction
        mTransFSM <= End;
        val_SDA <= 0;
        `logLevel( i2c, 2, $format("Received Stop Condition ",val_SDA))
      end
+
      else if(s3 == 'h0A) begin
        mTransFSM <= SendAddr;
        dOutEn <= True;
-       `logLevel( i2c, 2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
+          `logLevel( i2c, 2, $format("Sending RT Address Bit %d In negative cycle Bit %d",dataBit - 1 , temp[dataBit - 1]))
        dataBit <= dataBit - 1;
-       val_SDA <= s0[dataBit - 2];
+          val_SDA <= temp[dataBit - 2];
      end
+
      else if(operation == Write) begin
        mTransFSM <= SendData;
        dOutEn <= True;
-       `logLevel( i2c, 2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , s0[dataBit - 1]))
+          `logLevel( i2c, 2, $format("Sending Bit %d In negative cycle Bit %d",dataBit - 1 , temp[dataBit - 1]))
        dataBit <= dataBit - 1;
-       val_SDA <= s0[dataBit - 2];
+          val_SDA <= temp[dataBit - 2];
      end
+
      else begin
        if(ack == 0)   //~ Value SCL what hc0 doesnt = nack?
            last_byte_read <= True;
@@ -675,56 +841,55 @@ endfunction
   (* doc = "Shift the 8-bit data through the SDA line at each low pulse of SCL" *)
   rule send_data(mTransFSM == SendData && sclSync);
     `logLevel( i2c, 2, $format("WData: TriState SDA Value : %b", val_SDA._read))
-    if (dataBit > 1 && sclSync)
-      begin
+      if (dataBit > 1 && sclSync) begin
+        I2C_RegWidth temp = tx_fifo.first[0];
         dataBit <= dataBit - 1;
-        val_SDA <= s0[dataBit - 2];
+        val_SDA <= temp[dataBit-2];
         `logLevel( i2c, 2, $format("Sending Bit %d In neg cycle Bit %d ", dataBit - 1,s0[dataBit-1]))
       end
-      else if(dataBit == 1 && sclSync)
-      begin
+      else if(dataBit == 1 && sclSync)begin
       dOutEn <= False;
       mTransFSM <= Ack;
+        tx_fifo.deq(1);
+        length_reg <= length_reg - 1;
       `logLevel( i2c, 2, $format("Data Sent"))
       `logLevel( i2c, 2, $format("Leaving Bus For Acknowledge"))
       end
   endrule
 
-      (* doc = "Receive the 8-bit data through the SDA line at each high pulse of SCL" *)
+      (* doc = "Receive 8-bits data through the SDA Line at each rising pulse of SCL" *)
       rule receive_data(mTransFSM == ReadData && sclnSync);  //~ Rising Edge
         `logLevel( i2c, 2, $format("Receiving Bit %d In Positive Cycle And Bit %d",dataBit - 1,val_SDA_in))
         dataBit <= dataBit - 1;
-        s0[dataBit - 1 ] <= val_SDA_in;
+      rx_data[dataBit - 1] <= val_SDA_in;
+      if(dataBit == 1)
+        length_reg <= length_reg - 1;
       endrule
 
-      rule resetfilter;
-        if(rstsig == 1) begin
-          resetcount <= resetcount + 1;
-          if(resetcount == 'd59) begin
-            ber <= 0;
-            mTransFSM <= ResetI2C;
-            `logLevel( i2c, 2, $format("Resetting"))
-            s3 <= 'h07;
-          end
-        end
-        else
-          resetcount <= 0 ;
-      endrule
+
 
       rule receive_data1((mTransFSM == ReadData || mTransFSM == NAck_1) && sclSync &&
                                               ( dataBit == 0  || dataBit == 8) );  //~ Falling Edge
         if(dataBit == 0) begin
+        if(rx_fifo.enqReady) begin
+          Vector#(1,I2C_RegWidth) temp = newVector;
+          temp[0] = rx_data;
+          rx_fifo.enq(1,temp);
+          rx_fifo_to_reg <= 1;
+        end
           if(!last_byte_read) begin
-            `logLevel( i2c, 2, $format("Going to Ack, Taking controll of the bus btw"))
+          `logLevel( i2c, 2, $format("Going to Ack, Taking control of the bus btw"))
             mTransFSM <= Ack;
             val_SDA <= 0;
             dOutEn <= True;
           end
+
           else begin
-            `logLevel( i2c, 2, $format("Going to NAck, Taking controll of the bus btw"))
+          `logLevel( i2c, 2, $format("Going to NAck, Taking control of the bus btw"))
             mTransFSM <= NAck_1;
             val_SDA <= 1;
             dataBit <= 8 ;
+             intr <= 1;
             dOutEn <= True;
             pin <=0 ;
             s3 <= 'h08;
@@ -735,15 +900,17 @@ endfunction
       	  mTransFSM <= NAck;
       endrule
 
-
+    // Checks for STOP signal after the last byte is Read
       rule wait_interrupt_receive_end ( dataBit == 8 && mTransFSM == NAck && val_SCL_in == 0);
         if(controlReg[2:1] == 1) begin
           mTransFSM <= End;
           val_SDA <= 0;
           st_toggle <= True;
         end
-        else
+      else begin
         	st_toggle<=False; //Stop Signal goes from 0 to 1
+        controlReg <= 8'b11000011;      // PIN + ESO + STO + ACK
+      end
       endrule
 
 
@@ -758,34 +925,32 @@ endfunction
           //Interrupt needs to be sent and final course of action is determined
         end
         else begin
-          val_SDA <= stopSig[sendInd];
-          sendInd <= sendInd - 1;
+        // val_SDA <= stopSig[sendInd];
+        // sendInd <= sendInd - 1;
+        val_SDA <= 1;
         end
       endrule
 
         //Rules for Communicating with AXI-4
         //TODO - Code different conditions such as only certain registers can be accessed at certain times
-		  method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr,
-																									AccessSize size);
-
+    method ActionValue#(Tuple2#(Bit#(data_width),Bool)) read_req (Bit#(addr_width) addr, AccessSize size);
         //TODO - What if a read request is issued to the data register
         `logLevel( i2c, 2, $format("AXI Read Request pin %d",pin))
         if(truncate(addr) == `S0) begin
-   	     pin <=1;
+        // pin <= 1;
+        rx_fifo_deq <= True;
 	       `logLevel( i2c, 2, $format("Setting pin to 1 in read phase"))
         end
    	    else if(truncate(addr) == `Status) begin
    	       `logLevel( i2c, 2, $format("Clearing Status Bits"))
    	       ber <= 0;
    	    end
-
         let {err,data} =  get_i2c(truncate(addr));
         `logLevel( i2c, 2, $format("Register Read  %h: Value: %h erR:%b",addr,data,err))
         return tuple2(data,err);
       endmethod
 
-		  method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data,
-																									AccessSize size);
+    method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
         `logLevel( i2c, 2, $format("Wr_addr : %h Wr_data: %h", addr, data))
         let err <- set_i2c(truncate(addr),truncate(data));
         `logLevel( i2c, 2, $format("Received Value %h err:%b",data,err))
@@ -796,43 +961,37 @@ endfunction
       endmethod
 
       interface I2C_out io;
-        method Bit#(1) scl_out;
-            return val_SCL;
-        endmethod
+      method Bit#(1) scl_out = val_SCL;
+
         method Action scl_in(Bit#(1) in);
             val_SCL_in <= in;
         endmethod
-        method Bool scl_out_en;
-            return (cOutEn && eso == 1'b1);
-        endmethod
-        method Bit#(1) sda_out;
-            return val_sda_delay[`sda_delay-1];
-        endmethod
+
+      method Bool scl_out_en = cOutEn && eso == 1'b1;
+
+      method Bit#(1) sda_out = val_SDA_delay[sda_delay-1];
+
         method Action sda_in(Bit#(1) in);
             val_SDA_in <= in;
         endmethod
-        method Bool sda_out_en;
-            return (dOutEn_delay[`sda_delay-1] && eso == 1'b1);
-        endmethod
+
+      method Bool sda_out_en  = dOutEn_delay[sda_delay-1] && eso == 1'b1;
+
+      // method Bit#(1) is_int = ~pin & intr & eni;
       endinterface
 
-      method Bit#(1) isint=~pin & eni;
+    method Bit#(1) isint = ~pin & intr & eni;
 
       method Bit#(1) isber = ber;
 
-      method Bit#(1) timerint();
-          return i2ctime[15];
-      endmethod
+    method Bit#(1) timerint = i2ctime[15];
 
       method Action resetc( Bit#(1) rst );
               rstsig <= rst;
       endmethod
     endmodule
 
-    interface Ifc_i2c_axi4lite#(numeric type addr_width,
-                                numeric type data_width,
-                                numeric type user_width
-                               );
+  interface Ifc_i2c_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width);
       interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
       interface I2C_out io;
       method Bit#(1) isint();
@@ -840,28 +999,78 @@ endfunction
       method Bit#(1) isber();
     endinterface
 
-    module mki2c_axi4lite#(Clock i2c_clock, Reset i2c_reset)
-                                             (Ifc_i2c_axi4lite#(addr_width, data_width, user_width))
+  module mki2c_axi4lite#(Clock i2c_clock, Reset i2c_reset `ifdef testmode , Bool test_mode `endif )(Ifc_i2c_axi4lite#(addr_width, data_width, user_width))
        provisos(
                 Add#(a__, 8, addr_width),
                 Add#(b__, 32, data_width),
                 Mul#(16, c__, data_width),
                 Mul#(8, d__, data_width),
-                Mul#(32, e__, data_width)
+      Mul#(32, e__, data_width),
+      Add#(f__, 8, data_width)
                );
 		  Clock core_clock<-exposeCurrentClock;
   		Reset core_reset<-exposeCurrentReset;
-		  Bool sync_required=(core_clock!=i2c_clock);
-      AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <-
-                                                                        mkAXI4_Lite_Slave_Xactor();
-
-      Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(
-                                                                              clocked_by i2c_clock,
+    AXI4_Lite_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Lite_Slave_Xactor();
+`ifdef i2c_clk_gate_en    
+    Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
+`endif 	
+`ifdef i2c_loc_rst_en
+    Reg#(Bit#(1)) rg_rst <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    MakeResetIfc reg_reset <-mkReset(0,False,i2c_clock);            // create a new reset for curr_clk
+    Reset i2c_curr_reset <- mkResetEither(reg_reset.new_rst,i2c_reset);     // OR default and new_rst
+`endif
+`ifdef i2c_clk_gate_loc_rst_en		
+    	Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0), `ifdef i2c_loc_rst_en rg_rst `else readOnlyReg(1'b0) `endif , `ifdef i2c_clk_gate_en rg_clk_en `else 	readOnlyReg(1'b0) `endif );
+`endif
+`ifdef i2c_clk_gate_en
+	`ifdef i2c_loc_rst_en   
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
+                                                                               reset_by i2c_curr_reset);
+    `else
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
                                                                                reset_by i2c_reset);
-      if(!sync_required)begin
+    `endif
+`else
+	`ifdef i2c_loc_rst_en   
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_clock,
+ 		reset_by i2c_curr_reset);
+    `else
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_clock,
+                                                                             reset_by i2c_reset);
+    `endif  
+`endif
+
+`ifdef i2c_clk_gate_en
+    	rule clock_en;    
+	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
+	endrule
+`endif
         rule read_request;
           let rd_req <- pop_o(s_xactor.o_rd_addr);
-          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+          let err = True; 
+          Bit#(data_width) rdata = 0;  
+        `ifdef i2c_clk_gate_loc_rst_en
+                $display("i2c readreq ",fshow(rd_req));                    
+                if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
+                  err = False; 
+                  rdata = duplicate({rg_rst_clk});  
+                end
+            `ifdef i2c_clk_gate_en		
+                else if(rg_clk_en == 1) begin  
+                    {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+                end
+                else begin
+                  err = True;
+                end 
+            `else 
+                else begin
+                    {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+                end
+            `endif
+        `else 
+                    {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+          `endif
           let lv_resp= AXI4_Lite_Rd_Data {rresp:err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY,
         	                                                      rdata: rdata, ruser: ?}; //TODO user?
           s_xactor.i_rd_data.enq(lv_resp);
@@ -870,164 +1079,183 @@ endfunction
         rule write_request;
           let wr_req <- pop_o(s_xactor.o_wr_addr);
           let wr_data <- pop_o(s_xactor.o_wr_data);
-          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
-          let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
-          s_xactor.i_wr_resp.enq(lv_resp);
-         endrule
+        $display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
+        let err = True; 
+        `ifdef i2c_clk_gate_loc_rst_en     
+        if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
+          err = False; 
+          rg_rst_clk <=  truncate(wr_data.wdata);
+          $display("response from rg_clk_en - %d",err); 
+        end
+        `ifdef i2c_clk_gate_en
+              else if(rg_clk_en == 1) 
+              begin
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                        $display("response from i2c - %d",err);
       end
       else begin
-        SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width, user_width)) ff_rd_request <-
-                                                                      mkSyncFIFOFromCC(3, i2c_clock);
-        SyncFIFOIfc#(Tuple2#(AXI4_Lite_Wr_Addr#(addr_width, user_width),
-                    AXI4_Lite_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3, i2c_clock);
-
-        SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width, user_width)) ff_rd_response <-
-                                                              mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
-        SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width)) ff_wr_response <-
-                                                              mkSyncFIFOToCC(3, i2c_clock, i2c_reset);
-
-        rule read_request;
-          let rd_req <- pop_o(s_xactor.o_rd_addr);
-          ff_rd_request.enq(rd_req);
-        endrule
-
-        rule send_rd_to_i2c;
-          let rd_req = ff_rd_request.first;
-          ff_rd_request.deq;
-          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
-          let lv_resp= AXI4_Lite_Rd_Data {rresp:err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY,
-        	                                                      rdata: rdata, ruser: ?}; //TODO user?
-          ff_rd_response.enq(lv_resp);
-        endrule
-
-        rule send_read_response;
-          ff_rd_response.deq;
-          s_xactor.i_rd_data.enq(ff_rd_response.first);
-        endrule
-
-        rule write_request;
-          let wr_req <- pop_o(s_xactor.o_wr_addr);
-          let wr_data <- pop_o(s_xactor.o_wr_data);
-          ff_wr_request.enq(tuple2(wr_req, wr_data));
-        endrule
-
-        rule send_wr_to_i2c;
-          let wr_req = tpl_1(ff_wr_request.first);
-          let wr_data = tpl_2(ff_wr_request.first);
-          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                err = True;
+              end
+        `else
+              else begin
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                        $display("response from i2c - %d",err);
+              end
+        `endif
+          `else
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                        $display("response from i2c - %d",err);
+          `endif
           let lv_resp = AXI4_Lite_Wr_Resp {bresp: err?AXI4_LITE_SLVERR:AXI4_LITE_OKAY, buser: ?};
-          ff_wr_response.enq(lv_resp);
+          s_xactor.i_wr_resp.enq(lv_resp);
         endrule
 
-         rule send_wr_resp;
-           ff_wr_response.deq;
-           s_xactor.i_wr_resp.enq(ff_wr_response.first);
+        `ifdef i2c_loc_rst_en     
+      rule reset_i2c(rg_rst == 1);
+        reg_reset.assertReset;
          endrule
-       end
+	`endif
        interface slave = s_xactor.axi_side;
        interface io = i2c_user.io;
-       method isint()=i2c_user.isint;
-       method timerint()=i2c_user.timerint;
-       method isber()=i2c_user.isber;
+    method isint = i2c_user.isint;
+    method timerint = i2c_user.timerint;
+    method isber = i2c_user.isber;
     endmodule
 
     interface Ifc_i2c_axi4#(numeric type addr_width,
+                            numeric type id_width,
                             numeric type data_width,
                             numeric type user_width);
-      interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+      interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
       interface I2C_out io;
       method Bit#(1) isint();
       method Bit#(1) timerint();
       method Bit#(1) isber();
     endinterface
 
-    module mki2c_axi4#(Clock i2c_clock, Reset i2c_reset)(Ifc_i2c_axi4#(addr_width, data_width, user_width))
+    module mki2c_axi4#(Clock i2c_clock, Reset i2c_reset)(Ifc_i2c_axi4#(addr_width,id_width, data_width, user_width))
       provisos(
                Add#(a__, 8, addr_width),
                Add#(b__, 32, data_width),
                Mul#(16, c__, data_width),
                Mul#(8, d__, data_width),
-               Mul#(32, e__, data_width)
+      Mul#(32, e__, data_width),
+      Add#(f__, 1, data_width),
+      Add#(g__, 8, data_width)
               );
 		  Clock core_clock<-exposeCurrentClock;
   		Reset core_reset<-exposeCurrentReset;
-		  Bool sync_required=(core_clock!=i2c_clock);
-      AXI4_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Slave_Xactor();
+`ifdef i2c_clk_gate_en    
+    Reg#(bit) rg_clk_en <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    GatedClockIfc i2c_gated_clk <- mkGatedClock(False,i2c_clock);
+`endif 
+`ifdef i2c_loc_rst_en
+    Reg#(Bit#(1)) rg_rst <- mkRegA(0,clocked_by i2c_clock, reset_by i2c_reset);
+    MakeResetIfc reg_reset <-mkReset(0,False,i2c_clock);            // create a new reset for curr_clk
+    Reset i2c_curr_reset <- mkResetEither(reg_reset.new_rst,i2c_reset);     // OR default and new_rst
+`endif
+`ifdef i2c_clk_gate_loc_rst_en		
+    	Reg#(Bit#(8)) rg_rst_clk = concatReg3(readOnlyReg(6'b0), `ifdef i2c_loc_rst_en rg_rst `else readOnlyReg(1'b0) `endif , `ifdef i2c_clk_gate_en rg_clk_en `else 	readOnlyReg(1'b0) `endif );
+`endif
+      AXI4_Slave_Xactor_IFC#(addr_width, id_width, data_width, user_width) s_xactor <- mkAXI4_Slave_Xactor();
 
-      Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(
-                                                                                 clocked_by i2c_clock,
-                                                                                 reset_by i2c_reset);
-		  if(!sync_required)begin // If uart is clocked by core-clock.
+`ifdef i2c_clk_gate_en
+	`ifdef i2c_loc_rst_en   
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
+                                                                               reset_by i2c_curr_reset);
+   `else
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_gated_clk.new_clk,
+                                                                               reset_by i2c_reset);
+    `endif
+`else
+	`ifdef i2c_loc_rst_en   
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_clock,
+ 		reset_by i2c_curr_reset);
+  `else
+		Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(clocked_by i2c_clock,
+                                                                               reset_by i2c_reset);
+  `endif
+`endif
+
+`ifdef i2c_clk_gate_en
+    	rule clock_en;    
+	       i2c_gated_clk.setGateCond(unpack(rg_clk_en));	         
+	endrule
+`endif
         rule read_request;
           let rd_req <- pop_o(s_xactor.o_rd_addr);
-          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
-		  		let lv_resp= AXI4_Rd_Data {rresp:err?AXI4_SLVERR:AXI4_OKAY, rid:rd_req.arid,
-		  										rlast:True, rdata: rdata, ruser: ?}; //TODO user?
+          let err = True; 
+          Bit#(data_width) rdata = 0;  
+        `ifdef i2c_clk_gate_loc_rst_en
+                $display("i2c readreq ",fshow(rd_req));                    
+                if(truncate(rd_req.araddr) == `I2C_Clk_En && rd_req.arsize == 0) begin 
+                  err = False; 
+                  rdata = duplicate({rg_rst_clk});  
+                end
+            `ifdef i2c_clk_gate_en		
+                else if(rg_clk_en == 1) begin  
+                    {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+                end
+                else begin
+                  err = True;
+                end 
+          `else 
+            else begin
+                    {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+                end
+          `endif
+        `else 
+                    {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
+          `endif
+          let lv_resp= AXI4_Rd_Data {rresp:err?AXI4_SLVERR:AXI4_OKAY,
+        	                                                      rdata: rdata, ruser: ?}; //TODO user?
           s_xactor.i_rd_data.enq(lv_resp);
-        endrule
-
-        rule write_request;
+     endrule
+     rule write_request;
           let wr_req <- pop_o(s_xactor.o_wr_addr);
           let wr_data <- pop_o(s_xactor.o_wr_data);
-          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
-        	let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:wr_data.wid};
+        $display("i2c write_req write_data ",fshow(wr_req),fshow(wr_data));
+        let err = True; 
+        `ifdef i2c_clk_gate_loc_rst_en     
+        if( truncate(wr_req.awaddr) == `I2C_Clk_En && wr_req.awsize == 0) begin 
+          err = False; 
+          rg_rst_clk <=  truncate(wr_data.wdata);
+          $display("response from rg_clk_en - %d",err); 
+        end
+        `ifdef i2c_clk_gate_en
+              else if(rg_clk_en == 1) 
+              begin
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                        $display("response from i2c - %d",err);
+              end 
+              else begin
+                err = True;
+              end
+        `else
+              else begin
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                        $display("response from i2c - %d",err);
+              end
+        `endif
+          `else
+                  err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
+                        $display("response from i2c - %d",err);
+          `endif
+          let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?};
           s_xactor.i_wr_resp.enq(lv_resp);
-        endrule
-      end
-      else begin
-        SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_request <- mkSyncFIFOFromCC(3,
-                                                                                        i2c_clock);
-        SyncFIFOIfc#(Tuple2#(AXI4_Wr_Addr#(addr_width, user_width),
-                             AXI4_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3,
-                                                                                      i2c_clock);
-        SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_rd_response <- mkSyncFIFOToCC(3,
-                                                                             i2c_clock, i2c_reset);
-        SyncFIFOIfc#(AXI4_Wr_Resp#(user_width)) ff_wr_response <- mkSyncFIFOToCC(3, i2c_clock,
-                                                                            i2c_reset);
+         endrule
 
-        rule read_request;
-          let rd_req <- pop_o(s_xactor.o_rd_addr);
-          ff_rd_request.enq(rd_req);
-        endrule
+        `ifdef i2c_loc_rst_en     
+      rule reset_i2c(rg_rst == 1);
+        reg_reset.assertReset;
+      endrule
+	`endif       
 
-        rule send_rd_to_i2c;
-          let rd_req = ff_rd_request.first;
-          ff_rd_request.deq;
-          let {rdata,err} <- i2c_user.read_req(rd_req.araddr,?);
-		  		let lv_resp= AXI4_Rd_Data {rresp:err?AXI4_SLVERR:AXI4_OKAY, rid:rd_req.arid,
-		  										rlast:True, rdata: rdata, ruser: ?}; //TODO user?
-          ff_rd_response.enq(lv_resp);
-        endrule
-
-        rule send_read_response;
-          ff_rd_response.deq;
-          s_xactor.i_rd_data.enq(ff_rd_response.first);
-        endrule
-
-        rule write_request;
-          let wr_req <- pop_o(s_xactor.o_wr_addr);
-          let wr_data <- pop_o(s_xactor.o_wr_data);
-          ff_wr_request.enq(tuple2(wr_req, wr_data));
-        endrule
-
-        rule send_wr_to_i2c;
-          let wr_req = tpl_1(ff_wr_request.first);
-          let wr_data = tpl_2(ff_wr_request.first);
-          let err <- i2c_user.write_req(wr_req.awaddr, wr_data.wdata,?);
-        	let lv_resp = AXI4_Wr_Resp {bresp: err?AXI4_SLVERR:AXI4_OKAY, buser: ?, bid:wr_data.wid};
-          ff_wr_response.enq(lv_resp);
-        endrule
-
-        rule send_wr_resp;
-          ff_wr_response.deq;
-          s_xactor.i_wr_resp.enq(ff_wr_response.first);
-        endrule
-      end
       interface slave = s_xactor.axi_side;
       interface io = i2c_user.io;
-      method isint()=i2c_user.isint;
-      method timerint()=i2c_user.timerint;
-      method isber()=i2c_user.isber;
+    method isint = i2c_user.isint;
+    method timerint = i2c_user.timerint;
+    method isber = i2c_user.isber;
    endmodule
 
 endpackage
