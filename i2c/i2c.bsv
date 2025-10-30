@@ -932,16 +932,17 @@ endfunction
     endmodule
 
     interface Ifc_i2c_axi4#(numeric type addr_width,
+                            numeric type id_width,
                             numeric type data_width,
                             numeric type user_width);
-      interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+      interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
       interface I2C_out io;
       method Bit#(1) isint();
       method Bit#(1) timerint();
       method Bit#(1) isber();
     endinterface
 
-    module mki2c_axi4#(Clock i2c_clock, Reset i2c_reset)(Ifc_i2c_axi4#(addr_width, data_width, user_width))
+    module mki2c_axi4#(Clock i2c_clock, Reset i2c_reset)(Ifc_i2c_axi4#(addr_width,id_width, data_width, user_width))
       provisos(
                Add#(a__, 8, addr_width),
                Add#(b__, 32, data_width),
@@ -952,7 +953,7 @@ endfunction
 		  Clock core_clock<-exposeCurrentClock;
   		Reset core_reset<-exposeCurrentReset;
 		  Bool sync_required=(core_clock!=i2c_clock);
-      AXI4_Slave_Xactor_IFC#(addr_width, data_width, user_width) s_xactor <- mkAXI4_Slave_Xactor();
+      AXI4_Slave_Xactor_IFC#(addr_width, id_width, data_width, user_width) s_xactor <- mkAXI4_Slave_Xactor();
 
       Ifc_i2c_user#(addr_width, data_width, user_width) i2c_user <- mki2c_user(
                                                                                  clocked_by i2c_clock,
@@ -975,14 +976,14 @@ endfunction
         endrule
       end
       else begin
-        SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, user_width)) ff_rd_request <- mkSyncFIFOFromCC(3,
+        SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width, id_width, user_width)) ff_rd_request <- mkSyncFIFOFromCC(3,
                                                                                         i2c_clock);
-        SyncFIFOIfc#(Tuple2#(AXI4_Wr_Addr#(addr_width, user_width),
-                             AXI4_Wr_Data#(data_width))) ff_wr_request <- mkSyncFIFOFromCC(3,
+        SyncFIFOIfc#(Tuple2#(AXI4_Wr_Addr#(addr_width, id_width, user_width),
+                             AXI4_Wr_Data#(id_width, data_width))) ff_wr_request <- mkSyncFIFOFromCC(3,
                                                                                       i2c_clock);
-        SyncFIFOIfc#(AXI4_Rd_Data#(data_width, user_width)) ff_rd_response <- mkSyncFIFOToCC(3,
+        SyncFIFOIfc#(AXI4_Rd_Data#(id_width, data_width, user_width)) ff_rd_response <- mkSyncFIFOToCC(3,
                                                                              i2c_clock, i2c_reset);
-        SyncFIFOIfc#(AXI4_Wr_Resp#(user_width)) ff_wr_response <- mkSyncFIFOToCC(3, i2c_clock,
+        SyncFIFOIfc#(AXI4_Wr_Resp#(id_width, user_width)) ff_wr_response <- mkSyncFIFOToCC(3, i2c_clock,
                                                                             i2c_reset);
 
         rule read_request;
