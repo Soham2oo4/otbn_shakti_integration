@@ -65,6 +65,9 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
+    Mul#(data_width, j__, 64),
+    Add#(k__, data_width, 64),    
+    Mul#(msip_size, l__, 64),
     Log#(tick_count, i__)
 			);	
 
@@ -259,6 +262,9 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
+    Mul#(data_width, i__, 64),
+    Add#(j__, data_width, 64),
+    Mul#(msip_size, k__, 64),
     //`ifndef axi4_128b
       Mul#(data_width, c__, `buswidth)
     /*`else
