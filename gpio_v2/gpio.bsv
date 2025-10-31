@@ -293,7 +293,8 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
                         Add#(d__, data_width, 128),
         		Mul#(16, e__, data_width),
         		Mul#(32, f__, data_width),
-        		Mul#(8, g__, data_width)
+        		Mul#(8, g__, data_width),
+        		Add#(h__, data_width, 32)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio;
@@ -341,7 +342,8 @@ module mkgpio_axi4(Ifc_gpio_axi4#(addr_width,id_width, data_width,user_width,ion
 			Add#(d__, data_width, 128),
         		Mul#(16, e__, data_width),
         		Mul#(32, f__, data_width),
-        		Mul#(8, g__, data_width)
+        		Mul#(8, g__, data_width),
+        		Add#(h__, data_width, 32)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
