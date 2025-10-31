@@ -27,4 +27,4 @@ csrbox:
   checkout: 1.10.0
 riscv-config:
   url: https://gitlab.com/shaktiproject/cores/riscv-config
-  checkout: 3.7.0
+  checkout: 2-rv32-menvcfgh-support

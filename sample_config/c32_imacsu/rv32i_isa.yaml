@@ -700,6 +700,11 @@ hart0:
         accessible: False
       rv32:
         accessible: True
+    menvcfgh:
+      rv64:
+        accessible: False
+      rv32:
+        accessible: True
     senvcfg:
       rv64:
         accessible: False
