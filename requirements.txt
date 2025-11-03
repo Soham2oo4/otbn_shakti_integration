@@ -3,4 +3,4 @@ Cerberus>=1.3.1
 ruamel.yaml>=0.17.16
 pytz
 aapg
-git+https://gitlab.com/shaktiproject/cores/soc_config.git@12-adding-rv32imafcsu-support
+git+https://gitlab.com/shaktiproject/cores/soc_config.git@2.3.0
