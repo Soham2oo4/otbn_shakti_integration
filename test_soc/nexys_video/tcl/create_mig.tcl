@@ -13,7 +13,17 @@ if { [get_ips -quiet mig_7series_0] eq "" } {
     reset_run mig_synth_1
 }
 
-set_property CONFIG.XML_INPUT_FILE [file normalize $home_dir/tcl/video_mig.prj] [get_ips mig_ddr3]
+
+if { $axibuswidth eq "BUS_WIDTH128" } {
+	set_property CONFIG.XML_INPUT_FILE [file normalize $home_dir/tcl/video_mig_128.prj] [get_ips mig_ddr3]
+}
+if { $axibuswidth eq "BUS_WIDTH64" } {
+    set_property CONFIG.XML_INPUT_FILE [file normalize $home_dir/tcl/video_mig_64.prj] [get_ips mig_ddr3]
+}
+if { $axibuswidth eq "BUS_WIDTH32" } {
+    set_property CONFIG.XML_INPUT_FILE [file normalize $home_dir/tcl/video_mig_32.prj] [get_ips mig_ddr3]
+}
+#set_property CONFIG.XML_INPUT_FILE [file normalize $home_dir/tcl/video_mig.prj] [get_ips mig_ddr3]
 generate_target {instantiation_template} [get_ips mig_ddr3]
 create_ip_run [get_ips mig_ddr3]
 #launch_run mig_7series_0_synth_1
