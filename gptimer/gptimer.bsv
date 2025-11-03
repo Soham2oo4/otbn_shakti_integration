@@ -355,8 +355,11 @@ package gptimer;
                 Reg#(Bit#(32))           rg_clock_control = concatReg5(readOnlyReg(13'd0),`ifdef gpt_loc_rst_en rg_rst  `else readOnlyReg(1'b0) `endif , `ifdef gpt_clk_gate_en rg_clk_en `else readOnlyReg(1'b0) `endif ,rg_clk_divider,rg_clk_src);
                  
                 
-                
-                MuxClkIfc      clock_selection     <- mkClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk                 
+			`ifdef gpt_clk_gate_en    
+                MuxClkIfc      clock_selection     <- mkClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk   
+			`else  
+				MuxClkIfc      clock_selection     <- mkUngatedClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk 
+			`endif            
                 Reset async_reset <- mkAsyncResetFromCR(2,clock_selection.clock_out);    // first rst
                  
                 Ifc_clock_divider#(16) clk_divider <- mkclock_divider(clocked_by clock_selection.clock_out,reset_by async_reset);      

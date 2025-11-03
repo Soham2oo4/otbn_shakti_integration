@@ -39,7 +39,11 @@ package clock_divider;
 	Reg#(Bit#(width)) rg_half_divisor <- mkRegA(0);
     Reg#(Bit#(width)) rg_counter <- mkRegA(0);
     MakeClockIfc#(Bit#(1)) new_clock <- mkUngatedClock(0);
-    MuxClkIfc clock_selector <- mkUngatedClockMux(new_clock.new_clk,defclock);
+    `ifdef gpt_clk_gate_en 
+      MuxClkIfc clock_selector <- mkClockMux(new_clock.new_clk,defclock);
+    `else
+      MuxClkIfc clock_selector <- mkUngatedClockMux(new_clock.new_clk,defclock);
+    `endif
     Bool clockmux_sel = rg_divisor!=0;
     rule increment_counter(rg_divisor != 0);
 		if(rg_counter <= rg_half_divisor)
