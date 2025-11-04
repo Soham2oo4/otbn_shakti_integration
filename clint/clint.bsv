@@ -65,9 +65,9 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    Mul#(data_width, j__, 128),
-    Add#(k__, data_width, 128),    
-    Mul#(msip_size, l__, 128),
+    Mul#(data_width, j__, 64),
+    Add#(k__, data_width, 64),    
+    Mul#(msip_size, l__, 64),
     Log#(tick_count, i__)
 			);	
 
@@ -105,24 +105,16 @@ package clint;
 			Bit#(data_width) data=0;
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
       //`ifndef axi4_128b
-        Bit#(`buswidth) temp=0;
+        Bit#(64) temp=0;
       /*`else
         Bit#(128) temp=0;
       `endif*/
 			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
       else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
-      `ifndef axi4_128b
-        temp=truncate(csr_mtimecmp);
-      `else
         temp=duplicate(csr_mtimecmp);
-      `endif
       else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
-      `ifndef axi4_128b  
-        temp=truncate(rgmtime);
-      `else
         temp=duplicate(rgmtime);
-      `endif
 		  else
 				success=False;	
 
@@ -134,8 +126,8 @@ package clint;
         temp=duplicate(temp[15:0]);
       else if(size==Word && dvalue%32==0)
         temp=duplicate(temp[31:0]);
-			else if(size == DWord && dvalue%64==0)	
-			  temp=duplicate(temp);
+//			else if(size == DWord && dvalue%64==0)	
+//			  temp=duplicate(temp);
       data=truncate(temp);
 			return tuple2(success,data);
 		endmethod
@@ -144,8 +136,8 @@ package clint;
         size);
         Bool success=True;
         //`ifndef axi4_128b
-          Bit#(`buswidth) temp = 0;
-          Bit#(`buswidth) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+          Bit#(64) temp = 0;
+          Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
         /*`else
           Bit#(128) temp = 0;
           Bit#(128) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
@@ -159,13 +151,13 @@ package clint;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
         //`ifndef axi4_128b
-          Bit#(`buswidth) datamask=duplicate(data)&mask;
+          Bit#(64) datamask=duplicate(data)&mask;
         let notmask=~mask;
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
         else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
           `ifndef axi4_128b
-            csr_mtimecmp<=(csr_mtimecmp & zeroExtend(notmask))| zeroExtend(datamask);
+            csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
           `else
             csr_mtimecmp <= truncate((zeroExtend(csr_mtimecmp) & notmask) | datamask);
           `endif
@@ -267,9 +259,9 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    Mul#(data_width, i__, 128),
-    Add#(j__, data_width, 128),
-    Mul#(msip_size, k__, 128),
+    Mul#(data_width, i__, 64),
+    Add#(j__, data_width, 64),
+    Mul#(msip_size, k__, 64),
     //`ifndef axi4_128b
       Mul#(data_width, c__, `buswidth)
     /*`else
