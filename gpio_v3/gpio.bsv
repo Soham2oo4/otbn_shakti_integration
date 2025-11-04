@@ -123,11 +123,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
         		Add#(c__, ionum, 64),
-                        Add#(d__, data_width, 32),
-                        Add#(e__, data_width, 128),
-        		Mul#(16, f__, data_width),
-        		Mul#(32, g__, data_width),
-        		Mul#(8, h__, data_width)
+				Add#(d__, data_width, 32)
 			);
 			
 	/* doc : vector : holds the GPIO ports direction configuration. If set, the corresponding port is configured as output else input. Vector length is equal to the number of IO ports required.*/
@@ -225,10 +221,10 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			// thus we need a mechanism to shift the data in accordance and then pass the data
 			//Bit#(32) temp_data=(size==Word)?truncate(data):(size==HWord)?zeroExtend(data[15:0]):(size==Byte)?zeroExtend(data[7:0]):0;
 
-	    Bit#(data_width) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+	    Bit#(32) mask=size==Byte?'hff:size==HWord?'hFFFF:'hFFFFFFFF;
 	    Bit#(5) shift_amt=zeroExtend(addr[1:0])<<3;
 	    mask=mask<<shift_amt;
-	    Bit#(data_width) datamask=zeroExtend(data)&mask;
+	    Bit#(32) datamask=zeroExtend(data)&mask;
 
 
 			if( addr[6:0]>=`dir_reg1 && addr[6:0]<`dir_reg2 )
@@ -308,7 +304,7 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 			Bool success= True;
 			Bit#(data_width) data=0;
 			Bit#(5) shift_amt=zeroExtend(addr[1:0])<<3;//generating the shift amount
-			Bit#(data_width) temp =0;//parameterised
+			Bit#(32) temp =0;//parameterised
 			
 			if( addr[6:0]>=`dir_reg1 && addr[6:0]<`dir_reg2 )
 				for(Integer i=0;i<iocount ;i=i+1)
@@ -406,12 +402,9 @@ module mkgpio_axi4lite `ifdef testmode #(Bool test_mode) `endif (Ifc_gpio_axi4li
 				Add#(b__, data_width, 64),
         		Add#(c__, ionum, 64),
         		Add#(d__, 1, data_width),
-			Add#(e__, data_width, 128),
-			Mul#(16, f__, data_width),
-        		Mul#(32, g__, data_width),
-        		Mul#(8, h__, data_width),
-				Add#(i__, data_width, 32),
-				Add#(j__, 8, data_width)
+        		Mul#(8, e__, data_width),
+				Add#(f__, data_width, 32),
+				Add#(g__, 8, data_width)
 			);
 		Reset core_reset<-exposeCurrentReset;
 		Clock core_clock<-exposeCurrentClock;
@@ -540,11 +533,7 @@ module mkgpio_axi4(Ifc_gpio_axi4#(addr_width,id_width, data_width,user_width,ion
 				Add#(a__,4,data_width),
 				Add#(b__, data_width, 64),
         		Add#(c__, ionum, 64),
-			Add#(d__, data_width, 128),
-			Add#(e__, data_width, 32),
-			Mul#(16, f__, data_width),
-        		Mul#(32, g__, data_width),
-        		Mul#(8, h__, data_width)
+				Add#(d__, data_width, 32)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;

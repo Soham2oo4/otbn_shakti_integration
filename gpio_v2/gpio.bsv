@@ -109,13 +109,11 @@ package gpio;
 module mkgpio(User_ifc#(addr_width,data_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
-				Add#(b__, data_width, 64),
+				Add#(b__, data_width, 128),
         		Add#(c__, ionum, 64),
-                        Add#(d__, data_width, 32),
-                        Add#(e__, data_width, 128),
-        		Mul#(16, f__, data_width),
-        		Mul#(32, g__, data_width),
-        		Mul#(8, h__, data_width)
+        		Mul#(16, d__, data_width),
+        		Mul#(32, e__, data_width),
+        		Mul#(8, f__, data_width)
 			);
 			
 	/* doc : vector : holds the GPIO ports direction configuration. If set, the corresponding port is configured as output else input. Vector length is equal to the number of IO ports required.*/
@@ -288,13 +286,11 @@ module mkgpio(User_ifc#(addr_width,data_width,ionum))
 module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
-				Add#(b__, data_width, 64),
+				Add#(b__, data_width, 128),
         		Add#(c__, ionum, 64),
-                        Add#(d__, data_width, 128),
-        		Mul#(16, e__, data_width),
-        		Mul#(32, f__, data_width),
-        		Mul#(8, g__, data_width),
-        		Add#(h__, data_width, 32)
+        		Mul#(16, d__, data_width),
+        		Mul#(32, e__, data_width),
+        		Mul#(8, f__, data_width)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <-mkgpio;
@@ -337,13 +333,11 @@ module mkgpio_axi4lite(Ifc_gpio_axi4lite#(addr_width,data_width,user_width,ionum
 module mkgpio_axi4(Ifc_gpio_axi4#(addr_width,id_width, data_width,user_width,ionum))
 		provisos(
 				Add#(a__,4,data_width),
-				Add#(b__, data_width, 64),
+				Add#(b__, data_width, 128),
         		Add#(c__, ionum, 64),
-			Add#(d__, data_width, 128),
-        		Mul#(16, e__, data_width),
-        		Mul#(32, f__, data_width),
-        		Mul#(8, g__, data_width),
-        		Add#(h__, data_width, 32)
+        		Mul#(16, d__, data_width),
+        		Mul#(32, e__, data_width),
+        		Mul#(8, f__, data_width)
 			);
 
 		User_ifc#(addr_width,data_width,ionum) gpio <- mkgpio;
