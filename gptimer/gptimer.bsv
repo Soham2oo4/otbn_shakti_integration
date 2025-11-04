@@ -356,7 +356,7 @@ package gptimer;
                  
                 
 			`ifdef gpt_clk_gate_en    
-                MuxClkIfc      clock_selection     <- mkClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk                 
+                MuxClkIfc      clock_selection     <- mkClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk   
 			`else  
 				MuxClkIfc      clock_selection     <- mkUngatedClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk 
 			`endif            

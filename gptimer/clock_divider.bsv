@@ -42,7 +42,7 @@ package clock_divider;
     `ifdef gpt_clk_gate_en 
       MuxClkIfc clock_selector <- mkClockMux(new_clock.new_clk,defclock);
     `else
-    MuxClkIfc clock_selector <- mkUngatedClockMux(new_clock.new_clk,defclock);
+      MuxClkIfc clock_selector <- mkUngatedClockMux(new_clock.new_clk,defclock);
     `endif
     Bool clockmux_sel = rg_divisor!=0;
     rule increment_counter(rg_divisor != 0);
