@@ -282,7 +282,7 @@ package TbSoc;
               $fwrite(dump, " c1536_hstatus 0x%16h", hstatus);
             end
             `endif
-            if (csr_address != `FCSR && csr_address != `MISA ) begin
+            if ( `ifdef spfpu csr_address != `FCSR && `endif csr_address != `MISA ) begin
             if (valueOf(`xlen) == 64) 
               $fwrite(dump, " ", fn_csr_to_str(csr_address), " 0x%16h", wdata);
             if (valueOf(`xlen) == 32) begin

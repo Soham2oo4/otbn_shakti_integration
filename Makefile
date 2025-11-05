@@ -270,7 +270,7 @@ generate_tsoc_boot_files: ## to generate boot files for simulation
 .PHONY: ip_build
 ip_build: ## build Xilinx Core-IPs used in this project
 	vivado -log ipbuild.log -nojournal -mode tcl -notrace -source $(TOP_DIR)/tcl/create_ip_project.tcl \
-		-tclargs $(FPGA) $(XLEN) $(ISA) $(JOBS) $(buswidth) \
+		-tclargs $(FPGA) $(XLEN) $(ISA) $(JOBS) $(buswidth) $(BUS_WIDTH)\
 		|| (echo "Could not create IP project"; exit 1)
 
 .PHONY: board_build
