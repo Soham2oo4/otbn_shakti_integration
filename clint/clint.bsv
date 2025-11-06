@@ -110,9 +110,9 @@ package clint;
 			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
       else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
-        temp=zeroExtend(csr_mtimecmp);
+        temp=duplicate(csr_mtimecmp);
       else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
-        temp=zeroExtend(rgmtime);
+        temp=duplicate(rgmtime);
 		  else
 				success=False;	
 
