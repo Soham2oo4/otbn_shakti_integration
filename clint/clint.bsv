@@ -61,6 +61,7 @@ package clint;
       Mul#(msip_size, a__, 128),
       Add#(e__, msip_size, data_width),
       Mul#(data_width, c__, 128),
+      Mul#(64, j__, data_width),
     `endif
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
@@ -124,7 +125,7 @@ package clint;
         temp=duplicate(temp[15:0]);
       else if(size==Word && dvalue%32==0)
         temp=duplicate(temp[31:0]);
-    `ifndef axi4_128b
+    `ifdef axi4_128b
       else if(size == DWord && dvalue%64==0)	
         temp=duplicate(temp[63:0]);
     `endif
@@ -147,7 +148,7 @@ package clint;
           HWord: duplicate(data[15:0]);
           Word: duplicate(data[31:0]);
         `ifdef axi4_128b
-          DWord: duplicate(data);
+          DWord: duplicate(data[63:0]);
         `endif
           default: data;
         endcase;
@@ -260,6 +261,7 @@ package clint;
           Add#(b__, data_width, 128),
           Add#(d__, TDiv#(data_width, 8), 16),
           Mul#(msip_size, a__, 128),
+          Mul#(64, j__, data_width),
         `endif
         Add#(e__, msip_size, data_width),
     Mul#(8, f__, data_width),
