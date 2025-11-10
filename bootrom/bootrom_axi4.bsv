@@ -112,6 +112,7 @@ package bootrom_axi4;
     Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
     Reg#(AXI4_Rd_Addr#(addr_width, id_width, user_width)) rg_read_packet <-mkReg(?);
     Reg#(AXI4_Wr_Resp#(id_width, user_width)) rg_write_response <-mkReg(?);
+    Wire#(Bool) wr_read_ack <- mkDWire(False);
     Integer byte_offset = valueOf(TLog#(TDiv#(data_width, 8)));
 
     // If the request is single then send ERR. If it is a burst write request then change
@@ -148,7 +149,7 @@ package bootrom_axi4;
     endrule
     // incase of burst read,  generate the new address and send it to the dut until the burst
     // count has been reached.
-    rule read_request_burst(read_state==Burst);
+    rule read_request_burst(read_state==Burst && wr_read_ack);
       if(rg_readburst_counter==rg_read_packet.arlen)
         read_state<=Idle;
       else begin
@@ -161,6 +162,7 @@ package bootrom_axi4;
     endrule
     // get data from the bootrom. send response.
     rule read_response;
+      wr_read_ack<=True;
       let {err, data0}<-dut.read_response;
       let transfer_size=rg_read_packet.arsize;
       
