@@ -735,7 +735,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
       0: begin writedata = duplicate(sbdata0[7:0]); writestrb = 'b1<<shamt; end
       1: begin writedata = duplicate(sbdata0[15:0]); writestrb = 'b11 << shamt; end
       2: begin writedata = duplicate(sbdata0); writestrb = 'b1111 << shamt ; end
-    `ifdef RV64
+    `ifdef RV64  //Setting the buswidth as 64 and 128 for RV32 will not be supported
       3: begin writedata = duplicate({sbdata1,sbdata0}); writestrb = 'b11111111 << shamt; end
     `endif
     endcase
