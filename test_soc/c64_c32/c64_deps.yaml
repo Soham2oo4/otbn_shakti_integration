@@ -15,7 +15,7 @@ common_verilog:
   checkout: 3.2.0
 verification:
   url: https://gitlab.com/shaktiproject/verification_environment/verification
-  checkout: 5.0.9
+  checkout: 91-trace-helper-scripts
   recursive: True
   patch:
     - [riscv-tests/env , verification/patches/cclass-env.patch]
