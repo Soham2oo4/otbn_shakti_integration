@@ -19,8 +19,8 @@ package sign_dump;
 	import Semi_FIFOF:: *;
 
   interface Ifc_sign_dump;
-		interface AXI4_Master_IFC#(`paddr,`axi4_id_width, `buswidth, USERSPACE) master;
-		interface AXI4_Slave_IFC#(`paddr, `axi4_id_width, `buswidth, USERSPACE) slave;
+		interface AXI4_Master_IFC#(`paddr,`axi4_id_width, `buswidth, `USERSPACE) master;
+		interface AXI4_Slave_IFC#(`paddr, `axi4_id_width, `buswidth, `USERSPACE) slave;
   endinterface
 
   (*synthesize*)
@@ -31,8 +31,8 @@ package sign_dump;
     Reg#(Bool) rg_start<- mkReg(False);
     Reg#(Bit#(TLog#(TDiv#(128,`buswidth)))) rg_word_count <- mkReg(fromInteger(word_count-1));
     Reg#(Bit#(`paddr)) rg_total_count <- mkReg(0);
-		AXI4_Master_Xactor_IFC #(`paddr, `axi4_id_width,`buswidth, USERSPACE) m_xactor <- mkAXI4_Master_Xactor;
-		AXI4_Slave_Xactor_IFC #(`paddr, `axi4_id_width,`buswidth, USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
+		AXI4_Master_Xactor_IFC #(`paddr, `axi4_id_width,`buswidth, `USERSPACE) m_xactor <- mkAXI4_Master_Xactor;
+		AXI4_Slave_Xactor_IFC #(`paddr, `axi4_id_width,`buswidth, `USERSPACE) s_xactor <- mkAXI4_Slave_Xactor;
     
     FIFOF#(Bit#(TLog#(TDiv#(`buswidth,8)))) ff_lower_order_bits <- mkSizedFIFOF(8);
 
@@ -82,7 +82,7 @@ package sign_dump;
     
     rule send_request(rg_start);
       if(rg_start_address<rg_end_address) begin
-  			AXI4_Rd_Addr#(`paddr,`axi4_id_width, 0) read_request = AXI4_Rd_Addr {araddr: rg_start_address, aruser: ?, 
+  			AXI4_Rd_Addr#(`paddr,`axi4_id_width, `USERSPACE) read_request = AXI4_Rd_Addr {araddr: rg_start_address, aruser: ?, 
           arlen:0, arsize: 2, arburst: 'b01, arid:2, arprot: ?}; // arburst: 00-FIXED 01-INCR 10-WRAP
   			m_xactor.i_rd_addr.enq(read_request);	
         rg_start_address<=rg_start_address+4;

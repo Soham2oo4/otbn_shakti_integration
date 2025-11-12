@@ -87,8 +87,8 @@ package Soc;
   `endif
     interface RS232 uart_io;
   `ifdef debug
-    interface AXI4_Slave_IFC#(`paddr,`axi4_id_width ,`buswidth, USERSPACE) to_debug_master;
-    interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `buswidth, USERSPACE) to_debug_slave;
+    interface AXI4_Slave_IFC#(`paddr,`axi4_id_width ,`buswidth, `USERSPACE) to_debug_master;
+    interface AXI4_Master_IFC#(`paddr, `axi4_id_width, `buswidth, `USERSPACE) to_debug_slave;
     method Action ma_hart_interrupts (Bit#(`num_harts) i);
     method Bit#(`num_harts) mv_harts_have_reset;
     method Bit#(`num_harts) mv_core_debugenable;
@@ -109,7 +109,7 @@ package Soc;
     `endif
     end
 
-    AXI4_Fabric_IFC #(Num_Masters, `Num_Slaves, `paddr, `axi4_id_width, `buswidth, USERSPACE) 
+    AXI4_Fabric_IFC #(Num_Masters, `Num_Slaves, `paddr, `axi4_id_width, `buswidth, `USERSPACE) 
                                                     fabric <- mkAXI4_Fabric(fn_slave_map);
 
     Ifc_ccore_axi4 ccore[`num_harts];
@@ -118,15 +118,15 @@ package Soc;
     end
 
     Ifc_sign_dump signature<- mksign_dump();
-	  Ifc_uart_axi4#(`paddr,`axi4_id_width ,`buswidth,0, 16) uart <- mkuart_axi4(curr_clk,curr_reset, 5, 0, 0);
-    Ifc_clint_axi4#(`paddr ,`axi4_id_width, `buswidth, 0, `num_harts, 2) clint <- mkclint_axi4();
-    Ifc_err_slave_axi4#(`paddr,`axi4_id_width,`buswidth,0) err_slave <- mkerr_slave_axi4;
-    Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, USERSPACE, `Addr_space) main_memory <- mkbram_axi4(`MemoryBase,
+	  Ifc_uart_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE, 16) uart <- mkuart_axi4(curr_clk,curr_reset, 5, 0, 0);
+    Ifc_clint_axi4#(`paddr ,`axi4_id_width, `buswidth, `USERSPACE, `num_harts, 2) clint <- mkclint_axi4();
+    Ifc_err_slave_axi4#(`paddr,`axi4_id_width,`buswidth,`USERSPACE) err_slave <- mkerr_slave_axi4;
+    Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, `Addr_space) main_memory <- mkbram_axi4(`MemoryBase,
                                                 "code.mem", "MainMEM");
-                  Ifc_bootrom_axi4#(`paddr, `axi4_id_width, `buswidth, USERSPACE, `ifdef axi4_128b 12 `else 13 `endif ) bootrom <-mkbootrom_axi4(`BootRomBase);
+                  Ifc_bootrom_axi4#(`paddr, `axi4_id_width, `buswidth, `USERSPACE, `ifdef axi4_128b 12 `else 13 `endif ) bootrom <-mkbootrom_axi4(`BootRomBase);
 `ifdef etrace_support 
-    Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,0) trace <- mktrace_axi4;
-    Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
+    Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE) trace <- mktrace_axi4;
+    Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
                                                 "trace.mem", "TraceMEM");
 `endif
 
