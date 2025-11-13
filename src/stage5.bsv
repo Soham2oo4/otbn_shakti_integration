@@ -259,9 +259,8 @@ if (rg_epochs_match &&
       rg_trapout_ingress_is_microtrap <= pack(trapout.is_microtrap);
       rg_trap_ingress <= 1;
     `endif
-    //$display($time,"rl_writeback_trap");
-    //$display($time,"[%2d]STAGE5 : PC:%h",hartid,fuid.pc);
-    $display($time,"[%2d]STAGE5 : Trap: ",hartid, fshow(trapout));
+    `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
+    `logLevel( stage5, 0, $format("[%2d]STAGE5 : Trap: ",hartid, fshow(trapout)))
     wr_commit <= CommitData{addr: fuid.rd, data: ?, unlock_only:True
                           `ifdef no_wawstalls , id: fuid.id `endif
                            `ifdef spfpu ,rdtype: fuid.rdtype `endif };
