@@ -235,7 +235,7 @@ if (rg_epochs_match &&
     rg_fuid <= rx_fuid.u.first;
     rg_epochs_match <= epochs_match;
     rg_priv_in <= pack(csr.mv_prv);
-    $display($time,"Dequeing.....");       
+    // $display($time,"Dequeing.....");       
     rx_ingress_opcode.u.deq;
  endrule
  
