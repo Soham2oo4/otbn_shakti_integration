@@ -250,7 +250,6 @@ if (rg_epochs_match &&
   rule rl_writeback_trap(rx_fuid.u.first.insttype == TRAP );
     let trapout = rx_trapout.u.first;
     let fuid = rx_fuid.u.first;
-    $display($time,"rl_writeback_trap-PC:%h",fuid.pc);
     `ifdef etrace_support
       //$display($time, "Setting trap ingress signals: PC:%h", fuid.pc);       
       rg_trapout_ingress_cause <= truncate(trapout.cause);
