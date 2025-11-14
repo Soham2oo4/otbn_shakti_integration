@@ -485,6 +485,8 @@ endmodule:mkplic
         Add#(g__, 1, lg_priority)
       );
 
+    let strb_size = valueOf(TSub#(TDiv#(dw,8),1));
+
 		AXI4_Lite_Slave_Xactor_IFC #(aw, dw, uw)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
 		User_ifc#(aw, dw, sources, targets, maxpriority) plic <- mkplic(slave_base);
 
@@ -494,7 +496,7 @@ endmodule:mkplic
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
 				Bit#(TLog#(TDiv#(dw,8))) byte_offset=0;
-				for(Integer i=3; i >= 0; i=i-1) begin 
+				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
 				end
