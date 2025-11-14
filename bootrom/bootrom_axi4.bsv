@@ -45,8 +45,11 @@ package bootrom_axi4;
     Bit#(addr_width) base_address=fromInteger(slave_base);
 
     BRAM_PORT#(Bit#(index_size), Bit#(data_width)) boot <- mkBRAMCore1Load(valueOf(TExp#(index_size)), False, "bootfile", False);
-    Reg#(Bool) read_request_sent <-mkDRegA(False);
-    Reg#(Tuple2#(Bit#(TAdd#(1,(TLog#(TDiv#(data_width, 8))))),AccessSize)) rg_req<- mkRegA(tuple2(0,Byte));
+    Reg#(Bool) rg_read_request_sent <- mkRegA(False);
+    Wire#(Bool) wr_preread_read_request_sent <- mkDWire(False);
+    Wire#(Bool) wr_read_request_valid <- mkDWire(False);
+    Wire#(Bool) wr_read_response_valid <- mkDWire(False);
+    Reg#(Tuple2#(Bit#(TAdd#(1,(TLog#(TDiv#(data_width, 8))))),AccessSize)) rg_req <- mkRegA(tuple2(0,Byte));
     `ifdef fesvr_sim
       Reg#(Bit#(1)) rg_initialized <- mkRegA(0);
     `endif
@@ -61,6 +64,19 @@ package bootrom_axi4;
         rg_initialized <= 1;
       endrule
     `endif
+
+    rule rl_preread_regs;
+      wr_preread_read_request_sent <= rg_read_request_sent;
+    endrule
+
+    rule rl_update_regs;
+      if (wr_read_request_valid) begin
+        rg_read_request_sent <= True;
+      end
+      else if (wr_read_response_valid) begin
+        rg_read_request_sent <= False;
+      end
+    endrule
 
     // A write request to bootrom has no significance.
     method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
@@ -77,14 +93,15 @@ package bootrom_axi4;
       Bit#(index_size) index_address=(addr-(base_address))[byte_offset+ valueOf(index_size) -1 :  byte_offset];
       rg_req<= tuple2(addr[byte_offset:0],size);
       boot.put(False, index_address, ?);
-      read_request_sent<= True;
+      wr_read_request_valid <= True;
       `logLevel( bootrom, 0, $format("BootROM: Received Read Request for Address: %h Index Address: %h b: %d", addr, index_address, byte_offset))
     endmethod
   
     // respond with data from the BRAM.
-    method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response if(read_request_sent);
+    method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_response if(wr_preread_read_request_sent);
       let {offset, size}=rg_req;
       Bit#(data_width) data=boot.read();
+      wr_read_response_valid <= True;
       return tuple2(False, data);
     endmethod
   endmodule
@@ -102,7 +119,7 @@ package bootrom_axi4;
              Mul#(8, a__, data_width), 
              Mul#(16, b__, data_width), 
              Mul#(32, c__, data_width),
-             //Mul#(64, e__, data_width),
+             Mul#(64, e__, data_width),
              Add#(3, d__, TLog#(data_width)));
     UserInterface#(addr_width, data_width, index_width) dut <- mkbootrom(slave_base);
     AXI4_Slave_Xactor_IFC #(addr_width, id_width, data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor;
@@ -112,6 +129,7 @@ package bootrom_axi4;
     Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
     Reg#(AXI4_Rd_Addr#(addr_width, id_width, user_width)) rg_read_packet <-mkRegA(?);
     Reg#(AXI4_Wr_Resp#(id_width, user_width)) rg_write_response <-mkRegA(?);
+    Wire#(Bool) wr_read_ack <- mkDWire(False);
     Integer byte_offset = valueOf(TLog#(TDiv#(data_width, 8)));
 
     // If the request is single then send ERR. If it is a burst write request then change
@@ -148,7 +166,7 @@ package bootrom_axi4;
     endrule
     // incase of burst read,  generate the new address and send it to the dut until the burst
     // count has been reached.
-    rule read_request_burst(read_state==Burst);
+    rule read_request_burst(read_state==Burst && wr_read_ack);
       if(rg_readburst_counter==rg_read_packet.arlen)
         read_state<=Idle;
       else begin
@@ -161,6 +179,7 @@ package bootrom_axi4;
     endrule
     // get data from the bootrom. send response.
     rule read_response;
+      wr_read_ack<=True;
       let {err, data0}<-dut.read_response;
       let transfer_size=rg_read_packet.arsize;
       
@@ -171,7 +190,7 @@ package bootrom_axi4;
               0 : duplicate(data_extracted[7:0]);
               1 : duplicate(data_extracted[15:0]);
               2 : duplicate(data_extracted[31:0]);
-              //3 : duplicate(data_extracted[63:0]);
+              3 : duplicate(data_extracted[63:0]);
                 default: data_extracted; 
 		    endcase;	
   
