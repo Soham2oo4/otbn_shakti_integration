@@ -848,19 +848,16 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     if (offset == `IMPEBREAK) begin // reading implicit ebreak
       data = cfg.implicitebreak==1? duplicate(`EBREAK) : duplicate(`NOP) ;
       `logLevel( debug, 0, $format("DEBUG: Reading implicit ebreak"))
-      `logLevel( debug, 0, $format("DEBUG: Reading implicit ebreak"))
     end
     else if (offset == `WHERETO) begin // read jump to abstract
       Bit#(21) _off = fromInteger(`ABSTRACT-`WHERETO);
       data = duplicate({fn_j_imm(_off),12'h6f});
-      `logLevel( debug, 0, $format("DEBUG: Reading WHERETO:DASM(0x%h)", data[31:0]))
+      `logLevel( debug, 0, $format("DEBUG: Reading WHERETO:DASM(0x%h)",data[31:0]))
     end
-    else if (offset >= `ABSTRACT && offset < `PROGBUF) begin // read abstract command registers
     else if (offset >= `ABSTRACT && offset < `PROGBUF) begin // read abstract command registers
       Bit#(1) index = truncate((offset - `ABSTRACT)>>2);
       `logLevel( debug, 0, $format("DEBUG: Abstract offset:%h Abstract:%h index:%d", offset, `ABSTRACT, index))
       if (req.arsize == 2) begin  // 4-byte read request
-<<<<<<< HEAD
       data = duplicate(v_abstract_reg[index]);
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)",v_abstract_reg[index]))
       end
@@ -870,34 +867,17 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
           if (index == 0) begin
       data = {v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1], v_abstract_reg[0]};
       `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h) DASM(0x%h)",v_abstract_reg[1], v_abstract_reg[0]))
-=======
-        data = duplicate(v_abstract_reg[index]);
-        `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)", v_abstract_reg[index]))
-      end
-      // TODO: add support for 8-byte read if required
-      `ifdef axi4_128b
-        else if (req.arsize == 4) begin // 16-byte read request (128-bit)
-          if (index == 0) begin
-            data = {v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1], v_abstract_reg[0]};
-            `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h) DASM(0x%h)", v_abstract_reg[1], v_abstract_reg[0]))
->>>>>>> 443a715 (debug response fixes)
           end
           else begin
             data = {v_progbuf_reg[2], v_progbuf_reg[1], v_progbuf_reg[0], v_abstract_reg[1]};
             `logLevel( debug, 0, $format("DEBUG: Reading abstract insn:DASM(0x%h)", v_abstract_reg[1]))
           end
         end
-<<<<<<< HEAD
     `endif
-=======
-      `endif // 128-bit data width
->>>>>>> 443a715 (debug response fixes)
     end
-    else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) && (req.arsize==0) && offset < 'h800) begin // TODO: extend this for multicore
     else if (offset >= `FLAGS && offset < (`FLAGS + fromInteger(v_ncomponents)) && (req.arsize==0) && offset < 'h800) begin // TODO: extend this for multicore
       Bit#(TLog#(ncomponents)) index = truncate(offset);
       data = duplicate(pack(v_flags[index]));
-      `logLevel( debug, 0, $format("DEBUG: Reading flags from index %d: %h", index, v_flags[index]))
       `logLevel( debug, 0, $format("DEBUG: Reading flags from index %d: %h", index, v_flags[index]))
     end
     else if (offset >= `DATA && offset <= (`DATA + fromInteger(v_nabstractdata*4))) begin
@@ -911,25 +891,11 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
           `endif // 128-bit
         end
       `endif // RV64
-      `ifdef RV64
-        if (req.arsize==3) begin
-          data[63:32] = v_data_reg[index+1];
-          `ifdef axi4_128b
-            data[127:64] = data[63:0];
-          `endif // 128-bit
-        end
-      `endif // RV64
     end
     else if (offset >= `PROGBUF && offset <= (`PROGBUF + fromInteger(v_nprogbuf*4))) begin
       Bit#(TLog#(nprogbuf)) index = resize(offset-fromInteger(`PROGBUF)>>2);
       if (req.arsize == 2) begin
-      if (req.arsize == 2) begin
         data = duplicate(v_progbuf_reg[index]);
-        `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)", v_progbuf_reg[index]))
-      end
-      `ifdef RV64
-        else if (req.arsize==3) begin
-          data = duplicate(v_progbuf_reg[index]);
         `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h)", v_progbuf_reg[index]))
       end
       `ifdef RV64
@@ -940,48 +906,29 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
         end
         `ifdef axi4_128b
           else if (req.arsize==4) begin
-<<<<<<< HEAD
         // TODO: non-power-of-2
         data = {v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]};
             `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h) DASM(0x%h) DASM(0x%h) DASM(0x%h)", v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]))
           end
       `endif
-=======
-            // TODO: non-power-of-2
-            data = {v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]};
-            `logLevel( debug, 0, $format("DEBUG: Reading Progbuf insn:DASM(0x%h) DASM(0x%h) DASM(0x%h) DASM(0x%h)", v_progbuf_reg[index+3], v_progbuf_reg[index+2], v_progbuf_reg[index+1], v_progbuf_reg[index]))
-          end
-        `endif // 128-bit
->>>>>>> 443a715 (debug response fixes)
       `endif // RV64
     end
     `ifndef debugrom_large  // normal debug ROM
       else if (offset >= `ROMBASE && offset <= (`ROMBASE + 112)) begin
-      else if (offset >= `ROMBASE && offset <= (`ROMBASE + 112)) begin
         Bit#(5) index = truncate((offset - `ROMBASE)>>2);
     `else
-      else if (offset >= `ROMBASE && offset <= (`ROMBASE + 240)) begin
       else if (offset >= `ROMBASE && offset <= (`ROMBASE + 240)) begin
         Bit#(6) index = truncate((offset - `ROMBASE)>>2);
     `endif
         if (req.arsize == 2) begin // 4-byte read request
-        if (req.arsize == 2) begin // 4-byte read request
           data = duplicate(vrom[index]);
           `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h)", vrom[index]))
         end
-<<<<<<< HEAD
           // Note: for 128-bit bus width
         `ifdef axi4_128b
           else if (req.arsize == 4) begin // 16-byte read request (128-bit)
           // TODO: non-power-of-2
           data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
-=======
-        // TODO: add support for 8-byte read if required
-        `ifdef axi4_128b
-          else if (req.arsize == 4) begin // 16-byte read request (128-bit)
-            // TODO: non-power-of-2
-            data = {vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]};
->>>>>>> 443a715 (debug response fixes)
             `logLevel( debug, 0, $format("DEBUG: Reading ROM insn:DASM(0x%h) DASM(0x%h) DASM(0x%h) DASM(0x%h)", vrom[index+3], vrom[index+2], vrom[index+1], vrom[index]))
           end
         `endif
