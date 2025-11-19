@@ -177,23 +177,23 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
   `ifdef etrace_support
     IFC_ingress ingress_port <- mkingress();
     
-     Reg#(Bit#(1)) rg_trap_ingress <- mkReg(0);
-     Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkReg(0);
-     Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkReg(0);
-     Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkReg(0);
-     Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkReg(0);
-     Reg#(Bit#(2)) rg_priv_in <- mkReg(0);
-     Reg#(CUid)      rg_fuid <- mkReg(unpack(0));  
-     Reg#(Bool)      rg_epochs_match <- mkReg(False);  
-     Reg#(Bit#(14)) rg_ingress_opcode <- mkReg(0);
-     Reg#(Bit#(3)) rg_funct3 <- mkReg(1);
-     Wire#(Bit#(3)) wr_itype <- mkWire(); 
-     Wire#(Bit#(4)) wr_cause <- mkWire(); 
-     Wire#(Bit#(64)) wr_tval <- mkWire(); 
-     Wire#(Bit#(2)) wr_priv <- mkWire(); 
-     Wire#(Bit#(64)) wr_iaddr <- mkWire(); 
-     Wire#(Bit#(1)) wr_iretire <- mkWire(); 
-     Wire#(Bit#(1)) wr_ilastsize <- mkWire();
+    Reg#(Bit#(1)) rg_trap_ingress <- mkReg(0);
+    Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkReg(0);
+    Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkReg(0);
+    Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkReg(0);
+    Reg#(Bit#(1)) rg_trapout_ingress_is_microtrap <- mkReg(0);
+    Reg#(Bit#(2)) rg_priv_in <- mkReg(0);
+    Reg#(CUid)      rg_fuid <- mkReg(unpack(0));  
+    Reg#(Bool)      rg_epochs_match <- mkReg(False);  
+    Reg#(Bit#(14)) rg_ingress_opcode <- mkReg(0);
+    Reg#(Bit#(3)) rg_funct3 <- mkReg(1);
+    Wire#(Bit#(3)) wr_itype <- mkWire(); 
+    Wire#(Bit#(4)) wr_cause <- mkWire(); 
+    Wire#(Bit#(64)) wr_tval <- mkWire(); 
+    Wire#(Bit#(2)) wr_priv <- mkWire(); 
+    Wire#(Bit#(64)) wr_iaddr <- mkWire(); 
+    Wire#(Bit#(1)) wr_iretire <- mkWire(); 
+    Wire#(Bit#(1)) wr_ilastsize <- mkWire();
     
     rule rl_ingress_conn(rg_fuid.insttype == TRAP  || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  rg_fuid.insttype == MEMORY);     
       `logLevel( ingress, 0, $format("ingress firing cond",rg_fuid.insttype))
@@ -227,13 +227,13 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     	end  
   endrule
      
- rule rl_ingress_conn_deq(rx_fuid.u.first.insttype == TRAP || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  rx_fuid.u.first.insttype == MEMORY);
-    rg_ingress_opcode     <= rx_ingress_opcode.u.first;
-    rg_fuid <= rx_fuid.u.first;
-    rg_epochs_match <= epochs_match;
-    rg_priv_in <= pack(csr.mv_prv);
-    rx_ingress_opcode.u.deq;
- endrule
+  rule rl_ingress_conn_deq(rx_fuid.u.first.insttype == TRAP || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  rx_fuid.u.first.insttype == MEMORY);
+      rg_ingress_opcode     <= rx_ingress_opcode.u.first;
+      rg_fuid <= rx_fuid.u.first;
+      rg_epochs_match <= epochs_match;
+      rg_priv_in <= pack(csr.mv_prv);
+      rx_ingress_opcode.u.deq;
+  endrule
  
  `endif
  
