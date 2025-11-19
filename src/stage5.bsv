@@ -196,7 +196,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
      Wire#(Bit#(1)) wr_ilastsize <- mkWire();
     
     rule rl_ingress_conn(rg_fuid.insttype == TRAP  || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  rg_fuid.insttype == MEMORY);     
-      `loglevel(ingress, 0, $format("ingress firing cond",rg_fuid.insttype))
+      `logLevel( ingress, 0, $format("ingress firing cond",rg_fuid.insttype))
       rg_trapout_ingress_cause <= 0;
       rg_trapout_ingress_mtval <= 0;
       rg_trapout_ingress_cause_msb <= 0;
@@ -214,9 +214,9 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     	begin
         let fuid_ingress = rg_fuid;
         let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rg_ingress_opcode,rg_funct3,  rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress);
-        `loglevel(ingress, 0, $format("sending..... ingress_opcode:%h, fuid.rd:%h,trapout_ingress_cause:%h, trapout_ingress_mtval:%h, priv_in:%h, fuid.pc:%h,trapout_ingress_cause_msb:%h , trap_ingress:%h"),rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress) 
-        `loglevel( ingress, 0, $format("itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")) 
-        `loglevel( ingress, 0, $format("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize))            
+        `logLevel( ingress, 0, $format("sending..... ingress_opcode:%h, fuid.rd:%h,trapout_ingress_cause:%h, trapout_ingress_mtval:%h, priv_in:%h, fuid.pc:%h,trapout_ingress_cause_msb:%h , trap_ingress:%h",rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress)) 
+        `logLevel( ingress, 0, $format("itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")) 
+        `logLevel( ingress, 0, $format("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize))            
       	wr_itype             <=   itype;
       	wr_cause             <=   cause;
       	wr_tval              <=   tval;
