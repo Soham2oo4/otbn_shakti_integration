@@ -182,7 +182,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Max#(TLog#(nsources),1, lg_nsources), // log of sources
     Max#(TLog#(maxpriority),1,lg_priority),  // log of priority
     Max#(TLog#(targets), 1,lg_targets),  // log of targets
-    Add#(_b, lg_nsources, 10),
+    Add#(_b, lg_nsources, 32),
 
     Add#(h__, 10, dw),
     Add#(a__, 26, aw),
@@ -202,7 +202,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     `endif
     Add#(f__, lg_priority, 32),
     Bits#(UInt#(TLog#(nsources)), lg_nsources),
-    Add#(g__, 1, lg_priority)
+    Add#(g__, 1, lg_priority),
+    Mul#(32, i__, dw)
   );
 
   let v_nsources = valueOf(nsources);
@@ -355,7 +356,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
               if (max_id != 0 ) begin
                 vrg_source_pending [max_id] <= False;
                 v_reg_source_busy [max_id] <= True;
-                rdata = reSize(max_id);
+                Bit#(32) _t0 = zeroExtend(max_id);
+                rdata = duplicate(_t0);
               `logLevel( plic, 0, $format("PLIC: Claiming interrupt-src:%d for target-id:%d",
                                                                                 max_id, target_id))
             end
@@ -462,7 +464,7 @@ endmodule:mkplic
         Max#(TLog#(nsources),1, lg_nsources), // log of sources
         Max#(TLog#(maxpriority),1,lg_priority),  // log of priority
         Max#(TLog#(targets), 1,lg_targets),  // log of targets
-        Add#(_b, lg_nsources, 10),
+        Add#(_b, lg_nsources, 32),
     
     Add#(h__, 10, dw),
         Add#(a__, 26, aw),
@@ -482,7 +484,8 @@ endmodule:mkplic
         `endif
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
-        Add#(g__, 1, lg_priority)
+        Add#(g__, 1, lg_priority),
+        Mul#(32, i__, dw)
       );
 
     let strb_size = valueOf(TSub#(TDiv#(dw,8),1));
@@ -538,7 +541,7 @@ endmodule:mkplic
         Max#(TLog#(nsources),1, lg_nsources), // log of sources
         Max#(TLog#(maxpriority),1,lg_priority),  // log of priority
         Max#(TLog#(targets), 1,lg_targets),  // log of targets
-        Add#(_b, lg_nsources, 10),
+        Add#(_b, lg_nsources, 32),
     
     Add#(h__, 10, dw),
         Add#(a__, 26, aw),
@@ -558,7 +561,8 @@ endmodule:mkplic
         `endif
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
-        Add#(g__, 1, lg_priority)
+        Add#(g__, 1, lg_priority),
+        Mul#(32, i__, dw)
       );
 
 		let strb_size = valueOf(TSub#(TDiv#(dw,8),1));
