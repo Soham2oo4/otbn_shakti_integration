@@ -65,7 +65,7 @@ bsc_compile_options:
   sva_assertions: False
   ovl_path: ""
   trace_dump: True
-  etrace_port: True
+  etrace_port: False
   compile_target: 'sim'
   suppress_warnings: ["none"]
   verilog_dir: build/hw/verilog
@@ -73,9 +73,9 @@ bsc_compile_options:
   top_module: mkTbSoc
   top_file: TbSoc.bsv
   top_dir: test_soc/c64_c32
-  open_ocd: True
+  open_ocd: False
   cocotb_sim: False
-  static_check: False
+  static_check: True
   verbosity: 0
 verilator_configuration:
   coverage: none
