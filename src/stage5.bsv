@@ -178,7 +178,6 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     IFC_ingress ingress_port <- mkingress();
     
      Reg#(Bit#(1)) rg_trap_ingress <- mkReg(0);
-
      Reg#(Bit#(4)) rg_trapout_ingress_cause <- mkReg(0);
      Reg#(Bit#(64)) rg_trapout_ingress_mtval <- mkReg(0);
      Reg#(Bit#(1)) rg_trapout_ingress_cause_msb <- mkReg(0);
@@ -197,8 +196,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
      Wire#(Bit#(1)) wr_ilastsize <- mkWire();
     
     rule rl_ingress_conn(rg_fuid.insttype == TRAP  || rg_fuid.insttype == SYSTEM || rg_fuid.insttype == BASE ||  rg_fuid.insttype == MEMORY);     
-    //$display("ingress firing cond",rg_fuid.insttype);
-    // run the block
+      `loglevel(ingress, 0, $format("ingress firing cond",rg_fuid.insttype))
       rg_trapout_ingress_cause <= 0;
       rg_trapout_ingress_mtval <= 0;
       rg_trapout_ingress_cause_msb <= 0;
@@ -209,25 +207,24 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
       rg_priv_in <= 0;
       rg_epochs_match <= False;
       rg_funct3 <= 1;
-if (rg_epochs_match &&
-   ((rg_fuid.insttype == TRAP   && rg_trapout_ingress_is_microtrap == 0) ||
-    (rg_fuid.insttype == MEMORY && pack(rg_ioop_init) == 0) ||
-    (rg_fuid.insttype != TRAP && rg_fuid.insttype != MEMORY)))
-    begin
-    let fuid_ingress = rg_fuid;
-    let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rg_ingress_opcode,rg_funct3,  rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress);
-     //   $display($time,"sending..... ingress_opcode:%h, fuid.rd:%h,trapout_ingress_cause:%h, trapout_ingress_mtval:%h, priv_in:%h, fuid.pc:%h,trapout_ingress_cause_msb:%h , trap_ingress:%h",rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress); 
-     // $display($time,"ingress_out_ready");
-    //$display($time,"itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")  ; 
-    //$display($time,"%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize);      
-      wr_itype             <=   itype;
-      wr_cause             <=   cause;
-      wr_tval              <=   tval;
-      wr_priv              <=   priv;
-      wr_iaddr             <=   iaddr;
-      wr_iretire           <=   iretire;
-      wr_ilastsize         <=   ilastsize;   
-    end  
+      if (rg_epochs_match &&
+   	  ((rg_fuid.insttype == TRAP   && rg_trapout_ingress_is_microtrap == 0) ||
+    	(rg_fuid.insttype == MEMORY && pack(rg_ioop_init) == 0) ||
+    	(rg_fuid.insttype != TRAP && rg_fuid.insttype != MEMORY)))
+    	begin
+        let fuid_ingress = rg_fuid;
+        let {itype,cause,tval,priv,iaddr,iretire,ilastsize} <- ingress_port.mva_encoder_input( rg_ingress_opcode,rg_funct3,  rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress);
+        `loglevel(ingress, 0, $format("sending..... ingress_opcode:%h, fuid.rd:%h,trapout_ingress_cause:%h, trapout_ingress_mtval:%h, priv_in:%h, fuid.pc:%h,trapout_ingress_cause_msb:%h , trap_ingress:%h"),rg_ingress_opcode, rg_fuid.rd,rg_trapout_ingress_cause, rg_trapout_ingress_mtval, rg_priv_in, rg_fuid.pc,rg_trapout_ingress_cause_msb , rg_trap_ingress) 
+        `loglevel( ingress, 0, $format("itype,cause,tval,priv,iaddr,context,ctype,iretire,ilastsize")) 
+        `loglevel( ingress, 0, $format("%d,%d,%h,%d,%h,0,0,%d,%d",itype,cause,tval,priv,iaddr,iretire,ilastsize))            
+      	wr_itype             <=   itype;
+      	wr_cause             <=   cause;
+      	wr_tval              <=   tval;
+      	wr_priv              <=   priv;
+      	wr_iaddr             <=   iaddr;
+      	wr_iretire           <=   iretire;
+      	wr_ilastsize         <=   ilastsize;   
+    	end  
   endrule
      
  rule rl_ingress_conn_deq(rx_fuid.u.first.insttype == TRAP || rx_fuid.u.first.insttype == SYSTEM || rx_fuid.u.first.insttype == BASE ||  rx_fuid.u.first.insttype == MEMORY);
@@ -235,7 +232,6 @@ if (rg_epochs_match &&
     rg_fuid <= rx_fuid.u.first;
     rg_epochs_match <= epochs_match;
     rg_priv_in <= pack(csr.mv_prv);
-    // $display($time,"Dequeing.....");       
     rx_ingress_opcode.u.deq;
  endrule
  
@@ -251,7 +247,6 @@ if (rg_epochs_match &&
     let trapout = rx_trapout.u.first;
     let fuid = rx_fuid.u.first;
     `ifdef etrace_support
-      //$display($time, "Setting trap ingress signals: PC:%h", fuid.pc);       
       rg_trapout_ingress_cause <= truncate(trapout.cause);
       rg_trapout_ingress_mtval <= trapout.mtval; 
       rg_trapout_ingress_cause_msb <= truncateLSB(trapout.cause);
