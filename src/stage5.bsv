@@ -320,7 +320,7 @@ module mkstage5#(parameter Bit#(`xlen) hartid) (Ifc_stage5);
     let systemout = rx_systemout.u.first;
     let fuid = rx_fuid.u.first;
    `ifdef etrace_support     
-    rg_funct3 <= systemout.funct3;   
+      rg_funct3 <= systemout.funct3;   
    `endif
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : PC:%h",hartid,fuid.pc))
     `logLevel( stage5, 0, $format("[%2d]STAGE5 : ",hartid, fshow(systemout)))
