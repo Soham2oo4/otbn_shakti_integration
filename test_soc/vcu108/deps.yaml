@@ -3,7 +3,7 @@ c-class:
   checkout: 4.9.0
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.4.1
+  checkout: 14.4.2
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
   checkout: 3.0.0
@@ -18,7 +18,7 @@ common_verilog:
   checkout: 3.2.0
 verification:
   url: https://gitlab.com/shaktiproject/verification_environment/verification
-  checkout: 5.0.8
+  checkout: 5.0.9
   recursive: True
   patch:
     - [riscv-tests/env , verification/patches/cclass-env.patch]
