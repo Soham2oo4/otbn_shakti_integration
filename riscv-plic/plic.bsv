@@ -29,7 +29,7 @@ function Bit#(m) reSize (Bit#(n) din) provisos( Add#(m,n,mn) );
 endfunction:reSize
 
 function Bit#(2) strb2size_2(Bit#(n) strb)
-   `ifndef axi4_128b
+  `ifndef axi4_128b
     provisos(Add#(a__, n, 8));
     Bit#(8) _t = zeroExtend(strb);
   `else
@@ -43,6 +43,8 @@ function Bit#(2) strb2size_2(Bit#(n) strb)
   else if (isSz2) return 1;
   else return 0;
 endfunction
+
+
 
 
 
