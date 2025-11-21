@@ -37,8 +37,8 @@ import Connectable       :: *;
     endinterface
 
 interface Ifc_tb_bsv_wrapper;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_sdram;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_cntrl_reg;
+    interface AXI4_Master_IFC#(`PADDR,`axi4_id_width, `Reg_width, `USERSPACE) axi4_sdram;
+    interface AXI4_Master_IFC#(`PADDR,`axi4_id_width, `Reg_width, `USERSPACE) axi4_cntrl_reg;
     interface Ifc_tb_sdram_in ifc_tb_sdram_in;
     interface Inout#(Bit#(32)) dq_0 ;
     interface Inout#(Bit#(32)) dq_1;    
@@ -65,8 +65,8 @@ module mktb_bsv_wrapper(Ifc_tb_bsv_wrapper);
    Reg#(Bit#(64)) rg_tb_cntrl_addr <- mkRegA(0);
    Reg#(Bit#(64)) rg_tb_cntrl_data <- mkRegA(4);   
 
-   AXI4_Master_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) m_xactor_sdram <- mkAXI4_Master_Xactor;
-   AXI4_Master_Xactor_IFC #(`PADDR,`Reg_width,`USERSPACE) m_xactor_cntrl_reg <- mkAXI4_Master_Xactor;
+   AXI4_Master_Xactor_IFC #(`PADDR,`axi4_id_width, `Reg_width,`USERSPACE) m_xactor_sdram <- mkAXI4_Master_Xactor;
+   AXI4_Master_Xactor_IFC #(`PADDR,`axi4_id_width, `Reg_width,`USERSPACE) m_xactor_cntrl_reg <- mkAXI4_Master_Xactor;
 
    Ifc_sdram_model sdram_model_0 <- mksdram_model_wrapper;
    Ifc_sdram_model sdram_model_1 <- mksdram_model_wrapper;

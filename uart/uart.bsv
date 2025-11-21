@@ -238,16 +238,17 @@ package uart;
 
 
 
- 	interface Ifc_uart_axi4#(numeric type addr_width, 
+ 	interface Ifc_uart_axi4#(numeric type addr_width,
+						   numeric type id_width, 
                            numeric type data_width, 
                            numeric type user_width, 
                            numeric type depth);
-		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave;
+		(*prefix=""*) interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave;
 		(*prefix=""*) interface RS232 io;
  	endinterface
 
 	module mkuart_axi4#(Clock uart_clock, Reset uart_reset,  parameter Bit#(16) baudrate)
-                                          (Ifc_uart_axi4#(addr_width,data_width,user_width, depth))
+                                          (Ifc_uart_axi4#(addr_width,id_width,data_width,user_width, depth))
 	// same provisos for the uart
       provisos(
         Add#(a__, 8, data_width),
@@ -266,8 +267,8 @@ package uart;
 		if(!sync_required)begin // If uart is clocked by core-clock.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate);
-		  Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
-  		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		  Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+  		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 			//capturing the read requests
 			rule capture_read_request(rg_rdburst_count==0);
 				let rd_req <- pop_o (s_xactor.o_rd_addr);
@@ -332,12 +333,12 @@ package uart;
 		else begin // if core clock and uart_clock is different.
 			UserInterface#(addr_width,data_width, depth) user_ifc<- mkuart_user(clocked_by uart_clock, 
                                                                     reset_by uart_reset, baudrate);
-			SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width,user_width)) ff_rd_request <- 
+			SyncFIFOIfc#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) ff_rd_request <- 
 														                      									mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Wr_Addr#(addr_width,user_width)) ff_wr_request <- 
+			SyncFIFOIfc#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) ff_wr_request <- 
 																							                      mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Wr_Data#(data_width)) ff_wdata_request <- mkSyncFIFOFromCC(3,uart_clock);
-			SyncFIFOIfc#(AXI4_Rd_Data#(data_width,user_width)) ff_rd_response <- 
+			SyncFIFOIfc#(AXI4_Wr_Data#(id_width,data_width)) ff_wdata_request <- mkSyncFIFOFromCC(3,uart_clock);
+			SyncFIFOIfc#(AXI4_Rd_Data#(id_width,data_width,user_width)) ff_rd_response <- 
 																				                  mkSyncFIFOToCC(3,uart_clock,uart_reset);
 			SyncFIFOIfc#(AXI4_Wr_Resp#(user_width)) ff_wr_response <- 
 																				                  mkSyncFIFOToCC(3,uart_clock,uart_reset);

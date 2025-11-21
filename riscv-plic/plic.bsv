@@ -58,11 +58,19 @@ function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr,
     Add#(a__, os, a),
     Mul#(TDiv#(n, 8), 8, n), // bus-side data-width should be multiples of 8
     Mul#(TDiv#(m, 8), 8, m), // register data-width should be multiples of 8
-      Add#(n, b__, `buswidth), // bus side data should be <= 64
+    `ifndef axi4_128b
+      Add#(n, b__, 64), // bus side data should be <= 64
+    `else
+      Add#(n, b__, 128),
+    `endif
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
-      Add#(d__, TDiv#(n, 8),  TDiv#(`buswidth, 8))
+    `ifndef axi4_128b
+      Add#(d__, TDiv#(n, 8), 8)
+    `else
+      Add#(d__, TDiv#(n, 8), 16)
+    `endif
   );
   let mi = valueOf(m);
   let ni = valueOf(n);
@@ -102,11 +110,19 @@ function ActionValue#(Tuple2#(Bool,Bit#(m))) fn_adjust_write(Bit#(a) addr,
     Add#(a__, os, a),
     Mul#(TDiv#(n, 8), 8, n), // bus-side data-width should be multiples of 8
     Mul#(TDiv#(m, 8), 8, m), // register data-width should be multiples of 8
-      Add#(n, b__, `buswidth), // bus side data should be <= 64
+    `ifndef axi4_128b
+      Add#(n, b__, 64), // bus side data should be <= 64
+    `else
+      Add#(n, b__, 128),
+    `endif
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
-      Add#(d__, TDiv#(n, 8),  TDiv#(`buswidth, 8)),
+    `ifndef axi4_128b
+      Add#(d__, TDiv#(n, 8), 8),
+    `else
+      Add#(d__, TDiv#(n, 8), 16),
+    `endif
     Add#(TSub#(2, TLog#(TDiv#(n, 8))), e__, os)
   ) = actionvalue
       
@@ -168,32 +184,41 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Max#(TLog#(nsources),1, lg_nsources), // log of sources
     Max#(TLog#(maxpriority),1,lg_priority),  // log of priority
     Max#(TLog#(targets), 1,lg_targets),  // log of targets
-    Add#(_b, lg_nsources, 10),
+    Add#(_b, lg_nsources, 32),
 
     Add#(h__, 10, dw),
     Add#(a__, 26, aw),
     Add#(8, b__, dw),         // data atleast 8 bits
     Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
     Add#(c__, 2, aw),
-      Add#(dw, d__, `buswidth),
+    `ifndef axi4_128b
+      Add#(dw, d__, 64),
+    `else
+      Add#(dw, d__, 128),
+    `endif
     Add#(TExp#(TLog#(dw)),0,dw),
-      Add#(e__, TDiv#(dw, 8),  TDiv#(`buswidth, 8)),
+    `ifndef axi4_128b
+      Add#(e__, TDiv#(dw, 8), 8),
+    `else
+      Add#(e__, TDiv#(dw, 8), 16),
+    `endif
     Add#(f__, lg_priority, 32),
     Bits#(UInt#(TLog#(nsources)), lg_nsources),
-    Add#(g__, 1, lg_priority)
+    Add#(g__, 1, lg_priority),
+    Mul#(32, i__, dw)
   );
 
   let v_nsources = valueOf(nsources);
   let v_targets = valueOf(targets);
   let v_maxpriority = valueOf(maxpriority);
 
-  Vector#( nsources, Reg#(Bit#(lg_priority))) vrg_source_priority  <- replicateM(mkReg(0));
-  Vector#( nsources, Reg#(Bool) )             vrg_source_pending    <- replicateM(mkConfigReg(False));
+  Vector#( nsources, Reg#(Bit#(lg_priority))) vrg_source_priority  <- replicateM(mkRegA(0));
+  Vector#( nsources, Reg#(Bool) )             vrg_source_pending    <- replicateM(mkConfigRegA(False));
   Vector#( targets, Vector#( nsources, Reg#(Bool) )) 
-                                              v_target_ie <- replicateM(replicateM(mkReg(False))) ;
-  Vector#( targets, Reg#(Bit#(lg_priority))) v_target_threshold <- replicateM(mkReg('1));
+                                              v_target_ie <- replicateM(replicateM(mkRegA(False))) ;
+  Vector#( targets, Reg#(Bit#(lg_priority))) v_target_threshold <- replicateM(mkRegA('1));
 
-  Vector#( nsources, ConfigReg#(Bool) )             v_reg_source_busy  <- replicateM(mkConfigReg(False));
+  Vector#( nsources, ConfigReg#(Bool) )             v_reg_source_busy  <- replicateM(mkConfigRegA(False));
    
   function Tuple2 #(Bit #(lg_priority), Bit #(lg_nsources))
                     fn_target_max_prio_and_max_id (Bit #(Max_target_wd)  target_id);
@@ -333,7 +358,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
               if (max_id != 0 ) begin
                 vrg_source_pending [max_id] <= False;
                 v_reg_source_busy [max_id] <= True;
-                rdata = reSize(max_id);
+                Bit#(32) _t0 = zeroExtend(max_id);
+                rdata = duplicate(_t0);
               `logLevel( plic, 0, $format("PLIC: Claiming interrupt-src:%d for target-id:%d",
                                                                                 max_id, target_id))
             end
@@ -440,21 +466,31 @@ endmodule:mkplic
         Max#(TLog#(nsources),1, lg_nsources), // log of sources
         Max#(TLog#(maxpriority),1,lg_priority),  // log of priority
         Max#(TLog#(targets), 1,lg_targets),  // log of targets
-        Add#(_b, lg_nsources, 10),
+        Add#(_b, lg_nsources, 32),
     
     Add#(h__, 10, dw),
         Add#(a__, 26, aw),
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
         Add#(c__, 2, aw),
-
-          Add#(dw, d__, `buswidth),
+        `ifndef axi4_128b
+          Add#(dw, d__, 64),
+        `else
+          Add#(dw, d__, 128),
+        `endif
         Add#(TExp#(TLog#(dw)),0,dw),
-          Add#(e__, TDiv#(dw, 8), TDiv#(`buswidth, 8)),
+        `ifndef axi4_128b
+          Add#(e__, TDiv#(dw, 8), 8),
+        `else
+          Add#(e__, TDiv#(dw, 8), 16),
+        `endif
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
-        Add#(g__, 1, lg_priority)
+        Add#(g__, 1, lg_priority),
+        Mul#(32, i__, dw)
       );
+
+    let strb_size = valueOf(TSub#(TDiv#(dw,8),1));
 
 		AXI4_Lite_Slave_Xactor_IFC #(aw, dw, uw)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
 		User_ifc#(aw, dw, sources, targets, maxpriority) plic <- mkplic(slave_base);
@@ -465,7 +501,7 @@ endmodule:mkplic
 				let w <- pop_o(s_xactor.o_wr_data);
 				let w_strobe = w.wstrb;
 				Bit#(TLog#(TDiv#(dw,8))) byte_offset=0;
-				for(Integer i=3; i >= 0; i=i-1) begin 
+				for(Integer i=strb_size; i >= 0; i=i-1) begin 
 					if(w_strobe[i]==1)
 						byte_offset=fromInteger(i);
 				end
@@ -507,19 +543,28 @@ endmodule:mkplic
         Max#(TLog#(nsources),1, lg_nsources), // log of sources
         Max#(TLog#(maxpriority),1,lg_priority),  // log of priority
         Max#(TLog#(targets), 1,lg_targets),  // log of targets
-        Add#(_b, lg_nsources, 10),
+        Add#(_b, lg_nsources, 32),
     
     Add#(h__, 10, dw),
         Add#(a__, 26, aw),
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
         Add#(c__, 2, aw),
-          Add#(dw, d__, `buswidth),
+        `ifndef axi4_128b
+          Add#(dw, d__, 64),
+        `else
+          Add#(dw, d__, 128),
+        `endif
         Add#(TExp#(TLog#(dw)),0,dw),
-          Add#(e__, TDiv#(dw, 8),  TDiv#(`buswidth, 8)),
+        `ifndef axi4_128b
+          Add#(e__, TDiv#(dw, 8), 8),
+        `else
+          Add#(e__, TDiv#(dw, 8), 16),
+        `endif
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
-        Add#(g__, 1, lg_priority)
+        Add#(g__, 1, lg_priority),
+        Mul#(32, i__, dw)
       );
 
 		let strb_size = valueOf(TSub#(TDiv#(dw,8),1));

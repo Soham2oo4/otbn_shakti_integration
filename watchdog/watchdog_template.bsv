@@ -32,7 +32,7 @@ package watchdog_template;
   import watchdog::*;
 
   (*synthesize*)
-  module mkdummy(Ifc_watchdog_axi4#(17, 64, 0));
+  module mkdummy(Ifc_watchdog_axi4#(17, 4, 64, 0));
     let def_rst <- exposeCurrentReset;
     let ifc();
     mkwatchdog_axi4#(def_rst,'d1,'d100) _temp(ifc);

@@ -28,7 +28,7 @@ package sspi_template;
 	import sspi::*;
 
 //(*synthesize*)
-//module mkdummy(Ifc_sspi_axi4#(32,32,0));
+//module mkdummy(Ifc_sspi_axi4#(32,4,32,0));
 //		let ifc();
 //		mksspi_axi4 _temp(ifc);
 //		return ifc;

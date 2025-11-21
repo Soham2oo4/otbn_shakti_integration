@@ -56,7 +56,12 @@ import AXI4_Types::*;
 import AXI4_Lite_Types::*;
 import AXI4_Fabric::*;
 import Semi_FIFOF::*;
+`ifdef async_rst
+import SpecialFIFOs_Modified::*;
+`else
 import SpecialFIFOs::*;
+`endif
+import Clocks::*;
 import ConcatReg::*;
 import ConfigReg::*;
 import BUtils::*;
@@ -64,9 +69,13 @@ import device_common::*;
 
 `define Burst_length_bits 8
 `define byte_offset 2
+`ifdef dma_clk_gate_en
+`define DMA_Clk_En 	'hf8
+`endif
 
   // project files to be imported/included
   `include "common_params.bsv"
+  `include "Logger.bsv"
 // ================================================================
 // DMA requests and responses parameters
 
@@ -103,15 +112,14 @@ endfunction
 // The DMA interface has two sub-interfaces
 //  A AXI4 Slave interface for config
 //  A AXI4 Master interface for data transfers
-
-interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
+interface User_ifc#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);//giving msipsize as a parameter 
 	method Action read_req(Bit#(config_addr_width) addr, AccessSize size, Bool prot);
 	method ActionValue#(Tuple2#(Bool, Bit#(config_data_width))) read_resp;
 	method Action write_req(Bit#(config_addr_width) addr, Bit#(config_data_width) data, AccessSize size, Bool prot);
 	method ActionValue#(Bool) write_resp;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
-	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+	interface AXI4_Master_IFC#(addr_width,id_width, data_width, user_width) master;
 endinterface
 
 
@@ -145,10 +153,10 @@ endinstance
 (* descending_urgency = "writeConfig, handle_interrupts" *)
 (* descending_urgency = "writeConfig, rl_finishRead" *)
 (* descending_urgency = "writeConfig, rl_startWrite" *)
-module mkDMA( User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) )
+module mkDMA( User_ifc#(addr_width, id_width, data_width, user_width, config_addr_width ,config_data_width, numChannels, numPeripherals) )
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 3),
+	 				Add#(numChannels, 0, 7),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, config_addr_width),
 					Add#(7, j__, addr_width),
@@ -160,12 +168,18 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   				Mul#(32, f__, config_data_width),
 					Add#(28, h__, config_data_width),
 					Add#(16, i__, config_data_width),
-					Add#(12, l__, config_data_width)	//for numChannels=3
+					Add#(12, l__, config_data_width),	//for numChannels=3\
+					Mul#(16, m__, data_width),
+					Mul#(32, n__, data_width),
+					Mul#(8, o__, data_width),
+					Add#(p__, TLog#(TDiv#(data_width, 8)), data_width),
+					Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width),
+					Add#(1, r__, id_width)
 );
 
 	let val_numChannels= valueOf(numChannels);
 
-	AXI4_Master_Xactor_IFC #(addr_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
+	AXI4_Master_Xactor_IFC #(addr_width, id_width, data_width, user_width) m_xactor <- mkAXI4_Master_Xactor;
 	Wire#(Bit#(config_addr_width)) wr_read_addr <- mkWire();
 	Wire#(AccessSize) wr_read_access_size <- mkWire();
 	Wire#(Bool) wr_read_prot <- mkWire();
@@ -215,7 +229,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	Wire#(Vector#(numPeripherals,Bit#(1))) wr_peripheral_interrupt <- mkDWire(replicate(0));
 
 	//Wire to set the TEIF
-	Wire#(Maybe#(Bit#(4))) wr_bus_err <- mkDWire(tagged Invalid);
+	Wire#(Maybe#(Bit#(id_width))) wr_bus_err <- mkDWire(tagged Invalid);
 
 	// We also want to pass the destination address for each read over
 	// to the write "side", along with some other metadata.
@@ -235,7 +249,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	// ongoing transaction on that channel.
 	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cpa <- replicateM(mkConfigRegA(0));	// Local Channel Peripheral Address Register
 	Vector#(numChannels,Reg#(Bit#(addr_width))) rg_cma <- replicateM(mkConfigRegA(0));	// Local Channel Memory Address Register
-
+	Vector#(numChannels,Reg#(Bit#(TLog#(TDiv#(data_width,8))))) rg_curr_addr <- replicateM(mkConfigRegA(0)); //Change Bit Width to 3 if 64 bit. Todo:Parameterize
 	Reg#(Bit#(`Burst_length_bits)) rg_burst_count <- mkRegA(0);
 	Reg#(Bit#(TLog#(numChannels))) rg_current_trans_chan_id <- mkRegA(0);
 	Reg#(Tuple2#(Bool, Bit#(TLog#(numChannels)))) rg_disable_channel <- mkRegA(tuple2(False, ?));
@@ -304,6 +318,25 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		Bit#(a) lv_to_add= (zeroExtend(bsize)+1) << tsize;
 		Bit#(a) lv_result= {1'b0,addr}+lv_to_add;
 		return truncate(lv_result);
+        endfunction
+
+	//The relevant data is located from the n to 0 bits where n = 8, 16 ,32 ,64  based on the tsize.
+	function Bit#(data_width) fn_modify_data(Bit#(2) tsize, Bit#(data_width) data)
+		 provisos( 
+		Mul#(16, m__, data_width),
+	    Mul#(32, n__, data_width),
+	    Mul#(8, o__, data_width));
+		Bit#(data_width) result;
+		if (tsize==2'b00)
+			result = duplicate(data[7:0]);
+		else if (tsize==2'b01)
+			result = duplicate(data[15:0]);
+		else if (tsize==2'b10)
+			result = duplicate(data[31:0]);
+		else 
+			result = data;
+		
+		return result;
 	endfunction
 
 	// DMA rules //////////////////////////////////////////////////
@@ -313,7 +346,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 	// (interfaces)
 	// And returns a set a rules.
 	// The rule are identical to the set used in the one mmu port case.
-	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, data_width, user_width) xactor, Integer chanNum);
+	function Rules generatePortDMARules (AXI4_Master_Xactor_IFC#(addr_width, id_width, data_width, user_width) xactor, Integer chanNum);
 		return
 		rules
 
@@ -382,7 +415,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				lv_araddr= rg_cpa[chanNum];	//set the address to read from
 				lv_arsize= lv_dma_ccr[9:8];	//set the transfer size
 				lv_burst_type= lv_dma_ccr[6];	//0: Fixed, 1: INCR which is consistent with that of AXI4
-				`ifdef verbosity>2 $display($time,"\tDMA: chan[%0d] starting read from peripheral address %h",chanNum, lv_araddr); `endif
+				`logLevel( dma , 2, $format("\tDMA: chan[%0d] starting read from peripheral address %h",chanNum, lv_araddr))
 				// Since the destination is memory, the write request needn't wait for any interrupt line to be high
 				// Therefore, we send the first argument as Invalid
 				destAddrFs[chanNum].enq( DestAddrFs_type {	addr: rg_cma[chanNum], // Enqueue the Write destination address
@@ -393,7 +426,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				lv_araddr= rg_cma[chanNum];		//set the address to read from
 				lv_arsize= lv_dma_ccr[11:10];	//set the transfer size
 				lv_burst_type= lv_dma_ccr[7];	//0: Fixed, 1: INCR which is consistent with that of AXI4
-				`ifdef verbosity>2 $display($time,"\tDMA: chan[%0d] starting read from memory address %h",chanNum, lv_araddr); `endif
+				`logLevel( dma , 2, $format("\tDMA: chan[%0d] starting read from memory address %h",chanNum, lv_araddr))
 				// Since the destination address is that of a peripheral, the write request can be issued only when
 				// the corresponding peripheral's interrupt line is high. Therefore, we send the periph_id too.
 				Bool lv_is_dest_periph;
@@ -401,13 +434,13 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 					lv_is_dest_periph= True;
 				else
 					lv_is_dest_periph= False;
-                    `ifdef verbosity>2 $display("dest_is_periph: %h",lv_is_dest_periph); `endif
+                    `logLevel( dma , 2, $format("dest_is_periph: %h",lv_is_dest_periph))
 				destAddrFs[chanNum].enq( DestAddrFs_type { 	addr: rg_cpa[chanNum], // Enqueue the Write destination address
 															is_dest_periph: lv_is_dest_periph,
 															periph_id: lv_periph_id});
 
 			end
-
+		    rg_curr_addr[chanNum] <= truncate(lv_araddr); //If 64 : lv_araddr[2:0] If 32 :  lv_araddr[1:0]
 			//TODO If transaction size is not a multiple of specified burst length
 			//let lv_transaction_size= (lv_burst+1) * (1<<lv_arsize)
 			//if(dma_cndtr<lv_transaction_size)
@@ -424,7 +457,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 											 aruser: 0 };
 				
 			xactor.i_rd_addr.enq(read_request);
-            `ifdef verbosity>2 $display("Sending a read request with araddr: %h arid: %h arlen: %h arsize: %h arburst: %h",lv_araddr,fromInteger(chanNum),lv_burst,lv_arsize,lv_burst_type); `endif
+            `logLevel( dma , 2, $format("Sending a read request with araddr: %h arid: %h arlen: %h arsize: %h arburst: %h",lv_araddr,fromInteger(chanNum),lv_burst,lv_arsize,lv_burst_type))
 
 			//housekeeping. To be done when the transaction is complete.
 			currentReadRs[chanNum][0]<= currentReadRs[chanNum][0] + 1;
@@ -439,6 +472,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			let lv_dma_ccr= dma_ccr[chanNum];
 			Bit#(2) lv_tsize;
 			Bit#(2) lv_source_size;
+			Bit#(data_width) curr_addr;
 
 			if(dma_ccr[chanNum][4]==0) begin		//if the source is peripheral
 				lv_tsize= dma_ccr[chanNum][11:10];	//destination's tsize will be that of memory
@@ -449,12 +483,14 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				lv_source_size= dma_ccr[chanNum][11:10];
 			end
 
+			curr_addr = extend(rg_curr_addr[chanNum]);
+
 			// grab the data from the mmu reponse fifo
 			let resp <- pop_o(xactor.o_rd_data);
-			`ifdef verbosity>2 $display("DMA: chan[%d] finish read. Got data: %h",chanNum, resp.rdata); `endif
+			`logLevel( dma , 2, $format("DMA: chan[%d] finish read. Got data: %h",chanNum, resp.rdata))
 
 			// Pass the read data to the write "side" of the dma
-			responseDataFs[chanNum].enq( resp.rdata );
+			responseDataFs[chanNum].enq(resp.rdata >> 8*curr_addr); 
 			rg_finish_read[chanNum][0]<= True;
 		endrule
 
@@ -491,27 +527,25 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			let actual_data= responseDataFs[chanNum].first;
 			Bit#(`Burst_length_bits) lv_burst_len= lv_dma_ccr[31:32-`Burst_length_bits];
 		//	Bit#(6) x = {3'b0,lv_data.addr[2:0]}<<3;
-			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:lv_tsize==2?'hf:'hff;
+			Bit#(TDiv#(data_width,8)) write_strobe=lv_tsize==0?'b1:lv_tsize==1?'b11:(lv_tsize==2||valueOf(data_width)==32)?'hf:'hff;
 			if(lv_tsize!=3 && lv_burst_type!=0)begin			// 8-byte write and burst mode is not FIXED;
 				//actual_data=actual_data<<(x);
 				write_strobe=write_strobe<<(lv_data.addr[`byte_offset:0]);
 			end
 			//lv_data.addr[2:0]=0; // also make the address 64-bit aligned
-            `ifdef verbosity>2 $display("Start Write lv_burst_type: %b strb: %h",lv_burst_type,write_strobe); `endif
+            `logLevel( dma , 2, $format("Start Write lv_burst_type: %b strb: %h",lv_burst_type,write_strobe))
 
 			
 			Bool lv_last= True;
 			if(lv_burst_len>0) begin // only enable the next rule when doing a write in burst mode.
 				rg_burst_count<=rg_burst_count+1;
 				lv_last= False;
-				`ifdef verbosity>2 $display("Starting burst mode write...."); `endif
+				`logLevel( dma , 2, $format("Starting burst mode write...."))
 			end
-			`ifdef verbosity>2
 			else begin
-				$display("Performing a single write...");
+				`logLevel( dma , 2, $format("Performing a single write..."))
 			end 
-			`endif
-
+	  actual_data = fn_modify_data(lv_tsize,actual_data);
       rg_write_strobe <= write_strobe; 	//Write strobe needs to be rotated so that burst writes are sent correctly, storing write_strobe in a register.
       rg_tsize <= lv_tsize; 						//Storing rg_tsize in a register.
 			rg_burst_type<= lv_burst_type;		//FIXED or INCR
@@ -529,7 +563,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			// Some other house keeping - removing the data from the fifos
 			responseDataFs[chanNum].deq;
 			destAddrFs[chanNum].deq;	//dequeing this FIFO will cause startRead to fire.
-			`ifdef verbosity>2 $display ($time,"\tDMA[%0d] startWrite addr: %h data: %h", chanNum,lv_data.addr,responseDataFs[chanNum].first); `endif
+			`logLevel( dma , 2, $format("\tDMA[%0d] startWrite addr: %h data: %h", chanNum,lv_data.addr,responseDataFs[chanNum].first))
 		endrule
 
 		//This rule is used to send burst write data. The explicit condition ensures that we
@@ -547,9 +581,9 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				write_strobe= rg_write_strobe;
 			let w  = AXI4_Wr_Data {wdata:  responseDataFs[chanNum].first, wstrb: write_strobe , wlast: lv_last, wid: {1'b1, fromInteger(chanNum)} };
       		xactor.i_wr_data.enq(w);
-			`ifdef verbosity>2 $display ($time,"\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[31:24]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][31:24]); `endif
+			`logLevel( dma , 2, $format("\tDMA[%0d] startWrite Burst data: %h rg_burst_count: %d dma_ccr[31:24]: %d", chanNum,responseDataFs[chanNum].first,  rg_burst_count, dma_ccr[chanNum][31:24]))
 			if(lv_last)begin
-				`ifdef verbosity>2 $display("Last data received..."); `endif
+				`logLevel( dma , 2, $format("Last data received..."))
 				rg_burst_count<=0;
 			end
 			else begin
@@ -565,7 +599,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		(xactor.o_wr_resp.first.bresp==AXI4_OKAY) );
 			let x<- pop_o(xactor.o_wr_resp) ;			 // take the response data and finish
 			currentWriteRs[chanNum][0]<= currentWriteRs[chanNum][0] + 1;
-			`ifdef verbosity>2 $display ("DMA[%0d]: finishWrite", chanNum); `endif
+			`logLevel( dma , 2, $format("DMA[%0d]: finishWrite", chanNum))
 			rg_finish_write[chanNum][0]<= True;
 		endrule
 		
@@ -588,7 +622,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 				//dmaEnabledRs[chanNum]._write (False) ; 
 				currentWriteRs[chanNum][0] <= 0 ;
 				currentReadRs[chanNum][0]  <= 0 ;
-				`ifdef verbosity>1 $display ("DMA[%0d]: transfer done int_enable:%b dma_isr: %b", chanNum, dma_ccr[chanNum][3:1], dma_isr[chanNum]); `endif
+				`logLevel( dma , 1, $format("DMA[%0d]: transfer done int_enable:%b dma_isr: %b", chanNum, dma_ccr[chanNum][3:1], dma_isr[chanNum]))
 			endrule
 		endrules ;
 	endfunction
@@ -624,7 +658,7 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			//$display("*** chan: %d en: %d dma_cndtr: %h rg_cndtr: %h",chanNum, dma_ccr[chanNum][0], dma_cndtr[chanNum], rg_cndtr[chanNum]);
 			if(wr_bus_err matches tagged Valid .chan_num &&& fromInteger(chanNum)=={1'b1, chan_num[2:0]}) begin
 				chan_isr[3]=1;
-				`ifdef verbosity>1 $display("Bus error on channel %d",chanNum); `endif
+				`logLevel( dma , 1, $format("Bus error on channel %d",chanNum))
 			end
 			if(lv_is_chan_enabled==1) begin
 				if(currentWriteRs[chanNum][1]==currentReadRs[chanNum][1]) begin	//once the read and write transactions are over
@@ -642,11 +676,9 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 			chan_isr[0]= chan_isr[3] | chan_isr[2] | chan_isr[1];	//Setting the GIF
 			chan_isr= dma_isr[chanNum][3:0] | chan_isr; //Sticky nature of interrupts. Should be cleared by software using ifcr.
 
-			`ifdef verbosity>2	
 			if(dma_ifcr[chanNum]!=0) begin
-				$display($time,"DMA[%d] IFCR:%b ISR:%b", chanNum, ~(dma_ifcr[chanNum]), chan_isr);
+				`logLevel(dma , 2, $format("DMA[%d] IFCR:%b ISR:%b", chanNum, ~(dma_ifcr[chanNum]), chan_isr))
 			end	
-			`endif
 			//The bits in IFCR represent the interrupts that need to be cleared
 			chan_isr= chan_isr & ~(dma_ifcr[chanNum]);
 			dma_isr[chanNum]<= chan_isr;
@@ -685,9 +717,8 @@ endfunction
 
 // This function converts a Vector of (upto 7) Registers to a single Register
 //TODO For now, this function has to be manually changed when num of channels change.
-function Reg#(Bit#(TMul#(3,q))) vectorToRegN(Vector#(3,Reg#(Bit#(q))) inpV);
-	return concatReg3(inpV[2], inpV[1], inpV[0]);
-	//return asReg(zeroExtend(pack(inpV)));
+function Reg#(Bit#(TMul#(7,q))) vectorToRegN(Vector#(7,Reg#(Bit#(q))) inpV);
+	return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);	//return asReg(zeroExtend(pack(inpV)));
 endfunction
 /*function Reg#(Bit#(TMul#(numChannels,q))) vectorToRegN(Vector#(numChannels,Reg#(Bit#(q))) inpV);
 		return concatReg7(inpV[6], inpV[5], inpV[4], inpV[3], inpV[2], inpV[1], inpV[0]);
@@ -783,7 +814,6 @@ endfunction*/
       'd9 : return can_return(dma_cndtr[2], dma_ccr[2][15]);
       'd10 : return can_return(dma_cpar[2], dma_ccr[2][15]);
       'd11 : return can_return(dma_cmar[2], dma_ccr[2][15]);
-/* 
       'd12 : return can_return(dma_ccr[3], dma_ccr[3][15]);
       'd13 : return can_return(dma_cndtr[3], dma_ccr[3][15]);
       'd14 : return can_return(dma_cpar[3], dma_ccr[3][15]);
@@ -803,7 +833,6 @@ endfunction*/
       'd25 : return can_return(dma_cndtr[6], dma_ccr[6][15]);
       'd26 : return can_return(dma_cpar[6], dma_ccr[6][15]);
       'd27 : return can_return(dma_cmar[6], dma_ccr[6][15]);
-*/ 
       'd28 : return can_return(vectorToRegN( dma_isr ), 1'b1);
       'd29 : return can_return(vectorToRegN( dma_ifcr ), 1'b0);
       'd30 : return can_return(vectorToRegN( dma1_cselr ), 1'b1);
@@ -876,23 +905,23 @@ endfunction*/
 			let lv_ccr_channel_number_tuple= ccr_channel_number(selectReg_address);
 			let lv_ccr_channel_number=tpl_1(lv_ccr_channel_number_tuple);
 			if(prot==False) begin		//If unprivileged access
-				`ifdef verbosity>1 $display("DMA: Unpriviliged access trying to change config registers of channel %d",lv_ccr_channel_number); `endif
+				`logLevel( dma , 1, $format("DMA: Unpriviliged access trying to change config registers of channel %d",lv_ccr_channel_number))
 				lv_valid_access= False;
 			end
 			else if(selectReg_address=='hE0) begin 	//If writing to DMA_ISR
-				`ifdef verbosity>1 $display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number); `endif
+				`logLevel( dma , 1, $format("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number))
 				lv_valid_access= False;
 			end
 			//If channel is enabled and write happening other than disabling current channel
 			else if( ((dma_ccr[lv_ccr_channel_number] & 'd1) == 1) && !(tpl_2(lv_ccr_channel_number_tuple) && data[0]==0) ) begin
-				`ifdef verbosity>1 $display("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number); `endif
+				`logLevel( dma , 1, $format("DMA: Trying to change config registers of channel %d when the channel is active",lv_ccr_channel_number))
 				lv_valid_access= False;
 			end
 			else begin
 				lv_valid_access= True;
 			end
 
-			`ifdef verbosity>1 $display ($time,"\tDMA writeConfig addr: %0h data: %0h ccr_chan_num: %d", addr, data, lv_ccr_channel_number); `endif
+			`logLevel(dma , 1, $format("\tDMA writeConfig addr: %0h data: %0h ccr_chan_num: %d", addr, data, lv_ccr_channel_number))
 			if(lv_valid_access && tpl_2(lv_ccr_channel_number_tuple)==True) begin 	//if trans is valid, and the current write is happening to one of the channel's CCR.
 				if(data[0]==1) begin			//if the channel is being enabled
 					  if((dma_ccr[lv_ccr_channel_number] & 'd1)!=1) begin	//If the channel is not already enabled
@@ -900,7 +929,7 @@ endfunction*/
 					  	  rg_cma[lv_ccr_channel_number] <= dma_cmar[lv_ccr_channel_number];	//memory address is copied
 					  	  rg_cndtr[lv_ccr_channel_number]<= dma_cndtr[lv_ccr_channel_number];	//the cndtr value is saved
 					  	  rg_disable_channel<= tuple2(False,?);
-								`ifdef verbosity>1 $display("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------"); `endif
+								`logLevel( dma , 1, $format("----------------------- ENABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------"))
             	            
         	  	  		/*Bit#(3) cmar_align = dma_cmar[lv_ccr_channel_number][2:0]; 
         	  	  		Bit#(3) cpar_align = dma_cpar[lv_ccr_channel_number][2:0]; 
@@ -911,26 +940,24 @@ endfunction*/
 
         	  	  		if((cmar_is_aligned & cpar_is_aligned)==0) begin
         	  	  		  lv_bresp = AXI4_DECERR; //DECERR for Unaligned addresses
-											`ifdef verbosity>1 $display("\tAXI4_DECERR\n"); `endif
+											`logLevel( dma , 1, $format("\tAXI4_DECERR\n"))
         	  	  		end
 
-										`ifdef verbosity>2 $display("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]); `endif
+										`logLevel( dma , 2, $format("cmar_is_aligned: %b cpar_is_aligned: %b isr: %b",cmar_is_aligned,cpar_is_aligned, dma_isr[lv_ccr_channel_number]))
 					  	    	*/	
-        	  	  	`ifdef verbosity>1 
         	  	  		if(data[4]==0) begin
-					  	  	$display("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
-					  	  	$display("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
+        	  	  	                        `logLevel( dma , 1, $format("SOURCE: Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]))
+        	  	  	                        `logLevel( dma , 1, $format("DEST  : Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]))
 					  	  end
 					  	  else if(data[14]==0) begin
-					  	  	$display("SOURCE: Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
-					  	  	$display("DEST  : Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
+					  	      	`logLevel( dma , 1, $format("SOURCE: Memory      Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]))
+        	  	  	                        `logLevel( dma , 1, $format("DEST  : Peripheral  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]))
 					  	  end
 					  	  else begin
-					  	  	$display("SOURCE: Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]);
-					  	  	$display("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]);
+					  	  	`logLevel( dma , 1, $format("SOURCE: Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cmar[lv_ccr_channel_number], data[11:10], data[7]))
+					  	  	`logLevel( dma , 1, $format("DEST  : Memory  Addr: 'h%0h Transfer size: 'b%b Incr: %b",dma_cpar[lv_ccr_channel_number], data[9:8], data[6]))
 					  	  end
-					  	  $display("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]);
-							`endif
+					  	  `logLevel( dma , 1, $format("Priority level: 'b%b Circular mode: %b CNDTR: 'h%h", data[13:12], data[5], dma_cndtr[lv_ccr_channel_number]))
 					  end
 					  else if(data[31:0]==dma_ccr[lv_ccr_channel_number])begin	//Enabling a channel that is already enabled with same config
 					  	  lv_valid_access= True;
@@ -945,11 +972,11 @@ endfunction*/
 						rg_disable_channel<= tuple2(True, lv_ccr_channel_number);
 						lv_send_response= False;
 						rg_writeConfig_ccr<= tuple2(lv_ccr_channel_number, data);
-						`ifdef verbosity>1 $display("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------"); `endif
+						`logLevel( dma , 1, $format("----------------------- DISABLING DMA CHANNEL %d before transactions are over", lv_ccr_channel_number," -----------------------"))
 					end
 					else begin	// no pending transaction
 						lv_valid_access= True;
-						`ifdef verbosity>2 $display("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------"); `endif
+						`logLevel( dma , 2, $format("----------------------- DISABLING DMA CHANNEL %d", lv_ccr_channel_number," -----------------------"))
 						//clear the local registers
 						rg_is_cndtr_zero[lv_ccr_channel_number][0]<= True;
 					end
@@ -1072,28 +1099,26 @@ endfunction*/
 				//end
 				lv_interrupt_to_processor[chanNum]= |(active_interrupts);	//TODO change this to | of all
 			end
-			`ifdef verbosity>2  
 			if(lv_interrupt_to_processor!=0) begin
-				$display("intrrr: %b",lv_interrupt_to_processor);
+				`logLevel( dma , 2, $format("intrrr: %b",lv_interrupt_to_processor))
 			end
-			`endif
 			return |(lv_interrupt_to_processor);
 	endmethod
   endinterface;
 	interface master= m_xactor.axi_side;
 endmodule
 
-interface Ifc_DMA_AXI4#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);
-	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
-	interface AXI4_Slave_IFC#(config_addr_width, config_data_width, user_width) slave;
+interface Ifc_DMA_AXI4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width, numeric type config_addr_width, numeric type config_id_width, numeric type config_data_width, numeric type numChannels, numeric type numPeripherals);
+	interface AXI4_Master_IFC#(addr_width,id_width, data_width, user_width) master;
+	interface AXI4_Slave_IFC#(config_addr_width,config_id_width, config_data_width, user_width) slave;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
 endinterface
 
-module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
+module mkDMA_AXI4(Ifc_DMA_AXI4#(addr_width, id_width, data_width, user_width, config_addr_width, config_id_width, config_data_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 3),
+	 				Add#(numChannels, 0, 7),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, config_addr_width),
 					Add#(7, j__, addr_width),
@@ -1105,17 +1130,32 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   				Mul#(32, f__, config_data_width),
 					Add#(28, h__, config_data_width),
 					Add#(16, i__, config_data_width),
-					Add#(12, l__, config_data_width)	//for numChannels=3
+					Add#(12, l__, config_data_width),	//for numChannels=3
+						Mul#(16, m__, data_width),
+						Mul#(32, n__, data_width),
+						Mul#(8, o__, data_width),
+						Add#(p__, TLog#(TDiv#(data_width, 8)), data_width),
+						Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width),
+						Add#(1, r__, id_width)
 );
-		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
-		AXI4_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
+		`ifdef dma_clk_gate_en
+		GatedClockIfc dma_clk_gated <- mkGatedClockFromCC(False);
+		`endif
+		User_ifc#(addr_width, id_width, data_width, user_width, config_addr_width , config_data_width, numChannels, numPeripherals) dma <- mkDMA;
+		AXI4_Slave_Xactor_IFC#(config_addr_width, config_id_width, config_data_width, user_width)  s_xactor <- mkAXI4_Slave_Xactor();
 
 		Reg#(Bool) rg_is_rdburst[2] <- mkCRegA(2,False);
-		Reg#(Bit#(4)) rg_arid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(config_id_width)) rg_arid[2] <- mkCRegA(2,?);
+		`ifdef dma_clk_gate_en
+		Reg#(Bool) rg_is_rdclk_en[2] <- mkCRegA(2,False);
+		`endif
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		
 		Reg#(Bool) rg_is_wrburst[2] <- mkCRegA(2,False);
-		Reg#(Bit#(4)) rg_awid[2] <- mkCRegA(2,?);
+		Reg#(Bit#(config_id_width)) rg_awid[2] <- mkCRegA(2,?);
+		`ifdef dma_clk_gate_en
+		Reg#(Bool) rg_is_wrclk_en[2] <- mkCRegA(2,False);
+		`endif
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
 //	method Action read_req(Bit#(addr_width) addr, AccessSize size);
@@ -1123,12 +1163,23 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 //	method Action write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize size);
 //	method Bool write_resp;
 
+	`ifdef dma_clk_gate_en
+	Reg#(bit) rg_clk_en <- mkRegA(0);
+	rule clock_en;    
+	       dma_clk_gated.setGateCond(unpack(rg_clk_en));	         
+	endrule
+	`endif
 		rule read_req(rg_is_rdburst[0]==False);
       let req <- pop_o(s_xactor.o_rd_addr);
 			if(req.arlen!=0)
 				rg_is_rdburst[0]<= True;
 			else begin
 				rg_is_rdburst[0]<= False;
+	`ifdef dma_clk_gate_en
+			if (req.araddr[7:0] == `DMA_Clk_En && req.arsize == 0)
+		        	rg_is_rdclk_en[0]<= True;  	         
+      			else 
+	`endif
       	dma.read_req(req.araddr, unpack(truncate(req.arsize)), unpack(req.arprot[0]));
       	rg_arid[0]<= req.arid;
 				rg_rdburst_count<= req.arlen;
@@ -1136,9 +1187,18 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		endrule
 
 		rule read_resp(!rg_is_rdburst[1]);
+		`ifdef dma_clk_gate_en
+		Bool succ = False;
+		Bit#(config_data_width) data = 0 ; 
+		if(rg_is_rdclk_en[1]) begin
+			succ = True;
+			data = duplicate({7'b0,rg_clk_en});
+			rg_is_rdclk_en[1] <= False;
+		end
+		else
+		`endif
       let {succ,data}<- dma.read_resp;
-      let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],
-														rlast: True, rdata: data, ruser: ?};
+		let r = AXI4_Rd_Data {rresp: succ? AXI4_OKAY:AXI4_SLVERR, rid: rg_arid[1],rlast: True, rdata: data, ruser: ?};
       s_xactor.i_rd_data.enq(r);
 		endrule
 	
@@ -1166,6 +1226,11 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
         rg_is_wrburst[0]<= True;
 		  else begin
 				rg_is_wrburst[0]<= False;
+			`ifdef dma_clk_gate_en
+			if (aw.awaddr[7:0] == `DMA_Clk_En && aw.awsize == 0)
+				rg_is_wrclk_en[0] <= True;
+			else
+			`endif
       	dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)),unpack(aw.awprot[0]));
 				rg_awid[0]<= aw.awid;
 				rg_wrburst_count<= aw.awlen;
@@ -1173,7 +1238,13 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		endrule
 
 		rule write_resp(!rg_is_wrburst[1]);
-      let succ<- dma.write_resp;
+		Bool succ;
+		`ifdef dma_clk_gate_en
+		if (rg_is_wrclk_en[1])
+			succ = True;
+		else
+		`endif
+      		succ<- dma.write_resp;
       let r = AXI4_Wr_Resp {bresp: succ?AXI4_OKAY:AXI4_SLVERR, buser: 0 , bid:rg_awid[1]};
       s_xactor.i_wr_resp.enq (r);
 		endrule
@@ -1205,19 +1276,19 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
 		interface interrupt_to_proc= dma.interrupt_to_proc;
 endmodule
 
-interface Ifc_DMA_AXI4_Lite#(numeric type addr_width, numeric type data_width, numeric type user_width,
+interface Ifc_DMA_AXI4_Lite#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width,
                              numeric type config_addr_width, numeric type config_data_width,
                              numeric type numChannels, numeric type numPeripherals);
-	interface AXI4_Master_IFC#(addr_width, data_width, user_width) master;
+	interface AXI4_Master_IFC#(addr_width,id_width, data_width, user_width) master;
  	interface AXI4_Lite_Slave_IFC#(config_addr_width, config_data_width, user_width) slave;
 	method Action interrupt_from_peripherals(Bit#(numPeripherals) pint);
 	interface Get#(Bit#(1)) interrupt_to_proc;
 endinterface
 
-module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
+module mkDMA_AXI4_Lite(Ifc_DMA_AXI4_Lite#(addr_width, id_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals))
 provisos (Add#(a__, TLog#(numPeripherals), 4),
 	 				//Add#(numChannels, xyz__, 7),
-	 				Add#(numChannels, 0, 3),
+	 				Add#(numChannels, 0, 7),
 					//Add#(TMul#(numChannels, 4), a__, 64),
 					Add#(b__, 8, config_addr_width),
 					Add#(7, j__, addr_width),
@@ -1229,29 +1300,81 @@ provisos (Add#(a__, TLog#(numPeripherals), 4),
   				Mul#(32, f__, config_data_width),
 					Add#(28, h__, config_data_width),
 					Add#(16, i__, config_data_width),
-					Add#(12, l__, config_data_width)	//for numChannels=3
-);
-		User_ifc#(addr_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
-		AXI4_Lite_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
+					Add#(12, l__, config_data_width),	//for numChannels=3
+						Mul#(16, m__, data_width),
+						Mul#(32, n__, data_width),
+						Mul#(8, o__, data_width),
+						Add#(p__, TLog#(TDiv#(data_width, 8)), data_width),
+						Add#(q__, TLog#(TDiv#(data_width, 8)), addr_width),
+						Add#(r__, 1, config_data_width),
+						Add#(1, s__, id_width)
 
+);
+
+
+
+		`ifdef dma_clk_gate_en
+		GatedClockIfc dma_clk_gated <- mkGatedClockFromCC(False);
+		Reg#(Bool) rg_is_rdclk_en[2] <- mkCRegA(2,False);
+		Reg#(Bool) rg_is_wrclk_en[2] <- mkCRegA(2,False);
+		Reg#(bit) rg_clk_en <- mkRegA(0);
+		rule clock_en;    
+			dma_clk_gated.setGateCond(unpack(rg_clk_en));	         
+		endrule
+		`endif
+		User_ifc#(addr_width, id_width, data_width, user_width, config_addr_width, config_data_width, numChannels, numPeripherals) dma <- mkDMA;
+		AXI4_Lite_Slave_Xactor_IFC#(config_addr_width, config_data_width, user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 	 	rule axi_read_req;
 	 		let req <- pop_o(s_xactor.o_rd_addr);
+	`ifdef dma_clk_gate_en
+			if (req.araddr[7:0] == `DMA_Clk_En && req.arsize == 0)
+			begin
+		        rg_is_rdclk_en[0]<= True;  
+			end
+      		else 
+	`endif
 			dma.read_req(req.araddr,unpack(truncate(req.arsize)), unpack(req.arprot[0]));
 	 	endrule
-
-		rule axi_read_resp;
-      let {succ,data}<- dma.read_resp;
+`ifdef dma_clk_gate_en
+	rule axi_read_resp_clk_en (rg_is_rdclk_en[1]);
+			Bool succ = True;
+			Bit#(config_data_width) data = duplicate({7'b0,rg_clk_en});
+			rg_is_rdclk_en[1] <= False;
+	 		let r = AXI4_Lite_Rd_Data {rresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: data, ruser: 0};
+	 		s_xactor.i_rd_data.enq(r);
+		endrule
+	 	`endif
+		rule axi_read_resp_wait`ifdef dma_clk_gate_en (!rg_is_rdclk_en[1]) `endif ;
+            let {succ,data}<- dma.read_resp;
 	 		let r = AXI4_Lite_Rd_Data {rresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: data, ruser: 0};
 	 		s_xactor.i_rd_data.enq(r);
 		endrule
 		
+				
 	 	rule axi_write_req;
 	 		let aw <- pop_o(s_xactor.o_wr_addr);
 	 		let w <- pop_o(s_xactor.o_wr_data);
+			`ifdef dma_clk_gate_en
+			if (aw.awaddr[7:0] == `DMA_Clk_En && aw.awsize == 0)
+			begin
+				rg_is_wrclk_en[0] <= True;
+				rg_clk_en <= truncate(w.wdata);
+			end
+			else
+			`endif
 	 		dma.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)), unpack(aw.awprot[0]));
 		endrule
 
-		rule axi_write_resp;
+		`ifdef dma_clk_gate_en
+		rule axi_write_resp_clk_en(rg_is_wrclk_en[1]);
+			Bool succ = True;
+			let r = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: 0 };
+			s_xactor.i_wr_resp.enq (r);
+	 	endrule
+
+		`endif
+
+		rule axi_write_resp_wait`ifdef dma_clk_gate_en (!rg_is_wrclk_en[1]) `endif ;
 			let succ<- dma.write_resp;
 	 		let r = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: 0 };
 	 		s_xactor.i_wr_resp.enq (r);

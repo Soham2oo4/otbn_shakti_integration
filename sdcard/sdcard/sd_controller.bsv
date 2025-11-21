@@ -48,8 +48,8 @@ interface Ifc_sd_controller_out;
 endinterface
 
 interface Ifc_sd_controller;
-    interface AXI4_Slave_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_slave_sdc;
-    interface AXI4_Master_IFC#(`PADDR, `Reg_width, `USERSPACE) axi4_master_sdc;
+    interface AXI4_Slave_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) axi4_slave_sdc;
+    interface AXI4_Master_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) axi4_master_sdc;
     interface Ifc_sd_controller_out sd_controller_out;
 endinterface
 
@@ -58,67 +58,67 @@ module mksd_controller(Ifc_sd_controller);
 Wire#(bit) wr_wb_cyc   <- mkDWire(0);
 Wire#(bit) wr_wb_stb   <- mkDWire(0);
 
-Reg#(Bit#(4)) rg_axi_id <- mkReg(0);
-Reg#(bit)     rg_we     <- mkReg(0);
+Reg#(Bit#(`axi4_id_width)) rg_axi_id <- mkRegA(0);
+Reg#(bit)     rg_we     <- mkRegA(0);
 
 // Configuration register
 
-Reg#(Bit#(32)) rg_argument                     <- mkReg(0);
-Reg#(Bit#(16)) rg_cmd_setting                  <- mkReg(0);
-Reg#(Bit#(16)) rg_status                       <- mkReg(0);
-Reg#(Bit#(32)) rg_cmd_resp_1                   <- mkReg(0);
-Reg#(Bit#(16)) rg_control_setting              <- mkReg('b0000_0000_0000_0010);
-Reg#(Bit#(32)) rg_block_size                   <- mkReg(`BLOCK_SIZE); //512 bytes
-Reg#(Bit#(8))  rg_power_control                <- mkReg(`SUPPLY_VOLTAGE);
-Reg#(Bit#(8))  rg_software_reset               <- mkReg(0);
-Reg#(Bit#(16)) rg_time_out                     <- mkReg(0);
-Reg#(Bit#(16)) rg_normal_int_status            <- mkReg(0);
-Reg#(Bit#(16)) rg_error_int_status             <- mkReg(0);
-Reg#(Bit#(16)) rg_normal_int_signal_enable     <- mkReg(0);
-Reg#(Bit#(16)) rg_error_int_signal_enable      <- mkReg(0);
-Reg#(Bit#(8))  rg_clock_divider                <- mkReg(0);
-Reg#(Bit#(16)) rg_capabilites                  <- mkReg(0);
-Reg#(Bit#(16)) rg_Bd_status                    <- mkReg(0);
-Reg#(Bit#(8))  rg_Bd_isr                       <- mkReg(0);
-Reg#(Bit#(8))  rg_Bd_isr_enable                <- mkReg(0);
+Reg#(Bit#(32)) rg_argument                     <- mkRegA(0);
+Reg#(Bit#(16)) rg_cmd_setting                  <- mkRegA(0);
+Reg#(Bit#(16)) rg_status                       <- mkRegA(0);
+Reg#(Bit#(32)) rg_cmd_resp_1                   <- mkRegA(0);
+Reg#(Bit#(16)) rg_control_setting              <- mkRegA('b0000_0000_0000_0010);
+Reg#(Bit#(32)) rg_block_size                   <- mkRegA(`BLOCK_SIZE); //512 bytes
+Reg#(Bit#(8))  rg_power_control                <- mkRegA(`SUPPLY_VOLTAGE);
+Reg#(Bit#(8))  rg_software_reset               <- mkRegA(0);
+Reg#(Bit#(16)) rg_time_out                     <- mkRegA(0);
+Reg#(Bit#(16)) rg_normal_int_status            <- mkRegA(0);
+Reg#(Bit#(16)) rg_error_int_status             <- mkRegA(0);
+Reg#(Bit#(16)) rg_normal_int_signal_enable     <- mkRegA(0);
+Reg#(Bit#(16)) rg_error_int_signal_enable      <- mkRegA(0);
+Reg#(Bit#(8))  rg_clock_divider                <- mkRegA(0);
+Reg#(Bit#(16)) rg_capabilites                  <- mkRegA(0);
+Reg#(Bit#(16)) rg_Bd_status                    <- mkRegA(0);
+Reg#(Bit#(8))  rg_Bd_isr                       <- mkRegA(0);
+Reg#(Bit#(8))  rg_Bd_isr_enable                <- mkRegA(0);
 
 //Register Control
-Reg#(bit) rg_Bd_isr_reset                      <- mkReg(0);
-Reg#(bit) rg_normal_isr_reset                  <- mkReg(0);
-Reg#(bit) rg_error_isr_reset                   <- mkReg(0);
-Reg#(Bit#(`Reg_width)) rg_dat_in_m_rx_bd       <- mkReg(0); //Data in to Rx_bd from Master
-Reg#(Bit#(`Reg_width)) rg_dat_in_m_tx_bd       <- mkReg(0);
+Reg#(bit) rg_Bd_isr_reset                      <- mkRegA(0);
+Reg#(bit) rg_normal_isr_reset                  <- mkRegA(0);
+Reg#(bit) rg_error_isr_reset                   <- mkRegA(0);
+Reg#(Bit#(`Reg_width)) rg_dat_in_m_rx_bd       <- mkRegA(0); //Data in to Rx_bd from Master
+Reg#(Bit#(`Reg_width)) rg_dat_in_m_tx_bd       <- mkRegA(0);
 
-Reg#(bit) rg_new_cmd                           <- mkDReg(0);
-Reg#(bit) rg_int_busy                          <- mkReg(0);
-Reg#(bit) rg_cmd_int_busy                      <- mkDReg(0);
-Reg#(bit) rg_we_ack                            <- mkDReg(0);
-Reg#(bit) rg_int_ack                           <- mkReg(1);
-Reg#(bit) rg_ack_o                             <- mkReg(0);
-Reg#(bit) rg_we_m_rx_bd                        <- mkReg(0);
-Reg#(bit) rg_we_m_tx_bd                        <- mkReg(0);
+Reg#(bit) rg_new_cmd                           <- mkDRegA(0);
+Reg#(bit) rg_int_busy                          <- mkRegA(0);
+Reg#(bit) rg_cmd_int_busy                      <- mkDRegA(0);
+Reg#(bit) rg_we_ack                            <- mkDRegA(0);
+Reg#(bit) rg_int_ack                           <- mkRegA(1);
+Reg#(bit) rg_ack_o                             <- mkRegA(0);
+Reg#(bit) rg_we_m_rx_bd                        <- mkRegA(0);
+Reg#(bit) rg_we_m_tx_bd                        <- mkRegA(0);
 
-Reg#(Bit#(2)) rg_we_we                         <- mkReg(0);
-Reg#(bit)     rg_bd_rx                         <- mkReg(0);
-Reg#(bit)     rg_bd_tx                         <- mkReg(0);
+Reg#(Bit#(2)) rg_we_we                         <- mkRegA(0);
+Reg#(bit)     rg_bd_rx                         <- mkRegA(0);
+Reg#(bit)     rg_bd_tx                         <- mkRegA(0);
 
-Reg#(Bit#(32))       rg_resp_data              <- mkReg(0);
-Reg#(bit)            rg_m_wb_ack_i             <- mkDReg(0); 
+Reg#(Bit#(32))       rg_resp_data              <- mkRegA(0);
+Reg#(bit)            rg_m_wb_ack_i             <- mkDRegA(0); 
 
-Reg#(bit)    rg_read_req_en                    <- mkReg(0);
-Reg#(bit)    rg_disable_read_request           <- mkReg(0);
+Reg#(bit)    rg_read_req_en                    <- mkRegA(0);
+Reg#(bit)    rg_disable_read_request           <- mkRegA(0);
 
-Reg#(bit)    rg_en_cmd_int_busy                <- mkReg(0);
+Reg#(bit)    rg_en_cmd_int_busy                <- mkRegA(0);
 
-Reg#(Bit#(10)) rg_count                        <- mkReg(0);
+Reg#(Bit#(10)) rg_count                        <- mkRegA(0);
 
-Reg#(bit)  wr_config                          <- mkDReg(0);   
+Reg#(bit)  wr_config                          <- mkDRegA(0);   
 
-Reg#(Bit#(3)) rg_new_count                    <- mkReg(0);
+Reg#(Bit#(3)) rg_new_count                    <- mkRegA(0);
 
 
-AXI4_Slave_Xactor_IFC#(`PADDR, `Reg_width, `USERSPACE)  s_xactor_sdc_slave   <- mkAXI4_Slave_Xactor;
-AXI4_Master_Xactor_IFC#(`PADDR, `Reg_width, `USERSPACE) s_xactor_sdc_master <- mkAXI4_Master_Xactor;
+AXI4_Slave_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE)  s_xactor_sdc_slave   <- mkAXI4_Slave_Xactor;
+AXI4_Master_Xactor_IFC#(`PADDR, `axi4_id_width, `Reg_width, `USERSPACE) s_xactor_sdc_master <- mkAXI4_Master_Xactor;
 
 Ifc_sdc_controller sdc_controller <- mksdc_controller;
 

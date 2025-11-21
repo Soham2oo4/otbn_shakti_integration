@@ -64,8 +64,8 @@ package capmatrix;
 		BRAM_DUAL_PORT_BE#(Bit#(TSub#(mem_size,2)),Bit#(32),4) dmemLSB <- 
                    mkBRAMCore2BELoad(valueOf(TExp#(TSub#(mem_size,2))),False,lsb_file,False);
   
-    Reg#(Bool) read_request_sent[2] <-mkCReg(2,False);
-		Reg#(Bool) rg_unlocked <- mkReg(True);
+    Reg#(Bool) read_request_sent[2] <-mkCRegA(2,False);
+		Reg#(Bool) rg_unlocked <- mkRegA(True);
     
 		method Action write_request (Tuple3#(Bit#(addr_width), Bit#(data_width),  Bit#(TDiv#(data_width, 8))) req);
       let {addr, data, strb}=req;
@@ -115,15 +115,15 @@ package capmatrix;
 
 
 
-  interface Ifc_capmatrix_AXI4#(numeric type addr_width, numeric type data_width, numeric type user_width,
+  interface Ifc_capmatrix_AXI4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width,
 																																									numeric type mem_size);
-    interface AXI4_Slave_IFC#(addr_width, data_width, user_width) slave; 
+    interface AXI4_Slave_IFC#(addr_width, id_width, data_width, user_width) slave; 
   endinterface
 
   typedef enum {Idle, Burst} Mem_State deriving(Eq, Bits, FShow);
 
   module mkcapmatrix_AXI4#(Bit#(awidth) base, parameter String mem_init_file1, 
-        parameter String mem_init_file2, parameter String modulename)(Ifc_capmatrix_AXI4#(awidth, dwidth, uwidth, mem_size))
+        parameter String mem_init_file2, parameter String modulename)(Ifc_capmatrix_AXI4#(awidth, iwidth, dwidth, uwidth, mem_size))
     provisos(Add#(dwidth, a, 64), 
              Mul#(8, a__, dwidth), 
              Mul#(16, b__, dwidth), 
@@ -134,12 +134,12 @@ package capmatrix;
     UserInterface#(awidth, dwidth, mem_size) dut <- mkcapmatrix(base, mem_init_file1, mem_init_file2, modulename);
 	  AXI4_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
-    Reg#(Bit#(4)) rg_rd_id <-mkReg(0);
-    Reg#(Mem_State) read_state <-mkReg(Idle);
-    Reg#(Mem_State) write_state <-mkReg(Idle);
-	  Reg#(Bit#(8)) rg_readburst_counter<-mkReg(0);
-	  Reg#(AXI4_Rd_Addr	#(awidth, uwidth)) rg_read_packet <-mkReg(?);
-		Reg#(AXI4_Wr_Addr	#(awidth, uwidth)) rg_write_packet<-mkReg(?); 
+    Reg#(Bit#(id_width)) rg_rd_id <-mkRegA(0);
+    Reg#(Mem_State) read_state <-mkRegA(Idle);
+    Reg#(Mem_State) write_state <-mkRegA(Idle);
+	  Reg#(Bit#(8)) rg_readburst_counter<-mkRegA(0);
+	  Reg#(AXI4_Rd_Addr	#(awidth,iwidth, uwidth)) rg_read_packet <-mkRegA(?);
+		Reg#(AXI4_Wr_Addr	#(awidth,iwidth, uwidth)) rg_write_packet<-mkRegA(?); 
 
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
@@ -220,7 +220,7 @@ package capmatrix;
         data0=duplicate(data0[15:0]);
       else if(transfer_size=='d0)
         data0=duplicate(data0[7:0]);
-      AXI4_Rd_Data#(dwidth, uwidth) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+      AXI4_Rd_Data#(iwidth,dwidth, uwidth) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: rg_read_packet.aruser, rid:rg_read_packet.arid};
   		if(verbosity!=0) 
         $display($time, "\tCapMatrix : Responding Read Request with Data: %h ",data0);
@@ -248,9 +248,9 @@ package capmatrix;
 	  AXI4_Lite_Slave_Xactor_IFC #(awidth, dwidth, uwidth)  s_xactor <- mkAXI4_Lite_Slave_Xactor;
     Integer verbosity = `VERBOSITY;
     Integer byte_offset = valueOf(TDiv#(dwidth, 32));
-    Reg#(Bit#(2)) rg_size <-mkReg(3);
-    Reg#(Bit#(TAdd#(1, TDiv#(dwidth, 32)))) rg_offset <-mkReg(0);
-		Reg#(Bit#(uwidth)) rg_aruser <- mkReg(0);
+    Reg#(Bit#(2)) rg_size <-mkRegA(3);
+    Reg#(Bit#(TAdd#(1, TDiv#(dwidth, 32)))) rg_offset <-mkRegA(0);
+		Reg#(Bit#(uwidth)) rg_aruser <- mkRegA(0);
     // If the request is single then simple send ERR. If it is a burst write request then change
     // state to Burst and do not send response.
     rule write_request_address_channel;

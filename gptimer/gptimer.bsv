@@ -15,7 +15,9 @@ package gptimer;
 	`include "gptimer.defines"	
 
 	interface Ifc_gptimer_io;
-		(*always_ready,always_enabled*)
+		`ifndef gpt_clk_gate_en
+		  (*always_enabled, always_ready*)
+		`endif
 		method Action input_signal(Bit#(1) signal_in);
 		method Bit#(1) timer_out;
 	endinterface
@@ -27,7 +29,7 @@ package gptimer;
 		method Bit#(1) sb_interrupt;
 	endinterface : Ifc_gptimer
 
-	module mkgptimer#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer#(addr_width,data_width,gptimer_width))
+	module mkgptimer(Ifc_gptimer#(addr_width,data_width,gptimer_width))
 					provisos(Add#(16,d__,data_width),
 							 Add#(32,e__,data_width),
 							 Add#(gptimer_width,f__,data_width),
@@ -37,14 +39,13 @@ package gptimer;
 							 Add#(4,g__,data_width),
 							 Mul#(4,h__,data_width)
 							);
-			let bus_clock <- exposeCurrentClock;
-		  let bus_reset <- exposeCurrentReset;
 
+`ifndef gpt_clk_gate_loc_rst_en
 			Reg#(Bit#(16)) rg_clk_divider <- mkRegA(0);
 			Reg#(bit) rg_clk_src <- mkRegA(0);
       Reg#(Bit#(32)) rg_clock_control = concatReg3(readOnlyReg(15'd0),rg_clk_divider,rg_clk_src);
       
-      Reg#(bit) gpt_reset               <- mkRegA(0);				// bit-1
+`endif
 
 			Reg#(Bit#(gptimer_width)) rg_input_capture <- mkRegA(0);
 			Reg#(bit) rg_prev_input <- mkRegA(0);
@@ -54,63 +55,33 @@ package gptimer;
 			Ifc_iqc#(1) gptimer_input_qual <- mkiqc(rg_qual_cycles);
 		`endif
 
-	    MakeResetIfc control_reset <- mkReset(1,False, bus_clock);
-	    rule generate_reset;
-	      if(gpt_reset==1) begin
-			control_reset.assertReset;
-			gpt_reset <= 0;
-		  end
-	    endrule
-	    Reset overall_reset <- mkResetEither(bus_reset,control_reset.new_rst);
 
-	    // Select between bus clock or external clock 
-	    MuxClkIfc clock_selection <- mkUngatedClockMux(ext_clock,bus_clock);
-	    Reset async_reset <- mkAsyncResetFromCR(0,clock_selection.clock_out);
-	    rule select_busclk_extclk;
-	      clock_selection.select(rg_clk_src==1);
-	    endrule
+                // original
+	        Reg#(Bit#(gptimer_width)) rg_counter 		    <- mkRegA(0);   //og
+	        Reg#(Bit#(gptimer_width)) rg_repeated_count <- mkRegA(0);  //og
+		Reg#(bit) rg_count_mode 			    <- mkRegA(1);  //og
 
-	    // The following register is required to transfer the divisor value from bus_clock to 
-	    // external clock domain. This is necessary if the clock divider needs to operate on the
-	    // external clock. In this case, the divisor value should also come from the same clock domain.
-	    Reg#(Bit#(16)) clock_divisor_sync <- mkSyncRegFromCC(0, clock_selection.clock_out); 
-	    rule transfer_data_from_clock_domains;
-	      clock_divisor_sync <= rg_clk_divider;
-	    endrule
+		//Reg#(Bit#(16))             rg_clk_divider          <- mkRegA(0);
 	    
-	    // The PWM can operate on a slowed-down clock. The following module generates a slowed-down
-	    // clock based on the value given in register divisor. Since the clock_divider works on a muxed
-	    // clock domain of the external clock or bus_clock, the divisor (which operates on the bus_clock
-	    // will have to be synchronized and sent to the divider
-	    Ifc_clock_divider#(16) clk_divider <- mkclock_divider(clocked_by clock_selection.clock_out, 
-	                                         reset_by async_reset);
-	    let downclock = clk_divider.slowclock; 
-	    Reset downreset <- mkAsyncReset(0,overall_reset,downclock);
-	    rule generate_slow_clock;
-	      clk_divider.divisor(clock_divisor_sync);
-	    endrule
-
-	  Reg#(Bit#(gptimer_width)) rg_counter 		    <- mkRegA(0,clocked_by downclock,reset_by downreset);
-	  Reg#(Bit#(gptimer_width)) rg_repeated_count <- mkRegA(0,clocked_by downclock,reset_by downreset);
-		Reg#(bit) rg_count_mode 			    <- mkRegA(1,clocked_by downclock,reset_by downreset);
-
-		SyncBitIfc#(Bit#(1)) rg_output <- mkSyncBit(downclock,downreset,bus_clock);
-		SyncBitIfc#(Bit#(1)) rg_pwm_fall_intr <- mkSyncBit(downclock,downreset,bus_clock);
-		SyncBitIfc#(Bit#(1)) rg_pwm_rise_intr <- mkSyncBit(downclock,downreset,bus_clock);
-		SyncBitIfc#(Bit#(1)) rg_cntr_overflow_intr <- mkSyncBit(downclock,downreset,bus_clock);
-		SyncBitIfc#(Bit#(1)) rg_cntr_underflow_intr <- mkSyncBit(downclock,downreset,bus_clock);
-		SyncBitIfc#(Bit#(1)) rg_interrupt <- mkSyncBit(downclock,downreset,bus_clock);
+		Wire#(bit) wr_output               <- mkDWire(0);       
+		Wire#(bit) wr_pwm_fall_intr        <- mkDWire(0); 
+		Wire#(bit) wr_pwm_rise_intr        <- mkDWire(0); 
+		Wire#(bit) wr_cntr_overflow_intr   <- mkDWire(0); 
+		Wire#(bit) wr_cntr_underflow_intr  <- mkDWire(0);
+		//Wire#(bit) wr_interrupt            <- mkDWire(0);
 
 		// =========== Control registers ================== //
-		Reg#(bit) gpt_enable              <- mkSyncReg(0,bus_clock,bus_reset,downclock);        // bit-0
-		Reg#(Bit#(2)) gpt_mode            <- mkSyncReg(0,bus_clock,bus_reset,downclock);				// bit-2:3
+
+		Reg#(bit) gpt_enable              <- mkRegA(0);        // bit-0
+		Reg#(bit) gpt_reset               <- mkRegA(0);        // bit-1
+		Reg#(Bit#(2)) gpt_mode            <- mkRegA(0);				// bit-2:3
 		Reg#(bit) gpt_output_en           <- mkRegA(0);			  // bit-4
-		Reg#(bit) count_reset             <- mkSyncReg(0,bus_clock,bus_reset,downclock);				// bit-5
-		Reg#(bit) continuous_count        <- mkSyncReg(0,bus_clock,bus_reset,downclock);			  // bit-6
-		Reg#(bit) pwm_fall_intr_en        <- mkSyncReg(0,bus_clock,bus_reset,downclock);			  // bit-7
-		Reg#(bit) pwm_rise_intr_en        <- mkSyncReg(0,bus_clock,bus_reset,downclock);			  // bit-8
-		Reg#(bit) cntr_overflow_intr_en   <- mkSyncReg(0,bus_clock,bus_reset,downclock);	      // bit-9
-		Reg#(bit) cntr_underflow_intr_en  <- mkSyncReg(0,bus_clock,bus_reset,downclock);	      // bit-10
+		Reg#(bit) count_reset             <- mkRegA(0);				// bit-5
+		Reg#(bit) continuous_count        <- mkRegA(0);			  // bit-6
+		Reg#(bit) pwm_fall_intr_en        <- mkRegA(0);			  // bit-7
+		Reg#(bit) pwm_rise_intr_en        <- mkRegA(0);			  // bit-8
+		Reg#(bit) cntr_overflow_intr_en   <- mkRegA(0);	      // bit-9
+		Reg#(bit) cntr_underflow_intr_en  <- mkRegA(0);	      // bit-10
 		Reg#(bit) pwm_fall_intr           <- mkRegA(0);			  // bit-11
 		Reg#(bit) pwm_rise_intr           <- mkRegA(0);			  // bit-12
 		Reg#(bit) cntr_overflow_intr      <- mkRegA(0);		    // bit-13
@@ -122,21 +93,9 @@ package gptimer;
 
 		// ================================================ //
 
-		ReadOnly#(bit) sync_gpt_enable                 <- mkNullCrossingWire(bus_clock,gpt_enable);
-		ReadOnly#(bit) sync_count_reset                <- mkNullCrossingWire(bus_clock,count_reset);
-		ReadOnly#(bit) sync_continuous_count           <- mkNullCrossingWire(bus_clock,continuous_count);
-		ReadOnly#(Bit#(2)) sync_gpt_mode               <- mkNullCrossingWire(bus_clock,gpt_mode);
-		ReadOnly#(bit) sync_pwm_fall_intr_en		       <- mkNullCrossingWire(bus_clock,pwm_fall_intr_en);
-		ReadOnly#(bit) sync_pwm_rise_intr_en		       <- mkNullCrossingWire(bus_clock,pwm_rise_intr_en);
-		ReadOnly#(bit) sync_cntr_overflow_intr_en 	   <- mkNullCrossingWire(bus_clock,cntr_overflow_intr_en);
-		ReadOnly#(bit) sync_cntr_underflow_intr_en	   <- mkNullCrossingWire(bus_clock,cntr_underflow_intr_en);
+		Reg#(Bit#(gptimer_width)) rg_period 			       <- mkRegA(0);  //og
+		Reg#(Bit#(gptimer_width)) rg_duty_cycle 		     <- mkRegA(0);    //og
 
-		Reg#(Bit#(gptimer_width)) rg_sync_counter		     <- mkSyncReg(0,downclock,downreset,bus_clock);
-		Reg#(Bit#(gptimer_width)) rg_sync_repeated_count <- mkSyncReg(0,downclock,downreset,bus_clock);
-		Reg#(Bit#(gptimer_width)) rg_period 			       <- mkSyncReg(0,bus_clock,bus_reset,downclock);
-		Reg#(Bit#(gptimer_width)) rg_duty_cycle 		     <- mkSyncReg(0,bus_clock,bus_reset,downclock);
-		ReadOnly#(Bit#(gptimer_width)) sync_duty_cycle   <- mkNullCrossingWire(bus_clock,rg_duty_cycle);
-		ReadOnly#(Bit#(gptimer_width)) sync_period	     <- mkNullCrossingWire(bus_clock,rg_period);
 
 
 		(*conflict_free = "rl_pwm_operation,rl_up_counter"*)
@@ -146,38 +105,27 @@ package gptimer;
 		(*conflict_free = "rl_up_counter,rl_up_down_counter"*)
 		(*conflict_free = "rl_down_counter,rl_up_down_counter"*)
 
-    (* descending_urgency = "rl_counter_reset, rl_pwm_operation" *)
-    (* descending_urgency = "rl_counter_reset, rl_up_counter" *)
-    (* descending_urgency = "rl_counter_reset, rl_down_counter" *)
-    (* descending_urgency = "rl_counter_reset, rl_up_down_counter" *)
+	    (* descending_urgency = "rl_gpt_reset,rl_pwm_operation" *)
+	    (* descending_urgency = "rl_gpt_reset,rl_up_counter" *)
+	    (* descending_urgency = "rl_gpt_reset,rl_down_counter" *)
+	    (* descending_urgency = "rl_gpt_reset,rl_up_down_counter" *)
 
-		rule rl_update_interrupts;
-			pwm_rise_intr <= rg_pwm_rise_intr.read;
-			pwm_fall_intr <= rg_pwm_fall_intr.read;
-			cntr_overflow_intr <= rg_cntr_overflow_intr.read;
-			cntr_underflow_intr <= rg_cntr_underflow_intr.read;
-		endrule
 
-		rule rl_update_counter;
-			rg_sync_counter <= rg_counter;
-			rg_sync_repeated_count <= rg_repeated_count;
-		endrule
-	
-		rule rl_counter_reset(count_reset == 1);
+		rule rl_gpt_reset(count_reset == 1 || gpt_reset == 1);                   
+                   if(gpt_reset == 1)begin 
+                   rg_control<= 0; 
+                   rg_period <= 0; 
+                   rg_duty_cycle <= 0;
+                   rg_input_capture <= 0;
+                   rg_prev_input <= 0; end  
+                   else begin    
+                    count_reset <= 0; end 
 			rg_counter <= 0;
 			rg_repeated_count <= 0;
 			rg_count_mode <= 1;
-			rg_output.send(0);
-			rg_pwm_fall_intr.send(0);
-			rg_pwm_rise_intr.send(0);
-			rg_cntr_overflow_intr.send(0);
-			rg_cntr_underflow_intr.send(0);
-			rg_interrupt.send(0);
+
 		endrule
-	
-    rule rl_reset_counter_reset(sync_count_reset == 1);
-      count_reset <= 0;
-    endrule
+   
 	
 		rule rl_pwm_operation(gpt_mode == 0 && gpt_enable == 1);
 			Bit#(gptimer_width) temp_cntr;
@@ -187,51 +135,54 @@ package gptimer;
       end
 			else
 				temp_cntr = rg_counter + 1;
+				
 			rg_counter <= temp_cntr;
+			 
 	    	if(temp_cntr < rg_duty_cycle)
-				rg_output.send(1);
+				wr_output <= 1;
 			else
-				rg_output.send(0);
-			bit temp_fall_intr = 0;
-			bit temp_rise_intr = 0;
+				wr_output <= 0;
+				
 			if(temp_cntr == rg_duty_cycle) begin
-				rg_pwm_fall_intr.send(1);
-				temp_fall_intr = 1;
+				  pwm_fall_intr <= 1;
+				wr_pwm_fall_intr <= 1;
 			end
 			else if(temp_cntr == 0) begin
-				rg_pwm_rise_intr.send(1);
-				temp_rise_intr = 1;
+				  pwm_rise_intr <= 1;
+				wr_pwm_rise_intr <= 1;
 			end
-			else if(temp_cntr == rg_period -1) begin
-				rg_pwm_fall_intr.send(0);
-				rg_pwm_rise_intr.send(0);
-			end
-			rg_interrupt.send(((pwm_rise_intr_en & temp_rise_intr) | (pwm_fall_intr_en & temp_fall_intr)));
+//			else if(temp_cntr == rg_period -1) begin
+//				pwm_fall_intr <= 0;
+//				pwm_rise_intr <= 0;
+//			end
 		endrule
+		
+		
 
 		rule rl_up_counter(gpt_mode == 1 && gpt_enable == 1);
-			bit temp_overflow_intr = 0;
 			if(rg_counter < rg_period - 1) begin
 				rg_counter <= rg_counter + 1;
-				rg_cntr_overflow_intr.send(0);
+//				   cntr_overflow_intr <= 0; 
 			end
 			else begin
-				temp_overflow_intr = 1;
-				rg_cntr_overflow_intr.send(1);
+				   cntr_overflow_intr <= 1; 
+				   wr_cntr_overflow_intr <= 1; 
+				  
 				if(continuous_count == 1) begin
 					rg_counter <= 0;
 					rg_repeated_count <= rg_repeated_count + 1;
 				end
 			end
-
-			rg_interrupt.send(cntr_overflow_intr_en & temp_overflow_intr);
 		endrule
 
+
+
+
 		rule rl_down_counter(gpt_mode == 2 && gpt_enable == 1);
-			bit temp_underflow_intr =0;
 			if(rg_counter > 0) begin
 				rg_counter <= rg_counter - 1;
-				rg_cntr_underflow_intr.send(0);
+//				cntr_underflow_intr <= 0;
+				
 			end
 			else begin
 				if(rg_count_mode == 1) begin
@@ -239,40 +190,39 @@ package gptimer;
 					rg_count_mode <= 0;
 				end
 				else begin
-					temp_underflow_intr = 1;
-					rg_cntr_underflow_intr.send(1);
+					wr_cntr_underflow_intr <= 1;
+					cntr_underflow_intr <= 1;  
 					if(continuous_count == 1) begin	
 						rg_counter <= rg_period - 1;
 						rg_repeated_count <= rg_repeated_count + 1;
 					end
 				end
 			end
-			rg_interrupt.send(cntr_underflow_intr_en & temp_underflow_intr);
 		endrule
 
+
+
 		rule rl_up_down_counter(gpt_mode == 3 && gpt_enable == 1);
-			bit temp_overflow_intr = 0;
-			bit temp_underflow_intr = 0;
 			if(rg_count_mode == 1) begin
 				if(rg_counter < rg_period - 1) begin
 					rg_counter <= rg_counter + 1;
-					rg_cntr_underflow_intr.send(0);
+//					 cntr_underflow_intr <= 0;
 				end
 				else begin
 					rg_count_mode <= 0;
 					rg_counter <= rg_counter - 1;
-					temp_overflow_intr = 1;
-					rg_cntr_overflow_intr.send(1);
+					  cntr_overflow_intr <= 1;
+					  wr_cntr_overflow_intr <= 1;
 				end
 			end
 			else begin
 				if(rg_counter > 0) begin
 					rg_counter <= rg_counter - 1;
-					rg_cntr_overflow_intr.send(0);
+//				            cntr_overflow_intr <= 0;
 				end
 				else begin
-					temp_underflow_intr = 1;
-					rg_cntr_underflow_intr.send(1);
+                                          wr_cntr_underflow_intr <= 1; 
+					  cntr_underflow_intr <= 1;
 					if(continuous_count == 1) begin
 						rg_count_mode <= 1;
 						rg_counter <= rg_counter + 1;
@@ -280,15 +230,29 @@ package gptimer;
 					end
 				end
 			end
-			rg_interrupt.send(((cntr_overflow_intr_en & temp_overflow_intr) | (cntr_underflow_intr_en & temp_underflow_intr)));
 		endrule
+		
+		
+		
+		
 		
 		method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, Bit#(2) size);
 			Bool success = True;
-			if(addr[7:0] == `GPTimer_ctrl && size == 1)
+			if(addr[7:0] == `GPTimer_ctrl && size == 1) begin
 				rg_control <= truncate(data);
+				if (data[14]==1'b1)
+					cntr_underflow_intr <= 0;
+				if (data[13]==1'b1)
+					cntr_overflow_intr <= 0;
+				if (data[12]==1'b1)
+					pwm_rise_intr <= 0;
+				if (data[11]==1'b1)
+					pwm_fall_intr <= 0;
+			end
+`ifndef gpt_clk_gate_loc_rst_en
 			else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
 				rg_clock_control <= truncate(data);
+`endif
 			else if(addr[7:0] == `GPTimer_compare && size == 2)
 				rg_duty_cycle <= truncate(data);
 			else if(addr[7:0] == `GPTimer_countref && size ==2)
@@ -301,24 +265,27 @@ package gptimer;
 				success = False;
 			return success;
 		endmethod
+		
+		
+		
 		method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr, Bit#(2) size);
 			Bool success = True;
 			Bit#(data_width) data = 0;
       if(addr[7:0] == `GPTimer_ctrl && size == 1) begin
-        Bit#(16) lv_control = {capture_input,cntr_underflow_intr,cntr_overflow_intr,pwm_rise_intr,pwm_fall_intr,sync_cntr_underflow_intr_en,sync_cntr_overflow_intr_en,
-                              sync_pwm_rise_intr_en,sync_pwm_fall_intr_en,sync_continuous_count,sync_count_reset,gpt_output_en,sync_gpt_mode,gpt_reset,sync_gpt_enable};
-        data = duplicate(lv_control);
+			    data = duplicate(rg_control);
       end
+`ifndef gpt_clk_gate_loc_rst_en
 			else if(addr[7:0] == `GPTimer_clk_ctrl && size ==2)
 				data = duplicate(rg_clock_control);
+`endif
 			else if(addr[7:0] == `GPTimer_counter && size ==2)
-				data = duplicate(rg_sync_counter);
+				data = duplicate(rg_counter);
 			else if(addr[7:0] == `GPTimer_repeat_count && size ==2)
-				data = duplicate(rg_sync_repeated_count);
+				data = duplicate(rg_repeated_count);
 			else if(addr[7:0] == `GPTimer_compare && size == 2)
-				data = duplicate(sync_duty_cycle);
+				data = duplicate(rg_duty_cycle);
 			else if(addr[7:0] == `GPTimer_countref && size ==2)
-				data = duplicate(sync_period);
+				data = duplicate(rg_period);
 			else if(addr[7:0] == `GPTimer_capture && size ==2)
 				data = duplicate(rg_input_capture);
 		`ifdef IQC
@@ -329,6 +296,10 @@ package gptimer;
 				success = False;
 			return tuple2(success,data);
 		endmethod
+		
+		
+		
+		
 		interface io = interface Ifc_gptimer_io;
 			method Action input_signal(Bit#(1) signal_in);
 			`ifdef IQC
@@ -336,24 +307,30 @@ package gptimer;
 			`else
 				let temp = signal_in;
 			`endif
-				if(temp == capture_input && rg_prev_input != temp && sync_gpt_enable == 1)
-					rg_input_capture <= rg_sync_counter;
+				if(temp == capture_input && rg_prev_input != temp && gpt_enable == 1)
+					rg_input_capture <= rg_counter;
 				rg_prev_input <= temp;
 			endmethod
-			method timer_out = gpt_output_en == 1 ? rg_output.read : 0;
+			method timer_out = gpt_output_en == 1 ? wr_output: 0;
 		endinterface;
-		method sb_interrupt = rg_interrupt.read;
+		
+		method sb_interrupt =  ((pwm_rise_intr_en & wr_pwm_rise_intr) | (pwm_fall_intr_en & wr_pwm_fall_intr) | (cntr_overflow_intr_en & wr_cntr_overflow_intr) | (cntr_underflow_intr_en & wr_cntr_underflow_intr)); 
+		
+		
 	endmodule
 	
 	//axi4lite
 	interface Ifc_gptimer_axi4lite#(numeric type addr_width, numeric type data_width, numeric type user_width, numeric type gptimer_width);
 		interface AXI4_Lite_Slave_IFC#(addr_width, data_width, user_width) slave;
+		`ifndef gpt_clk_gate_en
+		  (*always_enabled, always_ready*)
+		`endif		
 		interface Ifc_gptimer_io io;
 		(*always_ready,always_enabled*)
     	method Bit#(1) sb_interrupt;
 	endinterface
 
-	module mkgptimer_axi4lite#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4lite#(addr_width,data_width,user_width,gptimer_width))
+	module mkgptimer_axi4lite#(Clock ext_clock `ifdef testmode , Bool test_mode `endif )(Ifc_gptimer_axi4lite#(addr_width,data_width,user_width,gptimer_width))
 					provisos(Add#(a__,16,data_width),
 							 Add#(b__,32,data_width),
 							 Add#(c__,gptimer_width,data_width),
@@ -361,39 +338,235 @@ package gptimer;
 							 Mul#(e__,32,data_width),
 							 Mul#(f__,gptimer_width,data_width),
 							 Add#(g__,4,data_width),
-							 Mul#(4,h__,data_width)
+							 Mul#(4,h__,data_width),
+							 Add#(i__, 1, data_width),
+							  Mul#(8, j__, data_width),
+							   Add#(k__, 2, data_width)
 							);
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(ext_clock, ext_reset);
+		 
+		 let bus_clock <- exposeCurrentClock;
+		 let bus_reset <- exposeCurrentReset;
+		 `ifdef gpt_clk_gate_en
+		Reg#(bit)                rg_clk_en               <- mkRegA(0);
+		`endif		 
+		Reg#(Bit#(1)) rg_rst <- mkRegA(0);
+	        Reg#(bit)                rg_clk_src              <- mkRegA(0);
+	        Reg#(Bit#(16))           rg_clk_divider          <- mkRegA(0);
+                Reg#(Bit#(32))           rg_clock_control = concatReg5(readOnlyReg(13'd0),`ifdef gpt_loc_rst_en rg_rst  `else readOnlyReg(1'b0) `endif , `ifdef gpt_clk_gate_en rg_clk_en `else readOnlyReg(1'b0) `endif ,rg_clk_divider,rg_clk_src);
+                 
+                
+			`ifdef gpt_clk_gate_en    
+                MuxClkIfc      clock_selection     <- mkClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk   
+			`else  
+				MuxClkIfc      clock_selection     <- mkUngatedClockMux(ext_clock,bus_clock);   // first mux external and internal sel  clk 
+			`endif            
+                Reset async_reset <- mkAsyncResetFromCR(2,clock_selection.clock_out);    // first rst
+                 
+                Ifc_clock_divider#(16) clk_divider <- mkclock_divider(clocked_by clock_selection.clock_out,reset_by async_reset);      
+                
+                let downclock           = clk_divider.slowclock;   // div clk                           
+                Reset downreset                   <- mkAsyncReset(2,bus_reset,downclock);    // div rst 
+		 `ifdef gpt_loc_rst_en
+				MakeResetIfc reg_reset <-mkReset(0,False,bus_clock);            // create a new reset for curr_clk
+                Reset gpt_curr_reset <- mkResetEither(reg_reset.new_rst,bus_reset);     // OR default and new_rst 
+				Reset async_rg_reset <- mkAsyncReset(2,gpt_curr_reset,downclock);
+		`endif                
+`ifdef gpt_clk_gate_en								                   
+		GatedClockIfc  gpt_clk_gated       <- mkGatedClock(False,downclock,clocked_by downclock,reset_by downreset);
+`endif                
+`ifdef gpt_clk_gate_en								
+		 `ifdef gpt_loc_rst_en							
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by async_rg_reset);		
+		`else
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by gpt_clk_gated.new_clk , reset_by downreset);		
+		`endif
+`else
+		 `ifdef gpt_loc_rst_en							
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by downclock , reset_by async_rg_reset);
+		`else
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(clocked_by downclock , reset_by downreset);		
+		`endif	
+`endif	
 		AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
-		rule read_request;
-	  		let req <- pop_o (s_xactor.o_rd_addr);
-      		let {succ,data} <- gptimer.read_req(req.araddr,unpack(truncate(req.arsize)));
-	  		let resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
-                                    rdata:data, ruser: ?};
-	  		s_xactor.i_rd_data.enq(resp);
+		`ifdef gpt_clk_gate_en
+		SyncBitIfc#(Bit#(1)) sync_rg_clk_en <- mkSyncBit(bus_clock, bus_reset, downclock); // 
+		`endif
+		
+                Reg#(Bit#(16)) clock_divisor_sync <- mkSyncRegFromCC(0, clock_selection.clock_out);		
+	
+	    
+	    
+	    rule transfer_data_from_clock_domains;
+	      clock_divisor_sync <= rg_clk_divider;
      	endrule
 
-     	rule write_request;
-       		let addreq <- pop_o(s_xactor.o_wr_addr);
-       		let datareq <- pop_o(s_xactor.o_wr_data);
-       		let succ <- gptimer.write_req(addreq.awaddr, datareq.wdata,unpack(truncate(addreq.awsize)));
-       		let resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
-       		s_xactor.i_wr_resp.enq(resp);
+`ifdef gpt_loc_rst_en
+		rule reset_gpt(rg_rst == 1);
+          reg_reset.assertReset;
+        endrule
+`endif                 
+	     rule generate_slow_clock;
+	      clk_divider.divisor(clock_divisor_sync);
      	endrule
 
-     	interface io = gptimer.io;
+		`ifdef gpt_clk_gate_en
+	     rule clock_en;    
+	          gpt_clk_gated.setGateCond(unpack(sync_rg_clk_en.read));	         
+	      endrule
+	    
+		`endif
+	    
+	     rule clk_select;
+               clock_selection.select(rg_clk_src==1);
+		`ifdef gpt_clk_gate_en
+                sync_rg_clk_en.send(rg_clk_en); 
+		`endif
+             endrule 
+                
+		`ifdef gpt_clk_gate_en  		
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,gpt_clk_gated.new_clk);
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,downreset);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,gpt_clk_gated.new_clk,downreset);
+		`else
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Addr#(addr_width,user_width)) ff_rd_request        <-  mkSyncFIFOFromCC(3,downclock);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Addr#(addr_width,user_width)) ff_wr_request        <-  mkSyncFIFOFromCC(3,downclock);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Data#(data_width))            ff_wdata_request     <-  mkSyncFIFOFromCC(3,downclock);
+  		SyncFIFOIfc#(AXI4_Lite_Rd_Data#(data_width,user_width)) ff_rd_response       <-  mkSyncFIFOToCC(3,downclock,downreset);
+  		SyncFIFOIfc#(AXI4_Lite_Wr_Resp#(user_width))            ff_wr_response       <-  mkSyncFIFOToCC(3,downclock,downreset);
+		`endif  		
+  		//capturing the read requests
+  		rule capture_read_request;   
+  			let rd_req <- pop_o (s_xactor.o_rd_addr);
+			     Bool succ = False;
+		         Bit#(data_width) rdata = 0 ;
+`ifdef gpt_clk_gate_loc_rst_en
+				if (rd_req.araddr[7:0] == `GPTimer_clk_ctrl  && rd_req.arsize == 2) begin	 
+			       succ = True; 
+		           rdata = duplicate(rg_clock_control); 
+		           let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+      	                                                      rdata: rdata, ruser: ?}; //TODO user?
+  			       s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+					    end 
+`endif
+				`ifndef gpt_clk_gate_loc_rst_en
+				ff_rd_request.enq(rd_req); 
+				`elsif gpt_clk_gate_en
+				else if(rg_clk_en == 1)   begin 
+					ff_rd_request.enq(rd_req); 	
+				end  //core domain 
+				`else
+				else
+					ff_rd_request.enq(rd_req); 	
+				`endif
+				`ifdef gpt_clk_gate_en
+				else begin
+				let lv_resp= AXI4_Lite_Rd_Data {rresp: AXI4_LITE_SLVERR, 
+															rdata: rdata, ruser: ?}; //TODO user?
+				s_xactor.i_rd_data.enq(lv_resp);//sending back the response
+				end
+				`endif
+  		endrule
+  
+  		rule perform_read; 
+  			let rd_req = ff_rd_request.first;   //peripheral domain  
+  			ff_rd_request.deq;
+  			let {succ,rdata} <- gptimer.read_req(rd_req.araddr,unpack(truncate(rd_req.arsize)));
+  			let lv_resp= AXI4_Lite_Rd_Data {rresp:succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, 
+      	                                                      rdata: rdata, ruser: ?}; //TODO user?
+  			ff_rd_response.enq(lv_resp);   //peripheral domain
+  		endrule
+  
+  		rule send_read_response;  
+  			ff_rd_response.deq;    // core domain
+  			s_xactor.i_rd_data.enq(ff_rd_response.first);//sending back the response
+  		endrule              
+  
+  		// capturing write requests
+  		  		rule capture_write_request;  // core domain
+  			let wr_req  <- pop_o(s_xactor.o_wr_addr);
+  			let wr_data <- pop_o(s_xactor.o_wr_data);
+			 Bool succ = False;
+`ifdef gpt_clk_gate_loc_rst_en
+			if (wr_req.awaddr[7:0] == `GPTimer_clk_ctrl && wr_req.awsize == 2) begin 
+				 rg_clock_control <= truncate(wr_data.wdata); 
+       			        succ = True;
+				let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+      	        s_xactor.i_wr_resp.enq(lv_resp);
+       		end
+`endif
+`ifndef gpt_clk_gate_loc_rst_en
+			   ff_wr_request.enq(wr_req);
+			   ff_wdata_request.enq(wr_data); 
+			`elsif gpt_clk_gate_en
+			else if(rg_clk_en == 1) begin
+			ff_wr_request.enq(wr_req);
+			ff_wdata_request.enq(wr_data); 
+			end 
+			`else
+			else begin
+				ff_wr_request.enq(wr_req);
+				ff_wdata_request.enq(wr_data); 
+			end
+			`endif
+			`ifdef gpt_clk_gate_en
+			else begin
+			let lv_resp = AXI4_Lite_Wr_Resp {bresp: AXI4_LITE_SLVERR, buser: ?};
+				s_xactor.i_wr_resp.enq(lv_resp);
+			end
+			`endif
+  		endrule
+  
+  		rule perform_write;   // peripheral domain 
+  			let wr_req  = ff_wr_request.first;
+  			let wr_data = ff_wdata_request.first;
+  			
+  			let succ <- gptimer.write_req(wr_req.awaddr,wr_data.wdata,wr_req.awsize);
+      		let lv_resp = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: ?};
+  			ff_wr_response.enq(lv_resp);
+			  ff_wr_request.deq;
+			  ff_wdata_request.deq;
+  		endrule
+  
+  		rule send_write_response; // core domain
+  			ff_wr_response.deq;
+      		s_xactor.i_wr_resp.enq(ff_wr_response.first);//enqueuing the write response
+  		endrule
+		
+	SyncBitIfc#(Bit#(1)) sync_gpt_out <- mkSyncBit(downclock, downreset,  bus_clock);
+	SyncBitIfc#(Bit#(1)) sync_gpt_in <- mkSyncBit(bus_clock, bus_reset,  downclock);
+	SyncBitIfc#(Bit#(1)) sync_interrupt <- mkSyncBit(downclock, downreset,  bus_clock);
+	
+	rule syncbits_out; 
+	   sync_gpt_out.send(gptimer.io.timer_out); 
+	   sync_interrupt.send(gptimer.sb_interrupt); 
+	endrule 
+	
+	rule syncbits_in; 
+	   gptimer.io.input_signal(sync_gpt_in.read);
+	endrule 
+				
+     
+     	interface io = interface Ifc_gptimer_io
+     	   method timer_out = sync_gpt_out.read;
+     	   method Action input_signal(Bit#(1) signal_in);
+     	                  sync_gpt_in.send(signal_in);
+			endmethod
+     	
+     	 endinterface;
      	interface slave = s_xactor.axi_side;
-     	method sb_interrupt=gptimer.sb_interrupt;
+     	method sb_interrupt= sync_interrupt.read;
 	endmodule
 
 	//axi4
-	interface Ifc_gptimer_axi4#(numeric type addr_width, numeric type data_width, numeric type user_width,numeric type gptimer_width);
-		interface AXI4_Slave_IFC#(addr_width,data_width,user_width)	slave;
+	interface Ifc_gptimer_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width,numeric type gptimer_width);
+		interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width)	slave;
 		interface Ifc_gptimer_io io;
     	method Bit#(1) sb_interrupt;
 	endinterface
-	module mkgptimer_axi4#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4#(addr_width,data_width,user_width,gptimer_width))
+	module mkgptimer_axi4#(Clock ext_clock, Reset ext_reset)(Ifc_gptimer_axi4#(addr_width,id_width,data_width,user_width,gptimer_width))
 					provisos(Add#(a__,16,data_width),
 							 Add#(b__,32,data_width),
 							 Add#(c__,gptimer_width,data_width),
@@ -403,13 +576,13 @@ package gptimer;
 							 Add#(g__,4,data_width),
 							 Mul#(4,h__,data_width)
 							);
-		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer(ext_clock, ext_reset);
-		AXI4_Slave_Xactor_IFC#(addr_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
+		Ifc_gptimer#(addr_width,data_width,gptimer_width) gptimer <-mkgptimer;
+		AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
 		Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
 		Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
 
-		Reg#(AXI4_Rd_Addr#(addr_width,user_width)) rg_rdpacket <- mkRegA(?);
- 		Reg#(AXI4_Wr_Addr#(addr_width,user_width)) rg_wrpacket <- mkRegA(?);
+		Reg#(AXI4_Rd_Addr#(addr_width,id_width,user_width)) rg_rdpacket <- mkRegA(?);
+ 		Reg#(AXI4_Wr_Addr#(addr_width,id_width,user_width)) rg_wrpacket <- mkRegA(?);
 
 		rule read_request(rg_rdburst_count==0);
 			let req<-pop_o(s_xactor.o_rd_addr);
@@ -460,3 +633,4 @@ package gptimer;
 		interface slave = s_xactor.axi_side;
 	endmodule
 endpackage
+
