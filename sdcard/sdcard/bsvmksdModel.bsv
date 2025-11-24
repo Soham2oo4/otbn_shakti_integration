@@ -40,7 +40,7 @@ module mksdModel  (Ifc_sdModel);
 //	inout dat clocked_by (dummy) reset_by (rst) = dat;
 
 	method isd_clk (sd_clk )
-		 enable((*inhigh*)isd_clk_enable) clocked_by(dummy) reset_by(rst);
+		 enable((*inhigh*)isd_clk_gate_enable) clocked_by(dummy) reset_by(rst);
 
 	schedule isd_clk C isd_clk;
 endmodule

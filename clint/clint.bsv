@@ -21,10 +21,10 @@ package clint;
 
   export Ifc_clint_axi4       (..);
   export mkclint_axi4;
-  `ifndef axi4_128b
-    export Ifc_clint_axi4lite   (..);
-    export mkclint_axi4lite;
-  `endif
+  //`ifndef axi4_128b
+  //  export Ifc_clint_axi4lite   (..);
+  //  export mkclint_axi4lite;
+  //`endif
 
 	interface User_ifc#(numeric type addr_width, numeric type data_width, numeric type msip_size,
       numeric type tick_count);//giving msipsize as a parameter 
@@ -49,19 +49,20 @@ package clint;
 
 	module mkclint(User_ifc#(addr_width,data_width,msip_size, tick_count))
 		provisos(
-    //`ifndef axi4_128b
-      Add#(b__, data_width, `buswidth),
-      Add#(d__, TDiv#(data_width, 8), TDiv#(`buswidth, 8)),
-      Mul#(msip_size, a__, `buswidth),
+        `ifndef axi4_128b
+      Add#(b__, data_width, 64),
+      Add#(d__, TDiv#(data_width, 8), 8),
+      Mul#(msip_size, a__, 64),
       Add#(e__, msip_size, data_width),
-      Mul#(data_width, c__, `buswidth),
-    /*`else
+      Mul#(data_width, c__, 64),
+    `else
       Add#(b__, data_width, 128),
       Add#(d__, TDiv#(data_width, 8), 16),
       Mul#(msip_size, a__, 128),
       Add#(e__, msip_size, data_width),
       Mul#(data_width, c__, 128),
-    `endif*/
+      Mul#(64, j__, data_width),
+    `endif
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
@@ -100,12 +101,13 @@ package clint;
 			Bool success=True;
 
 			Bit#(data_width) data=0;
+			
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
-      //`ifndef axi4_128b
-        Bit#(`buswidth) temp=0;
-      /*`else
+      `ifndef axi4_128b
+        Bit#(64) temp=0;
+      `else
         Bit#(128) temp=0;
-      `endif*/
+      `endif
 			if( addr[15:0]==`msipreg )
 				temp = duplicate(msip);
       else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
@@ -123,8 +125,10 @@ package clint;
         temp=duplicate(temp[15:0]);
       else if(size==Word && dvalue%32==0)
         temp=duplicate(temp[31:0]);
-			else if(size == DWord && dvalue%64==0)	
-			  temp=duplicate(temp);
+    `ifdef axi4_128b
+      else if(size == DWord && dvalue%64==0)	
+        temp=duplicate(temp[63:0]);
+    `endif
       data=truncate(temp);
 			return tuple2(success,data);
 		endmethod
@@ -132,26 +136,29 @@ package clint;
     method ActionValue#(Bool) write_req(Bit#(addr_width) addr, Bit#(data_width) data, AccessSize
         size);
         Bool success=True;
-        //`ifndef axi4_128b
-          Bit#(`buswidth) temp = 0;
-          Bit#(`buswidth) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
-        /*`else
+        `ifndef axi4_128b
+          Bit#(64) temp = 0;
+          Bit#(64) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
+        `else
           Bit#(128) temp = 0;
           Bit#(128) mask=size==Byte?'hff:size==HWord?'hFFFF:size==Word?'hFFFFFFFF:'1;
-        `endif*/
+        `endif
         data=case (size)
           Byte: duplicate(data[7:0]);
           HWord: duplicate(data[15:0]);
           Word: duplicate(data[31:0]);
+        `ifdef axi4_128b
+          DWord: duplicate(data[63:0]);
+        `endif
           default: data;
         endcase;
         Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
         mask=mask<<shift_amt;
-        //`ifndef axi4_128b
-          Bit#(`buswidth) datamask=duplicate(data)&mask;
-        /*`else
-          Bit#(128) datamask=duplicate(data)&mask;
-        `endif*/
+        `ifndef axi4_128b
+          Bit#(64) datamask=duplicate(data)&mask;
+        `else 
+          Bit#(128) datamask= duplicate(data) & mask;
+        `endif
         let notmask=~mask;
 		  	if( addr[15:0]==`msipreg )
 		  		msip<=truncate(data);
@@ -196,43 +203,43 @@ package clint;
     method Action ma_stop_count (Bit#(1) _stop);
 	 endinterface
 
-	 module mkclint_axi4lite(Ifc_clint_axi4lite#(addr_width,data_width,user_width,msip_size,
-     tick_count))
-	 	provisos(
-        Add#(b__, data_width, 64),
-        Add#(d__, TDiv#(data_width, 8), 8),
-        Mul#(msip_size, a__, 64),
-        Add#(e__, msip_size, data_width),
-    Mul#(8, f__, data_width),
-    Mul#(16, g__, data_width),
-    Mul#(32, h__, data_width),
-    Mul#(data_width, c__, 64)
-			);
-	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
-	 	AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- 
-        mkAXI4_Lite_Slave_Xactor();
-
-	 	rule axi_read_transaction;
-	 		let req <- pop_o(s_xactor.o_rd_addr);
-			let {succ,data}<-clint.read_req(req.araddr,unpack(truncate(req.arsize)));
-	 		let r = AXI4_Lite_Rd_Data {rresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: data, ruser: 0};
-	 		s_xactor.i_rd_data.enq(r);
-	 	endrule
-		
-	 	rule axi_write_transaction;
-	 		let aw <- pop_o(s_xactor.o_wr_addr);
-	 		let w <- pop_o(s_xactor.o_wr_data);
-	 		let succ <- clint.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
-	 		let r = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: 0 };
-	 		s_xactor.i_wr_resp.enq (r);
-	 	endrule
-	 	interface slave = s_xactor.axi_side;
-    interface sb_clint_msip=clint.sb_clint_msip;
-    interface sb_clint_mtip=clint.sb_clint_mtip;
-    interface sb_clint_mtime=clint.sb_clint_mtime;
-    method ma_stop_count=clint.ma_stop_count;
-	 endmodule:mkclint_axi4lite
-  `endif
+//	 module mkclint_axi4lite(Ifc_clint_axi4lite#(addr_width,data_width,user_width,msip_size,
+//     tick_count))
+//	 	provisos(
+//        Add#(b__, data_width, 64),
+//        Add#(d__, TDiv#(data_width, 8), 8),
+//        Mul#(msip_size, a__, 64),
+//        Add#(e__, msip_size, data_width),
+//    Mul#(8, f__, data_width),
+//    Mul#(16, g__, data_width),
+//    Mul#(32, h__, data_width),
+//    Mul#(data_width, c__, 64)
+//			);
+//	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
+//	 	AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- 
+//        mkAXI4_Lite_Slave_Xactor();
+//
+//	 	rule axi_read_transaction;
+//	 		let req <- pop_o(s_xactor.o_rd_addr);
+//			let {succ,data}<-clint.read_req(req.araddr,unpack(truncate(req.arsize)));
+//	 		let r = AXI4_Lite_Rd_Data {rresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, rdata: data, ruser: 0};
+//	 		s_xactor.i_rd_data.enq(r);
+//	 	endrule
+//		
+//	 	rule axi_write_transaction;
+//	 		let aw <- pop_o(s_xactor.o_wr_addr);
+//	 		let w <- pop_o(s_xactor.o_wr_data);
+//	 		let succ <- clint.write_req(aw.awaddr,w.wdata,unpack(truncate(aw.awsize)));
+//	 		let r = AXI4_Lite_Wr_Resp {bresp: succ?AXI4_LITE_OKAY:AXI4_LITE_SLVERR, buser: 0 };
+//	 		s_xactor.i_wr_resp.enq (r);
+//	 	endrule
+//	 	interface slave = s_xactor.axi_side;
+//    interface sb_clint_msip=clint.sb_clint_msip;
+//    interface sb_clint_mtip=clint.sb_clint_mtip;
+//    interface sb_clint_mtime=clint.sb_clint_mtime;
+//    method ma_stop_count=clint.ma_stop_count;
+//	 endmodule:mkclint_axi4lite
+//  `endif
 
 	 interface Ifc_clint_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, 
       numeric type user_width, numeric type msip_size, numeric type tick_count);
@@ -246,24 +253,25 @@ package clint;
 
 	 module mkclint_axi4(Ifc_clint_axi4#(addr_width,id_width,data_width,user_width,msip_size,tick_count))
 		provisos(
-        //`ifndef axi4_128b
-          Add#(b__, data_width, `buswidth),
-          Add#(d__, TDiv#(data_width, 8), TDiv#(`buswidth, 8)),
-          Mul#(msip_size, a__, `buswidth),
-        /*`else
+	`ifndef axi4_128b
+          Add#(b__, data_width, 64),
+          Add#(d__, TDiv#(data_width, 8), 8),
+          Mul#(msip_size, a__, 64),
+        `else
           Add#(b__, data_width, 128),
           Add#(d__, TDiv#(data_width, 8), 16),
           Mul#(msip_size, a__, 128),
-        `endif*/
+          Mul#(64, j__, data_width),
+        `endif
         Add#(e__, msip_size, data_width),
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
-    //`ifndef axi4_128b
-      Mul#(data_width, c__, `buswidth)
-    /*`else
+    	`ifndef axi4_128b
+      	  Mul#(data_width, c__, 64)
+    	`else
       Mul#(data_width, c__, 128)
-    `endif*/
+    	`endif
 			);
 	 	User_ifc#(addr_width,data_width,msip_size, tick_count) clint<-mkclint;
 	 	AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width)  s_xactor <- mkAXI4_Slave_Xactor();

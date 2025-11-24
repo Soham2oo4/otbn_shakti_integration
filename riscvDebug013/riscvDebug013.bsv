@@ -338,7 +338,7 @@ package riscvDebug013;
 
     /*    System Bus ACCESS   */
   `ifdef CORE_AXI4
-    AXI4_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
+    AXI4_Master_Xactor_IFC#(DPADDR,`axi4_id_width,DXLEN,0) master_xactor <- mkAXI4_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
   `elsif CORE_AXI4Lite
     AXI4_Lite_Master_Xactor_IFC#(DPADDR,DXLEN,0) master_xactor <- mkAXI4_Lite_Master_Xactor;// (reset_by derived_reset); Lot of info lost at module boundary errors for AXI4 State vars
   `endif

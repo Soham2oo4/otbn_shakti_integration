@@ -37,7 +37,7 @@ import device_common::*;
 module mkdummy#(Clock sdram_clock, Reset sdram_reset)(Empty);
 	let core_clock<-exposeCurrentClock;
 	let core_reset<-exposeCurrentReset;
-	Ifc_sdram_axi4#(32,64,0,64,12,3) sdram <- mksdram_axi4(sdram_clock,sdram_reset);
+	Ifc_sdram_axi4#(32,4,64,0,64,12,3) sdram <- mksdram_axi4(sdram_clock,sdram_reset);
 
     rule rl_ipad;
      sdram.io.ipad_sdr_din(?);

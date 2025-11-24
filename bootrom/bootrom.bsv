@@ -162,7 +162,7 @@ Index Address: %h b: %d", addr, index_address, byte_offset))
     rule read_response;
       let {err, data0}<-dut.read_response;
   		let transfer_size=rg_read_packet.arsize;
-      AXI4_Rd_Data#(id_width, data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
+      AXI4_Rd_Data#(id_width,data_width, user_width) r = AXI4_Rd_Data {rresp: AXI4_OKAY, rdata: data0 , 
         rlast:rg_readburst_counter==rg_read_packet.arlen, ruser: 0, rid:rg_read_packet.arid};
       `logLevel( bootrom, 1, $format("BootROM : Responding Read Request with Data: %h ", data0))
       s_xactor.i_rd_data.enq(r);
