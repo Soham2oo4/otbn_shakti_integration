@@ -833,26 +833,26 @@ lv_payload[0]=rg_packet[87:80];
                       writestrb = 'b11111111;
                       wrsize = 3;            
                      writedata  = duplicate({trace_sink_buffer.first[0],trace_sink_buffer.first[1],trace_sink_buffer.first[2],trace_sink_buffer.first[3],trace_sink_buffer.first[4],trace_sink_buffer.first[5],trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
-                      $display("inside 64 bit= %h",writedata ); 
+                      //$display("inside 64 bit= %h",writedata ); 
                                
                     end                     
        else if (trace_sink_buffer.deqReadyN(4) && rg_address[1:0] == 0) begin
                       writestrb = 'b1111 << shamt ;
                       wrsize = 2;
                       writedata = duplicate({trace_sink_buffer.first[4],trace_sink_buffer.first[5],trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
-                      $display("inside 32 bit= %h",writedata ); 
+                      //$display("inside 32 bit= %h",writedata ); 
                     end 
        else if (trace_sink_buffer.deqReadyN(2) && rg_address[0] == 0) begin
                       writestrb = 'b11 << shamt;
                       wrsize = 1;  
                       writedata = duplicate({trace_sink_buffer.first[6],trace_sink_buffer.first[7]});
-                      $display("inside 16 bit= %h",writedata );  
+                      //$display("inside 16 bit= %h",writedata );  
                     end
         else if (trace_sink_buffer.deqReadyN(1)) begin
                       writestrb = 'b1 << shamt;
                       wrsize = 0; 
                       writedata = duplicate(trace_sink_buffer.first[7]);
-                      $display("inside 8 bit= %h",writedata ); 
+                      //$display("inside 8 bit= %h",writedata ); 
 
                     end 
 
