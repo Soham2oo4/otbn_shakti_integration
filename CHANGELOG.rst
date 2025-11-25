@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.13.0] - 2025-11-25
+-------------------- 
+- Parameterized AXI data width and user width 
+
 [4.12.0] - 2025-11-25
 -------------------- 
 - Fixing Trace and Trap Rule Blocks
