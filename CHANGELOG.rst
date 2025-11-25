@@ -7,6 +7,7 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 [4.13.0] - 2025-11-25
 -------------------- 
 - Parameterized AXI data width and user width 
+- Updated tags in dependency YAML
 
 [4.12.0] - 2025-11-25
 -------------------- 
