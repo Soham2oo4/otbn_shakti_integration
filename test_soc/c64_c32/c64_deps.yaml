@@ -3,10 +3,10 @@ caches_mmu:
   checkout: 14.4.1
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
-  checkout: 19-adding-modified-mimo-for-trace
+  checkout: 3.1.0
 devices:
   url: https://gitlab.com/shaktiproject/uncore/devices
-  checkout: trace-sink-fix
+  checkout: 8.5.6
 fabrics:
   url: https://gitlab.com/shaktiproject/uncore/fabrics
   checkout: 1.3.5
