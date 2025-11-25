@@ -4,6 +4,14 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.12.0] - 2025-11-25
+-------------------- 
+- Fixing Trace and Trap Rule Blocks
+- Adding itype_decode logic for uninferable discontinuities 
+- Fixed code.mem  to remove loop condition of 6f
+- Added new MIMO logic in common_bsv and devices and updated tags
+- Removed access test in verification and updated tag.
+
 [4.11.0] - 2025-10-24
 -------------------- 
 - RV32 Fixes
