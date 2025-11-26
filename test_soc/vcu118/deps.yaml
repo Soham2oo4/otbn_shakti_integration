@@ -1,24 +1,24 @@
 c-class:
   url: https://gitlab.com/shaktiproject/cores/c-class.git
-  checkout: 4.6.0
+  checkout: 4.13.0
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.4.0
+  checkout: 14.4.2
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
-  checkout: 3.0.0
+  checkout: 3.1.0
 devices:
   url: https://gitlab.com/shaktiproject/uncore/devices
-  checkout: 8.4.0
+  checkout: 8.5.6
 fabrics:
   url: https://gitlab.com/shaktiproject/uncore/fabrics
-  checkout: 1.3.5
+  checkout: 1.3.6
 common_verilog:
   url: https://gitlab.com/shaktiproject/common_verilog
   checkout: 3.2.0
 verification:
   url: https://gitlab.com/shaktiproject/verification_environment/verification
-  checkout: 5.0.5
+  checkout: 5.0.10
   recursive: True
   patch:
     - [riscv-tests/env , verification/patches/cclass-env.patch]
@@ -30,4 +30,4 @@ csrbox:
   checkout: 1.10.0
 riscv-config:
   url: https://gitlab.com/shaktiproject/cores/riscv-config
-  checkout: 3.7.0
+  checkout: 3.8.0

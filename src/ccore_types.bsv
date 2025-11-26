@@ -16,7 +16,7 @@ import csrbox_decoder :: * ;
 import DefaultValue   :: * ;
 import Vector         :: * ;
 
-typedef 0 USERSPACE;
+//typedef 0 USERSPACE;
 typedef 1 IDWIDTH ;  
 
 `ifdef RV64

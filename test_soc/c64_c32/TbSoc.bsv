@@ -89,7 +89,7 @@ package TbSoc;
     `include "csr_probe.bsv"
   `endif
 
-    UserInterface#(`paddr,`xlen,16) uart <- mkuart_user(5, 0, 0);
+    UserInterface#(`paddr,`buswidth,16) uart <- mkuart_user(5, 0, 0);
     Reg#(Bool) rg_read_rx<- mkDReg(False);
 
     Reg#(Bit#(5)) rg_cnt <-mkReg(0);

@@ -86,9 +86,9 @@ package TbSoc;
     MakeResetIfc trst <- mkReset(0,False,tck_clk.new_clk);
   `endif
 
-    Ifc_bram_axi4#(`paddr, XLEN, 0,  25) bram <- mkbram_axi4('h8000_0000, "code.mem","BRAM");
-    Ifc_bram_axi4lite#(`paddr, 32, 0,  15) xbram <- mkbram_axi4lite('h4_1000, "boot1.mem","BRAM");
-    Ifc_bram_axi4lite#(`paddr, 32, 0,  15) eth0 <- mkbram_axi4lite('h4_1000, "boot1.mem","BRAM");
+    Ifc_bram_axi4#(`paddr, `buswidth, `USERSPACE,  25) bram <- mkbram_axi4('h8000_0000, "code.mem","BRAM");
+    Ifc_bram_axi4lite#(`paddr, `buswidth, `USERSPACE,  15) xbram <- mkbram_axi4lite('h4_1000, "boot1.mem","BRAM");
+    Ifc_bram_axi4lite#(`paddr, `buswidth, `USERSPACE,  15) eth0 <- mkbram_axi4lite('h4_1000, "boot1.mem","BRAM");
 
     /*doc:wire: */
     Wire#(Bit#(32)) wr_reset_pc <- mkDWire(`MemoryBase);
@@ -114,9 +114,9 @@ package TbSoc;
     mkConnection(soc.chip_io.xadc_master, xbram.slave);
     mkConnection(soc.chip_io.eth_master, eth0.slave);
 
-    UserInterface#(`paddr,XLEN,16) uart0 <- mkuart_user(5,0,0);
-    UserInterface#(`paddr,XLEN,16) uart1 <- mkuart_user(5,0,0);
-    UserInterface#(`paddr,XLEN,16) uart2 <- mkuart_user(5,0,0);
+    UserInterface#(`paddr,`buswidth,16) uart0 <- mkuart_user(5,0,0);
+    UserInterface#(`paddr,`buswidth,16) uart1 <- mkuart_user(5,0,0);
+    UserInterface#(`paddr,`buswidth,16) uart2 <- mkuart_user(5,0,0);
     Reg#(Bool) rg_read_rx<- mkDRegA(False);
 
     Reg#(Bit#(5)) rg_cnt <-mkRegA(0);
