@@ -272,7 +272,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
                                         req.size[1:0] == 1?'b11 :
                                         req.size[1:0] == 2?'hf :    '1;
   `endif
-    Bit#(TAdd#(1, TDiv#(`buswidth, 32))) byte_offset = truncate(req.address);
+    Bit#(TLog#(TDiv#(`buswidth, 8))) byte_offset = truncate(req.address);
     write_strobe = write_strobe<<byte_offset;
 
     // if read operation send transaction on the i_rd_addr channel
