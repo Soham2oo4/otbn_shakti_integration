@@ -298,7 +298,9 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
       if(offset < 'h1000 ) begin// source priorities
         Bit#(Max_source_wd) src_id = truncate(offset[11:2]); // source is after lower 2 bits
         Bit#(32) _t=  zeroExtend(vrg_source_priority[src_id]);
-        {success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, 2'b11);
+	rdata = duplicate(_t);
+        success = True;
+        //{success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, 2'b11);
         // ensure source ids within the instantiated number of sources
         if( src_id > 0 && src_id <= fromInteger(v_nsources-1) ) begin
           success = success ;
@@ -321,7 +323,9 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
 
 	      if(src_base <= fromInteger (v_nsources-1)) begin
 	        Bit #(32) v_ip = pack (genWith  (fn_ip_source_id));
-          {success, rdata} = fn_adjust_read(addr, size, v_ip, 0, 2, 2'b11);
+            rdata = duplicate(v_ip);
+            success = True;
+          // {success, rdata} = fn_adjust_read(addr, size, v_ip, 0, 2, 2'b11);
         end
       end
 
@@ -339,7 +343,9 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
 	      endfunction:fn_ie_source_id
 
           Bit #(32) v_ie = pack (genWith  (fn_ie_source_id));
-          {success, rdata} = fn_adjust_read(addr, size, v_ie, 0, 2, 2'b11);
+          //{success, rdata} = fn_adjust_read(addr, size, v_ie, 0, 2, 2'b11);
+            rdata = duplicate(v_ie);
+            success = True;
         end
 
       else if ('h200000 <= offset && offset <= 'h3FFFFFF) begin // contexts
@@ -347,7 +353,9 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
         if(offset[11:0] == 0) begin // priority threshold registers per context
           if( target_id <= fromInteger(v_targets-1)) begin
             Bit#(32) _t = zeroExtend(v_target_threshold[target_id]);
-            {success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, 2'b11);
+            //{success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, 2'b11);
+            rdata = duplicate(_t);
+            success = True;
           end
         end
         else if(offset[11:0] == 4) begin // claim/complete register per context
