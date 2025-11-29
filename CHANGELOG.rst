@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[4.14.0] - 2025-11-29
+-------------------- 
+- Fixing the width computation of offset for write strobe in c-core
+
 [4.13.0] - 2025-11-25
 -------------------- 
 - Parameterized AXI data width and user width 
