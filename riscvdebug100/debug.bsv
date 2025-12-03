@@ -61,7 +61,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   let v_nprogbuf           =valueOf(nprogbuf);
   let v_nabstractdata      =valueOf(nabstractdata);
   let v_ncomponents        =valueOf(ncomponents);
-  let numhaltedstatus = ((v_ncomponents-1)/32) + 1;
+  let numhaltedstatus = ((v_ncomponents+30)/32) + 1;
 
   staticAssert(v_nprogbuf <= 16, "\nDEBUG: Max Progbuf size is 16");
   staticAssert(v_nabstractdata <=12, "\nDEBUG: Max Abstract Data words is 12");
