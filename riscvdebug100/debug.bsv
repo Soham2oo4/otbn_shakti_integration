@@ -55,7 +55,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Add#(TLog#(ncomponents), a__, 10), // This indicates that hartsello can't cross 10-bits. which is fair assumption as this point
     Add#(b__, TLog#(TDiv#(TMax#(ncomponents, 32), 32)), 32) // for size of hawindowsel
     ,Add#(TMax#(1, TLog#(TAdd#(ncomponents, 1))), c__, 10) // hartsello can't be more than 10bits
-    ,Add#(d__, TLog#(ncomponents), 12) // there can be only 0x800-0x400 flags. Hence only so many harts supported
+    ,Add#(d__, TLog#(ncomponents), 12), // there can be only 0x800-0x400 flags. Hence only so many harts supported
+    Add#(1, e__, TDiv#(ncomponents, 32))
   );
 
   let v_nprogbuf           =valueOf(nprogbuf);
