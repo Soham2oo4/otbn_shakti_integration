@@ -61,7 +61,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
   let v_nprogbuf           =valueOf(nprogbuf);
   let v_nabstractdata      =valueOf(nabstractdata);
   let v_ncomponents        =valueOf(ncomponents);
-  let numhaltedstatus = ((v_ncomponents+30)/32) + 1;
+  let numhaltedstatus = ((v_ncomponents+31)/32) ;
 
   staticAssert(v_nprogbuf <= 16, "\nDEBUG: Max Progbuf size is 16");
   staticAssert(v_nabstractdata <=12, "\nDEBUG: Max Abstract Data words is 12");
@@ -397,7 +397,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   Wire#(Bool) wr_exception_wren <- mkDWire(False, reset_by dm_reset);
 
-  Vector#(TAdd#(1,TDiv#(TSub#(ncomponents,1),32)), Wire#(Bit#(32))) haltedstatus <- replicateM(mkWire(reset_by dm_reset));
+  Vector#(TDiv#(ncomponents,32), Wire#(Bit#(32))) haltedstatus <- replicateM(mkWire(reset_by dm_reset));
   // ----------------------------------------------------------------------------------------------
   // ---------------------------------------- ABSTRACTCS -----------------------------------------
   Reg#(Bit#(5)) progbufsize = readOnlyReg(fromInteger(v_nprogbuf));
