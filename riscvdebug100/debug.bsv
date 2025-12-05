@@ -957,7 +957,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Bit#(12) offset = truncate(req.awaddr);
     Bit#(`debug_bus_sz) data = 0;
     Bit#(ncomponents) val = 0;
-    val[wreq.wdata] = 1;
+    Bit#(32) index = resize(wreq.wdata);
+    val[index] = 1;
     Bool succ = True;
     if (offset == `HALTED) begin // hart is halted
       wr_harthalting_wren <= True;
