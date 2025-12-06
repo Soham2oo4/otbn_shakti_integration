@@ -1,9 +1,9 @@
 c-class:
   url: https://gitlab.com/shaktiproject/cores/c-class.git
-  checkout: 4.14.0
+  checkout: 4.15.0
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.4.2
+  checkout: 14.4.3
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
   checkout: 3.1.0
@@ -27,7 +27,7 @@ benchmarks:
   checkout: 1.0.0
 csrbox:
   url: https://gitlab.com/shaktiproject/cores/csrbox
-  checkout: 1.10.0
+  checkout: 1.11.0
 riscv-config:
   url: https://gitlab.com/shaktiproject/cores/riscv-config
   checkout: 3.8.0
