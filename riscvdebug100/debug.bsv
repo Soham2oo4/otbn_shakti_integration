@@ -55,13 +55,14 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Add#(TLog#(ncomponents), a__, 10), // This indicates that hartsello can't cross 10-bits. which is fair assumption as this point
     Add#(b__, TLog#(TDiv#(TMax#(ncomponents, 32), 32)), 32) // for size of hawindowsel
     ,Add#(TMax#(1, TLog#(TAdd#(ncomponents, 1))), c__, 10) // hartsello can't be more than 10bits
-    ,Add#(d__, TLog#(ncomponents), 12) // there can be only 0x800-0x400 flags. Hence only so many harts supported
+    ,Add#(d__, TLog#(ncomponents), 12), // there can be only 0x800-0x400 flags. Hence only so many harts supported
+    Add#(1, e__, TDiv#(ncomponents, 32))
   );
 
   let v_nprogbuf           =valueOf(nprogbuf);
   let v_nabstractdata      =valueOf(nabstractdata);
   let v_ncomponents        =valueOf(ncomponents);
-  let numhaltedstatus = ((v_ncomponents-1)/32) + 1;
+  let numhaltedstatus = ((v_ncomponents+31)/32) ;
 
   staticAssert(v_nprogbuf <= 16, "\nDEBUG: Max Progbuf size is 16");
   staticAssert(v_nabstractdata <=12, "\nDEBUG: Max Abstract Data words is 12");
@@ -397,7 +398,7 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
 
   Wire#(Bool) wr_exception_wren <- mkDWire(False, reset_by dm_reset);
 
-  Vector#(TAdd#(1,TDiv#(TSub#(ncomponents,1),32)), Wire#(Bit#(32))) haltedstatus <- replicateM(mkWire(reset_by dm_reset));
+  Vector#(TDiv#(ncomponents,32), Wire#(Bit#(32))) haltedstatus <- replicateM(mkWire(reset_by dm_reset));
   // ----------------------------------------------------------------------------------------------
   // ---------------------------------------- ABSTRACTCS -----------------------------------------
   Reg#(Bit#(5)) progbufsize = readOnlyReg(fromInteger(v_nprogbuf));
@@ -956,7 +957,8 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     Bit#(12) offset = truncate(req.awaddr);
     Bit#(`debug_bus_sz) data = 0;
     Bit#(ncomponents) val = 0;
-    val[wreq.wdata] = 1;
+    Bit#(32) index = resize(wreq.wdata);
+    val[index] = 1;
     Bool succ = True;
     if (offset == `HALTED) begin // hart is halted
       wr_harthalting_wren <= True;
