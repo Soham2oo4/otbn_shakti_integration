@@ -17,6 +17,7 @@ package clint;
   import device_common::*;
   import GetPut::*;
   import Assert::*;
+  import Vector::*;
   `include "Logger.bsv"
 
   export Ifc_clint_axi4       (..);
@@ -32,7 +33,7 @@ package clint;
         size);
 		method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr, AccessSize size);
     interface Get#(Bit#(msip_size)) sb_clint_msip;
-    interface Get#(Bit#(1)) sb_clint_mtip;
+    interface Get#(Vector#(msip_size,Bit#(1))) sb_clint_mtip;
     interface Get#(Bit#(64)) sb_clint_mtime;
     method Action ma_stop_count (Bit#(1) _stop);
 	endinterface
@@ -73,22 +74,31 @@ package clint;
     let dvalue=valueOf(data_width);
 		Wire#(Bool) wr_mtimecmp_written<-mkDWire(False);
         Wire#(Bit#(1)) wr_stop_count <- mkDWire(0);
-		Reg#(Bit#(msip_size)) msip <-mkRegA(0);// Msip_size has been parameterised
-		Reg#(Bit#(1)) mtip <-mkRegA(0);
+		Vector#(msip_size,Reg#(Bit#(32))) msip <-replicateM(mkRegA(0)); // Msip_size has been parameterised
+		Vector#(msip_size,Reg#(Bit#(1))) mtip <-replicateM(mkRegA(0));
 		Reg#(Bit#(64)) rgmtime<-mkRegA(0);
-		Reg#(Bit#(64)) rgmtimecmp<-mkRegA('hFFFFFFFFFFFFFFFF);
-		Reg#(Bit#(64)) csr_mtimecmp=writeSideEffect(rgmtimecmp,wr_mtimecmp_written._write(True));
+		Vector#(msip_size,Reg#(Bit#(64))) rgmtimecmp<-replicateM(mkRegA('hFFFFFFFFFFFFFFFF));
+			Vector#(msip_size,Reg#(Bit#(64))) csr_mtimecmp <-replicateM(mkRegA(0));
+			let k=valueOf(msip_size);
+					// rule rl_display_status;
+					//   `logLevel( clint, 2, $format("CLINT: msip %h mtip %h rgmtime %h rgmtimecmp %h csr_mtimecmp %h rg_tick %h # wr_mtimecmp_written %h", msip, mtip, rgmtime, rgmtimecmp, csr_mtimecmp, rg_tick, wr_mtimecmp_written))
+					// endrule
+			for(Integer i=0;i<k ;i=i+1)
+				csr_mtimecmp[i]=writeSideEffect(rgmtimecmp[i],wr_mtimecmp_written._write(True));
 		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkRegA(0);
-
                 rule rl_display_status;
                   `logLevel( clint, 2, $format("CLINT: msip %h mtip %h rgmtime %h rgmtimecmp %h csr_mtimecmp %h rg_tick %h # wr_mtimecmp_written %h", msip, mtip, rgmtime, rgmtimecmp, csr_mtimecmp, rg_tick, wr_mtimecmp_written))
                 endrule
 
 		rule generate_time_interrupt(!wr_mtimecmp_written);
-			mtip<=pack(rgmtime>=rgmtimecmp);
+			for (Integer i = 0; i < k; i = i + 1) begin
+					mtip[i] <= pack(rgmtime >= rgmtimecmp[i]); 
+				end
 		endrule
 		rule clear_interrupt(wr_mtimecmp_written);
-			mtip<=0;
+			for(Integer i=0;i<k;i=i+1) begin
+					mtip[i]<=0; 
+					end
 		endrule
 		rule increment_timer(wr_stop_count==0);
 			if(rg_tick==0)begin
@@ -100,23 +110,31 @@ package clint;
 		method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_req(Bit#(addr_width) addr,AccessSize size);
 			Bool success=True;
 
-			Bit#(data_width) data=0;
-			
+			Bit#(data_width) data=0;			
       Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
       `ifndef axi4_128b
         Bit#(64) temp=0;
       `else
         Bit#(128) temp=0;
       `endif
-			if( addr[15:0]==`msipreg )
-				temp = duplicate(msip);
-      else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] <= `mtimecmpreg+7 )
-        temp=duplicate(csr_mtimecmp);
-      else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
-        temp=duplicate(rgmtime);
-		  else
+			if( addr[15:0]>=`msipreg && addr[15:0] < `msipreg + (fromInteger(k)*4) )
+			begin
+				for(Integer i=0;i<k;i=i+1) begin
+					if(addr[15:0]>=(`msipreg+(fromInteger(i)*4)) &&  addr[15:0]< (`msipreg+((fromInteger(i)+1)*4)))
+						temp = duplicate(msip[i]);
+				end
+			end
+			else if ( addr[15:0]>=`mtimecmpreg && addr[15:0] < `mtimecmpreg+(fromInteger(k)*8) ) 
+				begin
+				  for(Integer i=0;i<k;i=i+1) begin
+					if(addr[15:0]>=(`mtimecmpreg+(fromInteger(i)*8)) &&  addr[15:0]< (`mtimecmpreg+((fromInteger(i)+1)*8)))
+					temp=duplicate(csr_mtimecmp[i]);
+				end
+			end
+			else if( addr[15:0]>=`mtimereg && addr[15:0] <= `mtimereg+7 )
+				temp=duplicate(rgmtime);
+			else
 				success=False;	
-
       temp = temp>>shift_amt;
 
       if(size==Byte && dvalue%8==0)
@@ -160,13 +178,26 @@ package clint;
           Bit#(128) datamask= duplicate(data) & mask;
         `endif
         let notmask=~mask;
-		  	if( addr[15:0]==`msipreg )
-		  		msip<=truncate(data);
-        else if (addr[15:0]>=`mtimecmpreg && addr[15:0]<=`mtimecmpreg+7 ) begin
+		  	if (addr[15:0] >= `msipreg && addr[15:0] < `msipreg + (fromInteger(k) * 4)) begin
+			for (Integer i = 0; i < k; i = i + 1) begin
+				if (addr[15:0] >= (`msipreg + (fromInteger(i) * 4)) &&
+					addr[15:0] <  (`msipreg + ((fromInteger(i) + 1) * 4)))
+				msip[i] <= truncate(data);
+			end
+		end
+		else if (addr[15:0] >= `mtimecmpreg && addr[15:0] < `mtimecmpreg + (fromInteger(k) * 8)) begin
+	
           `ifndef axi4_128b
-            csr_mtimecmp<=(csr_mtimecmp&notmask)|datamask;
+            for (Integer i = 0; i < k; i = i + 1) begin
+					if (addr[15:0] >= (`mtimecmpreg + (fromInteger(i) * 8)) &&
+						addr[15:0] <  (`mtimecmpreg + ((fromInteger(i) + 1) * 8)))
+						csr_mtimecmp[i] <= (csr_mtimecmp[i] & notmask) | datamask;
+				end
           `else
-            csr_mtimecmp <= truncate((zeroExtend(csr_mtimecmp) & notmask) | datamask);
+            for (Integer i = 0; i < k; i = i + 1) begin
+					if (addr[15:0] >= (`mtimecmpreg + (fromInteger(i) * 8)) &&
+						addr[15:0] <  (`mtimecmpreg + ((fromInteger(i) + 1) * 8)))
+						csr_mtimecmp[i] <= truncate((zeroExtend(csr_mtimecmp[i]) & notmask) | datamask);				
           `endif
         end
 		    else
@@ -175,12 +206,18 @@ package clint;
     endmethod
     interface sb_clint_msip= interface Get
       method ActionValue#(Bit#(msip_size)) get();
-        return msip;
+        Bit#(msip_size) msip_concat=0;
+			Bit#(32) temp;
+			for(Integer i=0;i<k;i=i+1) begin
+				temp=msip[i];
+				msip_concat[i]=temp[0];
+			end
+				return msip_concat;
       endmethod
     endinterface;
     interface sb_clint_mtip = interface Get
-      method ActionValue#(Bit#(1)) get();
-        return mtip;
+      method ActionValue#(Vector#(msip_size,Bit#(1))) get();
+				return readVReg(mtip);
       endmethod
     endinterface;
     interface  sb_clint_mtime= interface Get
@@ -198,7 +235,7 @@ package clint;
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Lite_Slave_IFC#(addr_width,data_width,user_width) slave;
     interface Get#(Bit#(msip_size)) sb_clint_msip;
-    interface Get#(Bit#(1)) sb_clint_mtip;
+    interface Get#(Vector#(msip_size,Bit#(1))) sb_clint_mtip;
     interface Get#(Bit#(64)) sb_clint_mtime;
     method Action ma_stop_count (Bit#(1) _stop);
 	 endinterface
@@ -245,7 +282,7 @@ package clint;
       numeric type user_width, numeric type msip_size, numeric type tick_count);
 	 	interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width) slave;
     interface Get#(Bit#(msip_size)) sb_clint_msip;
-    interface Get#(Bit#(1)) sb_clint_mtip;
+    interface Get#(Vector#(msip_size,Bit#(1))) sb_clint_mtip;
     interface Get#(Bit#(64)) sb_clint_mtime;
     method Action ma_stop_count (Bit#(1) _stop);
 	 endinterface
