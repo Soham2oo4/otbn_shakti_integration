@@ -74,7 +74,7 @@ package clint;
     let dvalue=valueOf(data_width);
 		Wire#(Bool) wr_mtimecmp_written<-mkDWire(False);
         Wire#(Bit#(1)) wr_stop_count <- mkDWire(0);
-		Vector#(msip_size,Reg#(Bit#(32))) msip <-replicateM(mkRegA(0)); // Msip_size has been parameterised
+		Vector#(msip_size,Reg#(Bit#(data_width))) msip <-replicateM(mkRegA(0)); // Msip_size has been parameterised
 		Vector#(msip_size,Reg#(Bit#(1))) mtip <-replicateM(mkRegA(0));
 		Reg#(Bit#(64)) rgmtime<-mkRegA(0);
 		Vector#(msip_size,Reg#(Bit#(64))) rgmtimecmp<-replicateM(mkRegA('hFFFFFFFFFFFFFFFF));
@@ -86,10 +86,10 @@ package clint;
 			for(Integer i=0;i<k ;i=i+1)
 				csr_mtimecmp[i]=writeSideEffect(rgmtimecmp[i],wr_mtimecmp_written._write(True));
 		Reg#(Bit#(TLog#(tick_count))) rg_tick <-mkRegA(0);
-                rule rl_display_status;
+               /* rule rl_display_status;
                   `logLevel( clint, 2, $format("CLINT: msip %h mtip %h rgmtime %h rgmtimecmp %h csr_mtimecmp %h rg_tick %h # wr_mtimecmp_written %h", msip, mtip, rgmtime, rgmtimecmp, csr_mtimecmp, rg_tick, wr_mtimecmp_written))
                 endrule
-
+*/
 		rule generate_time_interrupt(!wr_mtimecmp_written);
 			for (Integer i = 0; i < k; i = i + 1) begin
 					mtip[i] <= pack(rgmtime >= rgmtimecmp[i]); 
@@ -208,7 +208,7 @@ package clint;
     interface sb_clint_msip= interface Get
       method ActionValue#(Bit#(msip_size)) get();
         Bit#(msip_size) msip_concat=0;
-			Bit#(32) temp;
+			Bit#(data_width) temp;
 			for(Integer i=0;i<k;i=i+1) begin
 				temp=msip[i];
 				msip_concat[i]=temp[0];
