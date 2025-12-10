@@ -197,7 +197,8 @@ package clint;
             for (Integer i = 0; i < k; i = i + 1) begin
 					if (addr[15:0] >= (`mtimecmpreg + (fromInteger(i) * 8)) &&
 						addr[15:0] <  (`mtimecmpreg + ((fromInteger(i) + 1) * 8)))
-						csr_mtimecmp[i] <= truncate((zeroExtend(csr_mtimecmp[i]) & notmask) | datamask);				
+						csr_mtimecmp[i] <= truncate((zeroExtend(csr_mtimecmp[i]) & notmask) | datamask);	
+				end			
           `endif
         end
 		    else
