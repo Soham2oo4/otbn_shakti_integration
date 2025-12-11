@@ -67,6 +67,7 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
+    Add#(k__, 1, data_width),
     Log#(tick_count, i__)
 			);	
 
@@ -212,7 +213,7 @@ package clint;
         Bit#(msip_size) msip_concat=0;
 			Bit#(data_width) temp;
 			for(Integer i=0;i<k;i=i+1) begin
-				temp=msip[i];
+				temp=zeroExtend(msip[i]);
 				msip_concat[i]=temp[0];
 			end
 				return msip_concat;
@@ -223,7 +224,7 @@ package clint;
 	Bit#(msip_size) mtip_concat=0;
 			Bit#(data_width) temp;
 			for(Integer i=0;i<k;i=i+1) begin
-				temp=mtip[i];
+				temp=zeroExtend(mtip[i]);
 				mtip_concat[i]=temp[0];
 			end
 				return mtip_concat;
@@ -313,6 +314,7 @@ package clint;
     Mul#(8, f__, data_width),
     Mul#(16, g__, data_width),
     Mul#(32, h__, data_width),
+    Add#(k__, 1, data_width),
     	`ifndef axi4_128b
       	  Mul#(data_width, c__, 64)
     	`else
