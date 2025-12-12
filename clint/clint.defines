@@ -8,6 +8,11 @@
 // 0X14:U U U U 
 
 // Memory Map
-`define msipreg     'h0000		
-`define mtimecmpreg 'h4000		
-`define mtimereg    'hbff8	
+// Machine-level Software interrrupt device (MSWI)
+`define msipreg      'h0000		//HART index 0 machine-level IPI register (MSIP0)
+`define msipreg1     'h0004		//HART index 1 machine-level IPI register (MSIP1)
+
+// Time Compare register
+`define mtimecmpreg  'h4000		//HART index 0 machine-level time compare (MTIMECMP0)
+`define mtimecmpreg1 'h4008		//HART index 1 machine-level time compare (MTIMECMP1)
+`define mtimereg     'hbff8	    //Machine-level time counter (MTIME)
