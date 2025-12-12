@@ -118,8 +118,19 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
   wire [2:0]                        m_axi_awprot;
   wire                              m_axi_awvalid;
   wire                              m_axi_awready;    
+`ifdef BUS_WIDTH128   
+  wire [127:0]                       m_axi_wdata;
+  wire [15:0]                        m_axi_wstrb;
+`elsif BUS_WIDTH64
   wire [63:0]                       m_axi_wdata;
   wire [7:0]                        m_axi_wstrb;
+`elsif BUS_WIDTH32
+  wire [31:0]                       m_axi_wdata;
+  wire [3:0]                        m_axi_wstrb;
+`else
+  wire [127:0]                       m_axi_wdata;
+  wire [15:0]                        m_axi_wstrb;
+`endif
   wire                              m_axi_wlast;
   wire                              m_axi_wvalid;
   wire                              m_axi_wready;   
@@ -139,7 +150,15 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
   wire                              m_axi_arready;    
   wire                              m_axi_rready;
   wire [AXI_ID_WIDTH-1:0]           m_axi_rid;
+`ifdef BUS_WIDTH128   
+  wire [127:0]                      m_axi_rdata;
+`elsif BUS_WIDTH64
   wire [63:0]                       m_axi_rdata;
+`elsif BUS_WIDTH32
+  wire [31:0]                       m_axi_rdata;
+`else
+  wire [127:0]                      m_axi_rdata;
+`endif
   wire [1:0]                        m_axi_rresp;
   wire                              m_axi_rlast;
   wire                              m_axi_rvalid;   
@@ -154,8 +173,19 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
   wire [2:0]                        s_axi_awprot;
   wire                              s_axi_awvalid;
   wire                              s_axi_awready;    
+`ifdef BUS_WIDTH128   
+  wire [127:0]                       s_axi_wdata;
+  wire [15:0]                        s_axi_wstrb;
+`elsif BUS_WIDTH64
   wire [63:0]                       s_axi_wdata;
   wire [7:0]                        s_axi_wstrb;
+`elsif BUS_WIDTH32
+  wire [31:0]                       s_axi_wdata;
+  wire [3:0]                        s_axi_wstrb;
+`else
+  wire [127:0]                       s_axi_wdata;
+  wire [15:0]                        s_axi_wstrb;
+`endif
   wire                              s_axi_wlast;
   wire                              s_axi_wvalid;
   wire                              s_axi_wready;
@@ -175,7 +205,15 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
   wire                              s_axi_arready;
   wire                              s_axi_rready;
   wire [AXI_ID_WIDTH-1:0]           s_axi_rid;
+`ifdef BUS_WIDTH128   
+  wire [127:0]                      s_axi_rdata;
+`elsif BUS_WIDTH64
   wire [63:0]                       s_axi_rdata;
+`elsif BUS_WIDTH32
+  wire [31:0]                       s_axi_rdata;
+`else
+  wire [127:0]                      s_axi_rdata;
+`endif
   wire [1:0]                        s_axi_rresp;
   wire                              s_axi_rlast;
   wire                              s_axi_rvalid;   
@@ -223,6 +261,7 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
    wire gpio_30_in, gpio_30_out, gpio_30_en;
    wire gpio_31_in, gpio_31_out, gpio_31_en;
 
+   wire ip2intc_irpt;
 // ---------------------------------------------------------------------------- //
     wire wire_tck_clk;
     wire wire_trst;
@@ -473,9 +512,9 @@ module fpga_top#( parameter AXI_ID_WIDTH = 4, parameter AXI_ADDR_WIDTH = 30)
         .spi0_io_sclk_out(spi0_io_sclk_out),
         .spi0_io_sclk_outen(spi0_io_sclk_outen),
         .spi0_io_sclk_in_val(spi0_io_sclk_in_val),
-        .spi0_io_ncs_out(spi0_io_nss_out),
-        .spi0_io_ncs_outen(spi0_io_nss_outen),
-        .spi0_io_ncs_in_val(spi0_io_nss_in_val),
+        .spi0_io_ncs_out0(spi0_io_nss_out),
+        .spi0_io_ncs_outen0(spi0_io_nss_outen),
+        .spi0_io_ncs_in0_val(spi0_io_nss_in_val),
 	      .spi0_io_miso_out(spi0_io_miso_out),
 	      .spi0_io_miso_outen(spi0_io_miso_outen),
 	      .spi0_io_miso_in_val(spi0_io_miso_in_val),
