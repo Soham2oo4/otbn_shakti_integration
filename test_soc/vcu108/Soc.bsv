@@ -439,8 +439,8 @@ package Soc;
 
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.clk_out.put(spi_cluster.spi1_io.sclk_out);
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.clk_outen.put(spi_cluster.spi1_io.sclk_outen);
-		   mixed_cluster.pinmuxtop_peripheral_side.mspi.nss_out.put(spi_cluster.spi1_io.ncs_out);
-		   mixed_cluster.pinmuxtop_peripheral_side.mspi.nss_outen.put(spi_cluster.spi1_io.ncs_outen);
+		   mixed_cluster.pinmuxtop_peripheral_side.mspi.nss_out.put(spi_cluster.spi1_io.ncs_out0);
+		   mixed_cluster.pinmuxtop_peripheral_side.mspi.nss_outen.put(spi_cluster.spi1_io.ncs_outen0);
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.mosi_out.put(spi_cluster.spi1_io.mosi_out);
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.mosi_outen.put(spi_cluster.spi1_io.mosi_outen);
 		   mixed_cluster.pinmuxtop_peripheral_side.mspi.miso_out.put(spi_cluster.spi1_io.miso_out);
@@ -496,7 +496,7 @@ package Soc;
 		   spi_cluster.spi1_io.miso_in(pinmux_spi1_miso);
 		   spi_cluster.spi1_io.mosi_in(pinmux_spi1_mosi);
 		   spi_cluster.spi1_io.sclk_in(pinmux_spi1_clk);
-		   spi_cluster.spi1_io.ncs_in(pinmux_spi1_nss);
+		   spi_cluster.spi1_io.ncs_in0(pinmux_spi1_nss);
 
 		   let pinmux_uart1_rx <- (mixed_cluster.pinmuxtop_peripheral_side.uart1.rx.get);
 		   uart_cluster.uart1_io.sin(pinmux_uart1_rx);
