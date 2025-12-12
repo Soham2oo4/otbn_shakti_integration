@@ -7,8 +7,7 @@
 // 0X10:U U U U 
 // 0X14:U U U U 
 
-// Parameters
 // Memory Map
-`define msipreg 'h0000		
-`define mtimecmpreg   'h4000		
-`define mtimereg   'hbff8	
+`define msipreg     'h0000		
+`define mtimecmpreg 'h4000		
+`define mtimereg    'hbff8	
