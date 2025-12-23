@@ -28,6 +28,9 @@ package Soc;
  // import i2c :: *;
  // import gpio :: *;
   import csrbox :: * ;
+   `ifdef etrace_support
+       import instruction_encoder :: * ;
+   `endif
   import bram :: *;
 `ifdef debug
   import debug_types::*;     
@@ -40,6 +43,9 @@ package Soc;
   `ifdef simulate
     import sign_dump :: *;
   `endif
+
+  import pipe_ifcs::*;
+
 
   function Bit#(TLog#(`Num_Fast_Slaves)) fn_slave_map_fast (Bit#(`paddr) addr);
     Bit#(TLog#(`Num_Fast_Slaves)) slave_num = 0;
@@ -60,6 +66,12 @@ package Soc;
     `ifdef simulate
       else if(addr >= `SignBase && addr <= `SignEnd)
         slave_num = `Sign_slave_num;
+    `endif
+    `ifdef etrace_support 
+      else if(addr>= `TraceBase && addr<= `TraceEnd)
+        slave_num =  `Trace_slave_num;
+      else if(addr >= `MemtraceBase && addr<= `MemtraceEnd)
+        slave_num = `Memtrace_slave_num;
     `endif
     else
       slave_num = `FastErr_slave_num;
@@ -316,6 +328,12 @@ package Soc;
     Wire#(Bit#(1)) wr_gpio30_in <- mkDWire(0);
     Wire#(Bit#(1)) wr_gpio31_in <- mkDWire(0);
 */
+`ifdef etrace_support 
+    Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE) trace <- mktrace_axi4;
+    Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
+                                                "trace.mem", "TraceMEM");
+`endif
+
 
   `ifdef debug
     Bit#(`num_harts) lv_haveresets=0;
@@ -370,6 +388,10 @@ package Soc;
       mkConnection(signature.master, fabric.v_from_masters[`Sign_master_num]);
     `endif
 
+    `ifdef etrace_support 
+       mkConnection (trace.master, fabric.v_from_masters[valueOf(`Trace_master_num) ]); 
+    `endif
+
   	mkConnection (fabric.v_to_slaves [`Clint_slave_num ],clint.slave);
     mkConnection (fabric.v_to_slaves [`FastErr_slave_num ] , fast_err_slave.slave);
   //`ifdef debug 
@@ -390,6 +412,33 @@ package Soc;
     mkConnection (slow_fabric.v_to_slaves [`Err_slave_num ] , err_slave.slave);
     `ifdef simulate
       mkConnection (fabric.v_to_slaves [`Sign_slave_num ] , signature.slave);
+    `endif
+
+
+     `ifdef etrace_support 	
+       mkConnection(fabric.v_to_slaves[`Trace_slave_num]   , trace.slave); 
+       mkConnection(fabric.v_to_slaves[`Memtrace_slave_num]
+       , main_memory_trace.slave);         
+
+       rule ing_in;
+       trace.trace_interface(
+             zeroExtend(ccore.etrace_ingress_port.itype),
+                         ccore.etrace_ingress_port.cause,
+                         ccore.etrace_ingress_port.tval,
+              zeroExtend(ccore.etrace_ingress_port.priv),
+                         ccore.etrace_ingress_port.iaddr,
+              zeroExtend(ccore.etrace_ingress_port.iretire),
+                       ccore.etrace_ingress_port.ilastsize);  
+
+               /*$display( "in_soc_val:= %d,%d,%h,%d,%h,0,0,%d,%d",
+                         ccore[i].etrace_ingress_port.itype,
+                         ccore[i].etrace_ingress_port.cause,
+                         ccore[i].etrace_ingress_port.tval,
+                         ccore[i].etrace_ingress_port.priv,
+                         ccore[i].etrace_ingress_port.iaddr,
+                         ccore[i].etrace_ingress_port.iretire,
+                         ccore[i].etrace_ingress_port.ilastsize  )  ;    */  
+       endrule
     `endif
 
     rule connect_pinmux_peripheral_output_lines;

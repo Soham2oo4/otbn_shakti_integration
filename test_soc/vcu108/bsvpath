@@ -23,6 +23,8 @@ devices/bram
 devices/riscvdebug100
 devices/jtagdtm/
 devices/err_slave/
+devices/riscv-etrace/instruction_trace
+devices/riscv-etrace/data-trace
 devices/riscv-plic/
 devices/i2c/
 devices/spi_v2/

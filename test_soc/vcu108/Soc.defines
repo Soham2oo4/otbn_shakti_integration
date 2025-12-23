@@ -1,34 +1,79 @@
 // See LICENSE.iitm for license details
 
 `ifdef debug
+`ifdef etrace_support
+`ifdef simulate
+`define Num_Fast_Masters 5
+`else
+`define Num_Fast_Masters 4
+`endif
+`else
 `ifdef simulate
 `define Num_Fast_Masters 4
 `else
 `define Num_Fast_Masters 3
 `endif
+`endif
+
 `define Debug_master_num 0
-`define Mem_master_num 1
+`define Mem_master_num   1
 `define Fetch_master_num 2
+
+`ifdef etrace_support
+`define Trace_master_num 3
+`ifdef simulate
+`define Sign_master_num 4
+`endif
+`else
+`ifdef simulate
+`define Sign_master_num 3
+`endif
+`endif
+
+`else
+`ifdef etrace_support
+`ifdef simulate
+`define Num_Fast_Masters 4
+`else
+`define Num_Fast_Masters 3
+`endif
+`else
+`ifdef simulate
+`define Num_Fast_Masters 3
+`else
+`define Num_Fast_Masters 2
+`endif
+`endif
+
+`define Mem_master_num   0
+`define Fetch_master_num 1
+
+`ifdef etrace_support
+`define Trace_master_num 2
 `ifdef simulate
 `define Sign_master_num 3
 `endif
 `else
-  `ifdef simulate
-  `define Num_Fast_Masters 3
-  `else
-  `define Num_Fast_Masters 2
-  `endif
-  `define Mem_master_num 0
-  `define Fetch_master_num 1
-  `ifdef simulate
-    `define Sign_master_num 2
-  `endif
+`ifdef simulate
+`define Sign_master_num 2
+`endif
 `endif
 
+`endif
+
+
+`ifdef etrace_support
+`ifdef simulate
+  `define Num_Fast_Slaves 9
+`else
+  `define Num_Fast_Slaves 8
+`endif
+`else
 `ifdef simulate
   `define Num_Fast_Slaves 7
 `else
   `define Num_Fast_Slaves 6
+`endif
 `endif
 `define Memory_slave_num 0
 `define Clint_slave_num 1
@@ -38,6 +83,16 @@
 `define Boot_slave_num  5
 `ifdef simulate
   `define Sign_slave_num 6
+`endif
+
+`ifdef etrace_support
+  `ifdef simulate
+    `define Trace_slave_num    7
+    `define Memtrace_slave_num 8
+  `else
+    `define Trace_slave_num    6
+    `define Memtrace_slave_num 7
+  `endif
 `endif
 
 `define MemoryBase        'h8000_0000
@@ -54,7 +109,12 @@
   `define SignBase          'h0005_0000
   `define SignEnd           'h0005_000c
 `endif
-
+`ifdef etrace_support 
+`define TraceBase     'h0006_0000
+`define TraceEnd      'h0006_0FFF
+`define MemtraceBase  'h9000_0000
+`define MemtraceEnd   'h9FFF_FFFF
+`endif
 `define Num_Masters 1
 
 `define Num_Slaves 6
