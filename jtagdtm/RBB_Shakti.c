@@ -32,7 +32,6 @@ extern "C" {
   
   int init_rbb_jtag(unsigned char dummy){
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    int client_fd = -1;
 
     if (socket_fd == -1) {
       fprintf(stderr, "remote_bitbang failed to make socket: %s (%d)\n",
@@ -78,8 +77,11 @@ extern "C" {
         ntohs(addr.sin_port));
     fflush(stdout);
     printf("Waiting for OpenOCD .... \n");
-    while (client_fd == -1){
-      client_fd = accept(socket_fd, NULL, NULL);
+    return socket_fd;
+  }
+
+  int init_rbb_jtag_loop(int socket_fd){
+    int client_fd = accept(socket_fd, NULL, NULL);
       if (client_fd == -1) {
         if (errno != EAGAIN) {
           fprintf(stderr, "failed to accept on socket: %s (%d)\n", strerror(errno),
@@ -88,7 +90,7 @@ extern "C" {
       } else {
         fcntl(client_fd, F_SETFL, O_NONBLOCK);
       }
-    }
+
     return client_fd;
   }
 

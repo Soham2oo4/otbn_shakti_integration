@@ -6,7 +6,7 @@ RISCV_LINK_OPTS ?= -static -nostartfiles -lgcc -T ./link.ld
 RISCV_HEX = elf2hex $(linesize) 128 debugrom.elf 0
 RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump -D
 RISCV_GCC_ARGS ?= -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common \
-									-fno-builtin-printf -march=rv64i -w -static	-nostartfiles -lgcc \
+									-fno-builtin-printf -march=rv64imafdc_zicsr_zifencei -w -static	-nostartfiles -lgcc \
 									-c debugrom.S -o debugrom.elf
         
 default: build

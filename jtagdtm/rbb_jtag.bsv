@@ -24,6 +24,7 @@ package rbb_jtag;
   // import "BDPI" function ActionValue #(Bit #(1)) accept_cxn(Bit#(1) dummy);
   
   import "BDPI" function ActionValue #(int) init_rbb_jtag(Bit#(1) dummy);
+  import "BDPI" function ActionValue #(int) init_rbb_jtag_loop(int socket_fd);
   import "BDPI" function ActionValue #(Bit #(8))get_frame(int client_fd);
   import "BDPI" function Action send_tdo(Bit #(1) tdo , int client_fd);
 
@@ -52,13 +53,24 @@ module mkRbbJtag(Ifc_jtag_driver_sim);
     Reg#(Bit#(1)) tdo <- mkRegA(0);
 
     Reg#(Bit#(1)) rg_initial <- mkRegA(0);
+    Reg#(Bit#(1)) rg_initial_init <- mkRegA(0);
     Reg#(Bit#(1)) rg_req_tdo <- mkRegA(0);
     Reg#(Bit#(1)) rg_end_sim <- mkRegA(0);
 
     Reg#(int) rg_client_fd <- mkRegA(32'hffffffff); // -1
+    Reg#(int) rg_socket_fd <- mkRegA(32'hffffffff);
 
-    rule rl_initial(rg_initial == 0);
+    rule rl_initial_init(rg_initial_init==0);
       let x <- init_rbb_jtag(0);
+      if(x != 32'hffffffff)begin
+        $display("xval = %h" , x);
+        rg_initial_init <= 1'b1;
+        rg_socket_fd <= x;
+      end
+    endrule
+
+    rule rl_initial(rg_initial == 0 && rg_initial_init ==1'b1);
+      let x <- init_rbb_jtag_loop(rg_socket_fd);
       if(x != 32'hffffffff)begin
         $display("xval = %h" , x);
         rg_initial <= 1'b1;

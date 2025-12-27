@@ -58,7 +58,7 @@ entry_loop:
         lbu  s0, DEBUG_ROM_FLAGS(s0) // multiple harts can resume  here
         andi s0, s0, (1 << DEBUG_ROM_FLAG_RESUME)
         bnez s0, _resume
-        wfi
+        nop
         jal  zero, entry_loop
 
 _exception:
