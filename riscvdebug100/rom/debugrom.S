@@ -84,6 +84,9 @@ _resume:
         sw   s0, DEBUG_ROM_RESUMING(zero) // When Debug Module sees this write, the RESUME flag is reset.
         csrr s0, CSR_DSCRATCH   // Restore s0
         dret
+        nop
+        nop
+        nop
 
         // END OF ACTUAL "ROM" CONTENTS. BELOW IS JUST FOR LINKER SCRIPT.
 

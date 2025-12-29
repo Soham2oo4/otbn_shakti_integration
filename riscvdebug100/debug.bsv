@@ -119,9 +119,9 @@ module mkdebug#(parameter DMConfig cfg)(Ifc_debug#( nprogbuf,
     vrom[26] = 'h10802423; //0x868:	10802423          	sw	s0,264(zero) # 108 <_resume+0xa4>
     vrom[27] = 'h7b202473; //0x86c:	7b202473          	csrr	s0,dscratch0
     vrom[28] = 'h7b200073; //0x870:	7b200073          	dret
-    vrom[29] = 'h00000013;  // 0x874
-    vrom[30] = 'h00000013;  // 0x878
-    vrom[31] = 'h00000013;  // 0x87c
+    vrom[29] = 'h00000013; // 0x874:	00000013          	nop
+    vrom[30] = 'h00000013; // 0x878:	00000013          	nop
+    vrom[31] = 'h00000013; // 0x87c:	00000013          	nop
 
   `else // for i-class core
     vrom[0] = 'h00c0006f;   // 0x800 (j _entry @ 0x80c) : entry
