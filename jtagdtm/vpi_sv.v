@@ -3,5 +3,6 @@
 // NOT documented any where else in the entire bluespec ecosystem
   
 import "DPI-C" function int  unsigned init_rbb_jtag(byte unsigned dummy);
+import "DPI-C" function int  unsigned init_rbb_jtag_loop(int client_fd);
 import "DPI-C" function byte unsigned get_frame(int client_fd);
 import "DPI-C" function void          send_tdo(byte tdo , int client_fd);

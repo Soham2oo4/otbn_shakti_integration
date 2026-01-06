@@ -106,7 +106,7 @@ package clint;
 		method ActionValue#(Tuple2#(Bool, Bit#(data_width))) read_req(Bit#(addr_width) addr,AccessSize size);
 			Bool success=True;
 			Bit#(data_width) data=0;			
-			Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
+			// Bit#(6) shift_amt=zeroExtend(addr[2:0])<<3;
 			`ifndef axi4_128b
 				Bit#(64) temp=0;
 			`else
@@ -131,7 +131,7 @@ package clint;
 			else
 				success=False;	
 			
-			temp = temp>>shift_amt;
+			// temp = temp>>shift_amt;
 			if(size==Byte && dvalue%8==0)
 				temp=duplicate(temp[7:0]);
 			if(size==HWord && dvalue%16==0)

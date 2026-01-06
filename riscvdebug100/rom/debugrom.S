@@ -58,7 +58,7 @@ entry_loop:
         lbu  s0, DEBUG_ROM_FLAGS(s0) // multiple harts can resume  here
         andi s0, s0, (1 << DEBUG_ROM_FLAG_RESUME)
         bnez s0, _resume
-        wfi
+        nop
         jal  zero, entry_loop
 
 _exception:
@@ -84,6 +84,9 @@ _resume:
         sw   s0, DEBUG_ROM_RESUMING(zero) // When Debug Module sees this write, the RESUME flag is reset.
         csrr s0, CSR_DSCRATCH   // Restore s0
         dret
+        nop
+        nop
+        nop
 
         // END OF ACTUAL "ROM" CONTENTS. BELOW IS JUST FOR LINKER SCRIPT.
 
