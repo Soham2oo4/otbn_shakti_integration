@@ -30,6 +30,7 @@ package TbSoc;
   import "BDPI" function ActionValue #(int) init_rbb_jtag(Bit#(1) dummy);
   import "BDPI" function ActionValue #(Bit #(8))get_frame(int client_fd);
   import "BDPI" function Action send_tdo(Bit #(1) tdo , int client_fd);
+  import "BDPI" function ActionValue #(int) init_rbb_jtag_loop(int socket_fd);
 `endif
     function Bit#(`xlen) fn_atomic_op (Bit#(5) op,  Bit#(`xlen) rs2,  Bit#(`xlen) loaded);
       Bit#(`xlen) op1 = loaded;
@@ -418,15 +419,25 @@ package TbSoc;
       wr_tdo <= soc.wire_tdo();
     endrule
     Reg#(Bit#(1)) rg_initial <- mkRegA(0);
+    Reg#(Bit#(1)) rg_initial_init <- mkRegA(0);
     Reg#(Bit#(1)) rg_end_sim <- mkRegA(0);
     Reg#(int) rg_client_fd <- mkRegA(32'hffffffff);
+    Reg#(int) rg_socket_fd <- mkRegA(32'hffffffff);
     Reg#(Bit#(5)) delayed_actor <- mkReg(0);
     Reg#(Bit#(5)) delayed_actor2 <- mkReg(0);
     Reg#(Bit#(5)) delayed_actor3 <- mkReg(0);
     Reg#(Bit#(5)) delayed_actor4 <- mkReg(0);
     Reg#(Bit#(5)) delayed_actor5 <- mkReg(0);
-    rule rl_initial(rg_initial == 0);
+    rule rl_initial_init(rg_initial_init==0);
       let x <- init_rbb_jtag(0);
+      if(x != 32'hffffffff)begin
+        rg_initial_init <= 1'b1;
+        rg_socket_fd <= x;
+      end
+    endrule
+
+    rule rl_initial(rg_initial == 0 && rg_initial_init ==1'b1);
+      let x <- init_rbb_jtag_loop(rg_socket_fd);
       if(x != 32'hffffffff)begin
         rg_initial <= 1'b1;
         rg_client_fd <= x;
