@@ -150,7 +150,11 @@ provisos(Add#(a__, 16, data_width),
         
         Reg#(Bit#(1))  rg_waiting_resp <- mkRegA(0);
         Reg#(Bit#(2))  rg_size <- mkRegA(0);
-        Reg#(Bit#(addr_width))  rg_address <- mkRegA('h90000000);
+        Reg#(Bit#(addr_width))  rg_address <- mkRegA('h70000000);
+
+        Reg#(Bit#(addr_width))  rg_address_start <- mkRegA('h70000000); //reference for the start
+        Reg#(Bit#(addr_width))  rg_address_end <- mkRegA('h7fffffff);   // reference for end to prevent overfloww
+
         
         Wire#(Hart_to_encoder_interface) wr_trace_in    <- mkDWire(unpack(0));
         Wire#(Bit#(1))                   wr_compress_en <- mkDWire(0);
@@ -888,20 +892,28 @@ lv_payload[0]=rg_packet[87:80];
                   // sberr <= pack(SbBadAddr);
                   //$display("AXI4_DECERR");
                    rg_waiting_resp <= 0;
-              end
-             else if (response.bresp == AXI4_SLVERR) begin
+           end
+          else if (response.bresp == AXI4_SLVERR) begin
                     //$display("AXI4_SLVERR");
                    //sberr <= pack(SbOther);
                     rg_waiting_resp <= 0;
-                       end
-                 else begin
+          end
+
+          else begin
                    //$display("AXI4_Success");
                      rg_waiting_resp <= 0; 
                     //sberr <= pack(SbSuccess);
                      Bit#(4) offset = 'b1 << rg_size;
-                     rg_address <= rg_address + zeroExtend(offset);                                  
+                  //Added Condition to prevent Overflow
+                     if((rg_address + zeroExtend(offset))<= rg_address_end) begin 
+                        rg_address <= rg_address + zeroExtend(offset);  
+                     end
+                     else begin
+                        rg_address <= rg_address_start;
+                     end 
+                
                      trace_sink_buffer.deq(unpack(zeroExtend(offset)));                                 
-                 end               
+          end               
             endrule   
                    
                       
@@ -1147,4 +1159,3 @@ interface Ifc_trace_axi4lite#(numeric type addr_width,numeric type id_width, num
 // Erased second argument in read_req() calls 
 // Added if statement for re_suppport_packet
 // Added rg_teEnable == 1 ocndition with rg_curr.qual == 1
- 
