@@ -59,7 +59,8 @@ bus_protocol_configuration:
   axi4_id_width: 4
   userspace_width: 1
 bsc_compile_options:
-test_memory_size: 4194304   // Addr_space = 22
+#Addr_space = 22 
+test_memory_size: 4194304  
   assertions: true
   ovl_assertions: False
   sva_assertions: False
