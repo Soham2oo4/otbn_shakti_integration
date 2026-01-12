@@ -106,7 +106,7 @@ interface IFC_trace_engine#(numeric type addr_width,numeric type id_width, numer
 endinterface 
   
 
-module mktrace_engine(IFC_trace_engine#(addr_width,id_width,data_width,user_width))
+module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtrace_end)(IFC_trace_engine#(addr_width,id_width,data_width,user_width))
 
       provisos(Add#(a__, 16, data_width),         
               Mul#(64, c__, data_width),
@@ -119,13 +119,13 @@ module mktrace_engine(IFC_trace_engine#(addr_width,id_width,data_width,user_widt
               
           );
                 
-      Reg#(Bit#(1))  rg_Active <- mkRegA(0);  
+            Reg#(Bit#(1))  rg_Active <- mkRegA(0);  //021f
       Reg#(Bit#(1))  rg_teEnable <- mkRegA(0);
       Reg#(Bit#(1))  rg_iTracing <- mkRegA(0);
       Reg#(Bit#(2))  rg_ResyncMode	<- mkRegA(0);
       Reg#(Bit#(4))  rg_ResyncMax	<- mkRegA(0);
       Reg#(Bit#(1))  rg_comp_ext	<- mkRegA(0);
-      Reg#(Bit#(16)) rg_trace_control = concatReg7(readOnlyReg(6'd0),rg_comp_ext,rg_ResyncMax,rg_ResyncMode,rg_iTracing,rg_teEnable,rg_Active); //021f
+      Reg#(Bit#(16)) rg_trace_control = concatReg7(readOnlyReg(6'd0),rg_comp_ext,rg_ResyncMax,rg_ResyncMode,rg_iTracing,rg_teEnable,rg_Active);
       
       Reg#(Hart_to_encoder_interface) rg_prev <- mkRegA(unpack(0)); 
       Reg#(Hart_to_encoder_interface) rg_curr <- mkRegA(unpack(0));
@@ -151,10 +151,7 @@ module mktrace_engine(IFC_trace_engine#(addr_width,id_width,data_width,user_widt
       
       Reg#(Bit#(1))  rg_waiting_resp <- mkRegA(0);
       Reg#(Bit#(2))  rg_size <- mkRegA(0);
-      Reg#(Bit#(addr_width))  rg_address <- mkRegA('h70000000);
-
-      Reg#(Bit#(addr_width))  rg_address_start <- mkRegA('h70000000); //reference for the start
-      Reg#(Bit#(addr_width))  rg_address_end <- mkRegA('h7fffffff);   // reference for end to prevent overfloww
+      Reg#(Bit#(addr_width))  rg_address <- mkRegA(fromInteger(memtrace_base));
 
       
       Wire#(Hart_to_encoder_interface) wr_trace_in    <- mkDWire(unpack(0));
@@ -906,11 +903,12 @@ module mktrace_engine(IFC_trace_engine#(addr_width,id_width,data_width,user_widt
                             //sberr <= pack(SbSuccess);
                             Bit#(4) offset = 'b1 << rg_size;
                           //Added Condition to prevent Overflow
-                            if((rg_address + zeroExtend(offset))<= rg_address_end) begin 
+                            if((rg_address + zeroExtend(offset))<= fromInteger(memtrace_end))begin 
                                 rg_address <= rg_address + zeroExtend(offset);  
                             end
                             else begin
-                                rg_address <= rg_address_start;
+                                rg_address <= fromInteger(memtrace_base);
+
                             end 
                         
                             trace_sink_buffer.deq(unpack(zeroExtend(offset)));                                 
@@ -951,7 +949,7 @@ module mktrace_engine(IFC_trace_engine#(addr_width,id_width,data_width,user_widt
                 if(addr[7:0] == 'h00) begin                             
                   result = duplicate(rg_trace_control) ; end        
                 begin                             
-                  success = False  ; end 
+                  success = False  ; end     //else condition is missing --(Mohit)
                     
                   return tuple2(success, result);     
             endmethod 
@@ -970,7 +968,7 @@ interface Ifc_trace_axi4lite#(numeric type addr_width,numeric type id_width, num
   //method Bit#(1) trace_interrupt;
 endinterface
 
-module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,id_width,data_width,user_width))
+module mktrace_axi4lite#(parameter Integer memtrace_base, parameter Integer memtrace_end)(Ifc_trace_axi4lite#(addr_width,id_width,data_width,user_width))
     provisos(Add#(a__, 32, data_width),
           Add#(b__,  4, data_width),
           Mul#(32, c__, data_width),
@@ -983,7 +981,7 @@ module mktrace_axi4lite(Ifc_trace_axi4lite#(addr_width,id_width,data_width,user_
           Add#(j__, 4, addr_width)
 
         );
-  IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine();
+  IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine(memtrace_base, memtrace_end);
   AXI4_Lite_Slave_Xactor_IFC#(addr_width,data_width,user_width)  s_xactor <- mkAXI4_Lite_Slave_Xactor();
 
   rule read_request;
@@ -1011,13 +1009,13 @@ endmodule
 
 //axi4
 interface Ifc_trace_axi4#(numeric type addr_width, numeric type id_width, numeric type data_width, numeric type user_width);
-        interface AXI4_Master_IFC#(addr_width, id_width, data_width, user_width) master;
+  interface AXI4_Master_IFC#(addr_width, id_width, data_width, user_width) master;
   interface AXI4_Slave_IFC#(addr_width,id_width,data_width,user_width)	slave;
   method Action trace_interface(Bit#(4) itype ,Bit#(4) cause, Bit#(64) tval, Bit#(3) priv, Bit#(64) iaddr, Bit#(2) iretire, Bit#(1) ilastsize); 
   //method Bit#(1) trace_interrupt;
 endinterface
 
-module mktrace_axi4(Ifc_trace_axi4#(addr_width,id_width,data_width,user_width))
+module mktrace_axi4#(parameter Integer memtrace_base, parameter Integer memtrace_end)(Ifc_trace_axi4#(addr_width,id_width,data_width,user_width))
     provisos(Add#(a__, 32, data_width),
           Add#(b__,  4, data_width),
           Mul#(32, c__, data_width),
@@ -1029,7 +1027,7 @@ module mktrace_axi4(Ifc_trace_axi4#(addr_width,id_width,data_width,user_width))
           Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
           Add#(j__, 4, addr_width)
         );
-  IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine();
+  IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine(memtrace_base, memtrace_end);
   AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
   Reg#(Bit#(8)) rg_rdburst_count <- mkRegA(0);
   Reg#(Bit#(8)) rg_wrburst_count <- mkRegA(0);
@@ -1091,74 +1089,3 @@ module mktrace_axi4(Ifc_trace_axi4#(addr_width,id_width,data_width,user_width))
   interface slave = s_xactor.axi_side;
   //method trace_interrupt = trace.trace_interrupt;
 endmodule
-
-
-
-  // module tbmktrace();      
-                     
-  //         Reg#(Bit#(32)) rg_state <- mkReg(0);
-  //         Reg#(Bit#(64)) count <- mkReg(0);
-          
-  //         RegFile#(Bit#(64),Bit#(64)) registers_ingress <- mkRegFileLoad("input.txt",0,2269627);    // +6
-          
-  //          IFC_trace_engine#(32,64,0) trace <- mktrace_engine();
-           
-  //           rule step1(rg_state == 0);
-  //                let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021f);
-  //                $display("config done = %h", resp); 
-  //                $display("\n");
-  //                rg_state <= 1 ; 
-  //           endrule
-            
-  //           rule step2(rg_state == 1);
-  //                let {resp,data}  <- trace.read_req(32'h0000_0000);//,2'h2);
-  //                $display("config read= %h", data); 
-  //                $display("\n");
-  //                rg_state <= 2 ; 
-  //           endrule
-            
-             
-  //           rule step3(rg_state == 2);
-  //                //let data= registers.sub(count);
-  //                 if(count == 2269627) begin    // +1
-  //                 $finish(0); end
-                  
-  //                  if(count == 2269624) begin
-  //                 let resp  <- trace.write_req(32'h0000_0000 ,64'h0000_0000_0000_021d);
-  //                 end
-                      
-  //               //let {resp_0,buffer_status} <- trace.read_req(32'h0000_0008,2'h2);
-  //               //$display("buffer_status= %d", buffer_status);
-                      
-                     
-  //                    let {resp_1,data}  <- trace.read_req(32'h0000_0010);//,2'h3);
-  //                    if (resp_1)begin 
-  //                    $display("%d", data);end  
-                    
-
-  //                count<= count + 1;
-  //           endrule
-      
-  //         rule step4 (count <= 2269627) ;          
-  //          trace.trace_interface(
-  //          registers_ingress.sub(count)[63:60],
-  //          registers_ingress.sub(count)[59:56],
-  //          zeroExtend(registers_ingress.sub(count)[55:52]),
-  //          //registers_ingress.sub(count)[51:48],
-  //            registers_ingress.sub(count)[50:48],
-  //            {32'h0,registers_ingress.sub(count)[47:16]},
-  //          //registers_ingress.sub(count)[15:12],
-  //          //registers_ingress.sub(count)[11:8],
-  //          //registers_ingress.sub(count)[7:4],
-  //            registers_ingress.sub(count)[5:4],
-  //          //registers_ingress.sub(count)[3:0]
-  //            registers_ingress.sub(count)[0] );
-  //            endrule 
-
-  //         endmodule
-  
-
-// Created re_support_gen RegA
-// Erased second argument in read_req() calls 
-// Added if statement for re_suppport_packet
-// Added rg_teEnable == 1 ocndition with rg_curr.qual == 1
