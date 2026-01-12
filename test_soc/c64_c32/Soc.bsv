@@ -125,7 +125,7 @@ package Soc;
                                                 "code.mem", "MainMEM");
                   Ifc_bootrom_axi4#(`paddr, `axi4_id_width, `buswidth, `USERSPACE, `ifdef axi4_128b 12 `else 13 `endif ) bootrom <-mkbootrom_axi4(`BootRomBase);
 `ifdef etrace_support 
-    Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE) trace <- mktrace_axi4;
+    Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE) trace <- mktrace_axi4(`MemtraceBase, `MemtraceEnd);
     Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
                                                 "trace.mem", "TraceMEM");
 `endif
