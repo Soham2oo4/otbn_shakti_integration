@@ -119,7 +119,7 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
               
           );
                 
-            Reg#(Bit#(1))  rg_Active <- mkRegA(0);  //021f
+      Reg#(Bit#(1))  rg_Active <- mkRegA(0);  //021f
       Reg#(Bit#(1))  rg_teEnable <- mkRegA(0);
       Reg#(Bit#(1))  rg_iTracing <- mkRegA(0);
       Reg#(Bit#(2))  rg_ResyncMode	<- mkRegA(0);
@@ -919,10 +919,12 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
             
               method Action trace_interface(Bit#(4) itype ,Bit#(4) cause,Bit#(64) tval,Bit#(3) priv,Bit#(64) iaddr,Bit#(2) iretire,Bit#(1) ilastsize) if(rg_Active == 1);
                 Bit#(1) lv_filter = 0;  
-                              if ((iaddr >= 64'h0000000080000000 && iaddr <= 64'h000000008FFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
+
+
+                              if ((iaddr >= 64'h00000000000001000 && iaddr <= 64'hFFFFFFFFFFFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
                                   lv_filter = 1 ; 
                                   //wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) });                      
-                              end
+                              end                              
                   wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) }); 
                   // $display("inside trace interface:-  %d,%d,%d,%d,%h,0,0,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize);
                   wr_compress_en <= 1; 
@@ -948,8 +950,8 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                 
                 if(addr[7:0] == 'h00) begin                             
                   result = duplicate(rg_trace_control) ; end        
-                begin                             
-                  success = False  ; end     //else condition is missing --(Mohit)
+                else begin                             
+                  success = False  ; end     //else condition was missing --(Mohit)
                     
                   return tuple2(success, result);     
             endmethod 
