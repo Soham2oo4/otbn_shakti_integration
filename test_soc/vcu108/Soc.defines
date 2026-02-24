@@ -113,7 +113,7 @@
 `define TraceBase     'h0006_0000
 `define TraceEnd      'h0006_0FFF
 `define MemtraceBase  'h7000_0000
-`define MemtraceEnd   'h7FFF_FFFF
+`define MemtraceEnd   'h700F_FFFF
 `endif
 `define Num_Masters 1
 
