@@ -114,9 +114,11 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
               Mul#(16, b__, data_width),
               Mul#(8, e__, data_width),
               Add#(f__, TLog#(TDiv#(data_width, 8)), addr_width),
-              Add#(g__, 4, addr_width)
+              Add#(g__, 4, addr_width),
+               Add#(h__, TLog#(TDiv#(data_width, 8)), 32),
+               Add#(i__, addr_width, 32),
+               Add#(j__, 32, data_width)
 
-              
           );
                 
       Reg#(Bit#(1))  rg_Active <- mkRegA(0);  //021f
@@ -151,7 +153,8 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
       
       Reg#(Bit#(1))  rg_waiting_resp <- mkRegA(0);
       Reg#(Bit#(2))  rg_size <- mkRegA(0);
-      Reg#(Bit#(addr_width))  rg_address <- mkRegA(fromInteger(memtrace_base));
+     // Reg#(Bit#(addr_width))  rg_address <- mkRegU();
+      Reg#(Bit#(32))  rg_address <- mkRegU(); //hard coded to 32 
 
       
       Wire#(Hart_to_encoder_interface) wr_trace_in    <- mkDWire(unpack(0));
@@ -936,7 +939,13 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                 Bool success = True;    
               
                 if(addr[7:0] =='h00) begin                             
-                  rg_trace_control <= truncate(data)  ; end  	       
+                  rg_trace_control <= truncate(data)  ; 
+                  
+                  if(data[1]==1'b1)begin
+                   rg_address <= fromInteger(memtrace_base);   //povray
+                  end
+                  
+                  end  	       
                 else  begin                             
                     success = False  ; end 
                   
@@ -949,9 +958,15 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
             Bit#(16) buffer_status = zeroExtend(pack(trace_sink_buffer.count));
                 
                 if(addr[7:0] == 'h00) begin                             
-                  result = duplicate(rg_trace_control) ; end        
+                  result = duplicate(rg_trace_control) ; end 
+                  
+                else if(addr[7:0] == 'h08) begin
+
+                result = zeroExtend(rg_address);   //povray-we can read the address even after resetting the board
+
+                end
                 else begin                             
-                  success = False  ; end     //else condition was missing --(Mohit)
+                  success = False  ; end   
                     
                   return tuple2(success, result);     
             endmethod 
@@ -980,7 +995,13 @@ module mktrace_axi4lite#(parameter Integer memtrace_base, parameter Integer memt
           Add#(16, g__, data_width),
           Mul#(64, h__, data_width),
           Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
-          Add#(j__, 4, addr_width)
+          Add#(j__, 4, addr_width),
+           Add#(k__, TLog#(TDiv#(data_width, 8)), 32),
+           Add#(l__, addr_width, 32),
+           Add#(m__, 32, data_width)
+
+      
+
 
         );
   IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine(memtrace_base, memtrace_end);
@@ -1027,7 +1048,11 @@ module mktrace_axi4#(parameter Integer memtrace_base, parameter Integer memtrace
           Add#(16, g__, data_width),
           Mul#(64, h__, data_width),
           Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
-          Add#(j__, 4, addr_width)
+          Add#(j__, 4, addr_width),
+           Add#(k__, TLog#(TDiv#(data_width, 8)), 32),
+           Add#(l__, addr_width, 32),
+           Add#(m__, 32, data_width)
+           
         );
   IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine(memtrace_base, memtrace_end);
   AXI4_Slave_Xactor_IFC#(addr_width,id_width,data_width,user_width) s_xactor<-mkAXI4_Slave_Xactor();
