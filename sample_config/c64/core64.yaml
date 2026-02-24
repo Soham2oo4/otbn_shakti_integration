@@ -60,7 +60,7 @@ bus_protocol_configuration:
   userspace_width: 1
 bsc_compile_options:
 #Addr_space = 22 
-test_memory_size: 4194304  
+  test_memory_size: 4194304  
   assertions: true
   ovl_assertions: False
   sva_assertions: False
