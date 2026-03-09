@@ -27,7 +27,7 @@ package mixed_cluster;
     method Action interrupts(Bit#(7) inp);
 	//	method Action interrupts(Bit#(13) inp);
     interface AXI4_Lite_Slave_IFC#(`paddr, `buswidth, `USERSPACE) slave;
-    interface AXI4_Lite_Master_IFC#(`paddr, `buswidth, `USERSPACE) xadc_master;
+//    interface AXI4_Lite_Master_IFC#(`paddr, `buswidth, `USERSPACE) xadc_master;
   endinterface
 /*
   (*synthesize*)
@@ -77,8 +77,8 @@ package mixed_cluster;
       slave_num = `I2C0_slave_num;
 */
 
-    else if(addr>= `XADCBase && addr<= `XADCEnd)
-      slave_num = `XADC_slave_num;
+//    else if(addr>= `XADCBase && addr<= `XADCEnd)
+//      slave_num = `XADC_slave_num;
     else if(addr >= `PinmuxBase && addr <= `PinmuxEnd)
       slave_num = `Pinmux_slave_num;
     else
@@ -144,7 +144,7 @@ package mixed_cluster;
     interface pinmuxtop_iocell_side = pinmuxtop.pinmuxaxi4lite_iocell_side;
     interface pinmuxtop_peripheral_side = pinmuxtop.pinmuxaxi4lite_peripheral_side;
     interface slave= c2s_xactor.axi_side;
-    interface xadc_master = fabric.v_to_slaves[`XADC_slave_num];
+//    interface xadc_master = fabric.v_to_slaves[`XADC_slave_num];
   endmodule
 endpackage
 

@@ -18,18 +18,15 @@ package Soc;
   // peripheral imports
   import clint::*;
   import err_slave::*;
- // import pwm_cluster :: * ;
   import uart_cluster :: * ;
   import spi_cluster :: * ;
   import mixed_cluster :: * ;
   import uart :: *;
   import sspi :: *;
- // import pwm :: *;
- // import i2c :: *;
- // import gpio :: *;
   import csrbox :: * ;
    `ifdef etrace_support
        import instruction_encoder :: * ;
+       import EthStream::*;
    `endif
   import bram :: *;
 `ifdef debug
@@ -81,9 +78,6 @@ package Soc;
   
   function Bit#(TLog#(`Num_Slaves)) fn_slave_map (Bit#(`paddr) addr);
     Bit#(TLog#(`Num_Slaves)) slave_num = 0;
-  //  if(addr >= `PWMClusterBase && addr <= `PWMClusterEnd)
-  //    slave_num = `PWMCluster_slave_num;
-  //  else
     if(addr >= `UARTClusterBase && addr <= `UARTClusterEnd)
       slave_num = `UARTCluster_slave_num;
     else if(addr >= `SPIClusterBase && addr <= `SPIClusterEnd)
@@ -102,148 +96,15 @@ package Soc;
 
   interface Ifc_chip_io;
     interface Ifc_sspi_io spi0_io;
-//    interface Ifc_spi_io spi2_io;
     interface RS232 uart0_io;
-	//	method I2C_out i2c0_out;									//I2c IO interface
-	//	method I2C_out i2c1_out;									//I2c IO interface
     (*always_ready, always_enabled*)
-    interface AXI4_Lite_Master_IFC#(`paddr, `buswidth, `USERSPACE) xadc_master;
-    interface AXI4_Lite_Master_IFC#(`paddr, `buswidth, `USERSPACE) eth_master;
+    interface AXI4_Lite_Master_IFC#(`paddr, `buswidth, `USERSPACE) to_eth_master;
+    //interface AXI4_Lite_Slave_IFC#(`paddr, 32, `USERSPACE) to_eth_slave;
     interface AXI4_Master_IFC#(`paddr,  `axi4_id_width, `buswidth, `USERSPACE) mem_master;
     interface IOCellSide iocell_io;
-   /*   
-    (*always_enabled,always_ready*)
-    method Action  gpio_4(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_7(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_8(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_14(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_15(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_16(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_17(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_18(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_19(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_20(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_21(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_22(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_23(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_24(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_25(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_26(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_27(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_28(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_29(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_30(Bit#(1) in);
-    (*always_enabled,always_ready*)
-    method Action  gpio_31(Bit#(1) in);
-
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_4_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_7_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_8_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_14_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_15_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_16_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_17_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_18_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_19_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_20_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_21_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_22_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_23_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_24_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_25_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_26_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_27_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_28_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_29_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_30_out;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_31_out;
-
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_4_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_7_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_8_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_14_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_15_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_16_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_17_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_18_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_19_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_20_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_21_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_22_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_23_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_24_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_25_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_26_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_27_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_28_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_29_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_30_outen;
-    (*always_enabled,always_ready*)
-    method Bit#(1)gpio_31_outen;
-    */
     (*always_ready, always_enabled*)
     method Action ext_interrupts(Bit#(2) i);
-  endinterface
+   endinterface   
 
   interface Ifc_soc_sb;
   `ifdef rtldump
@@ -282,20 +143,20 @@ package Soc;
       core_reset[i] = curr_reset;
     `endif
     end
-
+		
     Ifc_ccore_axi4 ccore <- mkccore_axi4(`resetpc, 0);
 
     AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr,`axi4_id_width, `buswidth, `USERSPACE) 
                                                     fabric <- mkAXI4_Fabric(fn_slave_map_fast);
+    AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr,`axi4_id_width, `buswidth, `USERSPACE)
+                                                      trace_fabric <- mkAXI4_Fabric(fn_slave_map_fast);                                                
     Ifc_clint_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, 1, 512) clint <- mkclint_axi4();
-  //`ifdef debug
-    //Ifc_debug_halt_loop_axi4#(`paddr, `buswidth, `USERSPACE) debug_memory <- mkdebug_halt_loop_axi4;
-  //`endif
     Ifc_err_slave_axi4#(`paddr,`axi4_id_width,`buswidth, `USERSPACE) fast_err_slave <- mkerr_slave_axi4;
 
     AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, `buswidth, `USERSPACE) 
                                                         slow_fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
-   // Ifc_pwm_cluster pwm_cluster <- mkpwm_cluster;
+     AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, `buswidth, `USERSPACE)  
+                                                        slow_trace_fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
     Ifc_uart_cluster uart_cluster <- mkuart_cluster;
     Ifc_spi_cluster spi_cluster <- mkspi_cluster;
     Ifc_mixed_cluster mixed_cluster <- mkmixed_cluster;
@@ -305,34 +166,15 @@ package Soc;
       Ifc_sign_dump signature <- mksign_dump();
     `endif
     Wire#(Bit#(2)) wr_ext_interrupts <- mkWire();
-/*
-    Wire#(Bit#(1)) wr_gpio4_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio7_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio8_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio14_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio15_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio16_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio17_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio18_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio19_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio20_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio21_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio22_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio23_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio24_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio25_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio26_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio27_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio28_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio29_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio30_in <- mkDWire(0);
-    Wire#(Bit#(1)) wr_gpio31_in <- mkDWire(0);
-*/
-`ifdef etrace_support 
+   `ifdef etrace_support 
     Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE) trace <- mktrace_axi4(`MemtraceBase, `MemtraceEnd);
     Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
                                                 "trace.mem", "TraceMEM");
-`endif
+// ethernetstream
+    Ifc_ethstream ethStream <- mkEthStream;     
+    AXI4_Lite_Slave_Xactor_IFC#(`paddr, 32, `USERSPACE) eth_xactor <- mkAXI4_Lite_Slave_Xactor;
+    let to_eth_slave = eth_xactor.axi_side;                                      
+   `endif
 
 
   `ifdef debug
@@ -367,16 +209,7 @@ package Soc;
                                 spi_cluster.spi1_sb_interrupt,
                                 wr_ext_interrupts, uart_cluster.uart_interrupts});
 
-/* 
-      mixed_cluster.interrupts({spi_cluster.spi0_sb_interrupt,
-                                spi_cluster.spi1_sb_interrupt,
-                                wr_ext_interrupts, uart_cluster.uart_interrupts, pwm_cluster.pwm0_sb_interrupt, 
-                                                  pwm_cluster.pwm1_sb_interrupt, 
-                                                  pwm_cluster.pwm2_sb_interrupt, 
-                                                  pwm_cluster.pwm3_sb_interrupt, 
-                                                  pwm_cluster.pwm4_sb_interrupt, 
-                                                  pwm_cluster.pwm5_sb_interrupt});
-*/
+
     endrule 
 
 
@@ -390,6 +223,8 @@ package Soc;
 
     `ifdef etrace_support 
        mkConnection (trace.master, fabric.v_from_masters[valueOf(`Trace_master_num) ]); 
+       mkConnection(ethStream.bram, fabric.v_from_masters[`EthStream_master_num]);
+       mkConnection(ethStream.eth, to_eth_slave);
     `endif
 
   	mkConnection (fabric.v_to_slaves [`Clint_slave_num ],clint.slave);
@@ -415,66 +250,32 @@ package Soc;
     `endif
 
 
-     `ifdef etrace_support 	
-       mkConnection(fabric.v_to_slaves[`Trace_slave_num]   , trace.slave); 
+     `ifdef etrace_support 
+       mkConnection(fabric.v_to_slaves[`Trace_slave_num] , trace.slave);
        mkConnection(fabric.v_to_slaves[`Memtrace_slave_num]
-       , main_memory_trace.slave);         
+                                        , main_memory_trace.slave);
 
-       rule ing_in;
-       trace.trace_interface(
-             zeroExtend(ccore.etrace_ingress_port.itype),
-                         ccore.etrace_ingress_port.cause,
-                         ccore.etrace_ingress_port.tval,
-              zeroExtend(ccore.etrace_ingress_port.priv),
-                         ccore.etrace_ingress_port.iaddr,
-              zeroExtend(ccore.etrace_ingress_port.iretire),
-                       ccore.etrace_ingress_port.ilastsize);  
-
-               /*$display( "in_soc_val:= %d,%d,%h,%d,%h,0,0,%d,%d",
-                         ccore[i].etrace_ingress_port.itype,
-                         ccore[i].etrace_ingress_port.cause,
-                         ccore[i].etrace_ingress_port.tval,
-                         ccore[i].etrace_ingress_port.priv,
-                         ccore[i].etrace_ingress_port.iaddr,
-                         ccore[i].etrace_ingress_port.iretire,
-                         ccore[i].etrace_ingress_port.ilastsize  )  ;    */  
+      rule ing_in;
+      trace.trace_interface(
+        zeroExtend(ccore.etrace_ingress_port.itype),
+                    ccore.etrace_ingress_port.cause,
+                    ccore.etrace_ingress_port.tval,
+         zeroExtend(ccore.etrace_ingress_port.priv),
+                    ccore.etrace_ingress_port.iaddr,
+         zeroExtend(ccore.etrace_ingress_port.iretire),
+                  ccore.etrace_ingress_port.ilastsize);  
        endrule
+
+
+       Reg#(Bool) started <- mkReg(False);
+       rule start_stream (!started);
+        ethStream.start(`MemtraceBase, 1024);  //just trying to get only 1mb data to confirm working
+        started <= True;
+      endrule
     `endif
 
+      
     rule connect_pinmux_peripheral_output_lines;
-      /*
-      mixed_cluster.pinmuxtop_peripheral_side.pwm0.out.put(pwm_cluster.pwm0_io);
-      mixed_cluster.pinmuxtop_peripheral_side.pwm1.out.put(pwm_cluster.pwm1_io);
-      mixed_cluster.pinmuxtop_peripheral_side.pwm2.out.put(pwm_cluster.pwm2_io);
-      mixed_cluster.pinmuxtop_peripheral_side.pwm3.out.put(pwm_cluster.pwm3_io);
-      mixed_cluster.pinmuxtop_peripheral_side.pwm4.out.put(pwm_cluster.pwm4_io);
-      mixed_cluster.pinmuxtop_peripheral_side.pwm5.out.put(pwm_cluster.pwm5_io);
-
-		  mixed_cluster.pinmuxtop_peripheral_side.gpioa.out.put(
-						{ mixed_cluster.gpio_io.gpio_out[13],
-						  mixed_cluster.gpio_io.gpio_out[12],
-						  mixed_cluster.gpio_io.gpio_out[11],
-						  mixed_cluster.gpio_io.gpio_out[10],
-						  mixed_cluster.gpio_io.gpio_out[9],
-						  mixed_cluster.gpio_io.gpio_out[6],
-						  mixed_cluster.gpio_io.gpio_out[5],
-						  mixed_cluster.gpio_io.gpio_out[3],
-						  mixed_cluster.gpio_io.gpio_out[2],
-						  mixed_cluster.gpio_io.gpio_out[1],
-    					mixed_cluster.gpio_io.gpio_out[0]} );
-		  mixed_cluster.pinmuxtop_peripheral_side.gpioa.out_en.put(
-						{ mixed_cluster.gpio_io.gpio_out_en[13],
-						  mixed_cluster.gpio_io.gpio_out_en[12],
-						  mixed_cluster.gpio_io.gpio_out_en[11],
-						  mixed_cluster.gpio_io.gpio_out_en[10],
-						  mixed_cluster.gpio_io.gpio_out_en[9],
-						  mixed_cluster.gpio_io.gpio_out_en[6],
-						  mixed_cluster.gpio_io.gpio_out_en[5],
-						  mixed_cluster.gpio_io.gpio_out_en[3],
-						  mixed_cluster.gpio_io.gpio_out_en[2],
-						  mixed_cluster.gpio_io.gpio_out_en[1],
-						  mixed_cluster.gpio_io.gpio_out_en[0]} );
-              */
 
        mixed_cluster.pinmuxtop_peripheral_side.pwm0.out.put(0);
        mixed_cluster.pinmuxtop_peripheral_side.pwm1.out.put(0);
@@ -500,43 +301,6 @@ package Soc;
     endrule
 
     rule connect_pinmux_peripheral_input_lines;
-      /*
-		  let pinmux_gpio_in <- (mixed_cluster.pinmuxtop_peripheral_side.gpioa.in.get);
-      let gpio_in_combined = unpack({
-			  wr_gpio31_in,
-			  wr_gpio30_in,
-			  wr_gpio29_in,
-			  wr_gpio28_in,
-			  wr_gpio27_in,
-			  wr_gpio26_in,
-			  wr_gpio25_in,
-			  wr_gpio24_in,
-			  wr_gpio23_in,
-			  wr_gpio22_in,
-			  wr_gpio21_in,
-			  wr_gpio20_in,
-			  wr_gpio19_in,
-			  wr_gpio18_in,
-			  wr_gpio17_in,
-			  wr_gpio16_in,
-			  wr_gpio15_in,
-			  wr_gpio14_in,
-			  pinmux_gpio_in[10],
-			  pinmux_gpio_in[9],
-			  pinmux_gpio_in[8],
-			  pinmux_gpio_in[7],
-			  pinmux_gpio_in[6],
-			  wr_gpio8_in,
-			  wr_gpio7_in,
-			  pinmux_gpio_in[5],
-			  pinmux_gpio_in[4],
-			  wr_gpio4_in,
-			  pinmux_gpio_in[3],
-			  pinmux_gpio_in[2],
-			  pinmux_gpio_in[1],
-			  pinmux_gpio_in[0]	});
-		   mixed_cluster.gpio_io.gpio_in(gpio_in_combined);
-       */
 		   let pinmux_gpio_in <- (mixed_cluster.pinmuxtop_peripheral_side.gpioa.in.get);
 		   let pinmux_spi1_miso <- mixed_cluster.pinmuxtop_peripheral_side.mspi.miso_in.get;
 		   let pinmux_spi1_mosi <- mixed_cluster.pinmuxtop_peripheral_side.mspi.mosi_in.get;
@@ -569,123 +333,10 @@ package Soc;
     endinterface;
 
   interface chip_io = interface Ifc_chip_io
-  /*
-    method Action  gpio_4(Bit#(1) in);
-         wr_gpio4_in <= in;
-    endmethod
-    method Action  gpio_7(Bit#(1) in);
-         wr_gpio7_in <= in;
-    endmethod
-    method Action  gpio_8(Bit#(1) in);
-         wr_gpio8_in <= in;
-    endmethod
-    method Action  gpio_14(Bit#(1) in);
-         wr_gpio14_in <= in;
-    endmethod
-    method Action  gpio_15(Bit#(1) in);
-         wr_gpio15_in <= in;
-    endmethod
-    method Action  gpio_16(Bit#(1) in);
-         wr_gpio16_in <= in;
-    endmethod
-    method Action  gpio_17(Bit#(1) in);
-         wr_gpio17_in <= in;
-    endmethod
-    method Action  gpio_18(Bit#(1) in);
-         wr_gpio18_in <= in;
-    endmethod
-    method Action  gpio_19(Bit#(1) in);
-         wr_gpio19_in <= in;
-    endmethod
-    method Action  gpio_20(Bit#(1) in);
-         wr_gpio20_in <= in;
-    endmethod
-    method Action  gpio_21(Bit#(1) in);
-         wr_gpio21_in <= in;
-    endmethod
-    method Action  gpio_22(Bit#(1) in);
-         wr_gpio22_in <= in;
-    endmethod
-    method Action  gpio_23(Bit#(1) in);
-         wr_gpio23_in <= in;
-    endmethod
-    method Action  gpio_24(Bit#(1) in);
-         wr_gpio24_in <= in;
-    endmethod
-    method Action  gpio_25(Bit#(1) in);
-         wr_gpio25_in <= in;
-    endmethod
-    method Action  gpio_26(Bit#(1) in);
-         wr_gpio26_in <= in;
-    endmethod
-    method Action  gpio_27(Bit#(1) in);
-         wr_gpio27_in <= in;
-    endmethod
-    method Action  gpio_28(Bit#(1) in);
-         wr_gpio28_in <= in;
-    endmethod
-    method Action  gpio_29(Bit#(1) in);
-         wr_gpio29_in <= in;
-    endmethod
-    method Action  gpio_30(Bit#(1) in);
-         wr_gpio30_in <= in;
-    endmethod
-    method Action  gpio_31(Bit#(1) in);
-         wr_gpio31_in <= in;
-    endmethod
-
-    method Bit#(1)gpio_4_out = mixed_cluster.gpio_io.gpio_out[4];
-    method Bit#(1)gpio_7_out = mixed_cluster.gpio_io.gpio_out[7];
-    method Bit#(1)gpio_8_out = mixed_cluster.gpio_io.gpio_out[8];
-    method Bit#(1)gpio_14_out = mixed_cluster.gpio_io.gpio_out[14];
-    method Bit#(1)gpio_15_out = mixed_cluster.gpio_io.gpio_out[15];
-    method Bit#(1)gpio_16_out = mixed_cluster.gpio_io.gpio_out[16];
-    method Bit#(1)gpio_17_out = mixed_cluster.gpio_io.gpio_out[17];
-    method Bit#(1)gpio_18_out = mixed_cluster.gpio_io.gpio_out[18];
-    method Bit#(1)gpio_19_out = mixed_cluster.gpio_io.gpio_out[19];
-    method Bit#(1)gpio_20_out = mixed_cluster.gpio_io.gpio_out[20];
-    method Bit#(1)gpio_21_out = mixed_cluster.gpio_io.gpio_out[21];
-    method Bit#(1)gpio_22_out = mixed_cluster.gpio_io.gpio_out[22];
-    method Bit#(1)gpio_23_out = mixed_cluster.gpio_io.gpio_out[23];
-    method Bit#(1)gpio_24_out = mixed_cluster.gpio_io.gpio_out[24];
-    method Bit#(1)gpio_25_out = mixed_cluster.gpio_io.gpio_out[25];
-    method Bit#(1)gpio_26_out = mixed_cluster.gpio_io.gpio_out[26];
-    method Bit#(1)gpio_27_out = mixed_cluster.gpio_io.gpio_out[27];
-    method Bit#(1)gpio_28_out = mixed_cluster.gpio_io.gpio_out[28];
-    method Bit#(1)gpio_29_out = mixed_cluster.gpio_io.gpio_out[29];
-    method Bit#(1)gpio_30_out = mixed_cluster.gpio_io.gpio_out[30];
-    method Bit#(1)gpio_31_out = mixed_cluster.gpio_io.gpio_out[31];
-
-    method gpio_4_outen = mixed_cluster.gpio_io.gpio_out_en[4];
-    method gpio_7_outen = mixed_cluster.gpio_io.gpio_out_en[7];
-    method gpio_8_outen = mixed_cluster.gpio_io.gpio_out_en[8];
-    method gpio_14_outen = mixed_cluster.gpio_io.gpio_out_en[14];
-    method gpio_15_outen = mixed_cluster.gpio_io.gpio_out_en[15];
-    method gpio_16_outen = mixed_cluster.gpio_io.gpio_out_en[16];
-    method gpio_17_outen = mixed_cluster.gpio_io.gpio_out_en[17];
-    method gpio_18_outen = mixed_cluster.gpio_io.gpio_out_en[18];
-    method gpio_19_outen = mixed_cluster.gpio_io.gpio_out_en[19];
-    method gpio_20_outen = mixed_cluster.gpio_io.gpio_out_en[20];
-    method gpio_21_outen = mixed_cluster.gpio_io.gpio_out_en[21];
-    method gpio_22_outen = mixed_cluster.gpio_io.gpio_out_en[22];
-    method gpio_23_outen = mixed_cluster.gpio_io.gpio_out_en[23];
-    method gpio_24_outen = mixed_cluster.gpio_io.gpio_out_en[24];
-    method gpio_25_outen = mixed_cluster.gpio_io.gpio_out_en[25];
-    method gpio_26_outen = mixed_cluster.gpio_io.gpio_out_en[26];
-    method gpio_27_outen = mixed_cluster.gpio_io.gpio_out_en[27];
-    method gpio_28_outen = mixed_cluster.gpio_io.gpio_out_en[28];
-    method gpio_29_outen = mixed_cluster.gpio_io.gpio_out_en[29];
-    method gpio_30_outen = mixed_cluster.gpio_io.gpio_out_en[30];
-    method gpio_31_outen = mixed_cluster.gpio_io.gpio_out_en[31];
-    */
-    interface spi0_io = spi_cluster.spi0_io;
-//    interface spi1_io = spi_cluster.spi1_io;
+     interface spi0_io = spi_cluster.spi0_io;
     interface uart0_io = uart_cluster.uart0_io;
-		//method  i2c0_out = mixed_cluster.i2c0_out;									//I2c IO interface
-		//method  i2c1_out = mixed_cluster.i2c1_out;									//I2c IO interface
     interface iocell_io = mixed_cluster.pinmuxtop_iocell_side;						//GPIO IO interface
-    interface xadc_master = mixed_cluster.xadc_master;
-    interface eth_master = slow_fabric.v_to_slaves[`Eth_slave_num];
+    interface to_eth_master= slow_fabric.v_to_slaves[`Eth_slave_num];
     interface mem_master = fabric.v_to_slaves [`Memory_slave_num];
     method Action ext_interrupts(Bit#(2) i);
       wr_ext_interrupts <= i;
