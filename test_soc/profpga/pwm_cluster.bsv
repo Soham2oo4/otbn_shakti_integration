@@ -9,6 +9,7 @@ package pwm_cluster;
   import GetPut:: *;
   
   `include "Soc.defines"
+  `define axil_buswidth 32
 
   function Bit#(TLog#(`PWMCluster_Num_Slaves)) fn_slave_map (Bit#(`paddr) addr);
     Bool slave_exist = True;
@@ -40,11 +41,11 @@ package pwm_cluster;
     method Bit#(1) pwm4_sb_interrupt;
     (*always_ready, always_enabled*)
     method Bit#(1) pwm5_sb_interrupt;
-    interface AXI4_Lite_Slave_IFC#(`paddr, `buswidth, `USERSPACE) slave;
+    interface AXI4_Lite_Slave_IFC#(`paddr, `axil_buswidth, `USERSPACE) slave;
   endinterface
 
   (*synthesize*)
-  module mkpwm(Ifc_pwm_axi4lite#(`paddr, `buswidth, `USERSPACE, 32, 6));
+  module mkpwm(Ifc_pwm_axi4lite#(`paddr, `axil_buswidth, `USERSPACE, 32, 6));
 	  let core_clock<-exposeCurrentClock;
   	let core_reset<-exposeCurrentReset;
     let ifc();
@@ -56,12 +57,12 @@ package pwm_cluster;
   module mkpwm_cluster(Ifc_pwm_cluster);
     let curr_clk<- exposeCurrentClock;
     let curr_reset <- exposeCurrentReset;
-		AXI4_Lite_Master_Xactor_IFC #(`paddr, `buswidth, `USERSPACE) c2m_xactor <- mkAXI4_Lite_Master_Xactor;
-		AXI4_Lite_Slave_Xactor_IFC #(`paddr, `buswidth, `USERSPACE) c2s_xactor <- mkAXI4_Lite_Slave_Xactor;
-    AXI4_Lite_Fabric_IFC #(`PWMCluster_Num_Masters, `PWMCluster_Num_Slaves, `paddr, `buswidth,`USERSPACE) 
+		AXI4_Lite_Master_Xactor_IFC #(`paddr, `axil_buswidth, `USERSPACE) c2m_xactor <- mkAXI4_Lite_Master_Xactor;
+		AXI4_Lite_Slave_Xactor_IFC #(`paddr, `axil_buswidth, `USERSPACE) c2s_xactor <- mkAXI4_Lite_Slave_Xactor;
+    AXI4_Lite_Fabric_IFC #(`PWMCluster_Num_Masters, `PWMCluster_Num_Slaves, `paddr, `axil_buswidth,`USERSPACE) 
                                                     fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
     let pwm0 <- mkpwm();
-    Ifc_err_slave_axi4lite#(`paddr, `buswidth, `USERSPACE ) err_slave <- mkerr_slave_axi4lite;
+    Ifc_err_slave_axi4lite#(`paddr, `axil_buswidth, `USERSPACE ) err_slave <- mkerr_slave_axi4lite;
    	
    	mkConnection(c2m_xactor.axi_side, fabric.v_from_masters[0]);
 

@@ -9,6 +9,7 @@ package spi_cluster;
   import GetPut:: *;
   
   `include "Soc.defines"
+  `define axil_buswidth 32
 
   function Bit#(TLog#(`SPICluster_Num_Slaves)) fn_slave_map (Bit#(`paddr) addr);
     Bool slave_exist = True;
@@ -33,11 +34,11 @@ package spi_cluster;
     method Bit#(1) spi0_sb_interrupt;
     (*always_ready, always_enabled*)
     method Bit#(1) spi1_sb_interrupt;
-    interface AXI4_Lite_Slave_IFC#(`paddr, `buswidth, `USERSPACE) slave;
+    interface AXI4_Lite_Slave_IFC#(`paddr, `axil_buswidth, `USERSPACE) slave;
   endinterface
 
   (*synthesize*)
-  module mkspi(Ifc_sspi_axi4lite#(`paddr, `buswidth, `USERSPACE));
+  module mkspi(Ifc_sspi_axi4lite#(`paddr, `axil_buswidth, `USERSPACE));
     let ifc();
     mksspi_axi4lite _temp(ifc);
     return ifc;
@@ -47,14 +48,14 @@ package spi_cluster;
   module mkspi_cluster(Ifc_spi_cluster);
     let curr_clk<- exposeCurrentClock;
     let curr_reset <- exposeCurrentReset;
-		AXI4_Lite_Master_Xactor_IFC #(`paddr, `buswidth, `USERSPACE) c2m_xactor <- mkAXI4_Lite_Master_Xactor;
-		AXI4_Lite_Slave_Xactor_IFC #(`paddr, `buswidth, `USERSPACE) c2s_xactor <- mkAXI4_Lite_Slave_Xactor;
-    AXI4_Lite_Fabric_IFC #(`SPICluster_Num_Masters, `SPICluster_Num_Slaves, `paddr, `buswidth, `USERSPACE) 
+		AXI4_Lite_Master_Xactor_IFC #(`paddr, `axil_buswidth, `USERSPACE) c2m_xactor <- mkAXI4_Lite_Master_Xactor;
+		AXI4_Lite_Slave_Xactor_IFC #(`paddr, `axil_buswidth, `USERSPACE) c2s_xactor <- mkAXI4_Lite_Slave_Xactor;
+    AXI4_Lite_Fabric_IFC #(`SPICluster_Num_Masters, `SPICluster_Num_Slaves, `paddr, `axil_buswidth, `USERSPACE) 
                                                     fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
     let spi0 <- mkspi();
     let spi1 <- mkspi();
 //    let spi2 <- mkspi();
-    Ifc_err_slave_axi4lite#(`paddr, `buswidth, `USERSPACE ) err_slave <- mkerr_slave_axi4lite;
+    Ifc_err_slave_axi4lite#(`paddr, `axil_buswidth, `USERSPACE ) err_slave <- mkerr_slave_axi4lite;
    	
    	mkConnection(c2m_xactor.axi_side, fabric.v_from_masters[0]);
 

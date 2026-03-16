@@ -14,6 +14,7 @@ package Soc;
   import GetPut :: * ;
   import Connectable :: * ;
   `include "Soc.defines"
+  `define axil_buswidth 32
 
   // peripheral imports
   import clint::*;
@@ -98,7 +99,7 @@ package Soc;
     interface Ifc_sspi_io spi0_io;
     interface RS232 uart0_io;
     (*always_ready, always_enabled*)
-    interface AXI4_Lite_Master_IFC#(`paddr, `buswidth, `USERSPACE) to_eth_master;
+    interface AXI4_Lite_Master_IFC#(`paddr, `axil_buswidth, `USERSPACE) eth_master;
     //interface AXI4_Lite_Slave_IFC#(`paddr, 32, `USERSPACE) to_eth_slave;
     interface AXI4_Master_IFC#(`paddr,  `axi4_id_width, `buswidth, `USERSPACE) mem_master;
     interface IOCellSide iocell_io;
@@ -148,19 +149,17 @@ package Soc;
 
     AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr,`axi4_id_width, `buswidth, `USERSPACE) 
                                                     fabric <- mkAXI4_Fabric(fn_slave_map_fast);
-    AXI4_Fabric_IFC #(`Num_Fast_Masters, `Num_Fast_Slaves, `paddr,`axi4_id_width, `buswidth, `USERSPACE)
-                                                      trace_fabric <- mkAXI4_Fabric(fn_slave_map_fast);                                                
+                                               
     Ifc_clint_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, 1, 512) clint <- mkclint_axi4();
     Ifc_err_slave_axi4#(`paddr,`axi4_id_width,`buswidth, `USERSPACE) fast_err_slave <- mkerr_slave_axi4;
 
-    AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, `buswidth, `USERSPACE) 
+    AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, `axil_buswidth, `USERSPACE) 
                                                         slow_fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
-     AXI4_Lite_Fabric_IFC #(`Num_Masters, `Num_Slaves, `paddr, `buswidth, `USERSPACE)  
-                                                        slow_trace_fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
+
     Ifc_uart_cluster uart_cluster <- mkuart_cluster;
     Ifc_spi_cluster spi_cluster <- mkspi_cluster;
     Ifc_mixed_cluster mixed_cluster <- mkmixed_cluster;
-    Ifc_err_slave_axi4lite#(`paddr,`buswidth, `USERSPACE) err_slave <- mkerr_slave_axi4lite;
+    Ifc_err_slave_axi4lite#(`paddr,`axil_buswidth, `USERSPACE) err_slave <- mkerr_slave_axi4lite;
     Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE,  15) boot <- mkbram_axi4('h1000, "boot.mem","BOOT");
     `ifdef simulate
       Ifc_sign_dump signature <- mksign_dump();
@@ -170,10 +169,7 @@ package Soc;
     Ifc_trace_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE) trace <- mktrace_axi4(`MemtraceBase, `MemtraceEnd);
     Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE, `Addr_space) main_memory_trace <- mkbram_axi4(`MemtraceBase,
                                                 "trace.mem", "TraceMEM");
-// ethernetstream
-    Ifc_ethstream ethStream <- mkEthStream;     
-    AXI4_Lite_Slave_Xactor_IFC#(`paddr, 32, `USERSPACE) eth_xactor <- mkAXI4_Lite_Slave_Xactor;
-    let to_eth_slave = eth_xactor.axi_side;                                      
+    Ifc_ethstream ethStream <- mkEthStream;                          
    `endif
 
 
@@ -223,9 +219,8 @@ package Soc;
 
     `ifdef etrace_support 
        mkConnection (trace.master, fabric.v_from_masters[valueOf(`Trace_master_num) ]); 
-       mkConnection(ethStream.bram, fabric.v_from_masters[`EthStream_master_num]);
-       mkConnection(ethStream.eth, to_eth_slave);
-    `endif
+       mkConnection(ethStream.master, fabric.v_from_masters[`EthStream_master_num]);
+     `endif
 
   	mkConnection (fabric.v_to_slaves [`Clint_slave_num ],clint.slave);
     mkConnection (fabric.v_to_slaves [`FastErr_slave_num ] , fast_err_slave.slave);
@@ -250,30 +245,39 @@ package Soc;
     `endif
 
 
-     `ifdef etrace_support 
-       mkConnection(fabric.v_to_slaves[`Trace_slave_num] , trace.slave);
+     `ifdef etrace_support 	
+       mkConnection(fabric.v_to_slaves[`Trace_slave_num]   , trace.slave); 
        mkConnection(fabric.v_to_slaves[`Memtrace_slave_num]
-                                        , main_memory_trace.slave);
+       , main_memory_trace.slave);         
 
-      rule ing_in;
-      trace.trace_interface(
-        zeroExtend(ccore.etrace_ingress_port.itype),
-                    ccore.etrace_ingress_port.cause,
-                    ccore.etrace_ingress_port.tval,
-         zeroExtend(ccore.etrace_ingress_port.priv),
-                    ccore.etrace_ingress_port.iaddr,
-         zeroExtend(ccore.etrace_ingress_port.iretire),
-                  ccore.etrace_ingress_port.ilastsize);  
+       rule ing_in;
+       trace.trace_interface(
+             zeroExtend(ccore.etrace_ingress_port.itype),
+                         ccore.etrace_ingress_port.cause,
+                         ccore.etrace_ingress_port.tval,
+              zeroExtend(ccore.etrace_ingress_port.priv),
+                         ccore.etrace_ingress_port.iaddr,
+              zeroExtend(ccore.etrace_ingress_port.iretire),
+                       ccore.etrace_ingress_port.ilastsize);  
+
+               /*$display( "in_soc_val:= %d,%d,%h,%d,%h,0,0,%d,%d",
+                         ccore[i].etrace_ingress_port.itype,
+                         ccore[i].etrace_ingress_port.cause,
+                         ccore[i].etrace_ingress_port.tval,
+                         ccore[i].etrace_ingress_port.priv,
+                         ccore[i].etrace_ingress_port.iaddr,
+                         ccore[i].etrace_ingress_port.iretire,
+                         ccore[i].etrace_ingress_port.ilastsize  )  ;    */  
        endrule
+       
+     Reg#(Bool) started <- mkReg(False);
 
-
-       Reg#(Bool) started <- mkReg(False);
-       rule start_stream (!started);
-        ethStream.start(`MemtraceBase, 1024);  //just trying to get only 1mb data to confirm working
+    rule start_stream (!started);
+       ethStream.start(`MemoryBase, 128);
         started <= True;
-      endrule
+    endrule
+   
     `endif
-
       
     rule connect_pinmux_peripheral_output_lines;
 
@@ -336,7 +340,7 @@ package Soc;
      interface spi0_io = spi_cluster.spi0_io;
     interface uart0_io = uart_cluster.uart0_io;
     interface iocell_io = mixed_cluster.pinmuxtop_iocell_side;						//GPIO IO interface
-    interface to_eth_master= slow_fabric.v_to_slaves[`Eth_slave_num];
+    interface eth_master= slow_fabric.v_to_slaves[`Eth_slave_num];
     interface mem_master = fabric.v_to_slaves [`Memory_slave_num];
     method Action ext_interrupts(Bit#(2) i);
       wr_ext_interrupts <= i;

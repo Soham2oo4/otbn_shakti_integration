@@ -9,6 +9,7 @@ package uart_cluster;
   import GetPut:: *;
   
   `include "Soc.defines"
+  `define axil_buswidth 32
 
   function Bit#(TLog#(`UARTCluster_Num_Slaves)) fn_slave_map (Bit#(`paddr) addr);
     Bool slave_exist = True;
@@ -29,12 +30,12 @@ package uart_cluster;
     interface RS232 uart0_io;
     interface RS232 uart1_io;
     interface RS232 uart2_io;
-    interface AXI4_Lite_Slave_IFC#(`paddr, `buswidth, `USERSPACE) slave;
+    interface AXI4_Lite_Slave_IFC#(`paddr, `axil_buswidth, `USERSPACE) slave;
     method Bit#(3) uart_interrupts;
   endinterface
 
   (*synthesize*)
-  module mkuart(Ifc_uart_axi4lite#(`paddr, `buswidth, `USERSPACE, 16));
+  module mkuart(Ifc_uart_axi4lite#(`paddr, `axil_buswidth, `USERSPACE, 16));
 	  let core_clock<-exposeCurrentClock;
   	let core_reset<-exposeCurrentReset;
     let ifc();
@@ -50,14 +51,14 @@ package uart_cluster;
   module mkuart_cluster(Ifc_uart_cluster);
     let curr_clk<- exposeCurrentClock;
     let curr_reset <- exposeCurrentReset;
-		AXI4_Lite_Master_Xactor_IFC #(`paddr, `buswidth, `USERSPACE) c2m_xactor <- mkAXI4_Lite_Master_Xactor;
-		AXI4_Lite_Slave_Xactor_IFC #(`paddr, `buswidth, `USERSPACE) c2s_xactor <- mkAXI4_Lite_Slave_Xactor;
-    AXI4_Lite_Fabric_IFC #(`UARTCluster_Num_Masters, `UARTCluster_Num_Slaves, `paddr, `buswidth, `USERSPACE) 
+		AXI4_Lite_Master_Xactor_IFC #(`paddr, `axil_buswidth, `USERSPACE) c2m_xactor <- mkAXI4_Lite_Master_Xactor;
+		AXI4_Lite_Slave_Xactor_IFC #(`paddr, `axil_buswidth, `USERSPACE) c2s_xactor <- mkAXI4_Lite_Slave_Xactor;
+    AXI4_Lite_Fabric_IFC #(`UARTCluster_Num_Masters, `UARTCluster_Num_Slaves, `paddr, `axil_buswidth, `USERSPACE) 
                                                     fabric <- mkAXI4_Lite_Fabric(fn_slave_map);
     let uart0 <- mkuart();
     let uart1 <- mkuart();
     let uart2 <- mkuart();
-    Ifc_err_slave_axi4lite#(`paddr, `buswidth, `USERSPACE ) err_slave <- mkerr_slave_axi4lite;
+    Ifc_err_slave_axi4lite#(`paddr, `axil_buswidth, `USERSPACE ) err_slave <- mkerr_slave_axi4lite;
    	
    	mkConnection(c2m_xactor.axi_side, fabric.v_from_masters[0]);
 
