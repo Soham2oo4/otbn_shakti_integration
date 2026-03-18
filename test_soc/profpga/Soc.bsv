@@ -44,7 +44,6 @@ package Soc;
 
   import pipe_ifcs::*;
 
-
   function Bit#(TLog#(`Num_Fast_Slaves)) fn_slave_map_fast (Bit#(`paddr) addr);
     Bit#(TLog#(`Num_Fast_Slaves)) slave_num = 0;
     if(addr >= `MemoryBase && addr<= `MemoryEnd)
@@ -270,14 +269,13 @@ package Soc;
                          ccore[i].etrace_ingress_port.ilastsize  )  ;    */  
        endrule
        
-     Reg#(Bool) started <- mkReg(False);
-
-    rule start_stream (!started);
-       ethStream.start(`MemoryBase, 128);
-        started <= True;
-    endrule
-   
-    `endif
+       Reg#(Bool) started <- mkReg(False);
+       rule start_stream (!started);
+          ethStream.start(`MemoryBase, `MemoryBase + 'h500, 128);
+           started <= True;
+       endrule
+      
+       `endif
       
     rule connect_pinmux_peripheral_output_lines;
 
