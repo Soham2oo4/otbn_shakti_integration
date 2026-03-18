@@ -81,14 +81,19 @@ set_property -quiet PACKAGE_PIN U40 [get_ports {io13_cell}]
 set_property IOSTANDARD LVCMOS18 [get_ports io13_cell]
 set_property -quiet PACKAGE_PIN V44 [get_ports {io16_cell}]
 set_property IOSTANDARD LVCMOS18 [get_ports io16_cell]
-set_property -quiet PACKAGE_PIN V43 [get_ports {io17_cell}]
+
+#IO21
+set_property -quiet PACKAGE_PIN V43 [get_ports {io17_cell}] #CS
 set_property IOSTANDARD LVCMOS18 [get_ports io17_cell]
-set_property -quiet PACKAGE_PIN R43 [get_ports {io18_cell}]
+#IO22
+set_property -quiet PACKAGE_PIN R43 [get_ports {io18_cell}] #MOSI
 set_property IOSTANDARD LVCMOS18 [get_ports io18_cell]
-set_property -quiet PACKAGE_PIN R42 [get_ports {io19_cell}]
-set_property IOSTANDARD LVCMOS18 [get_ports io19_cell]
-set_property -quiet PACKAGE_PIN A50 [get_ports {io20_cell}]
+#IO23
+set_property -quiet PACKAGE_PIN R42 [get_ports {io20_cell}] #MISO
 set_property IOSTANDARD LVCMOS18 [get_ports io20_cell]
+#IO24
+set_property -quiet PACKAGE_PIN A50 [get_ports {io19_cell}] #SCK
+set_property IOSTANDARD LVCMOS18 [get_ports io19_cell]
 
 set_property -quiet PACKAGE_PIN B50 [get_ports {gpio_4}]
 set_property IOSTANDARD LVCMOS18 [get_ports gpio_4]
