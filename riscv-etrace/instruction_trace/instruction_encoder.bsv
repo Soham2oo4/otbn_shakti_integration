@@ -118,7 +118,10 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                Add#(h__, TLog#(TDiv#(data_width, 8)), 32),
                Add#(i__, addr_width, 32),
                Add#(j__, 32, data_width)
+           //    Add#(i__, data_width, addr_width)
 
+
+              
           );
                 
       Reg#(Bit#(1))  rg_Active <- mkRegA(0);  //021f
@@ -155,6 +158,7 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
       Reg#(Bit#(2))  rg_size <- mkRegA(0);
      // Reg#(Bit#(addr_width))  rg_address <- mkRegU();
       Reg#(Bit#(32))  rg_address <- mkRegU(); //hard coded to 32 
+      Reg#(Bit#(32))  rg_pcend <- mkRegU();
 
       
       Wire#(Hart_to_encoder_interface) wr_trace_in    <- mkDWire(unpack(0));
@@ -927,7 +931,8 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                               if ((iaddr >= 64'h00000000000001000 && iaddr <= 64'hFFFFFFFFFFFFFFFF) /*|| (iaddr >= 64'h0000000000001000 && iaddr <= 64'h0000000000001010) */)  begin 
                                   lv_filter = 1 ; 
                                   //wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) });                      
-                              end                              
+                              end    
+                  rg_pcend <= iaddr[31:0];
                   wr_trace_in <=  unpack({itype, cause, tval, priv , iaddr ,iretire , ilastsize, (rg_iTracing & lv_filter) }); 
                   // $display("inside trace interface:-  %d,%d,%d,%d,%h,0,0,%d,%d" , itype, cause, tval, priv , iaddr ,iretire ,ilastsize);
                   wr_compress_en <= 1; 
@@ -955,6 +960,7 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
             method ActionValue#(Tuple2#(Bool,Bit#(data_width))) read_req(Bit#(addr_width) addr );       
               Bool success = True;
               Bit#(data_width) result = 0;
+            //  Bit#(data_width) temp = 0;
             Bit#(16) buffer_status = zeroExtend(pack(trace_sink_buffer.count));
                 
                 if(addr[7:0] == 'h00) begin                             
@@ -963,6 +969,11 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                 else if(addr[7:0] == 'h08) begin
 
                 result = zeroExtend(rg_address);   //povray-we can read the address even after resetting the board
+
+                end
+                else if(addr[7:0] == 'h10) begin
+
+                result = zeroExtend(rg_pcend);    //saving last executed_pc
 
                 end
                 else begin                             
@@ -1000,7 +1011,7 @@ module mktrace_axi4lite#(parameter Integer memtrace_base, parameter Integer memt
            Add#(l__, addr_width, 32),
            Add#(m__, 32, data_width)
 
-      
+       //    Add#(k__, data_width, addr_width)
 
 
         );
@@ -1049,9 +1060,10 @@ module mktrace_axi4#(parameter Integer memtrace_base, parameter Integer memtrace
           Mul#(64, h__, data_width),
           Add#(i__, TLog#(TDiv#(data_width, 8)), addr_width),
           Add#(j__, 4, addr_width),
-           Add#(k__, TLog#(TDiv#(data_width, 8)), 32),
+                     Add#(k__, TLog#(TDiv#(data_width, 8)), 32),
            Add#(l__, addr_width, 32),
            Add#(m__, 32, data_width)
+         //  Add#(k__, data_width, addr_width)
            
         );
   IFC_trace_engine#(addr_width,id_width,data_width,user_width) trace <- mktrace_engine(memtrace_base, memtrace_end);
