@@ -4,6 +4,11 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.1.0] - 2026-01-07
+--------------------
+- Fix for GDB simulation stalling in test bench of simulation setup.
+- Upstreamed devices 
+
 [5.0.0] - 2025-12-12
 --------------------
 - Added build scripts for simulation c64_c32, FPGA boards VCU108 and Nexys Video.
