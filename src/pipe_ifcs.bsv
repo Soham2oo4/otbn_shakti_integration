@@ -44,6 +44,9 @@ interface Ifc_s0_common;
 
   /*doc:method: Method indicates that the reset sequence is done*/
   method Action ma_reset_done(Bool _done);
+
+  /*doc:method: method to receive the current privilege mode of operation*/
+  method Action ma_priv (Bit#(2) priv);
 endinterface:Ifc_s0_common
 
 `ifdef bpu

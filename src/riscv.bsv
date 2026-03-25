@@ -257,6 +257,7 @@ module mkriscv#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef testmo
     mkConnection(stage3.common.ma_csr_misa_c, stage5.csrs.mv_csr_misa_c);
     mkConnection(stage3.bypass.ma_bypass, lv_bypass);
     mkConnection(stage3.common.ma_priv, stage5.csrs.mv_curr_priv);
+    mkConnection(stage0.common.ma_priv, stage5.csrs.mv_curr_priv);
     mkConnection(stage3.common.ma_mstatus, stage5.csrs.mv_csr_mstatus);
   `ifdef hypervisor
     mkConnection(stage3.common.ma_vs_mode, stage5.csrs.mv_vs_bit);
