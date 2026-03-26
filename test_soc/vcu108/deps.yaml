@@ -3,7 +3,7 @@ c-class:
   checkout: 5.0.0
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
-  checkout: 14.4.3
+  checkout: 14.4.6
 common_bsv:
   url: https://gitlab.com/shaktiproject/common_bsv
   checkout: 3.1.0
