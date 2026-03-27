@@ -4,6 +4,14 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.3.0] - 2026-03-27
+--------------------
+- povray-fix: 
+
+[5.2.0] - 2026-03-27
+--------------------
+- Fix for e-trace support
+
 [5.1.0] - 2026-01-07
 --------------------
 - Fix for GDB simulation stalling in test bench of simulation setup.
