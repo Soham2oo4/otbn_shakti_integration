@@ -6,7 +6,7 @@ This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.htm
 
 [5.3.0] - 2026-03-27
 --------------------
-- povray-fix: 
+- povray-fix: Passing priv through the request instead of sideband connection
 
 [5.2.0] - 2026-03-27
 --------------------
