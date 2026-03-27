@@ -1,6 +1,6 @@
 c-class:
   url: https://gitlab.com/shaktiproject/cores/c-class.git
-  checkout: 5.1.0
+  checkout: 5.3.0
 caches_mmu:
   url: https://gitlab.com/shaktiproject/uncore/caches_mmu
   checkout: 14.4.6
