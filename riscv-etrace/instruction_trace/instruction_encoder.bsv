@@ -157,7 +157,7 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
       Reg#(Bit#(1))  rg_waiting_resp <- mkRegA(0);
       Reg#(Bit#(2))  rg_size <- mkRegA(0);
      // Reg#(Bit#(addr_width))  rg_address <- mkRegU();
-      Reg#(Bit#(32))  rg_address <- mkRegU(); //hard coded to 32 
+      Reg#(Bit#(32))  rg_address <- mkRegU(); //hard coded to 32
       Reg#(Bit#(32))  rg_pcend <- mkRegU();
 
       
@@ -947,7 +947,7 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                   rg_trace_control <= truncate(data)  ; 
                   
                   if(data[1]==1'b1)begin
-                   rg_address <= fromInteger(memtrace_base);   //povray
+                   rg_address <= fromInteger(memtrace_base);
                   end
                   
                   end  	       
@@ -968,7 +968,7 @@ module mktrace_engine#(parameter Integer memtrace_base, parameter Integer memtra
                   
                 else if(addr[7:0] == 'h08) begin
 
-                result = zeroExtend(rg_address);   //povray-we can read the address even after resetting the board
+                result = zeroExtend(rg_address);   // we can read the address even after resetting the board
 
                 end
                 else if(addr[7:0] == 'h10) begin
