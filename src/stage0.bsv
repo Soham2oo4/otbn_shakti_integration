@@ -121,6 +121,9 @@ package stage0;
     Reg#(Bool) rg_hfence[2] <- mkCReg(2, False);
   `endif
 
+  /*doc:wire: wire to hold the current privilege mode*/
+  Wire#(Bit#(2)) wr_priv <- mkWire();
+
 `ifdef bpu
   `ifdef compressed
     /*doc:reg: This register when Valid indicates a 32-bit control instruction on a
@@ -227,7 +230,8 @@ package stage0;
 
         `logLevel( stage0, 0, $format("[%2d]STAGE0: Sending PC:%h to I$. ",hartid, rg_pc[0] & signExtend(3'b100)))
         ff_to_cache.enq(IMem_core_request{address  : rg_pc[0] & signExtend(3'b100),
-                                        epochs  : curr_epoch
+                                        epochs  : curr_epoch,
+                                        priv    : wr_priv
                   `ifdef supervisor    ,sfence  : rg_sfence[0]    `endif
                   `ifdef hypervisor    ,hfence  : rg_hfence[0]    `endif
                   `ifdef ifence        ,fence   : rg_fence[0]     `endif });
@@ -280,6 +284,10 @@ package stage0;
         rg_delayed_redirect[1] <= tagged Invalid;
       `endif
     `endif
+      endmethod
+
+      method Action ma_priv (Bit#(2) priv);
+        wr_priv  <= priv;
       endmethod
     endinterface;
 

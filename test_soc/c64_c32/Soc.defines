@@ -41,6 +41,6 @@
 `ifdef etrace_support 
 `define TraceBase     'h0006_0000
 `define TraceEnd      'h0006_0FFF
-`define MemtraceBase  'h9000_0000
-`define MemtraceEnd   'h9FFF_FFFF
+`define MemtraceBase  'h7000_0000
+`define MemtraceEnd   'h7FFF_FFFF
 `endif

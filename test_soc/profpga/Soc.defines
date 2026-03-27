@@ -3,9 +3,9 @@
 `ifdef debug
 `ifdef etrace_support
 `ifdef simulate
-`define Num_Fast_Masters 5
+`define Num_Fast_Masters 6
 `else
-`define Num_Fast_Masters 4
+`define Num_Fast_Masters 5
 `endif
 `else
 `ifdef simulate
@@ -21,8 +21,9 @@
 
 `ifdef etrace_support
 `define Trace_master_num 3
+`define EthStream_master_num 4
 `ifdef simulate
-`define Sign_master_num 4
+`define Sign_master_num 5
 `endif
 `else
 `ifdef simulate
