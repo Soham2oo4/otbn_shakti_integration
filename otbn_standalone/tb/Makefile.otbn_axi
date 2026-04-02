@@ -1,0 +1,170 @@
+# Makefile for OTBN-over-AXI integration testbench
+#
+# Usage:
+#   make -f Makefile.otbn_axi compile        # compile only
+#   make -f Makefile.otbn_axi run             # compile + run
+#   make -f Makefile.otbn_axi run SIM=vcs     # use VCS instead
+#   make -f Makefile.otbn_axi run WAVES=1     # dump VCD waveforms
+#   make -f Makefile.otbn_axi clean
+
+STANDALONE := $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/..)
+RTL_DIR    := $(STANDALONE)/rtl
+TLUL_DIR   := $(STANDALONE)/tlul/rtl
+PRIM_DIR   := $(STANDALONE)/prim/rtl
+TB_DIR     := $(STANDALONE)/tb
+
+# Simulator: verilator (default), vcs, xcelium
+SIM ?= verilator
+
+# If you have a master filelist for OTBN standalone RTL, point here:
+FILELIST := $(STANDALONE)/otbn_standalone.flist
+
+# Include every directory that may contain packages or headers
+INCDIRS := +incdir+$(RTL_DIR) \
+           +incdir+$(TLUL_DIR) \
+           +incdir+$(PRIM_DIR) \
+           +incdir+$(PRIM_DIR)/dv \
+           +incdir+$(STANDALONE) \
+           +incdir+$(STANDALONE)/ip
+
+BRIDGE_SRC  := $(TLUL_DIR)/axi64_to_tl64_bridge.sv
+WRAPPER_SRC := $(RTL_DIR)/otbn_axi_wrapper.sv
+TB_SRC      := $(TB_DIR)/tb_otbn_axi.sv
+
+WAVES ?= 0
+PLUSARGS :=
+ifeq ($(WAVES),1)
+  PLUSARGS += +dump
+endif
+
+# Generate filelist with correct compile order:
+#   1. Foundation packages (in dependency order)
+#   2. All remaining *_pkg.sv files
+#   3. All non-package .sv files
+$(FILELIST): FORCE
+	@echo "Generating $@ (dependency-ordered) ..."
+	@cd $(STANDALONE) && { \
+	  echo "# Auto-generated — packages first, in dependency order"; \
+	  echo "# Foundation packages"; \
+	  for p in \
+	    prim/rtl/prim_util_pkg.sv \
+	    prim/rtl/prim_mubi_pkg.sv \
+	    prim/rtl/prim_secded_pkg.sv \
+	    prim/rtl/prim_cipher_pkg.sv \
+	    prim/rtl/prim_alert_pkg.sv \
+	    prim/rtl/prim_ram_1p_pkg.sv \
+	    prim/rtl/prim_subreg_pkg.sv \
+	    rtl/top_pkg.sv \
+	    rtl/edn_pkg.sv \
+	    rtl/lc_ctrl_pkg.sv \
+	    rtl/top_racl_pkg.sv \
+	    tlul/rtl/tlul_pkg.sv \
+	    rtl/otbn_pkg.sv \
+	    rtl/otbn_reg_pkg.sv \
+	  ; do \
+	    [ -f "$$p" ] && echo "$$p"; \
+	  done; \
+	  echo "# Remaining packages"; \
+	  find rtl tlul/rtl prim/rtl -name '*_pkg.sv' 2>/dev/null | sort | while read f; do \
+	    grep -qxF "$$f" /dev/stdin 2>/dev/null || echo "$$f"; \
+	  done; \
+	  echo "# All other RTL"; \
+	  find rtl tlul/rtl prim/rtl -name '*.sv' ! -name '*_pkg.sv' 2>/dev/null | sort; \
+	} > $@.tmp
+	@cd $(STANDALONE) && { \
+	  echo "# Auto-generated — packages first, in dependency order"; \
+	  for p in \
+	    prim/rtl/prim_util_pkg.sv \
+	    prim/rtl/prim_mubi_pkg.sv \
+	    prim/rtl/prim_secded_pkg.sv \
+	    prim/rtl/prim_cipher_pkg.sv \
+	    prim/rtl/prim_alert_pkg.sv \
+	    prim/rtl/prim_ram_1p_pkg.sv \
+	    prim/rtl/prim_subreg_pkg.sv \
+	    rtl/top_pkg.sv \
+	    rtl/edn_pkg.sv \
+	    rtl/lc_ctrl_pkg.sv \
+	    rtl/top_racl_pkg.sv \
+	    tlul/rtl/tlul_pkg.sv \
+	    rtl/otbn_pkg.sv \
+	    rtl/otbn_reg_pkg.sv \
+	  ; do \
+	    [ -f "$$p" ] && echo "$$p"; \
+	  done; \
+	  find rtl tlul/rtl prim/rtl -name '*_pkg.sv' 2>/dev/null | sort; \
+	  find rtl tlul/rtl prim/rtl -name '*.sv' ! -name '*_pkg.sv' 2>/dev/null | sort; \
+	} | awk '!seen[$$0]++' > $@
+	@echo "Created $@ with $$(wc -l < $@) entries"
+
+FORCE:
+
+# ======================== Verilator ========================
+ifeq ($(SIM),verilator)
+
+VOBJ := $(TB_DIR)/obj_dir_otbn_axi
+
+compile: $(FILELIST)
+	verilator --cc --exe --build --timing \
+	  --top-module tb_otbn_axi \
+	  -Wall -Wno-fatal \
+	  $(INCDIRS) \
+	  -f $(FILELIST) \
+	  $(BRIDGE_SRC) $(WRAPPER_SRC) $(TB_SRC) \
+	  --Mdir $(VOBJ) \
+	  -o tb_otbn_axi
+
+run: compile
+	$(VOBJ)/tb_otbn_axi $(PLUSARGS)
+
+clean:
+	rm -rf $(VOBJ) tb_otbn_axi.vcd
+
+# ======================== VCS ==============================
+else ifeq ($(SIM),vcs)
+
+SIMDIR := $(TB_DIR)/sim_otbn_axi
+
+compile: $(FILELIST)
+	mkdir -p $(SIMDIR)
+	cd $(SIMDIR) && vcs -full64 -sverilog -timescale=1ns/1ps \
+	  $(INCDIRS) \
+	  -f $(FILELIST) \
+	  $(BRIDGE_SRC) $(WRAPPER_SRC) $(TB_SRC) \
+	  -top tb_otbn_axi \
+	  -o simv
+
+run: compile
+	cd $(SIMDIR) && ./simv $(PLUSARGS)
+
+clean:
+	rm -rf $(SIMDIR) tb_otbn_axi.vcd
+
+# ======================== Xcelium ============================
+else ifeq ($(SIM),xcelium)
+
+SIMDIR := $(TB_DIR)/sim_otbn_axi
+
+compile: $(FILELIST)
+	mkdir -p $(SIMDIR)
+	cd $(SIMDIR) && xrun -compile -sv \
+	  $(INCDIRS) \
+	  -f $(FILELIST) \
+	  $(BRIDGE_SRC) $(WRAPPER_SRC) $(TB_SRC) \
+	  -top tb_otbn_axi
+
+run: compile
+	cd $(SIMDIR) && xrun -R $(PLUSARGS)
+
+clean:
+	rm -rf $(SIMDIR) tb_otbn_axi.vcd
+
+else
+$(error Unknown SIM=$(SIM). Use verilator, vcs, or xcelium)
+endif
+
+flist: clean-flist $(FILELIST)
+
+clean-flist:
+	rm -f $(FILELIST)
+
+.PHONY: compile run clean flist clean-flist FORCE

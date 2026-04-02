@@ -1,0 +1,3 @@
+Vtb_otbn_axi_prim_onehot_mux__W138_I20__DepSet_ha372155b__3.o: \
+ Vtb_otbn_axi_prim_onehot_mux__W138_I20__DepSet_ha372155b__3.cpp \
+ Vtb_otbn_axi__pch.h Vtb_otbn_axi_prim_onehot_mux__W138_I20.h

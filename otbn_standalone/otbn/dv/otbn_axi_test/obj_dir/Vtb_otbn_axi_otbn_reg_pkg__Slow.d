@@ -1,0 +1,2 @@
+Vtb_otbn_axi_otbn_reg_pkg__Slow.o: Vtb_otbn_axi_otbn_reg_pkg__Slow.cpp \
+ Vtb_otbn_axi__pch.h Vtb_otbn_axi__Syms.h Vtb_otbn_axi_otbn_reg_pkg.h

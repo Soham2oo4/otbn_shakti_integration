@@ -1,0 +1,3 @@
+Vtb_otbn_axi_edn_reg_pkg__DepSet_h47dc51de__0__Slow.o: \
+ Vtb_otbn_axi_edn_reg_pkg__DepSet_h47dc51de__0__Slow.cpp \
+ Vtb_otbn_axi__pch.h Vtb_otbn_axi_edn_reg_pkg.h

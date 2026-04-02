@@ -1,0 +1,340 @@
+`timescale 1ns/1ps
+import otp_ctrl_pkg::*;
+import keymgr_pkg::*;
+import tlul_pkg::*;
+import lc_ctrl_pkg::*;
+import prim_alert_pkg::*;
+import prim_ram_1p_pkg::*;
+import edn_pkg::*;
+import prim_mubi_pkg::*;
+
+module dmem_test (
+    input logic rst_ni,
+    input logic rst_otp_ni
+);
+
+  // ------------------
+  // Clocks (internal)
+  // ------------------
+  //100MHz clock
+  logic clk_i;
+  logic clk_otp_i;
+  logic clk_edn_i;
+  initial clk_i = 0;18
+  always #5 clk_i = ~clk_i;
+  initial clk_otp_i = 0;
+  always #5 clk_otp_i = ~clk_otp_i;
+  initial clk_edn_i = 0;
+  always #5 clk_edn_i = ~clk_edn_i;
+
+  logic rst_edn_ni;
+  assign rst_edn_ni = rst_ni;
+
+  // ------------------
+  // TL-UL (minimal tie off)
+  // ------------------
+  tlul_pkg::tl_h2d_t tl_i = '0;
+  tlul_pkg::tl_d2h_t tl_o;
+
+  // ------------------
+  // Idle output
+  // ------------------
+  prim_mubi_pkg::mubi4_t idle_o;
+
+  // ------------------
+  // Interrupt
+  // ------------------
+  logic intr_done_o;
+
+  // ------------------
+  // Alerts (NumAlerts = 2)
+  // ------------------
+  prim_alert_pkg::alert_rx_t [otbn_reg_pkg::NumAlerts-1:0] alert_rx_i;
+  prim_alert_pkg::alert_tx_t [otbn_reg_pkg::NumAlerts-1:0] alert_tx_o;
+
+  // Initialize alert receivers to safe defaults
+  for (genvar i = 0; i < otbn_reg_pkg::NumAlerts; i++) begin : gen_alert_rx
+    assign alert_rx_i[i] = prim_alert_pkg::ALERT_RX_DEFAULT;
+  end
+
+  // ------------------
+  // Lifecycle (safe tie off)
+  // ------------------
+  lc_ctrl_pkg::lc_tx_t lc_escalate_en_i = lc_ctrl_pkg::Off;
+  lc_ctrl_pkg::lc_tx_t lc_rma_req_i     = lc_ctrl_pkg::Off;
+  lc_ctrl_pkg::lc_tx_t lc_rma_ack_o;
+
+  // ------------------
+  // RAM config (tie off)
+  // ------------------
+  prim_ram_1p_pkg::ram_1p_cfg_t ram_cfg_imem_i = '0;
+  prim_ram_1p_pkg::ram_1p_cfg_t ram_cfg_dmem_i = '0;
+  prim_ram_1p_pkg::ram_1p_cfg_rsp_t ram_cfg_rsp_imem_o;
+  prim_ram_1p_pkg::ram_1p_cfg_rsp_t ram_cfg_rsp_dmem_o;
+
+  // ------------------
+  // EDN interface
+  // ------------------
+  edn_pkg::edn_req_t edn_rnd_o;
+  edn_pkg::edn_rsp_t edn_rnd_i;
+  edn_pkg::edn_req_t edn_urnd_o;
+  edn_pkg::edn_rsp_t edn_urnd_i;
+
+  // EDN URND responder — ack every request with dummy entropy on next cycle
+  always_ff @(posedge clk_edn_i or negedge rst_edn_ni) begin
+    if (!rst_edn_ni) begin
+      edn_urnd_i.edn_ack  <= 1'b0;
+      edn_urnd_i.edn_fips <= 1'b1;
+      edn_urnd_i.edn_bus  <= 32'hA5A5A5A5;
+    end else begin
+      edn_urnd_i.edn_ack  <= edn_urnd_o.edn_req;
+      edn_urnd_i.edn_fips <= 1'b1;
+      edn_urnd_i.edn_bus  <= edn_urnd_i.edn_bus + 32'h12345678; // rotating data
+    end
+  end
+
+  // EDN RND responder — same pattern
+  always_ff @(posedge clk_edn_i or negedge rst_edn_ni) begin
+    if (!rst_edn_ni) begin
+      edn_rnd_i.edn_ack  <= 1'b0;
+      edn_rnd_i.edn_fips <= 1'b1;
+      edn_rnd_i.edn_bus  <= 32'h5A5A5A5A;
+    end else begin
+      edn_rnd_i.edn_ack  <= edn_rnd_o.edn_req;
+      edn_rnd_i.edn_fips <= 1'b1;
+      edn_rnd_i.edn_bus  <= edn_rnd_i.edn_bus + 32'h87654321;
+    end
+  end
+
+  // ------------------
+  // OTP key (minimal)
+  // ------------------
+  otp_ctrl_pkg::otbn_otp_key_req_t  otbn_otp_key_o;
+  otp_ctrl_pkg::otbn_otp_key_rsp_t  otbn_otp_key_i;
+
+  // OTP key responder - respond to all requests immediately
+  always_ff @(posedge clk_otp_i or negedge rst_otp_ni) begin
+    if (!rst_otp_ni) begin
+      otbn_otp_key_i.ack <= 1'b0;
+      otbn_otp_key_i.key <= 128'h0;
+      otbn_otp_key_i.nonce <= 64'h0;
+      otbn_otp_key_i.seed_valid <= 1'b0;
+    end else begin
+      // Always acknowledge requests and provide valid key
+      otbn_otp_key_i.ack <= otbn_otp_key_o.req;
+      if (otbn_otp_key_o.req) begin
+        otbn_otp_key_i.key <= 128'hDEADBEEFCAFEBABEDEADBEEFCAFEBABE;
+        otbn_otp_key_i.nonce <= 64'hABCDABCDABCDABCD;
+        otbn_otp_key_i.seed_valid <= 1'b1;
+      end
+    end
+  end
+
+  // ------------------
+  // Key manager
+  // ------------------
+  keymgr_pkg::otbn_key_req_t keymgr_key_i = '0;
+
+  // ------------------
+  // Instantiate DUT
+  // ------------------
+  otbn dut (
+    .clk_i(clk_i),
+    .rst_ni(rst_ni),
+    .tl_i(tl_i),
+    .tl_o(tl_o),
+    .idle_o(idle_o),
+    .intr_done_o(intr_done_o),
+    .alert_rx_i(alert_rx_i),
+    .alert_tx_o(alert_tx_o),
+    .lc_escalate_en_i(lc_escalate_en_i),
+    .lc_rma_req_i(lc_rma_req_i),
+    .lc_rma_ack_o(lc_rma_ack_o),
+    .ram_cfg_imem_i(ram_cfg_imem_i),
+    .ram_cfg_dmem_i(ram_cfg_dmem_i),
+    .ram_cfg_rsp_imem_o(ram_cfg_rsp_imem_o),
+    .ram_cfg_rsp_dmem_o(ram_cfg_rsp_dmem_o),
+    .clk_edn_i(clk_edn_i),
+    .rst_edn_ni(rst_edn_ni),
+    .edn_rnd_o(edn_rnd_o),
+    .edn_rnd_i(edn_rnd_i),
+    .edn_urnd_o(edn_urnd_o),
+    .edn_urnd_i(edn_urnd_i),
+    .clk_otp_i(clk_otp_i),
+    .rst_otp_ni(rst_otp_ni),
+    .otbn_otp_key_o(otbn_otp_key_o),
+    .otbn_otp_key_i(otbn_otp_key_i),
+    .keymgr_key_i(keymgr_key_i)
+  );
+
+  // ------------------
+  // TL-UL Tasks
+  // ------------------
+  task automatic tl_write(input logic [31:0] addr, input logic [31:0] data);
+    begin
+      logic req_done;
+      logic rsp_done;
+      req_done = 1'b0;
+      rsp_done = 1'b0;
+
+      // Assert d_ready throughout so responses can be consumed
+      tl_i.d_ready = 1'b1;
+
+      // Drive request
+      tl_i.a_valid   = 1'b1;
+      tl_i.a_opcode  = tlul_pkg::PutFullData;
+      tl_i.a_address = addr;
+      tl_i.a_data    = data;
+      tl_i.a_mask    = 4'hF;
+      tl_i.a_size    = 2'h2;
+      tl_i.a_source  = 8'h0;
+      tl_i.a_param   = 3'h0;
+
+      tl_i.a_user.rsvd       = '0;
+      tl_i.a_user.instr_type = prim_mubi_pkg::MuBi4False;
+      tl_i.a_user.data_intg  = tlul_pkg::get_data_intg(data);
+      tl_i.a_user.cmd_intg   = tlul_pkg::get_cmd_intg(tl_i);
+
+      // Check both a_ready and d_valid each cycle — they can overlap
+      while (!req_done || !rsp_done) begin
+        @(posedge clk_i);
+        if (!req_done && tl_o.a_ready) begin
+          req_done = 1'b1;
+          tl_i.a_valid = 1'b0;
+        end
+        if (!rsp_done && tl_o.d_valid) begin
+          rsp_done = 1'b1;
+        end
+      end
+
+      @(posedge clk_i);
+      tl_i.d_ready = 1'b0;
+    end
+  endtask
+
+  task automatic tl_read(input logic [31:0] addr, output logic [31:0] data);
+    begin
+      logic req_done;
+      logic rsp_done;
+      req_done = 1'b0;
+      rsp_done = 1'b0;
+
+      // Assert d_ready throughout so responses can be consumed
+      tl_i.d_ready = 1'b1;
+
+      // Drive request
+      tl_i.a_valid   = 1'b1;
+      tl_i.a_opcode  = tlul_pkg::Get;
+      tl_i.a_address = addr;
+      tl_i.a_data    = 32'h0;
+      tl_i.a_mask    = 4'hF;
+      tl_i.a_size    = 2'h2;
+      tl_i.a_source  = 8'h0;
+      tl_i.a_param   = 3'h0;
+
+      tl_i.a_user.rsvd       = '0;
+      tl_i.a_user.instr_type = prim_mubi_pkg::MuBi4False;
+      tl_i.a_user.data_intg  = tlul_pkg::get_data_intg(32'h0);
+      tl_i.a_user.cmd_intg   = tlul_pkg::get_cmd_intg(tl_i);
+
+      // Check both a_ready and d_valid each cycle — they can overlap
+      while (!req_done || !rsp_done) begin
+        @(posedge clk_i);
+        if (!req_done && tl_o.a_ready) begin
+          req_done = 1'b1;
+          tl_i.a_valid = 1'b0;
+        end
+        if (!rsp_done && tl_o.d_valid) begin
+          rsp_done = 1'b1;
+          data = tl_o.d_data;
+        end
+      end
+
+      @(posedge clk_i);
+      tl_i.d_ready = 1'b0;
+    end
+  endtask
+
+  // ------------------
+  // Test Sequence
+  // ------------------
+  localparam OTBN_STATUS_OFFSET = 32'h18;
+  localparam OTBN_DMEM_BASE = 32'h8000;
+  
+  initial begin
+    logic [31:0] status;
+    logic [31:0] read_data;
+    int timeout;
+
+    status = 32'hFFFF_FFFF;  // sentinel — NOT idle
+
+    $display("=== OTBN Testbench Start ===");
+    
+    // Wait for reset deassertion
+    wait(rst_ni == 1'b1);
+    repeat(10) @(posedge clk_i);
+    
+    $display("[%0t] Reset released, waiting for init secure wipe...", $time);
+
+    // === PHASE 1: Wait for init_sec_wipe_done ===
+    timeout = 0;
+    while (timeout < 300) begin
+      if (dut.init_sec_wipe_done_q) begin
+        $display("[%0t] init_sec_wipe_done at iter=%0d", $time, timeout);
+        break;
+      end
+      if (timeout < 5 || timeout % 50 == 0)
+        $display("[%0t] DBG iter=%0d | start_stop_state=%0d | init_sec_wipe_done=%b",
+          $time, timeout,
+          dut.u_otbn_core.u_otbn_start_stop_control.state_q,
+          dut.init_sec_wipe_done_q);
+      repeat(10) @(posedge clk_i);
+      timeout++;
+    end
+
+    // Let things settle
+    repeat(20) @(posedge clk_i);
+
+    $display("[%0t] === Probing TL-UL state before any request ===", $time);
+    $display("[%0t] PRE: reg_adapter.outstanding_q=%b | socket.num_req_outstanding=%0d socket.dev_select_outstanding=%0d",
+      $time,
+      dut.u_reg.u_reg_if.outstanding_q,
+      dut.u_reg.u_socket.num_req_outstanding,
+      dut.u_reg.u_socket.dev_select_outstanding
+    );
+
+    // === PHASE 2: Read STATUS register ===
+    $display("[%0t] === Reading STATUS register (addr=0x%08x) ===", $time, OTBN_STATUS_OFFSET);
+    // First assert d_ready for a few cycles to drain any phantom outstanding
+    tl_i.d_ready = 1'b1;
+    repeat(5) @(posedge clk_i);
+    tl_i.d_ready = 1'b0;
+
+    tl_read(OTBN_STATUS_OFFSET, status);
+    $display("[%0t] STATUS read complete. status=0x%08x", $time, status);
+    
+    if (status == 32'h0) begin
+      $display("[%0t] ✓ STATUS is IDLE!", $time);
+      
+      // Test DMEM write/read
+      $display("[%0t] Testing DMEM write...", $time);
+      tl_write(OTBN_DMEM_BASE + 0, 32'hDEADBEEF);
+      $display("[%0t] DMEM write done. Testing DMEM read...", $time);
+      tl_read(OTBN_DMEM_BASE + 0, read_data);
+      
+      if (read_data == 32'hDEADBEEF) begin
+        $display("[%0t] DMEM test PASSED! Read: 0x%08x", $time, read_data);
+      end else begin
+        $display("[%0t] DMEM test FAILED! Expected: 0xDEADBEEF, Got: 0x%08x", 
+                 $time, read_data);
+      end
+    end else begin
+      $display("[%0t] STATUS not idle! status=0x%08x", $time, status);
+    end
+    
+    repeat(100) @(posedge clk_i);
+    $display("=== Test Complete ===");
+    $finish;
+  end
+
+endmodule

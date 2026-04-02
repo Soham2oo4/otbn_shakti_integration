@@ -1,0 +1,3 @@
+Vimem_test_edn_reg_pkg__DepSet_h56ffcfcf__0__Slow.o: \
+ Vimem_test_edn_reg_pkg__DepSet_h56ffcfcf__0__Slow.cpp Vimem_test__pch.h \
+ Vimem_test_edn_reg_pkg.h

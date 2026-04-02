@@ -1,0 +1,9286 @@
+// Verilated -*- C++ -*-
+// DESCRIPTION: Verilator output: Design implementation internals
+// See Vdmem_test.h for the primary calling header
+
+#include "Vdmem_test__pch.h"
+#include "Vdmem_test___024root.h"
+
+VL_ATTR_COLD void Vdmem_test___024root___eval_initial__TOP(Vdmem_test___024root* vlSelf);
+VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__0(Vdmem_test___024root* vlSelf);
+VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__1(Vdmem_test___024root* vlSelf);
+VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__2(Vdmem_test___024root* vlSelf);
+VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__3(Vdmem_test___024root* vlSelf);
+
+void Vdmem_test___024root___eval_initial(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___eval_initial\n"); );
+    // Body
+    Vdmem_test___024root___eval_initial__TOP(vlSelf);
+    vlSelf->__Vm_traceActivity[1U] = 1U;
+    Vdmem_test___024root___eval_initial__TOP__Vtiming__0(vlSelf);
+    Vdmem_test___024root___eval_initial__TOP__Vtiming__1(vlSelf);
+    Vdmem_test___024root___eval_initial__TOP__Vtiming__2(vlSelf);
+    Vdmem_test___024root___eval_initial__TOP__Vtiming__3(vlSelf);
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_mem_load_crc32__DOT__crc_stages__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_mem_load_crc32__DOT__crc_stages;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_start_stop_control__DOT__stop__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_start_stop_control__DOT__stop;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__and_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__and_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__and_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__and_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__and_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__and_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree__0 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_imem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__1__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__2__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT__gen_fwd_pass__BRA__3__KET____DOT__data_state_round;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_h995d474b__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_hd490e120__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_dmem__DOT__gen_par_scr__BRA__0__KET____DOT__u_prim_prince__DOT____VdfgExtracted_he63167c0__0;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_mem_load_crc32__DOT__crc_stages__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_mem_load_crc32__DOT__crc_stages;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_start_stop_control__DOT__stop__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_start_stop_control__DOT__stop;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__and_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__and_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__and_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__and_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__and_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__and_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree__1 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__clk_edn_i__0 
+        = vlSelf->dmem_test__DOT__clk_edn_i;
+    vlSelf->__Vtrigprevexpr___TOP__rst_ni__0 = vlSelf->rst_ni;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__clk_otp_i__0 
+        = vlSelf->dmem_test__DOT__clk_otp_i;
+    vlSelf->__Vtrigprevexpr___TOP__rst_otp_ni__0 = vlSelf->rst_otp_ni;
+    vlSelf->__Vtrigprevexpr___TOP__dmem_test__DOT__clk_i__0 
+        = vlSelf->dmem_test__DOT__clk_i;
+}
+
+VL_INLINE_OPT VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__0(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___eval_initial__TOP__Vtiming__0\n"); );
+    // Init
+    IData/*31:0*/ dmem_test__DOT____Vrepeat4;
+    dmem_test__DOT____Vrepeat4 = 0;
+    IData/*31:0*/ __Vtask_dmem_test__DOT__tl_read__0__addr;
+    __Vtask_dmem_test__DOT__tl_read__0__addr = 0;
+    IData/*31:0*/ __Vtask_dmem_test__DOT__tl_read__0__data;
+    __Vtask_dmem_test__DOT__tl_read__0__data = 0;
+    CData/*0:0*/ __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__req_done;
+    __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__req_done = 0;
+    CData/*0:0*/ __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__rsp_done;
+    __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__rsp_done = 0;
+    CData/*7:0*/ __Vfunc_get_data_intg__1__Vfuncout;
+    __Vfunc_get_data_intg__1__Vfuncout = 0;
+    QData/*63:0*/ __Vfunc_get_data_intg__1__data;
+    __Vfunc_get_data_intg__1__data = 0;
+    CData/*7:0*/ __Vfunc_get_data_intg__1__data_intg;
+    __Vfunc_get_data_intg__1__data_intg = 0;
+    VlWide<3>/*71:0*/ __Vfunc_get_data_intg__1__enc_data;
+    VL_ZERO_W(72, __Vfunc_get_data_intg__1__enc_data);
+    VlWide<3>/*71:0*/ __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout;
+    VL_ZERO_W(72, __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout);
+    QData/*63:0*/ __Vfunc_prim_secded_inv_72_64_enc__2__data_i;
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_i = 0;
+    VlWide<3>/*71:0*/ __Vfunc_prim_secded_inv_72_64_enc__2__data_o;
+    VL_ZERO_W(72, __Vfunc_prim_secded_inv_72_64_enc__2__data_o);
+    CData/*6:0*/ __Vfunc_get_cmd_intg__3__Vfuncout;
+    __Vfunc_get_cmd_intg__3__Vfuncout = 0;
+    VlWide<5>/*144:0*/ __Vfunc_get_cmd_intg__3__tl;
+    VL_ZERO_W(145, __Vfunc_get_cmd_intg__3__tl);
+    CData/*6:0*/ __Vfunc_get_cmd_intg__3__cmd_intg;
+    __Vfunc_get_cmd_intg__3__cmd_intg = 0;
+    QData/*56:0*/ __Vfunc_get_cmd_intg__3__unused_cmd_payload;
+    __Vfunc_get_cmd_intg__3__unused_cmd_payload = 0;
+    QData/*46:0*/ __Vfunc_get_cmd_intg__3__cmd;
+    __Vfunc_get_cmd_intg__3__cmd = 0;
+    QData/*46:0*/ __Vfunc_extract_h2d_cmd_intg__4__Vfuncout;
+    __Vfunc_extract_h2d_cmd_intg__4__Vfuncout = 0;
+    VlWide<5>/*144:0*/ __Vfunc_extract_h2d_cmd_intg__4__tl;
+    VL_ZERO_W(145, __Vfunc_extract_h2d_cmd_intg__4__tl);
+    QData/*46:0*/ __Vfunc_extract_h2d_cmd_intg__4__payload;
+    __Vfunc_extract_h2d_cmd_intg__4__payload = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__5__Vfuncout;
+    __Vfunc_prim_secded_inv_64_57_enc__5__Vfuncout = 0;
+    QData/*56:0*/ __Vfunc_prim_secded_inv_64_57_enc__5__data_i;
+    __Vfunc_prim_secded_inv_64_57_enc__5__data_i = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__5__data_o;
+    __Vfunc_prim_secded_inv_64_57_enc__5__data_o = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__6__Vfuncout;
+    __Vfunc_prim_secded_inv_64_57_enc__6__Vfuncout = 0;
+    QData/*56:0*/ __Vfunc_prim_secded_inv_64_57_enc__6__data_i;
+    __Vfunc_prim_secded_inv_64_57_enc__6__data_i = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__6__data_o;
+    __Vfunc_prim_secded_inv_64_57_enc__6__data_o = 0;
+    IData/*31:0*/ __Vtask_dmem_test__DOT__tl_write__7__addr;
+    __Vtask_dmem_test__DOT__tl_write__7__addr = 0;
+    IData/*31:0*/ __Vtask_dmem_test__DOT__tl_write__7__data;
+    __Vtask_dmem_test__DOT__tl_write__7__data = 0;
+    CData/*0:0*/ __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__req_done;
+    __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__req_done = 0;
+    CData/*0:0*/ __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__rsp_done;
+    __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__rsp_done = 0;
+    CData/*7:0*/ __Vfunc_get_data_intg__8__Vfuncout;
+    __Vfunc_get_data_intg__8__Vfuncout = 0;
+    QData/*63:0*/ __Vfunc_get_data_intg__8__data;
+    __Vfunc_get_data_intg__8__data = 0;
+    CData/*7:0*/ __Vfunc_get_data_intg__8__data_intg;
+    __Vfunc_get_data_intg__8__data_intg = 0;
+    VlWide<3>/*71:0*/ __Vfunc_get_data_intg__8__enc_data;
+    VL_ZERO_W(72, __Vfunc_get_data_intg__8__enc_data);
+    VlWide<3>/*71:0*/ __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout;
+    VL_ZERO_W(72, __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout);
+    QData/*63:0*/ __Vfunc_prim_secded_inv_72_64_enc__9__data_i;
+    __Vfunc_prim_secded_inv_72_64_enc__9__data_i = 0;
+    VlWide<3>/*71:0*/ __Vfunc_prim_secded_inv_72_64_enc__9__data_o;
+    VL_ZERO_W(72, __Vfunc_prim_secded_inv_72_64_enc__9__data_o);
+    CData/*6:0*/ __Vfunc_get_cmd_intg__10__Vfuncout;
+    __Vfunc_get_cmd_intg__10__Vfuncout = 0;
+    VlWide<5>/*144:0*/ __Vfunc_get_cmd_intg__10__tl;
+    VL_ZERO_W(145, __Vfunc_get_cmd_intg__10__tl);
+    CData/*6:0*/ __Vfunc_get_cmd_intg__10__cmd_intg;
+    __Vfunc_get_cmd_intg__10__cmd_intg = 0;
+    QData/*56:0*/ __Vfunc_get_cmd_intg__10__unused_cmd_payload;
+    __Vfunc_get_cmd_intg__10__unused_cmd_payload = 0;
+    QData/*46:0*/ __Vfunc_get_cmd_intg__10__cmd;
+    __Vfunc_get_cmd_intg__10__cmd = 0;
+    QData/*46:0*/ __Vfunc_extract_h2d_cmd_intg__11__Vfuncout;
+    __Vfunc_extract_h2d_cmd_intg__11__Vfuncout = 0;
+    VlWide<5>/*144:0*/ __Vfunc_extract_h2d_cmd_intg__11__tl;
+    VL_ZERO_W(145, __Vfunc_extract_h2d_cmd_intg__11__tl);
+    QData/*46:0*/ __Vfunc_extract_h2d_cmd_intg__11__payload;
+    __Vfunc_extract_h2d_cmd_intg__11__payload = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__12__Vfuncout;
+    __Vfunc_prim_secded_inv_64_57_enc__12__Vfuncout = 0;
+    QData/*56:0*/ __Vfunc_prim_secded_inv_64_57_enc__12__data_i;
+    __Vfunc_prim_secded_inv_64_57_enc__12__data_i = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__12__data_o;
+    __Vfunc_prim_secded_inv_64_57_enc__12__data_o = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__13__Vfuncout;
+    __Vfunc_prim_secded_inv_64_57_enc__13__Vfuncout = 0;
+    QData/*56:0*/ __Vfunc_prim_secded_inv_64_57_enc__13__data_i;
+    __Vfunc_prim_secded_inv_64_57_enc__13__data_i = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__13__data_o;
+    __Vfunc_prim_secded_inv_64_57_enc__13__data_o = 0;
+    IData/*31:0*/ __Vtask_dmem_test__DOT__tl_read__14__addr;
+    __Vtask_dmem_test__DOT__tl_read__14__addr = 0;
+    IData/*31:0*/ __Vtask_dmem_test__DOT__tl_read__14__data;
+    __Vtask_dmem_test__DOT__tl_read__14__data = 0;
+    CData/*0:0*/ __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__req_done;
+    __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__req_done = 0;
+    CData/*0:0*/ __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__rsp_done;
+    __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__rsp_done = 0;
+    CData/*7:0*/ __Vfunc_get_data_intg__15__Vfuncout;
+    __Vfunc_get_data_intg__15__Vfuncout = 0;
+    QData/*63:0*/ __Vfunc_get_data_intg__15__data;
+    __Vfunc_get_data_intg__15__data = 0;
+    CData/*7:0*/ __Vfunc_get_data_intg__15__data_intg;
+    __Vfunc_get_data_intg__15__data_intg = 0;
+    VlWide<3>/*71:0*/ __Vfunc_get_data_intg__15__enc_data;
+    VL_ZERO_W(72, __Vfunc_get_data_intg__15__enc_data);
+    VlWide<3>/*71:0*/ __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout;
+    VL_ZERO_W(72, __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout);
+    QData/*63:0*/ __Vfunc_prim_secded_inv_72_64_enc__16__data_i;
+    __Vfunc_prim_secded_inv_72_64_enc__16__data_i = 0;
+    VlWide<3>/*71:0*/ __Vfunc_prim_secded_inv_72_64_enc__16__data_o;
+    VL_ZERO_W(72, __Vfunc_prim_secded_inv_72_64_enc__16__data_o);
+    CData/*6:0*/ __Vfunc_get_cmd_intg__17__Vfuncout;
+    __Vfunc_get_cmd_intg__17__Vfuncout = 0;
+    VlWide<5>/*144:0*/ __Vfunc_get_cmd_intg__17__tl;
+    VL_ZERO_W(145, __Vfunc_get_cmd_intg__17__tl);
+    CData/*6:0*/ __Vfunc_get_cmd_intg__17__cmd_intg;
+    __Vfunc_get_cmd_intg__17__cmd_intg = 0;
+    QData/*56:0*/ __Vfunc_get_cmd_intg__17__unused_cmd_payload;
+    __Vfunc_get_cmd_intg__17__unused_cmd_payload = 0;
+    QData/*46:0*/ __Vfunc_get_cmd_intg__17__cmd;
+    __Vfunc_get_cmd_intg__17__cmd = 0;
+    QData/*46:0*/ __Vfunc_extract_h2d_cmd_intg__18__Vfuncout;
+    __Vfunc_extract_h2d_cmd_intg__18__Vfuncout = 0;
+    VlWide<5>/*144:0*/ __Vfunc_extract_h2d_cmd_intg__18__tl;
+    VL_ZERO_W(145, __Vfunc_extract_h2d_cmd_intg__18__tl);
+    QData/*46:0*/ __Vfunc_extract_h2d_cmd_intg__18__payload;
+    __Vfunc_extract_h2d_cmd_intg__18__payload = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__19__Vfuncout;
+    __Vfunc_prim_secded_inv_64_57_enc__19__Vfuncout = 0;
+    QData/*56:0*/ __Vfunc_prim_secded_inv_64_57_enc__19__data_i;
+    __Vfunc_prim_secded_inv_64_57_enc__19__data_i = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__19__data_o;
+    __Vfunc_prim_secded_inv_64_57_enc__19__data_o = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__20__Vfuncout;
+    __Vfunc_prim_secded_inv_64_57_enc__20__Vfuncout = 0;
+    QData/*56:0*/ __Vfunc_prim_secded_inv_64_57_enc__20__data_i;
+    __Vfunc_prim_secded_inv_64_57_enc__20__data_i = 0;
+    QData/*63:0*/ __Vfunc_prim_secded_inv_64_57_enc__20__data_o;
+    __Vfunc_prim_secded_inv_64_57_enc__20__data_o = 0;
+    VlWide<3>/*95:0*/ __Vtemp_30;
+    VlWide<3>/*95:0*/ __Vtemp_74;
+    VlWide<3>/*95:0*/ __Vtemp_120;
+    // Body
+    vlSelf->dmem_test__DOT__unnamedblk3__DOT__status = 0xffffffffU;
+    VL_WRITEF_NX("=== OTBN Testbench Start ===\n",0);
+    while ((1U & (~ (IData)(vlSelf->rst_ni)))) {
+        co_await vlSelf->__VtrigSched_h51c7f17b__0.trigger(1U, 
+                                                           nullptr, 
+                                                           "@([changed] rst_ni)", 
+                                                           "dmem_test.sv", 
+                                                           274);
+        vlSelf->__Vm_traceActivity[2U] = 1U;
+    }
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       275);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    VL_WRITEF_NX("[%0t] Reset released, waiting for init secure wipe...\n",0,
+                 64,VL_TIME_UNITED_Q(1000),-9);
+    vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout = 0U;
+    {
+        while (VL_GTS_III(32, 0x12cU, vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout)) {
+            if (VL_UNLIKELY(vlSelf->dmem_test__DOT__dut__DOT__init_sec_wipe_done_q)) {
+                VL_WRITEF_NX("[%0t] init_sec_wipe_done at iter=%0d\n",0,
+                             64,VL_TIME_UNITED_Q(1000),
+                             -9,32,vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout);
+                goto __Vlabel1;
+            }
+            if (VL_UNLIKELY((VL_GTS_III(32, 5U, vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout) 
+                             | (0U == VL_MODDIVS_III(32, vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout, (IData)(0x32U)))))) {
+                VL_WRITEF_NX("[%0t] DBG iter=%0d | start_stop_state=%0# | init_sec_wipe_done=%b\n",0,
+                             64,VL_TIME_UNITED_Q(1000),
+                             -9,32,vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout,
+                             7,(IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_start_stop_control__DOT__u_state_regs__DOT__state_raw),
+                             1,vlSelf->dmem_test__DOT__dut__DOT__init_sec_wipe_done_q);
+            }
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               291);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout 
+                = ((IData)(1U) + vlSelf->dmem_test__DOT__unnamedblk3__DOT__timeout);
+        }
+        __Vlabel1: ;
+    }
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       296);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    VL_WRITEF_NX("[%0t] === Probing TL-UL state before any request ===\n[%0t] PRE: reg_adapter.outstanding_q=%b | socket.num_req_outstanding=%0# socket.dev_select_outstanding=%0#\n[%0t] === Reading STATUS register (addr=0x00000018) ===\n",0,
+                 64,VL_TIME_UNITED_Q(1000),-9,64,VL_TIME_UNITED_Q(1000),
+                 -9,1,(IData)(vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_reg_if__DOT__outstanding_q),
+                 9,vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_socket__DOT__num_req_outstanding,
+                 2,(IData)(vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_socket__DOT__dev_select_outstanding),
+                 64,VL_TIME_UNITED_Q(1000),-9);
+    vlSelf->dmem_test__DOT__tl_i[0U] = (1U | vlSelf->dmem_test__DOT__tl_i[0U]);
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       310);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       310);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       310);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       310);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       310);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    vlSelf->dmem_test__DOT__tl_i[0U] = (0xfffffffeU 
+                                        & vlSelf->dmem_test__DOT__tl_i[0U]);
+    __Vtask_dmem_test__DOT__tl_read__0__addr = 0x18U;
+    __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__req_done = 0U;
+    __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__rsp_done = 0U;
+    vlSelf->dmem_test__DOT__tl_i[0U] = (1U | vlSelf->dmem_test__DOT__tl_i[0U]);
+    vlSelf->dmem_test__DOT__tl_i[0U] = (0x90000U | 
+                                        (0xffffU & 
+                                         vlSelf->dmem_test__DOT__tl_i[0U]));
+    vlSelf->dmem_test__DOT__tl_i[1U] = 0U;
+    vlSelf->dmem_test__DOT__tl_i[2U] = 0xf000000U;
+    vlSelf->dmem_test__DOT__tl_i[3U] = __Vtask_dmem_test__DOT__tl_read__0__addr;
+    vlSelf->dmem_test__DOT__tl_i[4U] = 0x18200U;
+    __Vfunc_get_data_intg__1__data = 0ULL;
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_i = __Vfunc_get_data_intg__1__data;
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U] 
+        = (IData)(__Vfunc_prim_secded_inv_72_64_enc__2__data_i);
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U] 
+        = (IData)((__Vfunc_prim_secded_inv_72_64_enc__2__data_i 
+                   >> 0x20U));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] = 0U;
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xfeU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (1U & VL_REDXOR_32(((0x1fffffU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                 ^ (0xb9000000U & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xfdU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0xffe0003fU 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0x5e00000fU 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 1U)));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xfbU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0x3e007c1U 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0x67003ff0U 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 2U)));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xf7U & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0x3c207842U 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0xcd0fc0f0U 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 3U)));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xefU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0xc4438884U 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0xb671c711U 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 4U)));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xdfU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0x488c9108U 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0xb5b65926U 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 5U)));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0xbfU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0x91152210U 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0xcbdaaa4aU 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 6U)));
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = ((0x7fU & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]) 
+           | (0xffU & ((1U & VL_REDXOR_32(((0x221a4420U 
+                                            & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U]) 
+                                           ^ (0x7aed348dU 
+                                              & __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U])))) 
+                       << 7U)));
+    __Vtemp_30[1U] = __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U];
+    __Vtemp_30[2U] = (0xaaU ^ __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U]);
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U] 
+        = __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U];
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U] 
+        = __Vtemp_30[1U];
+    __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U] 
+        = __Vtemp_30[2U];
+    __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout[0U] 
+        = __Vfunc_prim_secded_inv_72_64_enc__2__data_o[0U];
+    __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout[1U] 
+        = __Vfunc_prim_secded_inv_72_64_enc__2__data_o[1U];
+    __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout[2U] 
+        = __Vfunc_prim_secded_inv_72_64_enc__2__data_o[2U];
+    __Vfunc_get_data_intg__1__enc_data[0U] = __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout[0U];
+    __Vfunc_get_data_intg__1__enc_data[1U] = __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout[1U];
+    __Vfunc_get_data_intg__1__enc_data[2U] = __Vfunc_prim_secded_inv_72_64_enc__2__Vfuncout[2U];
+    __Vfunc_get_data_intg__1__data_intg = (0xffU & 
+                                           __Vfunc_get_data_intg__1__enc_data[2U]);
+    __Vfunc_get_data_intg__1__Vfuncout = __Vfunc_get_data_intg__1__data_intg;
+    vlSelf->dmem_test__DOT__tl_i[0U] = ((0xfffffe01U 
+                                         & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                        | ((IData)(__Vfunc_get_data_intg__1__Vfuncout) 
+                                           << 1U));
+    __Vfunc_get_cmd_intg__3__tl[0U] = vlSelf->dmem_test__DOT__tl_i[0U];
+    __Vfunc_get_cmd_intg__3__tl[1U] = vlSelf->dmem_test__DOT__tl_i[1U];
+    __Vfunc_get_cmd_intg__3__tl[2U] = vlSelf->dmem_test__DOT__tl_i[2U];
+    __Vfunc_get_cmd_intg__3__tl[3U] = vlSelf->dmem_test__DOT__tl_i[3U];
+    __Vfunc_get_cmd_intg__3__tl[4U] = vlSelf->dmem_test__DOT__tl_i[4U];
+    __Vfunc_extract_h2d_cmd_intg__4__tl[0U] = __Vfunc_get_cmd_intg__3__tl[0U];
+    __Vfunc_extract_h2d_cmd_intg__4__tl[1U] = __Vfunc_get_cmd_intg__3__tl[1U];
+    __Vfunc_extract_h2d_cmd_intg__4__tl[2U] = __Vfunc_get_cmd_intg__3__tl[2U];
+    __Vfunc_extract_h2d_cmd_intg__4__tl[3U] = __Vfunc_get_cmd_intg__3__tl[3U];
+    __Vfunc_extract_h2d_cmd_intg__4__tl[4U] = __Vfunc_get_cmd_intg__3__tl[4U];
+    __Vfunc_extract_h2d_cmd_intg__4__payload = ((0x780000000000ULL 
+                                                 & __Vfunc_extract_h2d_cmd_intg__4__payload) 
+                                                | (((QData)((IData)(
+                                                                    __Vfunc_extract_h2d_cmd_intg__4__tl[3U])) 
+                                                    << 0xbU) 
+                                                   | (QData)((IData)(
+                                                                     ((0x700U 
+                                                                       & (__Vfunc_extract_h2d_cmd_intg__4__tl[4U] 
+                                                                          >> 5U)) 
+                                                                      | (__Vfunc_extract_h2d_cmd_intg__4__tl[2U] 
+                                                                         >> 0x18U))))));
+    __Vfunc_extract_h2d_cmd_intg__4__payload = ((0x7ffffffffffULL 
+                                                 & __Vfunc_extract_h2d_cmd_intg__4__payload) 
+                                                | ((QData)((IData)(
+                                                                   (0xfU 
+                                                                    & (__Vfunc_extract_h2d_cmd_intg__4__tl[0U] 
+                                                                       >> 0x10U)))) 
+                                                   << 0x2bU));
+    __Vfunc_extract_h2d_cmd_intg__4__Vfuncout = __Vfunc_extract_h2d_cmd_intg__4__payload;
+    __Vfunc_get_cmd_intg__3__cmd = __Vfunc_extract_h2d_cmd_intg__4__Vfuncout;
+    __Vfunc_get_cmd_intg__3__cmd_intg = (0x7fU & (IData)(
+                                                         (([&]() {
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_i 
+                            = __Vfunc_get_cmd_intg__3__cmd;
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = __Vfunc_prim_secded_inv_64_57_enc__5__data_i;
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0xfdffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x103fff800007fffULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x39U));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0xfbffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x17c1ff801ff801fULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x3aU));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0xf7ffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x1bde1f87e0781e1ULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x3bU));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0xefffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x1deee3b8e388e22ULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x3cU));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0xdfffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x1ef76cdb2c93244ULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x3dU));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0xbfffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x1f7bb56d5525488ULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x3eU));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = ((0x7fffffffffffffffULL 
+                                & __Vfunc_prim_secded_inv_64_57_enc__5__data_o) 
+                               | ((QData)((IData)((1U 
+                                                   & VL_REDXOR_64(
+                                                                  (0x1fbdda769a46910ULL 
+                                                                   & __Vfunc_prim_secded_inv_64_57_enc__5__data_o))))) 
+                                  << 0x3fU));
+                        __Vfunc_prim_secded_inv_64_57_enc__5__data_o 
+                            = (0x5400000000000000ULL 
+                               ^ __Vfunc_prim_secded_inv_64_57_enc__5__data_o);
+                        __Vfunc_prim_secded_inv_64_57_enc__5__Vfuncout 
+                            = __Vfunc_prim_secded_inv_64_57_enc__5__data_o;
+                    }(), __Vfunc_prim_secded_inv_64_57_enc__5__Vfuncout) 
+                                                          >> 0x39U)));
+    __Vfunc_get_cmd_intg__3__unused_cmd_payload = (0x1ffffffffffffffULL 
+                                                   & ([&]() {
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_i 
+                    = __Vfunc_get_cmd_intg__3__cmd;
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = __Vfunc_prim_secded_inv_64_57_enc__6__data_i;
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0xfdffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x103fff800007fffULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x39U));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0xfbffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x17c1ff801ff801fULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x3aU));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0xf7ffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x1bde1f87e0781e1ULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x3bU));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0xefffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x1deee3b8e388e22ULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x3cU));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0xdfffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x1ef76cdb2c93244ULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x3dU));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0xbfffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x1f7bb56d5525488ULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x3eU));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = ((0x7fffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__6__data_o) 
+                       | ((QData)((IData)((1U & VL_REDXOR_64(
+                                                             (0x1fbdda769a46910ULL 
+                                                              & __Vfunc_prim_secded_inv_64_57_enc__6__data_o))))) 
+                          << 0x3fU));
+                __Vfunc_prim_secded_inv_64_57_enc__6__data_o 
+                    = (0x5400000000000000ULL ^ __Vfunc_prim_secded_inv_64_57_enc__6__data_o);
+                __Vfunc_prim_secded_inv_64_57_enc__6__Vfuncout 
+                    = __Vfunc_prim_secded_inv_64_57_enc__6__data_o;
+            }(), __Vfunc_prim_secded_inv_64_57_enc__6__Vfuncout));
+    __Vfunc_get_cmd_intg__3__Vfuncout = __Vfunc_get_cmd_intg__3__cmd_intg;
+    vlSelf->dmem_test__DOT__tl_i[0U] = ((0xffff01ffU 
+                                         & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                        | ((IData)(__Vfunc_get_cmd_intg__3__Vfuncout) 
+                                           << 9U));
+    while ((1U & ((~ (IData)(__Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__req_done)) 
+                  | (~ (IData)(__Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__rsp_done))))) {
+        co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                           nullptr, 
+                                                           "@(posedge dmem_test.clk_i)", 
+                                                           "dmem_test.sv", 
+                                                           242);
+        vlSelf->__Vm_traceActivity[2U] = 1U;
+        if ((1U & ((~ (IData)(__Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__req_done)) 
+                   & vlSelf->dmem_test__DOT__tl_o[0U]))) {
+            __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__req_done = 1U;
+            vlSelf->dmem_test__DOT__tl_i[4U] = (0xffffU 
+                                                & vlSelf->dmem_test__DOT__tl_i[4U]);
+        }
+        if (((~ (IData)(__Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__rsp_done)) 
+             & (vlSelf->dmem_test__DOT__tl_o[3U] >> 2U))) {
+            __Vtask_dmem_test__DOT__tl_read__0__unnamedblk2__DOT__rsp_done = 1U;
+            __Vtask_dmem_test__DOT__tl_read__0__data 
+                = ((vlSelf->dmem_test__DOT__tl_o[1U] 
+                    << 0xfU) | (vlSelf->dmem_test__DOT__tl_o[0U] 
+                                >> 0x11U));
+        }
+    }
+    co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                       nullptr, 
+                                                       "@(posedge dmem_test.clk_i)", 
+                                                       "dmem_test.sv", 
+                                                       253);
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+    vlSelf->dmem_test__DOT__tl_i[0U] = (0xfffffffeU 
+                                        & vlSelf->dmem_test__DOT__tl_i[0U]);
+    vlSelf->dmem_test__DOT__unnamedblk3__DOT__status 
+        = __Vtask_dmem_test__DOT__tl_read__0__data;
+    VL_WRITEF_NX("[%0t] STATUS read complete. status=0x%08x\n",0,
+                 64,VL_TIME_UNITED_Q(1000),-9,32,vlSelf->dmem_test__DOT__unnamedblk3__DOT__status);
+    if (VL_UNLIKELY((0U == vlSelf->dmem_test__DOT__unnamedblk3__DOT__status))) {
+        VL_WRITEF_NX("[%0t] \342\234\223 STATUS is IDLE!\n[%0t] Testing DMEM write...\n",0,
+                     64,VL_TIME_UNITED_Q(1000),-9,64,
+                     VL_TIME_UNITED_Q(1000),-9);
+        __Vtask_dmem_test__DOT__tl_write__7__data = 0xdeadbeefU;
+        __Vtask_dmem_test__DOT__tl_write__7__addr = 0x8000U;
+        __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__req_done = 0U;
+        __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__rsp_done = 0U;
+        vlSelf->dmem_test__DOT__tl_i[0U] = (1U | vlSelf->dmem_test__DOT__tl_i[0U]);
+        vlSelf->dmem_test__DOT__tl_i[4U] = (0x10000U 
+                                            | (0x1fffU 
+                                               & vlSelf->dmem_test__DOT__tl_i[4U]));
+        vlSelf->dmem_test__DOT__tl_i[0U] = ((0xffffffU 
+                                             & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                            | ((IData)((QData)((IData)(__Vtask_dmem_test__DOT__tl_write__7__data))) 
+                                               << 0x18U));
+        vlSelf->dmem_test__DOT__tl_i[1U] = (((IData)((QData)((IData)(__Vtask_dmem_test__DOT__tl_write__7__data))) 
+                                             >> 8U) 
+                                            | ((IData)(
+                                                       ((QData)((IData)(__Vtask_dmem_test__DOT__tl_write__7__data)) 
+                                                        >> 0x20U)) 
+                                               << 0x18U));
+        vlSelf->dmem_test__DOT__tl_i[2U] = (0xf000000U 
+                                            | ((IData)(
+                                                       ((QData)((IData)(__Vtask_dmem_test__DOT__tl_write__7__data)) 
+                                                        >> 0x20U)) 
+                                               >> 8U));
+        vlSelf->dmem_test__DOT__tl_i[3U] = __Vtask_dmem_test__DOT__tl_write__7__addr;
+        vlSelf->dmem_test__DOT__tl_i[4U] = (0x200U 
+                                            | (0x1e000U 
+                                               & vlSelf->dmem_test__DOT__tl_i[4U]));
+        vlSelf->dmem_test__DOT__tl_i[0U] = (0x90000U 
+                                            | (0xff00ffffU 
+                                               & vlSelf->dmem_test__DOT__tl_i[0U]));
+        __Vfunc_get_data_intg__8__data = (QData)((IData)(__Vtask_dmem_test__DOT__tl_write__7__data));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_i 
+            = __Vfunc_get_data_intg__8__data;
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U] 
+            = (IData)(__Vfunc_prim_secded_inv_72_64_enc__9__data_i);
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U] 
+            = (IData)((__Vfunc_prim_secded_inv_72_64_enc__9__data_i 
+                       >> 0x20U));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] = 0U;
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xfeU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (1U & VL_REDXOR_32(((0x1fffffU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                     ^ (0xb9000000U 
+                                        & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xfdU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0xffe0003fU 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0x5e00000fU 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 1U)));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xfbU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x3e007c1U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0x67003ff0U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 2U)));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xf7U & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x3c207842U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0xcd0fc0f0U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 3U)));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xefU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0xc4438884U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0xb671c711U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 4U)));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xdfU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x488c9108U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0xb5b65926U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 5U)));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0xbfU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x91152210U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0xcbdaaa4aU 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 6U)));
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = ((0x7fU & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x221a4420U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U]) 
+                                               ^ (0x7aed348dU 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U])))) 
+                           << 7U)));
+        __Vtemp_74[1U] = __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U];
+        __Vtemp_74[2U] = (0xaaU ^ __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U]);
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U];
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U] 
+            = __Vtemp_74[1U];
+        __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U] 
+            = __Vtemp_74[2U];
+        __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout[0U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__9__data_o[0U];
+        __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout[1U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__9__data_o[1U];
+        __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout[2U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__9__data_o[2U];
+        __Vfunc_get_data_intg__8__enc_data[0U] = __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout[0U];
+        __Vfunc_get_data_intg__8__enc_data[1U] = __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout[1U];
+        __Vfunc_get_data_intg__8__enc_data[2U] = __Vfunc_prim_secded_inv_72_64_enc__9__Vfuncout[2U];
+        __Vfunc_get_data_intg__8__data_intg = (0xffU 
+                                               & __Vfunc_get_data_intg__8__enc_data[2U]);
+        __Vfunc_get_data_intg__8__Vfuncout = __Vfunc_get_data_intg__8__data_intg;
+        vlSelf->dmem_test__DOT__tl_i[0U] = ((0xfffffe01U 
+                                             & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                            | ((IData)(__Vfunc_get_data_intg__8__Vfuncout) 
+                                               << 1U));
+        __Vfunc_get_cmd_intg__10__tl[0U] = vlSelf->dmem_test__DOT__tl_i[0U];
+        __Vfunc_get_cmd_intg__10__tl[1U] = vlSelf->dmem_test__DOT__tl_i[1U];
+        __Vfunc_get_cmd_intg__10__tl[2U] = vlSelf->dmem_test__DOT__tl_i[2U];
+        __Vfunc_get_cmd_intg__10__tl[3U] = vlSelf->dmem_test__DOT__tl_i[3U];
+        __Vfunc_get_cmd_intg__10__tl[4U] = vlSelf->dmem_test__DOT__tl_i[4U];
+        __Vfunc_extract_h2d_cmd_intg__11__tl[0U] = 
+            __Vfunc_get_cmd_intg__10__tl[0U];
+        __Vfunc_extract_h2d_cmd_intg__11__tl[1U] = 
+            __Vfunc_get_cmd_intg__10__tl[1U];
+        __Vfunc_extract_h2d_cmd_intg__11__tl[2U] = 
+            __Vfunc_get_cmd_intg__10__tl[2U];
+        __Vfunc_extract_h2d_cmd_intg__11__tl[3U] = 
+            __Vfunc_get_cmd_intg__10__tl[3U];
+        __Vfunc_extract_h2d_cmd_intg__11__tl[4U] = 
+            __Vfunc_get_cmd_intg__10__tl[4U];
+        __Vfunc_extract_h2d_cmd_intg__11__payload = 
+            ((0x780000000000ULL & __Vfunc_extract_h2d_cmd_intg__11__payload) 
+             | (((QData)((IData)(__Vfunc_extract_h2d_cmd_intg__11__tl[3U])) 
+                 << 0xbU) | (QData)((IData)(((0x700U 
+                                              & (__Vfunc_extract_h2d_cmd_intg__11__tl[4U] 
+                                                 >> 5U)) 
+                                             | (__Vfunc_extract_h2d_cmd_intg__11__tl[2U] 
+                                                >> 0x18U))))));
+        __Vfunc_extract_h2d_cmd_intg__11__payload = 
+            ((0x7ffffffffffULL & __Vfunc_extract_h2d_cmd_intg__11__payload) 
+             | ((QData)((IData)((0xfU & (__Vfunc_extract_h2d_cmd_intg__11__tl[0U] 
+                                         >> 0x10U)))) 
+                << 0x2bU));
+        __Vfunc_extract_h2d_cmd_intg__11__Vfuncout 
+            = __Vfunc_extract_h2d_cmd_intg__11__payload;
+        __Vfunc_get_cmd_intg__10__cmd = __Vfunc_extract_h2d_cmd_intg__11__Vfuncout;
+        __Vfunc_get_cmd_intg__10__cmd_intg = (0x7fU 
+                                              & (IData)(
+                                                        (([&]() {
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_i 
+                                = __Vfunc_get_cmd_intg__10__cmd;
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = __Vfunc_prim_secded_inv_64_57_enc__12__data_i;
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0xfdffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x103fff800007fffULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x39U));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0xfbffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x17c1ff801ff801fULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x3aU));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0xf7ffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1bde1f87e0781e1ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x3bU));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0xefffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1deee3b8e388e22ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x3cU));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0xdfffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1ef76cdb2c93244ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x3dU));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0xbfffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1f7bb56d5525488ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x3eU));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = ((0x7fffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__12__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1fbdda769a46910ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__12__data_o))))) 
+                                      << 0x3fU));
+                            __Vfunc_prim_secded_inv_64_57_enc__12__data_o 
+                                = (0x5400000000000000ULL 
+                                   ^ __Vfunc_prim_secded_inv_64_57_enc__12__data_o);
+                            __Vfunc_prim_secded_inv_64_57_enc__12__Vfuncout 
+                                = __Vfunc_prim_secded_inv_64_57_enc__12__data_o;
+                        }(), __Vfunc_prim_secded_inv_64_57_enc__12__Vfuncout) 
+                                                         >> 0x39U)));
+        __Vfunc_get_cmd_intg__10__unused_cmd_payload 
+            = (0x1ffffffffffffffULL & ([&]() {
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_i 
+                        = __Vfunc_get_cmd_intg__10__cmd;
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = __Vfunc_prim_secded_inv_64_57_enc__13__data_i;
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0xfdffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x103fff800007fffULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x39U));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0xfbffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x17c1ff801ff801fULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x3aU));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0xf7ffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1bde1f87e0781e1ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x3bU));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0xefffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1deee3b8e388e22ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x3cU));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0xdfffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1ef76cdb2c93244ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x3dU));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0xbfffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1f7bb56d5525488ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x3eU));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = ((0x7fffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__13__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1fbdda769a46910ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__13__data_o))))) 
+                              << 0x3fU));
+                    __Vfunc_prim_secded_inv_64_57_enc__13__data_o 
+                        = (0x5400000000000000ULL ^ __Vfunc_prim_secded_inv_64_57_enc__13__data_o);
+                    __Vfunc_prim_secded_inv_64_57_enc__13__Vfuncout 
+                        = __Vfunc_prim_secded_inv_64_57_enc__13__data_o;
+                }(), __Vfunc_prim_secded_inv_64_57_enc__13__Vfuncout));
+        __Vfunc_get_cmd_intg__10__Vfuncout = __Vfunc_get_cmd_intg__10__cmd_intg;
+        vlSelf->dmem_test__DOT__tl_i[0U] = ((0xffff01ffU 
+                                             & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                            | ((IData)(__Vfunc_get_cmd_intg__10__Vfuncout) 
+                                               << 9U));
+        while ((1U & ((~ (IData)(__Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__req_done)) 
+                      | (~ (IData)(__Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__rsp_done))))) {
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               200);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            if ((1U & ((~ (IData)(__Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__req_done)) 
+                       & vlSelf->dmem_test__DOT__tl_o[0U]))) {
+                __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__req_done = 1U;
+                vlSelf->dmem_test__DOT__tl_i[4U] = 
+                    (0xffffU & vlSelf->dmem_test__DOT__tl_i[4U]);
+            }
+            if (((~ (IData)(__Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__rsp_done)) 
+                 & (vlSelf->dmem_test__DOT__tl_o[3U] 
+                    >> 2U))) {
+                __Vtask_dmem_test__DOT__tl_write__7__unnamedblk1__DOT__rsp_done = 1U;
+            }
+        }
+        co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                           nullptr, 
+                                                           "@(posedge dmem_test.clk_i)", 
+                                                           "dmem_test.sv", 
+                                                           210);
+        vlSelf->__Vm_traceActivity[2U] = 1U;
+        vlSelf->dmem_test__DOT__tl_i[0U] = (0xfffffffeU 
+                                            & vlSelf->dmem_test__DOT__tl_i[0U]);
+        VL_WRITEF_NX("[%0t] DMEM write done. Testing DMEM read...\n",0,
+                     64,VL_TIME_UNITED_Q(1000),-9);
+        __Vtask_dmem_test__DOT__tl_read__14__addr = 0x8000U;
+        __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__req_done = 0U;
+        __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__rsp_done = 0U;
+        vlSelf->dmem_test__DOT__tl_i[0U] = (1U | vlSelf->dmem_test__DOT__tl_i[0U]);
+        vlSelf->dmem_test__DOT__tl_i[0U] = (0x90000U 
+                                            | (0xffffU 
+                                               & vlSelf->dmem_test__DOT__tl_i[0U]));
+        vlSelf->dmem_test__DOT__tl_i[1U] = 0U;
+        vlSelf->dmem_test__DOT__tl_i[2U] = 0xf000000U;
+        vlSelf->dmem_test__DOT__tl_i[3U] = __Vtask_dmem_test__DOT__tl_read__14__addr;
+        vlSelf->dmem_test__DOT__tl_i[4U] = 0x18200U;
+        __Vfunc_get_data_intg__15__data = 0ULL;
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_i 
+            = __Vfunc_get_data_intg__15__data;
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U] 
+            = (IData)(__Vfunc_prim_secded_inv_72_64_enc__16__data_i);
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U] 
+            = (IData)((__Vfunc_prim_secded_inv_72_64_enc__16__data_i 
+                       >> 0x20U));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] = 0U;
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xfeU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (1U & VL_REDXOR_32(((0x1fffffU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                     ^ (0xb9000000U 
+                                        & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xfdU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0xffe0003fU 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0x5e00000fU 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 1U)));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xfbU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x3e007c1U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0x67003ff0U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 2U)));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xf7U & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x3c207842U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0xcd0fc0f0U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 3U)));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xefU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0xc4438884U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0xb671c711U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 4U)));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xdfU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x488c9108U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0xb5b65926U 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 5U)));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0xbfU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x91152210U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0xcbdaaa4aU 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 6U)));
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = ((0x7fU & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]) 
+               | (0xffU & ((1U & VL_REDXOR_32(((0x221a4420U 
+                                                & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U]) 
+                                               ^ (0x7aed348dU 
+                                                  & __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U])))) 
+                           << 7U)));
+        __Vtemp_120[1U] = __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U];
+        __Vtemp_120[2U] = (0xaaU ^ __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U]);
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U];
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U] 
+            = __Vtemp_120[1U];
+        __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U] 
+            = __Vtemp_120[2U];
+        __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout[0U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__16__data_o[0U];
+        __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout[1U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__16__data_o[1U];
+        __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout[2U] 
+            = __Vfunc_prim_secded_inv_72_64_enc__16__data_o[2U];
+        __Vfunc_get_data_intg__15__enc_data[0U] = __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout[0U];
+        __Vfunc_get_data_intg__15__enc_data[1U] = __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout[1U];
+        __Vfunc_get_data_intg__15__enc_data[2U] = __Vfunc_prim_secded_inv_72_64_enc__16__Vfuncout[2U];
+        __Vfunc_get_data_intg__15__data_intg = (0xffU 
+                                                & __Vfunc_get_data_intg__15__enc_data[2U]);
+        __Vfunc_get_data_intg__15__Vfuncout = __Vfunc_get_data_intg__15__data_intg;
+        vlSelf->dmem_test__DOT__tl_i[0U] = ((0xfffffe01U 
+                                             & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                            | ((IData)(__Vfunc_get_data_intg__15__Vfuncout) 
+                                               << 1U));
+        __Vfunc_get_cmd_intg__17__tl[0U] = vlSelf->dmem_test__DOT__tl_i[0U];
+        __Vfunc_get_cmd_intg__17__tl[1U] = vlSelf->dmem_test__DOT__tl_i[1U];
+        __Vfunc_get_cmd_intg__17__tl[2U] = vlSelf->dmem_test__DOT__tl_i[2U];
+        __Vfunc_get_cmd_intg__17__tl[3U] = vlSelf->dmem_test__DOT__tl_i[3U];
+        __Vfunc_get_cmd_intg__17__tl[4U] = vlSelf->dmem_test__DOT__tl_i[4U];
+        __Vfunc_extract_h2d_cmd_intg__18__tl[0U] = 
+            __Vfunc_get_cmd_intg__17__tl[0U];
+        __Vfunc_extract_h2d_cmd_intg__18__tl[1U] = 
+            __Vfunc_get_cmd_intg__17__tl[1U];
+        __Vfunc_extract_h2d_cmd_intg__18__tl[2U] = 
+            __Vfunc_get_cmd_intg__17__tl[2U];
+        __Vfunc_extract_h2d_cmd_intg__18__tl[3U] = 
+            __Vfunc_get_cmd_intg__17__tl[3U];
+        __Vfunc_extract_h2d_cmd_intg__18__tl[4U] = 
+            __Vfunc_get_cmd_intg__17__tl[4U];
+        __Vfunc_extract_h2d_cmd_intg__18__payload = 
+            ((0x780000000000ULL & __Vfunc_extract_h2d_cmd_intg__18__payload) 
+             | (((QData)((IData)(__Vfunc_extract_h2d_cmd_intg__18__tl[3U])) 
+                 << 0xbU) | (QData)((IData)(((0x700U 
+                                              & (__Vfunc_extract_h2d_cmd_intg__18__tl[4U] 
+                                                 >> 5U)) 
+                                             | (__Vfunc_extract_h2d_cmd_intg__18__tl[2U] 
+                                                >> 0x18U))))));
+        __Vfunc_extract_h2d_cmd_intg__18__payload = 
+            ((0x7ffffffffffULL & __Vfunc_extract_h2d_cmd_intg__18__payload) 
+             | ((QData)((IData)((0xfU & (__Vfunc_extract_h2d_cmd_intg__18__tl[0U] 
+                                         >> 0x10U)))) 
+                << 0x2bU));
+        __Vfunc_extract_h2d_cmd_intg__18__Vfuncout 
+            = __Vfunc_extract_h2d_cmd_intg__18__payload;
+        __Vfunc_get_cmd_intg__17__cmd = __Vfunc_extract_h2d_cmd_intg__18__Vfuncout;
+        __Vfunc_get_cmd_intg__17__cmd_intg = (0x7fU 
+                                              & (IData)(
+                                                        (([&]() {
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_i 
+                                = __Vfunc_get_cmd_intg__17__cmd;
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = __Vfunc_prim_secded_inv_64_57_enc__19__data_i;
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0xfdffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x103fff800007fffULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x39U));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0xfbffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x17c1ff801ff801fULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x3aU));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0xf7ffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1bde1f87e0781e1ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x3bU));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0xefffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1deee3b8e388e22ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x3cU));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0xdfffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1ef76cdb2c93244ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x3dU));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0xbfffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1f7bb56d5525488ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x3eU));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = ((0x7fffffffffffffffULL 
+                                    & __Vfunc_prim_secded_inv_64_57_enc__19__data_o) 
+                                   | ((QData)((IData)(
+                                                      (1U 
+                                                       & VL_REDXOR_64(
+                                                                      (0x1fbdda769a46910ULL 
+                                                                       & __Vfunc_prim_secded_inv_64_57_enc__19__data_o))))) 
+                                      << 0x3fU));
+                            __Vfunc_prim_secded_inv_64_57_enc__19__data_o 
+                                = (0x5400000000000000ULL 
+                                   ^ __Vfunc_prim_secded_inv_64_57_enc__19__data_o);
+                            __Vfunc_prim_secded_inv_64_57_enc__19__Vfuncout 
+                                = __Vfunc_prim_secded_inv_64_57_enc__19__data_o;
+                        }(), __Vfunc_prim_secded_inv_64_57_enc__19__Vfuncout) 
+                                                         >> 0x39U)));
+        __Vfunc_get_cmd_intg__17__unused_cmd_payload 
+            = (0x1ffffffffffffffULL & ([&]() {
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_i 
+                        = __Vfunc_get_cmd_intg__17__cmd;
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = __Vfunc_prim_secded_inv_64_57_enc__20__data_i;
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0xfdffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x103fff800007fffULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x39U));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0xfbffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x17c1ff801ff801fULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x3aU));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0xf7ffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1bde1f87e0781e1ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x3bU));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0xefffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1deee3b8e388e22ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x3cU));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0xdfffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1ef76cdb2c93244ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x3dU));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0xbfffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1f7bb56d5525488ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x3eU));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = ((0x7fffffffffffffffULL & __Vfunc_prim_secded_inv_64_57_enc__20__data_o) 
+                           | ((QData)((IData)((1U & 
+                                               VL_REDXOR_64(
+                                                            (0x1fbdda769a46910ULL 
+                                                             & __Vfunc_prim_secded_inv_64_57_enc__20__data_o))))) 
+                              << 0x3fU));
+                    __Vfunc_prim_secded_inv_64_57_enc__20__data_o 
+                        = (0x5400000000000000ULL ^ __Vfunc_prim_secded_inv_64_57_enc__20__data_o);
+                    __Vfunc_prim_secded_inv_64_57_enc__20__Vfuncout 
+                        = __Vfunc_prim_secded_inv_64_57_enc__20__data_o;
+                }(), __Vfunc_prim_secded_inv_64_57_enc__20__Vfuncout));
+        __Vfunc_get_cmd_intg__17__Vfuncout = __Vfunc_get_cmd_intg__17__cmd_intg;
+        vlSelf->dmem_test__DOT__tl_i[0U] = ((0xffff01ffU 
+                                             & vlSelf->dmem_test__DOT__tl_i[0U]) 
+                                            | ((IData)(__Vfunc_get_cmd_intg__17__Vfuncout) 
+                                               << 9U));
+        while ((1U & ((~ (IData)(__Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__req_done)) 
+                      | (~ (IData)(__Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__rsp_done))))) {
+            co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                               nullptr, 
+                                                               "@(posedge dmem_test.clk_i)", 
+                                                               "dmem_test.sv", 
+                                                               242);
+            vlSelf->__Vm_traceActivity[2U] = 1U;
+            if ((1U & ((~ (IData)(__Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__req_done)) 
+                       & vlSelf->dmem_test__DOT__tl_o[0U]))) {
+                __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__req_done = 1U;
+                vlSelf->dmem_test__DOT__tl_i[4U] = 
+                    (0xffffU & vlSelf->dmem_test__DOT__tl_i[4U]);
+            }
+            if (((~ (IData)(__Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__rsp_done)) 
+                 & (vlSelf->dmem_test__DOT__tl_o[3U] 
+                    >> 2U))) {
+                __Vtask_dmem_test__DOT__tl_read__14__unnamedblk2__DOT__rsp_done = 1U;
+                __Vtask_dmem_test__DOT__tl_read__14__data 
+                    = ((vlSelf->dmem_test__DOT__tl_o[1U] 
+                        << 0xfU) | (vlSelf->dmem_test__DOT__tl_o[0U] 
+                                    >> 0x11U));
+            }
+        }
+        co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                           nullptr, 
+                                                           "@(posedge dmem_test.clk_i)", 
+                                                           "dmem_test.sv", 
+                                                           253);
+        vlSelf->__Vm_traceActivity[2U] = 1U;
+        vlSelf->dmem_test__DOT__tl_i[0U] = (0xfffffffeU 
+                                            & vlSelf->dmem_test__DOT__tl_i[0U]);
+        vlSelf->dmem_test__DOT__unnamedblk3__DOT__read_data 
+            = __Vtask_dmem_test__DOT__tl_read__14__data;
+        if ((0xdeadbeefU == vlSelf->dmem_test__DOT__unnamedblk3__DOT__read_data)) {
+            VL_WRITEF_NX("[%0t] DMEM test PASSED! Read: 0x%08x\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9,32,vlSelf->dmem_test__DOT__unnamedblk3__DOT__read_data);
+        } else {
+            VL_WRITEF_NX("[%0t] DMEM test FAILED! Expected: 0xDEADBEEF, Got: 0x%08x\n",0,
+                         64,VL_TIME_UNITED_Q(1000),
+                         -9,32,vlSelf->dmem_test__DOT__unnamedblk3__DOT__read_data);
+        }
+    } else {
+        VL_WRITEF_NX("[%0t] STATUS not idle! status=0x%08x\n",0,
+                     64,VL_TIME_UNITED_Q(1000),-9,32,
+                     vlSelf->dmem_test__DOT__unnamedblk3__DOT__status);
+    }
+    dmem_test__DOT____Vrepeat4 = 0x64U;
+    while (VL_LTS_III(32, 0U, dmem_test__DOT____Vrepeat4)) {
+        co_await vlSelf->__VtrigSched_hefad29d5__0.trigger(0U, 
+                                                           nullptr, 
+                                                           "@(posedge dmem_test.clk_i)", 
+                                                           "dmem_test.sv", 
+                                                           335);
+        vlSelf->__Vm_traceActivity[2U] = 1U;
+        dmem_test__DOT____Vrepeat4 = (dmem_test__DOT____Vrepeat4 
+                                      - (IData)(1U));
+    }
+    VL_WRITEF_NX("=== Test Complete ===\n",0);
+    VL_FINISH_MT("dmem_test.sv", 337, "");
+    vlSelf->__Vm_traceActivity[2U] = 1U;
+}
+
+VL_INLINE_OPT VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__1(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___eval_initial__TOP__Vtiming__1\n"); );
+    // Body
+    while (1U) {
+        co_await vlSelf->__VdlySched.delay(0x1388ULL, 
+                                           nullptr, 
+                                           "dmem_test.sv", 
+                                           28);
+        vlSelf->dmem_test__DOT__clk_edn_i = (1U & (~ (IData)(vlSelf->dmem_test__DOT__clk_edn_i)));
+    }
+}
+
+VL_INLINE_OPT VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__2(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___eval_initial__TOP__Vtiming__2\n"); );
+    // Body
+    while (1U) {
+        co_await vlSelf->__VdlySched.delay(0x1388ULL, 
+                                           nullptr, 
+                                           "dmem_test.sv", 
+                                           26);
+        vlSelf->dmem_test__DOT__clk_otp_i = (1U & (~ (IData)(vlSelf->dmem_test__DOT__clk_otp_i)));
+    }
+}
+
+VL_INLINE_OPT VlCoroutine Vdmem_test___024root___eval_initial__TOP__Vtiming__3(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___eval_initial__TOP__Vtiming__3\n"); );
+    // Body
+    while (1U) {
+        co_await vlSelf->__VdlySched.delay(0x1388ULL, 
+                                           nullptr, 
+                                           "dmem_test.sv", 
+                                           24);
+        vlSelf->dmem_test__DOT__clk_i = (1U & (~ (IData)(vlSelf->dmem_test__DOT__clk_i)));
+    }
+}
+
+void Vdmem_test___024root___act_sequent__TOP__0(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__1(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__2(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__3(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__4(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__5(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__6(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__7(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__8(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__9(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__10(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__11(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__12(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__13(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_sequent__TOP__14(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__0(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__1(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__2(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__3(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__4(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__5(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__6(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__7(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__8(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__9(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__10(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__11(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__12(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__13(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__14(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__15(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__16(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__17(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__18(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__19(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__20(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__21(Vdmem_test___024root* vlSelf);
+void Vdmem_test___024root___act_comb__TOP__22(Vdmem_test___024root* vlSelf);
+
+void Vdmem_test___024root___eval_act(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___eval_act\n"); );
+    // Body
+    if ((0x1000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__0(vlSelf);
+    }
+    if ((0x80000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__1(vlSelf);
+    }
+    if ((0x4000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__2(vlSelf);
+    }
+    if ((0x800ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__3(vlSelf);
+        vlSelf->__Vm_traceActivity[3U] = 1U;
+        Vdmem_test___024root___act_sequent__TOP__4(vlSelf);
+        Vdmem_test___024root___act_sequent__TOP__5(vlSelf);
+        Vdmem_test___024root___act_sequent__TOP__6(vlSelf);
+    }
+    if ((2ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__7(vlSelf);
+    }
+    if ((0x20ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__8(vlSelf);
+    }
+    if ((0x40ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__9(vlSelf);
+        vlSelf->__Vm_traceActivity[4U] = 1U;
+    }
+    if ((0x80ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__10(vlSelf);
+        vlSelf->__Vm_traceActivity[5U] = 1U;
+    }
+    if ((0x100ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__11(vlSelf);
+        vlSelf->__Vm_traceActivity[6U] = 1U;
+    }
+    if ((4ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__12(vlSelf);
+        vlSelf->__Vm_traceActivity[7U] = 1U;
+    }
+    if ((8ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__13(vlSelf);
+        vlSelf->__Vm_traceActivity[8U] = 1U;
+    }
+    if ((0x10ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_sequent__TOP__14(vlSelf);
+        vlSelf->__Vm_traceActivity[9U] = 1U;
+    }
+    if ((0x3000000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__0(vlSelf);
+        vlSelf->__Vm_traceActivity[0xaU] = 1U;
+    }
+    if ((0x1c0ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__1(vlSelf);
+        vlSelf->__Vm_traceActivity[0xbU] = 1U;
+    }
+    if ((0x1cULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__2(vlSelf);
+        vlSelf->__Vm_traceActivity[0xcU] = 1U;
+    }
+    if ((0x3000020ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__3(vlSelf);
+        vlSelf->__Vm_traceActivity[0xdU] = 1U;
+    }
+    if ((0x3000200ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__4(vlSelf);
+        vlSelf->__Vm_traceActivity[0xeU] = 1U;
+    }
+    if ((0x3001000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__5(vlSelf);
+        vlSelf->__Vm_traceActivity[0xfU] = 1U;
+    }
+    if ((0x3002000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__6(vlSelf);
+    }
+    if ((0x3020000ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__7(vlSelf);
+    }
+    if ((0x9c0ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__8(vlSelf);
+        vlSelf->__Vm_traceActivity[0x10U] = 1U;
+    }
+    if ((0x30001c0ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__9(vlSelf);
+        vlSelf->__Vm_traceActivity[0x11U] = 1U;
+    }
+    if ((0x300001cULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__10(vlSelf);
+        vlSelf->__Vm_traceActivity[0x12U] = 1U;
+    }
+    if ((0x3001400ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__11(vlSelf);
+        vlSelf->__Vm_traceActivity[0x13U] = 1U;
+    }
+    if ((0x30001dcULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__12(vlSelf);
+        vlSelf->__Vm_traceActivity[0x14U] = 1U;
+    }
+    if ((0x3001c00ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__13(vlSelf);
+        vlSelf->__Vm_traceActivity[0x15U] = 1U;
+    }
+    if ((0x300141cULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__14(vlSelf);
+        vlSelf->__Vm_traceActivity[0x16U] = 1U;
+    }
+    if ((0x3001dc0ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__15(vlSelf);
+    }
+    if ((0x3001c1cULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__16(vlSelf);
+    }
+    if ((0x3101c00ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__17(vlSelf);
+    }
+    if ((0x3041c00ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__18(vlSelf);
+    }
+    if ((0x3009c00ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__19(vlSelf);
+    }
+    if ((0x3011c00ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__20(vlSelf);
+    }
+    if ((0x300141eULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__21(vlSelf);
+        vlSelf->__Vm_traceActivity[0x17U] = 1U;
+    }
+    if ((0x301dc00ULL & vlSelf->__VactTriggered.word(0U))) {
+        Vdmem_test___024root___act_comb__TOP__22(vlSelf);
+    }
+}
+
+VL_INLINE_OPT void Vdmem_test___024root___act_sequent__TOP__0(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___act_sequent__TOP__0\n"); );
+    // Init
+    IData/*31:0*/ __Vtemp_1;
+    // Body
+    __Vtemp_1 = ((0x4000U & ((IData)(((0U != (0x60000000U 
+                                              & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                      | (0x60000000U 
+                                         == (0x60000000U 
+                                             & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                             << 0xeU)) | ((0x2000U 
+                                           & ((IData)(
+                                                      ((0U 
+                                                        != 
+                                                        (0x18000000U 
+                                                         & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                       | (0x18000000U 
+                                                          == 
+                                                          (0x18000000U 
+                                                           & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                              << 0xdU)) 
+                                          | ((0x1000U 
+                                              & ((IData)(
+                                                         ((0U 
+                                                           != 
+                                                           (0x6000000U 
+                                                            & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                          | (0x6000000U 
+                                                             == 
+                                                             (0x6000000U 
+                                                              & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                 << 0xcU)) 
+                                             | ((0x800U 
+                                                 & ((IData)(
+                                                            ((0U 
+                                                              != 
+                                                              (0x1800000U 
+                                                               & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                             | (0x1800000U 
+                                                                == 
+                                                                (0x1800000U 
+                                                                 & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                    << 0xbU)) 
+                                                | ((0x400U 
+                                                    & ((IData)(
+                                                               ((0U 
+                                                                 != 
+                                                                 (0x600000U 
+                                                                  & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                | (0x600000U 
+                                                                   == 
+                                                                   (0x600000U 
+                                                                    & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                       << 0xaU)) 
+                                                   | ((0x200U 
+                                                       & ((IData)(
+                                                                  ((0U 
+                                                                    != 
+                                                                    (0x180000U 
+                                                                     & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                   | (0x180000U 
+                                                                      == 
+                                                                      (0x180000U 
+                                                                       & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                          << 9U)) 
+                                                      | ((0x100U 
+                                                          & ((IData)(
+                                                                     ((0U 
+                                                                       != 
+                                                                       (0x60000U 
+                                                                        & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                      | (0x60000U 
+                                                                         == 
+                                                                         (0x60000U 
+                                                                          & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                             << 8U)) 
+                                                         | ((0x80U 
+                                                             & ((IData)(
+                                                                        ((0U 
+                                                                          != 
+                                                                          (0x18000U 
+                                                                           & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                         | (0x18000U 
+                                                                            == 
+                                                                            (0x18000U 
+                                                                             & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                << 7U)) 
+                                                            | ((0x40U 
+                                                                & ((IData)(
+                                                                           ((0U 
+                                                                             != 
+                                                                             (0x6000U 
+                                                                              & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                            | (0x6000U 
+                                                                               == 
+                                                                               (0x6000U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                   << 6U)) 
+                                                               | ((0x20U 
+                                                                   & ((IData)(
+                                                                              ((0U 
+                                                                                != 
+                                                                                (0x1800U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                               | (0x1800U 
+                                                                                == 
+                                                                                (0x1800U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                      << 5U)) 
+                                                                  | ((0x10U 
+                                                                      & ((IData)(
+                                                                                ((0U 
+                                                                                != 
+                                                                                (0x600U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600U 
+                                                                                == 
+                                                                                (0x600U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                         << 4U)) 
+                                                                     | ((8U 
+                                                                         & ((IData)(
+                                                                                ((0U 
+                                                                                != 
+                                                                                (0x180U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180U 
+                                                                                == 
+                                                                                (0x180U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                            << 3U)) 
+                                                                        | ((4U 
+                                                                            & ((IData)(
+                                                                                ((0U 
+                                                                                != 
+                                                                                (0x60U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60U 
+                                                                                == 
+                                                                                (0x60U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                               << 2U)) 
+                                                                           | ((2U 
+                                                                               & ((IData)(
+                                                                                ((0U 
+                                                                                != 
+                                                                                (0x18U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18U 
+                                                                                == 
+                                                                                (0x18U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 1U)) 
+                                                                              | (1U 
+                                                                                & (IData)(
+                                                                                ((0U 
+                                                                                != 
+                                                                                (6U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (6U 
+                                                                                == 
+                                                                                (6U 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__or_tree)))))))))))))))))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_reg__DOT__u_prim_reg_we_check__DOT__u_prim_onehot_check__DOT__err_tree 
+        = __Vtemp_1;
+}
+
+VL_INLINE_OPT void Vdmem_test___024root___act_sequent__TOP__1(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___act_sequent__TOP__1\n"); );
+    // Init
+    QData/*63:0*/ __Vtemp_1;
+    // Body
+    __Vtemp_1 = (QData)((IData)(((0x40000000U & ((IData)(
+                                                         ((0ULL 
+                                                           != 
+                                                           (0x6000000000000000ULL 
+                                                            & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                          | (0x6000000000000000ULL 
+                                                             == 
+                                                             (0x6000000000000000ULL 
+                                                              & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                 << 0x1eU)) 
+                                 | ((0x20000000U & 
+                                     ((IData)(((0ULL 
+                                                != 
+                                                (0x1800000000000000ULL 
+                                                 & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                               | (0x1800000000000000ULL 
+                                                  == 
+                                                  (0x1800000000000000ULL 
+                                                   & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                      << 0x1dU)) | 
+                                    ((0x10000000U & 
+                                      ((IData)(((0ULL 
+                                                 != 
+                                                 (0x600000000000000ULL 
+                                                  & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                | (0x600000000000000ULL 
+                                                   == 
+                                                   (0x600000000000000ULL 
+                                                    & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                       << 0x1cU)) | 
+                                     ((0x8000000U & 
+                                       ((IData)(((0ULL 
+                                                  != 
+                                                  (0x180000000000000ULL 
+                                                   & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                 | (0x180000000000000ULL 
+                                                    == 
+                                                    (0x180000000000000ULL 
+                                                     & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                        << 0x1bU)) 
+                                      | ((0x4000000U 
+                                          & ((IData)(
+                                                     ((0ULL 
+                                                       != 
+                                                       (0x60000000000000ULL 
+                                                        & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                      | (0x60000000000000ULL 
+                                                         == 
+                                                         (0x60000000000000ULL 
+                                                          & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                             << 0x1aU)) 
+                                         | ((0x2000000U 
+                                             & ((IData)(
+                                                        ((0ULL 
+                                                          != 
+                                                          (0x18000000000000ULL 
+                                                           & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                         | (0x18000000000000ULL 
+                                                            == 
+                                                            (0x18000000000000ULL 
+                                                             & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                << 0x19U)) 
+                                            | ((0x1000000U 
+                                                & ((IData)(
+                                                           ((0ULL 
+                                                             != 
+                                                             (0x6000000000000ULL 
+                                                              & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                            | (0x6000000000000ULL 
+                                                               == 
+                                                               (0x6000000000000ULL 
+                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                   << 0x18U)) 
+                                               | ((0x800000U 
+                                                   & ((IData)(
+                                                              ((0ULL 
+                                                                != 
+                                                                (0x1800000000000ULL 
+                                                                 & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                               | (0x1800000000000ULL 
+                                                                  == 
+                                                                  (0x1800000000000ULL 
+                                                                   & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                      << 0x17U)) 
+                                                  | ((0x400000U 
+                                                      & ((IData)(
+                                                                 ((0ULL 
+                                                                   != 
+                                                                   (0x600000000000ULL 
+                                                                    & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                  | (0x600000000000ULL 
+                                                                     == 
+                                                                     (0x600000000000ULL 
+                                                                      & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                         << 0x16U)) 
+                                                     | ((0x200000U 
+                                                         & ((IData)(
+                                                                    ((0ULL 
+                                                                      != 
+                                                                      (0x180000000000ULL 
+                                                                       & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                     | (0x180000000000ULL 
+                                                                        == 
+                                                                        (0x180000000000ULL 
+                                                                         & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                            << 0x15U)) 
+                                                        | ((0x100000U 
+                                                            & ((IData)(
+                                                                       ((0ULL 
+                                                                         != 
+                                                                         (0x60000000000ULL 
+                                                                          & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                        | (0x60000000000ULL 
+                                                                           == 
+                                                                           (0x60000000000ULL 
+                                                                            & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                               << 0x14U)) 
+                                                           | ((0x80000U 
+                                                               & ((IData)(
+                                                                          ((0ULL 
+                                                                            != 
+                                                                            (0x18000000000ULL 
+                                                                             & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                           | (0x18000000000ULL 
+                                                                              == 
+                                                                              (0x18000000000ULL 
+                                                                               & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                  << 0x13U)) 
+                                                              | ((0x40000U 
+                                                                  & ((IData)(
+                                                                             ((0ULL 
+                                                                               != 
+                                                                               (0x6000000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                              | (0x6000000000ULL 
+                                                                                == 
+                                                                                (0x6000000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                     << 0x12U)) 
+                                                                 | ((0x20000U 
+                                                                     & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x1800000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x1800000000ULL 
+                                                                                == 
+                                                                                (0x1800000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                        << 0x11U)) 
+                                                                    | ((0x10000U 
+                                                                        & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x600000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600000000ULL 
+                                                                                == 
+                                                                                (0x600000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                           << 0x10U)) 
+                                                                       | ((0x8000U 
+                                                                           & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x180000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180000000ULL 
+                                                                                == 
+                                                                                (0x180000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                              << 0xfU)) 
+                                                                          | ((0x4000U 
+                                                                              & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x60000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60000000ULL 
+                                                                                == 
+                                                                                (0x60000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xeU)) 
+                                                                             | ((0x2000U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x18000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18000000ULL 
+                                                                                == 
+                                                                                (0x18000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xdU)) 
+                                                                                | ((0x1000U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x6000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x6000000ULL 
+                                                                                == 
+                                                                                (0x6000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xcU)) 
+                                                                                | ((0x800U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x1800000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x1800000ULL 
+                                                                                == 
+                                                                                (0x1800000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xbU)) 
+                                                                                | ((0x400U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x600000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600000ULL 
+                                                                                == 
+                                                                                (0x600000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xaU)) 
+                                                                                | ((0x200U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x180000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180000ULL 
+                                                                                == 
+                                                                                (0x180000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 9U)) 
+                                                                                | ((0x100U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x60000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60000ULL 
+                                                                                == 
+                                                                                (0x60000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 8U)) 
+                                                                                | ((0x80U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x18000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18000ULL 
+                                                                                == 
+                                                                                (0x18000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 7U)) 
+                                                                                | ((0x40U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x6000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x6000ULL 
+                                                                                == 
+                                                                                (0x6000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 6U)) 
+                                                                                | ((0x20U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x1800ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x1800ULL 
+                                                                                == 
+                                                                                (0x1800ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 5U)) 
+                                                                                | ((0x10U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x600ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600ULL 
+                                                                                == 
+                                                                                (0x600ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 4U)) 
+                                                                                | ((8U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x180ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180ULL 
+                                                                                == 
+                                                                                (0x180ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 3U)) 
+                                                                                | ((4U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x60ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60ULL 
+                                                                                == 
+                                                                                (0x60ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 2U)) 
+                                                                                | ((2U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x18ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18ULL 
+                                                                                == 
+                                                                                (0x18ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 1U)) 
+                                                                                | (1U 
+                                                                                & (IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (6ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (6ULL 
+                                                                                == 
+                                                                                (6ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__or_tree)))))))))))))))))))))))))))))))))))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_base__DOT__gen_rf_base_ff__DOT__u_otbn_rf_base_inner__DOT__u_prim_onehot_check__DOT__err_tree 
+        = __Vtemp_1;
+}
+
+VL_INLINE_OPT void Vdmem_test___024root___act_sequent__TOP__2(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___act_sequent__TOP__2\n"); );
+    // Init
+    QData/*63:0*/ __Vtemp_1;
+    // Body
+    __Vtemp_1 = (QData)((IData)(((0x40000000U & ((IData)(
+                                                         ((0ULL 
+                                                           != 
+                                                           (0x6000000000000000ULL 
+                                                            & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                          | (0x6000000000000000ULL 
+                                                             == 
+                                                             (0x6000000000000000ULL 
+                                                              & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                 << 0x1eU)) 
+                                 | ((0x20000000U & 
+                                     ((IData)(((0ULL 
+                                                != 
+                                                (0x1800000000000000ULL 
+                                                 & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                               | (0x1800000000000000ULL 
+                                                  == 
+                                                  (0x1800000000000000ULL 
+                                                   & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                      << 0x1dU)) | 
+                                    ((0x10000000U & 
+                                      ((IData)(((0ULL 
+                                                 != 
+                                                 (0x600000000000000ULL 
+                                                  & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                | (0x600000000000000ULL 
+                                                   == 
+                                                   (0x600000000000000ULL 
+                                                    & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                       << 0x1cU)) | 
+                                     ((0x8000000U & 
+                                       ((IData)(((0ULL 
+                                                  != 
+                                                  (0x180000000000000ULL 
+                                                   & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                 | (0x180000000000000ULL 
+                                                    == 
+                                                    (0x180000000000000ULL 
+                                                     & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                        << 0x1bU)) 
+                                      | ((0x4000000U 
+                                          & ((IData)(
+                                                     ((0ULL 
+                                                       != 
+                                                       (0x60000000000000ULL 
+                                                        & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                      | (0x60000000000000ULL 
+                                                         == 
+                                                         (0x60000000000000ULL 
+                                                          & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                             << 0x1aU)) 
+                                         | ((0x2000000U 
+                                             & ((IData)(
+                                                        ((0ULL 
+                                                          != 
+                                                          (0x18000000000000ULL 
+                                                           & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                         | (0x18000000000000ULL 
+                                                            == 
+                                                            (0x18000000000000ULL 
+                                                             & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                << 0x19U)) 
+                                            | ((0x1000000U 
+                                                & ((IData)(
+                                                           ((0ULL 
+                                                             != 
+                                                             (0x6000000000000ULL 
+                                                              & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                            | (0x6000000000000ULL 
+                                                               == 
+                                                               (0x6000000000000ULL 
+                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                   << 0x18U)) 
+                                               | ((0x800000U 
+                                                   & ((IData)(
+                                                              ((0ULL 
+                                                                != 
+                                                                (0x1800000000000ULL 
+                                                                 & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                               | (0x1800000000000ULL 
+                                                                  == 
+                                                                  (0x1800000000000ULL 
+                                                                   & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                      << 0x17U)) 
+                                                  | ((0x400000U 
+                                                      & ((IData)(
+                                                                 ((0ULL 
+                                                                   != 
+                                                                   (0x600000000000ULL 
+                                                                    & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                  | (0x600000000000ULL 
+                                                                     == 
+                                                                     (0x600000000000ULL 
+                                                                      & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                         << 0x16U)) 
+                                                     | ((0x200000U 
+                                                         & ((IData)(
+                                                                    ((0ULL 
+                                                                      != 
+                                                                      (0x180000000000ULL 
+                                                                       & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                     | (0x180000000000ULL 
+                                                                        == 
+                                                                        (0x180000000000ULL 
+                                                                         & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                            << 0x15U)) 
+                                                        | ((0x100000U 
+                                                            & ((IData)(
+                                                                       ((0ULL 
+                                                                         != 
+                                                                         (0x60000000000ULL 
+                                                                          & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                        | (0x60000000000ULL 
+                                                                           == 
+                                                                           (0x60000000000ULL 
+                                                                            & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                               << 0x14U)) 
+                                                           | ((0x80000U 
+                                                               & ((IData)(
+                                                                          ((0ULL 
+                                                                            != 
+                                                                            (0x18000000000ULL 
+                                                                             & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                           | (0x18000000000ULL 
+                                                                              == 
+                                                                              (0x18000000000ULL 
+                                                                               & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                  << 0x13U)) 
+                                                              | ((0x40000U 
+                                                                  & ((IData)(
+                                                                             ((0ULL 
+                                                                               != 
+                                                                               (0x6000000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                              | (0x6000000000ULL 
+                                                                                == 
+                                                                                (0x6000000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                     << 0x12U)) 
+                                                                 | ((0x20000U 
+                                                                     & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x1800000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x1800000000ULL 
+                                                                                == 
+                                                                                (0x1800000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                        << 0x11U)) 
+                                                                    | ((0x10000U 
+                                                                        & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x600000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600000000ULL 
+                                                                                == 
+                                                                                (0x600000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                           << 0x10U)) 
+                                                                       | ((0x8000U 
+                                                                           & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x180000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180000000ULL 
+                                                                                == 
+                                                                                (0x180000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                              << 0xfU)) 
+                                                                          | ((0x4000U 
+                                                                              & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x60000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60000000ULL 
+                                                                                == 
+                                                                                (0x60000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xeU)) 
+                                                                             | ((0x2000U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x18000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18000000ULL 
+                                                                                == 
+                                                                                (0x18000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xdU)) 
+                                                                                | ((0x1000U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x6000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x6000000ULL 
+                                                                                == 
+                                                                                (0x6000000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xcU)) 
+                                                                                | ((0x800U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x1800000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x1800000ULL 
+                                                                                == 
+                                                                                (0x1800000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xbU)) 
+                                                                                | ((0x400U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x600000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600000ULL 
+                                                                                == 
+                                                                                (0x600000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 0xaU)) 
+                                                                                | ((0x200U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x180000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180000ULL 
+                                                                                == 
+                                                                                (0x180000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 9U)) 
+                                                                                | ((0x100U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x60000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60000ULL 
+                                                                                == 
+                                                                                (0x60000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 8U)) 
+                                                                                | ((0x80U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x18000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18000ULL 
+                                                                                == 
+                                                                                (0x18000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 7U)) 
+                                                                                | ((0x40U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x6000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x6000ULL 
+                                                                                == 
+                                                                                (0x6000ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 6U)) 
+                                                                                | ((0x20U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x1800ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x1800ULL 
+                                                                                == 
+                                                                                (0x1800ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 5U)) 
+                                                                                | ((0x10U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x600ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x600ULL 
+                                                                                == 
+                                                                                (0x600ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 4U)) 
+                                                                                | ((8U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x180ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x180ULL 
+                                                                                == 
+                                                                                (0x180ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 3U)) 
+                                                                                | ((4U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x60ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x60ULL 
+                                                                                == 
+                                                                                (0x60ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 2U)) 
+                                                                                | ((2U 
+                                                                                & ((IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (0x18ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (0x18ULL 
+                                                                                == 
+                                                                                (0x18ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))) 
+                                                                                << 1U)) 
+                                                                                | (1U 
+                                                                                & (IData)(
+                                                                                ((0ULL 
+                                                                                != 
+                                                                                (6ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree)) 
+                                                                                | (6ULL 
+                                                                                == 
+                                                                                (6ULL 
+                                                                                & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__or_tree)))))))))))))))))))))))))))))))))))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rf_bignum__DOT__gen_rf_bignum_ff__DOT__u_otbn_rf_bignum_inner__DOT__u_prim_onehot_check__DOT__err_tree 
+        = __Vtemp_1;
+}
+
+extern const VlWide<8>/*255:0*/ Vdmem_test__ConstPool__CONST_h9e67c271_0;
+
+VL_INLINE_OPT void Vdmem_test___024root___act_sequent__TOP__3(Vdmem_test___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vdmem_test__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vdmem_test___024root___act_sequent__TOP__3\n"); );
+    // Init
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout);
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in);
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_out = 0;
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout);
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in);
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_out = 0;
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout);
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in);
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_out = 0;
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout);
+    VlWide<8>/*255:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in;
+    VL_ZERO_W(256, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in);
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_in;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_in = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_out = 0;
+    QData/*63:0*/ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_out;
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_out = 0;
+    // Body
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[0U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][0U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][1U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][2U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][3U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[4U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][4U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[5U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][5U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[6U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][6U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[7U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [0U][7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[7U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[6U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[5U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[4U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[3U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[2U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[1U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__data_in[0U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_in 
+            ^ VL_SHIFTL_QQI(64,64,32, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in, 0x11U)) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_out 
+        = ((((QData)((IData)((0x7ffffU & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_in)))) 
+             << 0x2dU) | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_in 
+                          >> 0x13U)) ^ (((QData)((IData)(
+                                                         (0x7ffffU 
+                                                          & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in)))) 
+                                         << 0x2dU) 
+                                        | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_in 
+                                           >> 0x13U)));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[0U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[1U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__d_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[2U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[3U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__c_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[4U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[5U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__b_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[6U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[7U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__a_out 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][0U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[0U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][1U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[1U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][2U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[2U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][3U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[3U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][4U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[4U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][5U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[5U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][6U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[6U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[1U][7U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__467__Vfuncout[7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[0U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][0U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][1U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][2U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][3U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[4U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][4U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[5U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][5U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[6U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][6U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[7U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [1U][7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[7U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[6U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[5U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[4U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[3U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[2U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[1U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__data_in[0U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_in 
+            ^ VL_SHIFTL_QQI(64,64,32, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in, 0x11U)) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_out 
+        = ((((QData)((IData)((0x7ffffU & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_in)))) 
+             << 0x2dU) | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_in 
+                          >> 0x13U)) ^ (((QData)((IData)(
+                                                         (0x7ffffU 
+                                                          & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in)))) 
+                                         << 0x2dU) 
+                                        | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_in 
+                                           >> 0x13U)));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[0U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[1U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__d_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[2U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[3U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__c_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[4U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[5U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__b_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[6U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[7U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__a_out 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][0U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[0U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][1U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[1U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][2U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[2U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][3U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[3U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][4U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[4U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][5U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[5U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][6U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[6U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[2U][7U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__468__Vfuncout[7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[0U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][0U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][1U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][2U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][3U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[4U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][4U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[5U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][5U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[6U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][6U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[7U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [2U][7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[7U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[6U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[5U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[4U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[3U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[2U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[1U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__data_in[0U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_in 
+            ^ VL_SHIFTL_QQI(64,64,32, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in, 0x11U)) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_out 
+        = ((((QData)((IData)((0x7ffffU & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_in)))) 
+             << 0x2dU) | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_in 
+                          >> 0x13U)) ^ (((QData)((IData)(
+                                                         (0x7ffffU 
+                                                          & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in)))) 
+                                         << 0x2dU) 
+                                        | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_in 
+                                           >> 0x13U)));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[0U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[1U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__d_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[2U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[3U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__c_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[4U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[5U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__b_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[6U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[7U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__a_out 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][0U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[0U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][1U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[1U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][2U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[2U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][3U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[3U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][4U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[4U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][5U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[5U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][6U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[6U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[3U][7U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__469__Vfuncout[7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[0U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][0U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][1U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][2U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][3U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[4U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][4U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[5U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][5U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[6U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][6U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[7U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+        [3U][7U];
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[7U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[6U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[5U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[4U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[3U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[2U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_in 
+        = (((QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[1U])) 
+            << 0x20U) | (QData)((IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__data_in[0U])));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_in 
+            ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_out 
+        = ((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_in 
+            ^ VL_SHIFTL_QQI(64,64,32, __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in, 0x11U)) 
+           ^ __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_in);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_out 
+        = ((((QData)((IData)((0x7ffffU & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_in)))) 
+             << 0x2dU) | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_in 
+                          >> 0x13U)) ^ (((QData)((IData)(
+                                                         (0x7ffffU 
+                                                          & (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in)))) 
+                                         << 0x2dU) 
+                                        | (__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_in 
+                                           >> 0x13U)));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[0U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[1U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__d_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[2U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[3U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__c_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[4U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[5U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__b_out 
+                   >> 0x20U));
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[6U] 
+        = (IData)(__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_out);
+    __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[7U] 
+        = (IData)((__Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__a_out 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][0U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[0U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][1U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[1U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][2U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[2U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][3U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[3U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][4U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[4U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][5U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[5U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][6U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[6U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state[4U][7U] 
+        = __Vfunc_dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__state_update__470__Vfuncout[7U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_7 
+        = ((((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                             [3U][7U])) << 0x20U) | (QData)((IData)(
+                                                                    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                    [3U][6U]))) 
+           + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                               [3U][1U])) << 0x20U) 
+              | (QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                [3U][0U]))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_5 
+        = ((((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                             [2U][7U])) << 0x20U) | (QData)((IData)(
+                                                                    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                    [2U][6U]))) 
+           + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                               [2U][1U])) << 0x20U) 
+              | (QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                [2U][0U]))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_3 
+        = ((((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                             [1U][7U])) << 0x20U) | (QData)((IData)(
+                                                                    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                    [1U][6U]))) 
+           + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                               [1U][1U])) << 0x20U) 
+              | (QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                [1U][0U]))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__mid[3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_7;
+    vlSelf->__VdfgRegularize_hd87f99a1_3_0 = (((vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_7 
+                                                << 0x17U) 
+                                               | (QData)((IData)(
+                                                                 (0x7fffffU 
+                                                                  & (IData)(
+                                                                            (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_7 
+                                                                             >> 0x29U)))))) 
+                                              + (((QData)((IData)(
+                                                                  vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                  [3U][7U])) 
+                                                  << 0x20U) 
+                                                 | (QData)((IData)(
+                                                                   vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                   [3U][6U]))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__mid[2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_5;
+    vlSelf->__VdfgRegularize_hd87f99a1_3_1 = (((vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_5 
+                                                << 0x17U) 
+                                               | (QData)((IData)(
+                                                                 (0x7fffffU 
+                                                                  & (IData)(
+                                                                            (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_5 
+                                                                             >> 0x29U)))))) 
+                                              + (((QData)((IData)(
+                                                                  vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                  [2U][7U])) 
+                                                  << 0x20U) 
+                                                 | (QData)((IData)(
+                                                                   vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                                   [2U][6U]))));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__mid[1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_3;
+    vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[0U] 
+        = (IData)((((vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_1 
+                     << 0x17U) | (QData)((IData)((0x7fffffU 
+                                                  & (IData)(
+                                                            (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_1 
+                                                             >> 0x29U)))))) 
+                   + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__xoshiro_q[7U])) 
+                       << 0x20U) | (QData)((IData)(
+                                                   vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__xoshiro_q[6U])))));
+    vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[1U] 
+        = (IData)(((((vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_1 
+                      << 0x17U) | (QData)((IData)((0x7fffffU 
+                                                   & (IData)(
+                                                             (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_1 
+                                                              >> 0x29U)))))) 
+                    + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__xoshiro_q[7U])) 
+                        << 0x20U) | (QData)((IData)(
+                                                    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__xoshiro_q[6U])))) 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[2U] 
+        = (IData)((((vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_3 
+                     << 0x17U) | (QData)((IData)((0x7fffffU 
+                                                  & (IData)(
+                                                            (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_3 
+                                                             >> 0x29U)))))) 
+                   + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                       [1U][7U])) << 0x20U) 
+                      | (QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                        [1U][6U])))));
+    vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[3U] 
+        = (IData)(((((vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_3 
+                      << 0x17U) | (QData)((IData)((0x7fffffU 
+                                                   & (IData)(
+                                                             (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT____VdfgRegularize_h0876dcf7_0_3 
+                                                              >> 0x29U)))))) 
+                    + (((QData)((IData)(vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                        [1U][7U])) 
+                        << 0x20U) | (QData)((IData)(
+                                                    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_rnd__DOT__u_xoshiro256pp__DOT__unrolled_state
+                                                    [1U][6U])))) 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[0U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[0U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[1U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[2U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__dmem_sec_wipe_urnd_key[3U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[4U] 
+        = (IData)(vlSelf->__VdfgRegularize_hd87f99a1_3_1);
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[5U] 
+        = (IData)((vlSelf->__VdfgRegularize_hd87f99a1_3_1 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[6U] 
+        = (IData)(vlSelf->__VdfgRegularize_hd87f99a1_3_0);
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[7U] 
+        = (IData)((vlSelf->__VdfgRegularize_hd87f99a1_3_0 
+                   >> 0x20U));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][0U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[0U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][1U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[1U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][2U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[2U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][3U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[3U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][4U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[4U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][5U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[5U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][6U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[6U];
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in[4U][7U] 
+        = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[7U];
+    if (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__sec_wipe_wdr_q) {
+        if (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__sec_wipe_wdr_urnd_q) {
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[0U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[0U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[1U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[1U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[2U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[2U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[3U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[3U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[4U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[4U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[5U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[5U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[6U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[6U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[7U] 
+                = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__urnd_data[7U];
+        } else {
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[0U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[0U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[1U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[1U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[2U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[2U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[3U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[3U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[4U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[4U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[5U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[5U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[6U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[6U];
+            vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[7U] 
+                = Vdmem_test__ConstPool__CONST_h9e67c271_0[7U];
+        }
+    } else {
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[0U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[0U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[1U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[1U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[2U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[2U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[3U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[3U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[4U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[4U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[5U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[5U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[6U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[6U];
+        vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg[7U] 
+            = vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__rf_bignum_wr_data_no_intg_ctrl[7U];
+    }
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (1U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [0U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (2U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [1U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[1U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [1U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (4U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [2U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[2U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [2U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (8U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [3U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[3U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [3U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (0x10U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [4U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[4U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [4U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (0x20U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [5U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[5U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [5U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (0x40U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [6U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[6U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [6U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (0x80U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [7U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[7U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [7U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[8U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [8U]) | (0x100U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                     [8U][0U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [0U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [1U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [2U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                           [3U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [4U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [5U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [6U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [7U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[9U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [9U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                               [8U][0U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [0U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [1U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [2U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [3U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [4U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [5U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [6U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [7U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xaU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xaU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [8U][0U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [0U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [1U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [2U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [3U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [4U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [5U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [6U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [7U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xbU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xbU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [8U][0U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [0U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [1U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [2U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [3U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [4U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [5U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [6U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [7U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xcU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xcU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [8U][0U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [0U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [1U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [2U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [3U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [4U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [5U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [6U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [7U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xdU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xdU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [8U][0U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [0U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [1U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [2U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [3U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [4U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [5U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [6U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [7U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xeU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xeU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [8U][0U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [0U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [1U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [2U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                             [3U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [4U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [5U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [6U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                [7U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xfU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xfU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [8U][0U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x10U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x10U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x11U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x11U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x12U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x12U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x13U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x13U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x14U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x14U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x15U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x15U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x16U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x16U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x17U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x17U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x18U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x18U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x19U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x19U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][0U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][0U] >> 0x1fU));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][0U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][0U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][0U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][0U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][0U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][0U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][0U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x1fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x1fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][0U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (1U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x20U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x20U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (2U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [1U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x21U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x21U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (4U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [2U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x22U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x22U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (8U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [3U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x23U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x23U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (0x10U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [4U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x24U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x24U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (0x20U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [5U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x25U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x25U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (0x40U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [6U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x26U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x26U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (0x80U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [7U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x27U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x27U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x28U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x28U]) | (0x100U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [8U][1U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x29U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x29U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x2fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x2fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x30U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x30U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x31U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x31U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x32U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x32U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x33U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x33U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x34U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x34U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x35U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x35U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x36U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x36U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x37U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x37U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x38U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x38U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x39U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x39U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][1U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][1U] >> 0x1fU));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][1U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][1U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][1U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][1U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][1U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][1U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][1U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x3fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x3fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][1U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (1U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x40U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x40U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (2U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [1U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x41U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x41U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (4U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [2U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x42U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x42U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (8U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [3U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x43U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x43U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (0x10U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [4U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x44U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x44U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (0x20U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [5U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x45U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x45U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (0x40U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [6U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x46U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x46U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (0x80U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [7U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x47U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x47U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x48U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x48U]) | (0x100U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [8U][2U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x49U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x49U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x4fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x4fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x50U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x50U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x51U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x51U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x52U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x52U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x53U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x53U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x54U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x54U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x55U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x55U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x56U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x56U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x57U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x57U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x58U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x58U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x59U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x59U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][2U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][2U] >> 0x1fU));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][2U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][2U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][2U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][2U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][2U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][2U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][2U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x5fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x5fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][2U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (1U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x60U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x60U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (2U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [1U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x61U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x61U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (4U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [2U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x62U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x62U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (8U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [3U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x63U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x63U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (0x10U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [4U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x64U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x64U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (0x20U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [5U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x65U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x65U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (0x40U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [6U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x66U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x66U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (0x80U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [7U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x67U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x67U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x68U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x68U]) | (0x100U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [8U][3U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x69U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x69U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x6fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x6fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x70U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x70U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x71U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x71U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x72U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x72U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x73U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x73U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x74U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x74U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x75U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x75U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x76U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x76U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x77U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x77U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x78U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x78U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x79U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x79U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][3U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][3U] >> 0x1fU));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][3U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][3U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][3U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][3U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][3U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][3U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][3U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x7fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x7fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][3U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (1U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x80U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x80U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (2U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [1U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x81U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x81U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (4U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [2U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x82U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x82U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (8U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [3U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x83U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x83U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (0x10U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [4U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x84U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x84U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (0x20U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [5U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x85U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x85U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (0x40U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [6U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x86U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x86U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (0x80U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [7U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x87U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x87U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x88U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x88U]) | (0x100U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [8U][4U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x89U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x89U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x8fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x8fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x90U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x90U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x91U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x91U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 9U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x92U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x92U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0xaU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x93U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x93U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0xbU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x94U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x94U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0xcU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x95U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x95U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0xdU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x96U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x96U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0xeU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x97U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x97U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0xfU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x98U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x98U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x10U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x99U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x99U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x11U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9aU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9aU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x12U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9bU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9bU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x13U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9cU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9cU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x14U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9dU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9dU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x15U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][4U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9eU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9eU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x16U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][4U] >> 0x1fU));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][4U] >> 0x1eU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][4U] >> 0x1dU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][4U] >> 0x1cU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][4U] >> 0x1bU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][4U] >> 0x1aU)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][4U] >> 0x19U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][4U] >> 0x18U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0x9fU] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0x9fU]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][4U] >> 0x17U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (1U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [0U][5U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][5U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][5U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][5U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][5U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][5U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][5U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][5U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa0U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa0U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][5U] << 8U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][5U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (2U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [1U][5U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][5U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][5U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][5U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][5U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][5U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][5U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa1U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa1U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][5U] << 7U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][5U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][5U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (4U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [2U][5U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][5U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][5U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][5U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][5U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][5U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa2U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa2U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][5U] << 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][5U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][5U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][5U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (8U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [3U][5U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][5U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][5U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][5U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][5U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa3U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa3U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][5U] << 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][5U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][5U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][5U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][5U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (0x10U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [4U][5U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][5U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][5U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][5U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa4U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa4U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][5U] << 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][5U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][5U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][5U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][5U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][5U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (0x20U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [5U][5U]));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (0x40U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [6U][5U] << 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0x17fU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (0x80U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [7U][5U] << 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa5U] 
+        = ((0xffU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa5U]) | (0x100U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                  [8U][5U] << 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1feU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (1U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [0U][5U] >> 6U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1fdU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (2U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [1U][5U] >> 5U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1fbU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (4U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [2U][5U] >> 4U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1f7U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (8U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                              [3U][5U] >> 3U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1efU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (0x10U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [4U][5U] >> 2U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1dfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (0x20U & (vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                                 [5U][5U] >> 1U)));
+    vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux[0xa6U] 
+        = ((0x1bfU & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__u_ispr_rdata_no_intg_mux__DOT__in_mux
+            [0xa6U]) | (0x40U & vlSelf->dmem_test__DOT__dut__DOT__u_otbn_core__DOT__u_otbn_alu_bignum__DOT__ispr_rdata_no_intg_mux_in
+                        [6U][5U]));
+}
