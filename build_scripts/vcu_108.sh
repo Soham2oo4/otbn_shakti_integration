@@ -89,7 +89,7 @@ soc_config \
 # Verilog generation and FPGA build
 # ------------------------------
 echo "=== Generating Verilog ==="
-make -j8 generate_verilog
+make -j$(nproc) generate_verilog
 
 echo "=== Building for VCU108 board ==="
 export BOARD=vcu108
@@ -97,4 +97,3 @@ make ip_build
 make board_build
 
 echo "=== Build completed successfully for VCU108 with BUS_WIDTH = $BUS_WIDTH ==="
-

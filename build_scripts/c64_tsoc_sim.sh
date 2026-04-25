@@ -66,7 +66,7 @@ soc_config \
 # Verilog and boot generation
 # ------------------------------
 echo "=== Generating Verilog ==="
-make -j8 generate_verilog
+make -j$(nproc) generate_verilog
 
 echo "=== Generating TSOC boot files ==="
 make link_verilator generate_tsoc_boot_files

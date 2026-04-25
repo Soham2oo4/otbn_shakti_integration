@@ -76,7 +76,7 @@ soc_config \
   --verbose info
 
 echo "=== Generating Verilog ==="
-make -j8 generate_verilog
+make -j$(nproc) generate_verilog
 
 echo "=== Building for Nexys Video board ==="
 export BOARD=nexys_video
