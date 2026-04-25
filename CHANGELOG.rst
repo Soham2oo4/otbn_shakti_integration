@@ -4,6 +4,13 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.4.0] - 2026-04-25
+--------------------
+- FPGA build scripts update; upstream soc_config; remove repomanager support
+- Internal FIFO depth changed in c64 config 
+- Ethernet ifdefs in soc
+- caches_mmu upstream for icache address filtering and roms fix
+
 [5.3.0] - 2026-03-27
 --------------------
 - povray-fix: Passing priv through the request instead of sideband connection

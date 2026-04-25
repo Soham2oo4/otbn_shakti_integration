@@ -80,8 +80,10 @@ package Soc;
       slave_num = `MixedCluster_slave_num;
     else if(addr >= `PLICBase && addr <= `PLICEnd)
       slave_num = `MixedCluster_slave_num;
+    `ifdef ethernet
     else if (addr >= `EthBase && addr <= `EthEnd)
       slave_num = `Eth_slave_num;
+    `endif
     else
       slave_num = `Err_slave_num;
       
