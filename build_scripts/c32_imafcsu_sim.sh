@@ -12,8 +12,8 @@ set -u
 # ------------------------------
 BUS_WIDTH="${1:-32}"   # If no argument passed, use 32
 
-if [[ "$BUS_WIDTH" != "32" && "$BUS_WIDTH" != "64" && "$BUS_WIDTH" != "128" ]]; then
-    echo "Error: Invalid bus width '$BUS_WIDTH'. Allowed values are 32, 64, or 128."
+if [[ "$BUS_WIDTH" != "32" ]]; then
+    echo "Error: This script supports ONLY 32-bit bus width."
     exit 1
 fi
 
@@ -71,7 +71,7 @@ soc_config \
 # Verilog generation and linking
 # ------------------------------
 echo "=== Generating Verilog and boot files ==="
-make -j8 generate_verilog
+make -j$(nproc) generate_verilog
 make link_verilator generate_boot_files
 
 echo "=== Build completed successfully with BUS_WIDTH = $BUS_WIDTH ==="
