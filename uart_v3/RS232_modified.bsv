@@ -190,9 +190,13 @@ interface UART#(numeric type depth);
 (* always_ready, always_enabled *)
    method Bool receiver_full;
 (* always_ready, always_enabled *)
+   method UInt#(TLog#(TAdd#(depth,1))) receiver_count;
+(* always_ready, always_enabled *)
    method Bool transmittor_full;
 (* always_ready, always_enabled *)
    method Bool transmittor_empty;
+(* always_ready, always_enabled *)
+   method UInt#(TLog#(TAdd#(depth,1))) transmittor_count;
 (* always_ready, always_enabled *)
    method Bit#(5) error_status;
 (* always_ready, always_enabled *)
@@ -962,6 +966,10 @@ module mkUART( `ifdef uart_modem  Reg#(Bit#(1)) auto_rts
    method Bool receiver_full;
 	    return !fifoRecv.notFull();
    endmethod
+   /* If this method is called it returns the Receiver FIFO count . */
+   method receiver_count;
+      return fifoRecv.count();
+   endmethod
    /* If this method is called it returns if the Transmitter FIFO is FULL or not . */
    method Bool transmittor_full;
    	  return !fifoXmit.notFull();
@@ -972,6 +980,10 @@ module mkUART( `ifdef uart_modem  Reg#(Bit#(1)) auto_rts
 	      return True;
 	   else
 	      return False;
+   endmethod
+   /* If this method is called it returns the Transmitter FIFO count . */
+   method transmittor_count;
+      return fifoXmit.count();
    endmethod
    /* Combines the status from various places and presents it as one returnable method for read/write */
    method Bit#(5) error_status;

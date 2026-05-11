@@ -113,8 +113,11 @@ package uart;
 		UART#(depth) uart <-mkUART(`ifdef uart_modem  auto_rts,rg_modem, `endif rg_charsize, rg_parity, rg_stopbits, baud_value, rg_delay_control `ifdef uart_modem ,rg_stickparity `endif ); // charasize,Parity,Stop Bits,BaudDIV, Delay_control
 		Reg#(Bit#(16)) rg_interrupt_en <-mkRegA(0);
 /* Combines all the status bits into one complete status register */
-    let status= { `ifdef uart_modem  uart.modem_status[7:1] `else 7'd0 `endif ,uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
+    	let status= { `ifdef uart_modem  uart.modem_status[7:1] `else 7'd0 `endif ,uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
                   pack(uart.transmittor_full), pack(uart.transmittor_empty) }; //Remember uart.modem_status[0]
+		Bit#(8) rx_padded = zeroExtend(pack(uart.receiver_count));
+		Bit#(8) tx_padded = zeroExtend(pack(uart.transmittor_count));
+		Bit#(16) fifo_count = {rx_padded, tx_padded};
     /* Sends the value in the threshold register for every instance so that it is verifed if threshold is reached. */
     rule rl_send_rx_threshold;
       uart.rx_threshold(rg_rx_threshold);
@@ -138,7 +141,10 @@ package uart;
       /* Returns the status register's data */
       if( addr[5:0]==`StatusReg && size==HWord)begin
         return tuple2(duplicate(status),True);
-      end      
+      end   
+	  else if( addr[5:0]==`FIFO_Count && size==HWord)begin
+        return tuple2(duplicate(fifo_count),True);
+      end   
       /* Returns the receiver register's data if data is present and DCD, RI , DSR and CTS are active */
 			else if(addr[5:0]==`RxReg) begin
 				Bit#(32) data =0;

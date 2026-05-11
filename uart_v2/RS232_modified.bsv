@@ -155,9 +155,13 @@ interface UART#(numeric type depth);
 (* always_ready, always_enabled *)
    method Bool receiver_full;
 (* always_ready, always_enabled *)
+   method UInt#(TLog#(TAdd#(depth,1))) receiver_count;
+(* always_ready, always_enabled *)
    method Bool transmittor_full;
 (* always_ready, always_enabled *)
    method Bool transmittor_empty;
+(* always_ready, always_enabled *)
+   method UInt#(TLog#(TAdd#(depth,1))) transmittor_count;
 (* always_ready, always_enabled *)
 	 method Bit#(5) error_status;
    method Action clear_status(Bit#(5) clear_bits);
@@ -462,7 +466,7 @@ module mkUART( Bit#(6) charsize
    ////////////////////////////////////////////////////////////////////////////////
    /// Transmit UART
    ////////////////////////////////////////////////////////////////////////////////
-   FIFOLevelIfc#(Bit#(32), d)                 fifoXmit              <- mkGFIFOLevel(True, False, True);
+   FIFOCountIfc#(Bit#(32), d)                 fifoXmit              <- mkGFIFOCount(True, False, True);
 
    Vector#(32, Reg#(Bit#(1)))                 vrXmitBuffer          <- replicateM(mkRegU);
 
@@ -820,6 +824,10 @@ module mkUART( Bit#(6) charsize
    method Bool receiver_full;
 	    return !fifoRecv.notFull();
    endmethod
+   
+   method receiver_count;
+      return fifoRecv.count();
+   endmethod
 
    method Bool transmittor_full;
    	  return !fifoXmit.notFull();
@@ -830,6 +838,10 @@ module mkUART( Bit#(6) charsize
 	      return True;
 	   else
 	      return False;
+   endmethod
+
+   method transmittor_count;
+      return fifoXmit.count();
    endmethod
 
 	 method Bit#(5) error_status;

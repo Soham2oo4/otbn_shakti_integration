@@ -102,7 +102,9 @@ package uart;
 		Reg#(Bit#(16)) rg_interrupt_en <-mkRegA(0);
     let status= { 7'd0, uart.error_status, pack(uart.receiver_full), pack(uart.receiver_not_empty),
                   pack(uart.transmittor_full), pack(uart.transmittor_empty) };
-
+		Bit#(8) rx_padded = zeroExtend(pack(uart.receiver_count));
+		Bit#(8) tx_padded = zeroExtend(pack(uart.transmittor_count));
+		Bit#(16) fifo_count = {rx_padded, tx_padded};
     rule rl_send_rx_threshold;
       uart.rx_threshold(rg_rx_threshold);
     endrule
@@ -112,6 +114,9 @@ package uart;
       if( addr[5:0]==`StatusReg && size==HWord)begin
         return tuple2(duplicate(status),True);
       end
+     else if( addr[5:0]==`FIFO_Count && size==HWord)begin
+        return tuple2(duplicate(fifo_count),True);
+      end   
 			else if(addr[5:0]==`RxReg) begin
 				Bit#(32) data =0;
 				if(uart.receiver_not_empty)

@@ -46,8 +46,6 @@ endfunction
 
 
 
-
-
 function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr, 
                                               Bit#(2) sz, 
                                               Bit#(m) data, 
@@ -66,6 +64,7 @@ function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr,
     Add#(m, c__, 64),  // register data should be <= 64
     Add#(TExp#(TLog#(n)),0,n), // bus-side should be a power of 2. 
     Add#(TExp#(TLog#(m)),0,m), // register side should be a power of 2
+    Add#(TLog#(TDiv#(n, 8)),0,os),
     `ifndef axi4_128b
       Add#(d__, TDiv#(n, 8), 8)
     `else
@@ -77,10 +76,14 @@ function Tuple2#(Bool,Bit#(n)) fn_adjust_read(Bit#(a) addr,
   Bit#(os) byteoffset = truncate(addr);
   Bool offset_match  = (mask | byteoffset) == mask;
   Bit#(os) _zeros = 0;
+  Bit#(n) newdata = reSize(data);
   if (mi > ni)
-    data = data >> {byteoffset,_zeros};
+    newdata = reSize(data >> {byteoffset,_zeros});
+
+  else if (ni > mi)
+    newdata = newdata << {byteoffset,_zeros};
   Bool access_allowed = (min <= sz) && (sz <= max);
-  if (access_allowed && offset_match) return tuple2(True, reSize(data));
+  if (access_allowed && offset_match) return tuple2(True, (newdata));
   else return tuple2(False,0);
 endfunction:fn_adjust_read
 
@@ -123,7 +126,7 @@ function ActionValue#(Tuple2#(Bool,Bit#(m))) fn_adjust_write(Bit#(a) addr,
     `else
       Add#(d__, TDiv#(n, 8), 16),
     `endif
-    Add#(TSub#(2, TLog#(TDiv#(n, 8))), e__, os)
+    Add#(TLog#(TDiv#(n, 8)),0,os)
   ) = actionvalue
       
   let mi = valueOf(m);
@@ -143,6 +146,11 @@ function ActionValue#(Tuple2#(Bool,Bit#(m))) fn_adjust_write(Bit#(a) addr,
       newdata1 = newdata1 << {byteoffset,_zeros};
       newstrb1 = newstrb1 << byteoffset;
     end
+  end
+  
+  if(ni>mi) begin
+  newdata1 = reSize(newdata >> {byteoffset,_zeros});
+  newstrb1 = reSize(strb >> byteoffset);
   end
 
   Bit#(m) upd_data;
@@ -190,7 +198,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Add#(a__, 26, aw),
     Add#(8, b__, dw),         // data atleast 8 bits
     Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
-    Add#(c__, 2, aw),
+    Add#(c__, 4, aw),
     `ifndef axi4_128b
       Add#(dw, d__, 64),
     `else
@@ -205,7 +213,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
     Add#(f__, lg_priority, 32),
     Bits#(UInt#(TLog#(nsources)), lg_nsources),
     Add#(g__, 1, lg_priority),
-    Mul#(32, i__, dw)
+    Mul#(32, i__, dw),
+    Add#(j__, TLog#(TDiv#(dw, 8)), aw)
   );
 
   let v_nsources = valueOf(nsources);
@@ -300,7 +309,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
         Bit#(32) _t=  zeroExtend(vrg_source_priority[src_id]);
 	rdata = duplicate(_t);
         success = True;
-        //{success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, 2'b11);
+        //{success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, '1);
         // ensure source ids within the instantiated number of sources
         if( src_id > 0 && src_id <= fromInteger(v_nsources-1) ) begin
           success = success ;
@@ -325,7 +334,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
 	        Bit #(32) v_ip = pack (genWith  (fn_ip_source_id));
             rdata = duplicate(v_ip);
             success = True;
-          // {success, rdata} = fn_adjust_read(addr, size, v_ip, 0, 2, 2'b11);
+          // {success, rdata} = fn_adjust_read(addr, size, v_ip, 0, 2, '1);
         end
       end
 
@@ -343,7 +352,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
 	      endfunction:fn_ie_source_id
 
           Bit #(32) v_ie = pack (genWith  (fn_ie_source_id));
-          //{success, rdata} = fn_adjust_read(addr, size, v_ie, 0, 2, 2'b11);
+          //{success, rdata} = fn_adjust_read(addr, size, v_ie, 0, 2, '1);
             rdata = duplicate(v_ie);
             success = True;
         end
@@ -353,7 +362,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
         if(offset[11:0] == 0) begin // priority threshold registers per context
           if( target_id <= fromInteger(v_targets-1)) begin
             Bit#(32) _t = zeroExtend(v_target_threshold[target_id]);
-            //{success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, 2'b11);
+            //{success, rdata} = fn_adjust_read(addr, size, _t, 0, 2, '1);
             rdata = duplicate(_t);
             success = True;
           end
@@ -391,7 +400,8 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
         // ensure source ids within the instantiated number of sources
         if( src_id <= fromInteger(v_nsources-1) ) begin
           _temp = zeroExtend(vrg_source_priority[src_id]);
-          {success, _temp} <- fn_adjust_write(addr, data, strb, _temp, 0, 2, 2'b11);
+          {success, _temp} <- fn_adjust_write(addr, data, strb, _temp, 0, 2, '1);
+          `logLevel( plic, 0, $format("PLIC: data:%d ",_temp))
         if(success && src_id > 0) vrg_source_priority[src_id] <= truncate(_temp);
         end
       end
@@ -419,7 +429,7 @@ module mkplic#(parameter Integer slave_base)(User_ifc#(aw, dw, sources, targets,
         if(offset[11:0] == 0) begin // priority threshold registers per context
           if(target_id <= fromInteger(v_targets-1)) begin
             _temp = zeroExtend(v_target_threshold[target_id]);
-            {success, _temp} <- fn_adjust_write(addr, data, strb, _temp, 0, 2, 2'b11);
+            {success, _temp} <- fn_adjust_write(addr, data, strb, _temp, 0, 2, '1);
             if(success) v_target_threshold[target_id] <= truncate(_temp);
           end
         end
@@ -480,7 +490,7 @@ endmodule:mkplic
         Add#(a__, 26, aw),
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
-        Add#(c__, 2, aw),
+        Add#(c__, 4, aw),
         `ifndef axi4_128b
           Add#(dw, d__, 64),
         `else
@@ -495,7 +505,8 @@ endmodule:mkplic
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
         Add#(g__, 1, lg_priority),
-        Mul#(32, i__, dw)
+        Mul#(32, i__, dw),
+	Add#(j__, TLog#(TDiv#(dw, 8)), aw)
       );
 
     let strb_size = valueOf(TSub#(TDiv#(dw,8),1));
@@ -557,7 +568,7 @@ endmodule:mkplic
         Add#(a__, 26, aw),
         Add#(8, b__, dw),         // data atleast 8 bits
         Mul#(TDiv#(dw,8),8, dw), // dw is a proper multiple of 8 bits
-        Add#(c__, 2, aw),
+        Add#(c__, 4, aw),
         `ifndef axi4_128b
           Add#(dw, d__, 64),
         `else
@@ -572,7 +583,8 @@ endmodule:mkplic
         Add#(f__, lg_priority, 32),
         Bits#(UInt#(TLog#(nsources)), lg_nsources),
         Add#(g__, 1, lg_priority),
-        Mul#(32, i__, dw)
+        Mul#(32, i__, dw),
+	Add#(j__, TLog#(TDiv#(dw, 8)), aw)
       );
 
 		let strb_size = valueOf(TSub#(TDiv#(dw,8),1));

@@ -290,6 +290,10 @@ endfunction
     MIMO#(1,1,32,I2C_RegWidth) tx_fifo <- mkMIMO(cfg);    // FIFO Size is taken as 32. Can be configured
     MIMO#(1,1,32,I2C_RegWidth) rx_fifo <- mkMIMO(cfg);
 
+    Bit#(8) rx_padded = zeroExtend(pack(tx_fifo.count));
+	  Bit#(8) tx_padded = zeroExtend(pack(rx_fifo.count));
+	  Bit#(16) fifo_count = {rx_padded, tx_padded};
+
     Reg#(I2C_RegWidth) length_reg <- mkRegA(0);     // To track number of bytes to be transmitted or received
     Reg#(I2C_RegWidth) rx_data <- mkRegA(0);        // Temporarily store I2C Read Data before storing it in RX FIFO
     Reg#(Bit#(1)) reg_to_tx_fifo <- mkRegA(0);      // Set to 1 when TX FIFO needs to be updated with new data
@@ -319,6 +323,7 @@ endfunction
         case (i2c_state)
           `Control         : return tuple2(False,duplicate(mcontrolReg));   //~ Are we creating new reg each time
           `Status          : return tuple2(False,duplicate(mstatusReg));
+          `FIFO_Count      : return tuple2(False,duplicate(fifo_count));
           `S01             : return tuple2(False,duplicate(s01));
           `S0              : return tuple2(False,duplicate(s0));
           `S2              : return tuple2(False,duplicate(s2));

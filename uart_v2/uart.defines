@@ -42,4 +42,5 @@
 `ifdef IQC
   `define IQ_cycles 'h1C    //8-bit register that indicates number of input qualification cycles
 `endif
-  `define RX_Threshold 'h20 //8-bit RX Threshold Register
+`define RX_Threshold 'h20 //8-bit RX Threshold Register
+`define FIFO_Count  'h28 //16-bit FIFO Count register    
