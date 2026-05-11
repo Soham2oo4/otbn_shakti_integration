@@ -160,7 +160,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   /*doc:reg: This register is used to keep track of the beats/bursts occurring during the write
   * operation of a data line to memory. A new line-write or an io-write operation can be initiated
   * only when rg_burst_count == 0, else the requests are stalled. */
-  Reg#(Bit#(8)) rg_burst_count <- mkReg(0);
+  Reg#(Bit#(9)) rg_burst_count <- mkReg(0);
 
   /*doc:reg: While performing burst writes during line eviction, this register indicates the amount
    * the line should be shifted to send the next beat of data on the bus*/
@@ -429,7 +429,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   * line is read from the eviction fifo of the data memory subystem and shifted by an appropriate
   * amount indicating the beat number. On the last beat, the eviction fifo is dequence and the burst
   * counter is reset to zero. We also invalidate the rg_write_req register on the last beat*/
-  rule rl_dmem_burst_write_data(rg_burst_count != 0);
+  rule rl_dmem_burst_write_data(rg_burst_count != 0 && (rg_burst_count < fromInteger((`dblocks * `dwords * 8) / `buswidth) ) );
     // last beat is detected if the burst_counter has reached the size of the words in each line -1.
     Bool last = rg_burst_count == fromInteger(((`dblocks * `dwords * 8) / `buswidth)  - 1 );
 
@@ -444,15 +444,14 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 
     // if last reset all state and exit this loop
     if(last) begin
-      rg_burst_count <= 0;
       rg_shift_amount <= `buswidth;
       dmem.deq_mem_wr_req;
     end
     else begin
       // generate the next shift amount and increment rg_burst_count counter.
       rg_shift_amount <= rg_shift_amount + `buswidth;
-      rg_burst_count <= rg_burst_count + 1;
     end
+    rg_burst_count <= rg_burst_count + 1;
 	  memory_xactor.i_wr_data.enq(w);
     `logLevel( core, 1, $format("[%2d]CORE : DMEM Write Data: %h rg_burst_count: %d last: %b \
 _shift_amount:%d",hartid, req.data, rg_burst_count, last, rg_shift_amount))
@@ -463,8 +462,14 @@ _shift_amount:%d",hartid, req.data, rg_burst_count, last, rg_shift_amount))
   rule handle_dmem_line_write_resp (memory_xactor.o_wr_resp.first.bid == 0);
     let response <- pop_o(memory_xactor.o_wr_resp);
   	let bus_error = !(response.bresp == AXI4_OKAY);
-	  dmem.receive_mem_wr_resp.put(bus_error);
-    rg_write_req <= tagged Invalid;
+    // stall if error
+    // if no error, write is complete, next write can start
+    // hence, make rg_burst_count = 0, ensures all writes are sequenced
+    if ( ! bus_error) begin
+      rg_burst_count <= 0;
+	    dmem.receive_mem_wr_resp.put(bus_error);
+      rg_write_req <= tagged Invalid;
+    end
     `logLevel( core, 1, $format("[%2d]CORE : DMEM Write Line Response ",hartid, fshow(response)))
   endrule: handle_dmem_line_write_resp
 
