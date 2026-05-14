@@ -354,7 +354,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   by the write - req. This could lead to wrong behavior. To avoid this it is necessary to ensure
   that if a write - request has been initiated no read - requests should be latched unless the
   write - response has arrived.
-  The contraint is fullilled using the register rg_write_req which holds the current address of
+  The constraint is fullilled using the register rg_write_req which holds the current address of
   the line being written to the fabric on a eviction. When such a conflict is detected we store the
   popped request from the data memory subsystem into the rg_read_line_req register so that it can be
   handled once the conflict is done.
@@ -422,13 +422,14 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
     memory_xactor.i_wr_addr.enq(aw);
 	  memory_xactor.i_wr_data.enq(w);
     `logLevel( core, 1, $format("[%2d]CORE : DMEM Line Write Addr : Request ",hartid, fshow(aw)))
+    // burst length is > 0 whenever line_size > bus_data_width
     rg_write_req <= tagged Valid req.address;
   endrule:rl_handle_dmem_write_request
 
   /*doc:rule: This rule sends the burst beats of the line write operation. On each iteration the
   * line is read from the eviction fifo of the data memory subystem and shifted by an appropriate
-  * amount indicating the beat number. On the last beat, the eviction fifo is dequence and the burst
-  * counter is reset to zero. We also invalidate the rg_write_req register on the last beat*/
+  * amount indicating the beat number. After the last beat, the rule's firing condition is false,
+  * so next write starts only after rg_burst_count becomes zero, which is in write response rule*/
   rule rl_dmem_burst_write_data(rg_burst_count != 0 && rg_burst_count < fromInteger((`dblocks * `dwords * 8) / `buswidth));
     // last beat is detected if the burst_counter has reached the size of the words in each line -1.
     Bool last = rg_burst_count == fromInteger(((`dblocks * `dwords * 8) / `buswidth)  - 1 );
@@ -456,8 +457,9 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
 _shift_amount:%d",hartid, req.data, rg_burst_count, last, rg_shift_amount))
   endrule:rl_dmem_burst_write_data
 
-  /*doc:rule: This rule will simply forward the response obtained from the fabric for a previous
-   * line write operation to the data memory subsystem*/
+  /*doc:rule: This rule will forward the response obtained from the fabric for a previous
+   * line write operation to the data memory subsystem, make rg_burst_count to zero and 
+   * deques the evivtion fifo from cache. rg_write_req is also invalidated */
   rule handle_dmem_line_write_resp (memory_xactor.o_wr_resp.first.bid == 0);
     let response <- pop_o(memory_xactor.o_wr_resp);
   	let bus_error = !(response.bresp == AXI4_OKAY);
