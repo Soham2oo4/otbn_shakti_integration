@@ -354,7 +354,7 @@ module mkccore_axi4#(Bit#(`vaddr) resetpc, parameter Bit#(`xlen) hartid `ifdef t
   by the write - req. This could lead to wrong behavior. To avoid this it is necessary to ensure
   that if a write - request has been initiated no read - requests should be latched unless the
   write - response has arrived.
-  The constraint is fullilled using the register rg_write_req which holds the current address of
+  The constraint is fulfilled using the register rg_write_req which holds the current address of
   the line being written to the fabric on a eviction. When such a conflict is detected we store the
   popped request from the data memory subsystem into the rg_read_line_req register so that it can be
   handled once the conflict is done.
