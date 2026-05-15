@@ -20,3 +20,4 @@
 `define	SPI_Clk_En     'h20
 `endif
 `define Delay_config   'h24
+`define FIFO_Count     'h28 //16-bit FIFO Count register  

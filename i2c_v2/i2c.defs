@@ -63,3 +63,4 @@ This file defines the functions and the types required to implement I2C routines
 `define	    I2C_Clk_En	   8'h58
 `endif
 `define     SDA_delay      8'h64
+`define     FIFO_Count     8'h68 //16-bit FIFO Count register  

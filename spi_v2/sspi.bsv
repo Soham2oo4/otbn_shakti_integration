@@ -393,6 +393,10 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 	/*doc : FIFO : This is RX MIMO which holds the received data */
 	MIMO#(4,4,32,Bit#(8)) rx_fifo <- mkMIMO(cfg);
 
+	Bit#(8) rx_padded = zeroExtend(pack(tx_fifo.count));
+	Bit#(8) tx_padded = zeroExtend(pack(rx_fifo.count));
+	Bit#(16) fifo_count = {rx_padded, tx_padded};
+
 	/*doc : Wire : Wire which holds the input from MISO IO pin */
 	Wire#(bit) wr_spi_master_in <- mkWire();
 	/*doc : Wire : Wire which holds the input from MOSI IO pin */
@@ -938,6 +942,8 @@ module mk_sspi(Ifc_sspi#(addr_width, data_width))
 			data = duplicate(rg_comm_ctrl);
 		else if(addr[7:0] == `Clock_control && size == 2)
 			data = duplicate(rg_clk_ctrl);
+		else if(addr[7:0] == `FIFO_Count && size == 1)
+			data = duplicate(fifo_count);
 		else if(addr[7:0] == `RX_data_rg) begin
 			Bit#(3) temp_size = size == 2 ? 4 : zeroExtend(size + 1);
 			`logLevel( sspi, 0, $format(" Read req RX temp_size = %d ; rx_fifo count = %d; data = %x;\n",temp_size,rx_fifo.count,data))

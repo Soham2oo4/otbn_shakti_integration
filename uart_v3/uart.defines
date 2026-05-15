@@ -74,3 +74,4 @@
 `ifdef uart_clk_gate_loc_rst_en
 `define UART_Clk_en 'h24
 `endif
+`define FIFO_Count  'h28 //16-bit FIFO Count register    
