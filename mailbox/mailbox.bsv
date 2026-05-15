@@ -9,6 +9,7 @@ package mailbox;
 	import AXI4_Fabric::*;
 	import device_common::*;
 	import BUtils::*;
+	`include "Soc.defines" 
 	
 	`include "Logger.bsv"	
 
@@ -24,6 +25,7 @@ package mailbox;
 		method Bool write_response;
 		method Action read_request(Bit#(addr_width) addr, Bit#(3) access_size);
 		method Tuple2#(Bool,Bit#(data_width)) read_response;
+		method Bit#(1) return_mail_box_interrupt;
 	endinterface : Ifc_mailbox
 
 	module mkmailbox#(parameter String modulename, Integer base_address `ifdef testmode , Bool test_mode `endif ) (Ifc_mailbox#(addr_width,data_width,num_ver_banks,num_hor_banks,index_size))
@@ -76,12 +78,16 @@ package mailbox;
 		Wire#(Bit#(data_width)) wr_data <- mkWire();
 		Reg#(Bit#(index_size)) rg_address <- mkRegA(0);
 		Reg#(Bit#(3)) rg_access_size <- mkRegA(0);
+		Reg#(Bool) rg_write_response <- mkRegA(False);
 		Reg#(Bit#(TLog#(TAdd#(num_ver_banks,1)))) rg_bank_number <- mkRegA(0);
 
 		Reg#(Access_State) rg_mem_state <- mkRegA( `ifdef mail_mem_init  Mem_init  `else Idle `endif );
 		Reg#(Access_type) rg_access_type <- mkRegA(Write);
 		Reg#(Bool) wr_access_response <- mkWire();
 		Wire#(Bool) wr_access_response_write <- mkWire();
+		
+		Reg#(Bit#(1)) mail_box_interrupt <- mkRegA(0);
+		Reg#(Bit#(2)) counter <- mkRegA(0);
 
 
 		Reg#(Bit#(data_width)) rg_corrected_data <- mkRegA(0);
@@ -107,6 +113,18 @@ package mailbox;
 			end
 		end
 `endif
+		rule interrupt_generation(mail_box_interrupt == 1'b1);
+			counter <= counter + 1;
+			if (counter == 2) 
+			begin
+				mail_box_interrupt <= 1'b0;
+				rg_mem_state <= `ifdef mail_mem_init  Mem_init  `else Idle `endif ;
+			end
+		endrule
+
+		rule terminate_counter((counter == 2) && (mail_box_interrupt == 1'b0));
+			counter <= 0;
+		endrule
 
 		rule rl_data_memory_read(rg_mem_state == Data_read);
 			Vector#(num_hor_banks,Bit#(row_width)) temp_hbank;
@@ -159,7 +177,12 @@ package mailbox;
 
     			rg_mem_state <= Idle;
     			wr_access_response_write <= True; 
-    			wr_access_response <= True; // Ensure both response wires are high
+    			//wr_access_response <= True; // Ensure both response wires are high
+		endrule
+
+		rule rl_trigger_write_response(rg_write_response==True);
+			wr_access_response_write <= True; 
+			rg_write_response<=False;
 		endrule
 
 		method Action write_request(Bit#(addr_width) addr, Bit#(data_width) data, Bit#(3) access_size) if(rg_mem_state == Idle);
@@ -167,18 +190,29 @@ package mailbox;
 			rg_data <= data;
 			rg_access_size <= access_size;
 			Bit#(TLog#(TAdd#(num_ver_banks,1))) temp_bank_no = addr[valueOf(TAdd#(index_size,TLog#(TAdd#(num_ver_banks,1))))-1:valueOf(index_size)];
-			rg_bank_number <= temp_bank_no;
-			rg_address <= truncate(addr-fromInteger(base_address));
-			for(Integer i=0; i<v_num_hor_banks; i=i+1) begin
-				data_mem[temp_bank_no][i].put(False,temp_address,?);
+			if(addr == `INTRBase)
+			begin
+				mail_box_interrupt <= 1'b1;
+				rg_write_response<= True;
+    			//wr_access_response <= True; // Ensure both response wires are high
 			end
-			rg_mem_state <= Data_read;
-			rg_access_type <= Write;	
+			else
+			begin
+				rg_bank_number <= temp_bank_no;
+				rg_address <= truncate(addr-fromInteger(base_address));
+				for(Integer i=0; i<v_num_hor_banks; i=i+1) begin
+					data_mem[temp_bank_no][i].put(False,temp_address,?);
+				end
+				rg_mem_state <= Data_read;
+				rg_access_type <= Write;	
+			end
 			`logLevel(mail,0,$format("MAILBOX : %d : write request address : %x data : %x Absoulte address : %x \n",temp_bank_no,temp_address,data,addr))
 		endmethod
-		method Bool write_response if(rg_access_type == Write);
+
+		method Bool write_response ;
 			return wr_access_response_write;
 		endmethod
+
 		method Action read_request(Bit#(addr_width) addr, Bit#(3) access_size) if(rg_mem_state == Idle);
 			Bit#(TSub#(index_size,TLog#(TDiv#(data_width,8)))) temp_address = (addr - fromInteger(base_address))[valueOf(index_size)-1:byte_offset];
 			rg_address <= truncate(addr-fromInteger(base_address));
@@ -192,13 +226,20 @@ package mailbox;
 			rg_access_type <= Read;
 			`logLevel(mail,0,$format("MAILBOX : %d : read request address %x Absoulte address %x \n",temp_bank_no,temp_address,addr))
 		endmethod
-		method Tuple2#(Bool,Bit#(data_width)) read_response if(rg_access_type == Read);
+		method Tuple2#(Bool,Bit#(data_width)) read_response ;
 			return tuple2(wr_access_response,wr_data);
+		endmethod
+
+		method Bit#(1) return_mail_box_interrupt if(rg_mem_state == Idle);
+			return mail_box_interrupt;
 		endmethod
 	endmodule : mkmailbox
 
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 	interface Ifc_mailbox_axi4#(numeric type addr_width,numeric type id_width, numeric type data_width, numeric type user_width, numeric type num_ver_banks, numeric type num_hor_banks, numeric type index_size);
 		interface AXI4_Slave_IFC#(addr_width,id_width, data_width, user_width) slave;
+		method Bit#(1) return_mail_box_interrupt;
 	endinterface : Ifc_mailbox_axi4
 
 	typedef enum {Idle, Burst} Transfer_State deriving(Eq, Bits, FShow);
@@ -227,14 +268,21 @@ package mailbox;
 		Reg#(Bit#(1)) rg_burst_next_read <- mkDRegA(0);
 		Reg#(Bit#(8)) rg_read_burst_counter <- mkRegA(0);
 
-		rule rl_write_request(rg_write_state == Idle && rg_read_state == Idle);
+		rule rl_write_request(rg_write_state == Idle && rg_read_state == Idle && s_xactor.o_wr_data.first.wlast );
+			let wa <- pop_o(s_xactor.o_wr_addr);
+			let wd <- pop_o(s_xactor.o_wr_data);
+			rg_write_burst_address <= wa;
+			mailbox.write_request(wa.awaddr,wd.wdata,wa.awsize);
+			`logLevel(mail,0,$format("MAILBOX : write request at %x data %x size %x \n",wa.awaddr,wd.wdata,wa.awsize))
+		endrule
+
+		rule rl_write_request_first_burst(rg_write_state == Idle && rg_read_state == Idle && !s_xactor.o_wr_data.first.wlast);
 			let wa <- pop_o(s_xactor.o_wr_addr);
 			let wd <- pop_o(s_xactor.o_wr_data);
 			mailbox.write_request(wa.awaddr,wd.wdata,wa.awsize);
 			rg_write_burst_address <= wa;
-			if(wd.wlast != True)
-				rg_write_state <= Burst;
-			`logLevel(mail,0,$format("MAILBOX : write request at %x data %x size %x \n",wa.awaddr,wd.wdata,wa.awsize))
+			rg_write_state <= Burst;
+			`logLevel(mail,0,$format("MAILBOX : write request at %x d ata %x size %x \n",wa.awaddr,wd.wdata,wa.awsize))
 		endrule
 
 		rule rl_write_request_burst(rg_write_state == Burst);
@@ -271,8 +319,7 @@ package mailbox;
 			end
 			else begin
 				rg_read_burst_counter <= rg_read_burst_counter + 1;	
-				let address = axi4burst_addrgen(rg_read_burst_address.arlen,rg_read_burst_address.arsize,
-																				rg_read_burst_address.arburst,rg_read_burst_address.araddr);
+				let address = axi4burst_addrgen(rg_read_burst_address.arlen,rg_read_burst_address.arsize,rg_read_burst_address.arburst,rg_read_burst_address.araddr);
 				rg_read_burst_address.araddr <= address;
 				mailbox.read_request(address,rg_read_burst_address.arsize);
 				`logLevel(mail,0,$format("MAILBOX : burst read request %d  at %x size %x \n",address,rg_read_burst_counter,rg_read_burst_address.arsize))
@@ -301,11 +348,16 @@ package mailbox;
 				ruser:0, 
 				rid:rg_read_burst_address.arid
 			};
+
+			`logLevel(mail, 0, $format("MAILBOX : read response original: %h mirrored: %h success %b \n", data, temp, success))
+			
+
 			s_xactor.i_rd_data.enq(resp);
 		endrule
 
-		interface slave = s_xactor.axi_side;
 
+		interface slave = s_xactor.axi_side;
+		method   return_mail_box_interrupt = mailbox.return_mail_box_interrupt;
 	endmodule : mkmailbox_axi4
 
 endpackage : mailbox
