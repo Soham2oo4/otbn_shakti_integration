@@ -4,6 +4,11 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.5.0] - 2026-05-15
+--------------------
+- Writes from ccore are completely serialized : wait for previous response before next request is sent
+- Read request after write to the same line will be now sent after the write response is recieved
+
 [5.4.0] - 2026-04-25
 --------------------
 - FPGA build scripts update; upstream soc_config; remove repomanager support
