@@ -9,6 +9,9 @@ module otbn_axi_wrapper
   import prim_alert_pkg::*;
   import prim_mubi_pkg::*;
   import prim_ram_1p_pkg::*;
+  import otp_ctrl_pkg::*;
+  import keymgr_pkg::*;
+  import edn_pkg::*;
 #(
   parameter int unsigned AxiIdWidth = 4
 ) (
@@ -97,38 +100,58 @@ module otbn_axi_wrapper
     assign alert_rx[i].ack_n  = alert_tx[i].alert_n;
   end
 
-  // Simple EDN model: ack requests after 1 cycle with constant data
-  logic edn_rnd_ack_q, edn_urnd_ack_q;
-  logic edn_rnd_req,   edn_urnd_req;
+  // ---- EDN model (mirrors add_64_test.sv pattern) ----
+  edn_pkg::edn_req_t edn_rnd_o_sig;
+  edn_pkg::edn_rsp_t edn_rnd_i_sig;
+  edn_pkg::edn_req_t edn_urnd_o_sig;
+  edn_pkg::edn_rsp_t edn_urnd_i_sig;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      edn_rnd_ack_q  <= 1'b0;
-      edn_urnd_ack_q <= 1'b0;
+      edn_rnd_i_sig.edn_ack  <= 1'b0;
+      edn_rnd_i_sig.edn_fips <= 1'b1;
+      edn_rnd_i_sig.edn_bus  <= 32'h5A5A5A5A;
     end else begin
-      edn_rnd_ack_q  <= edn_rnd_req  & ~edn_rnd_ack_q;
-      edn_urnd_ack_q <= edn_urnd_req & ~edn_urnd_ack_q;
+      edn_rnd_i_sig.edn_ack  <= edn_rnd_o_sig.edn_req;
+      edn_rnd_i_sig.edn_fips <= 1'b1;
+      edn_rnd_i_sig.edn_bus  <= edn_rnd_i_sig.edn_bus + 32'h87654321;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      edn_urnd_i_sig.edn_ack  <= 1'b0;
+      edn_urnd_i_sig.edn_fips <= 1'b1;
+      edn_urnd_i_sig.edn_bus  <= 32'hA5A5A5A5;
+    end else begin
+      edn_urnd_i_sig.edn_ack  <= edn_urnd_o_sig.edn_req;
+      edn_urnd_i_sig.edn_fips <= 1'b1;
+      edn_urnd_i_sig.edn_bus  <= edn_urnd_i_sig.edn_bus + 32'h12345678;
+    end
+  end
+
+  // ---- OTP key responder (mirrors add_64_test.sv) ----
+  otp_ctrl_pkg::otbn_otp_key_req_t otbn_otp_key_o_sig;
+  otp_ctrl_pkg::otbn_otp_key_rsp_t otbn_otp_key_i_sig;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      otbn_otp_key_i_sig.ack        <= 1'b0;
+      otbn_otp_key_i_sig.key        <= 128'h0;
+      otbn_otp_key_i_sig.nonce      <= 64'h0;
+      otbn_otp_key_i_sig.seed_valid <= 1'b0;
+    end else begin
+      otbn_otp_key_i_sig.ack <= otbn_otp_key_o_sig.req;
+      if (otbn_otp_key_o_sig.req) begin
+        otbn_otp_key_i_sig.key        <= 128'hDEADBEEFCAFEBABEDEADBEEFCAFEBABE;
+        otbn_otp_key_i_sig.nonce      <= 64'hABCDABCDABCDABCD;
+        otbn_otp_key_i_sig.seed_valid <= 1'b1;
+      end
     end
   end
 
   // OTBN idle
   prim_mubi_pkg::mubi4_t idle_mubi;
-
-  // OTP key handshake: respond to OTBN's key request with a mock valid key.
-  // Without this, OTBN stalls during its power-on secure wipe waiting for ack.
-  otp_ctrl_pkg::otbn_otp_key_req_t otbn_otp_key_req;
-  otp_ctrl_pkg::otbn_otp_key_rsp_t otbn_otp_key_rsp;
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      otbn_otp_key_rsp <= '0;
-    end else begin
-      otbn_otp_key_rsp.ack        <= otbn_otp_key_req.req;
-      otbn_otp_key_rsp.seed_valid <= otbn_otp_key_req.req;
-      otbn_otp_key_rsp.key        <= 128'hDEAD_BEEF_CAFE_BABE_DEAD_BEEF_CAFE_BABE;
-      otbn_otp_key_rsp.nonce      <= 64'hDEAD_BEEF_CAFE_BABE;
-    end
-  end
 
   otbn u_otbn (
     .clk_i,
@@ -142,26 +165,27 @@ module otbn_axi_wrapper
     // EDN RND
     .clk_edn_i         (clk_i),
     .rst_edn_ni        (rst_ni),
-    .edn_rnd_o         ({edn_rnd_req}),
-    .edn_rnd_i         ({edn_rnd_ack_q, 1'b0, 32'hDEAD_BEEF}),
+    .edn_rnd_o         (edn_rnd_o_sig),
+    .edn_rnd_i         (edn_rnd_i_sig),
     // EDN URND
     .clk_otp_i         (clk_i),
     .rst_otp_ni        (rst_ni),
-    .edn_urnd_o        ({edn_urnd_req}),
-    .edn_urnd_i        ({edn_urnd_ack_q, 1'b0, 32'hCAFE_BABE}),
-    // RAM config
-    .ram_cfg_imem_i     (prim_ram_1p_pkg::RAM_1P_CFG_DEFAULT),
-    .ram_cfg_dmem_i     (prim_ram_1p_pkg::RAM_1P_CFG_DEFAULT),
-    .ram_cfg_rsp_imem_o (),
-    .ram_cfg_rsp_dmem_o (),
+    .edn_urnd_o        (edn_urnd_o_sig),
+    .edn_urnd_i        (edn_urnd_i_sig),
+    // RAM config (separate IMEM/DMEM ports)
+    .ram_cfg_imem_i    (prim_ram_1p_pkg::RAM_1P_CFG_DEFAULT),
+    .ram_cfg_dmem_i    (prim_ram_1p_pkg::RAM_1P_CFG_DEFAULT),
+    .ram_cfg_rsp_imem_o(),
+    .ram_cfg_rsp_dmem_o(),
     // Lifecycle
     .lc_escalate_en_i  (lc_ctrl_pkg::Off),
     .lc_rma_req_i      (lc_ctrl_pkg::Off),
     .lc_rma_ack_o      (),
-    // Keymgr / OTP
-    .keymgr_key_i      (keymgr_pkg::OTBN_KEY_REQ_DEFAULT),
-    .otbn_otp_key_o    (otbn_otp_key_req),
-    .otbn_otp_key_i    (otbn_otp_key_rsp)
+    // OTP key
+    .otbn_otp_key_o    (otbn_otp_key_o_sig),
+    .otbn_otp_key_i    (otbn_otp_key_i_sig),
+    // Keymgr
+    .keymgr_key_i      (keymgr_pkg::OTBN_KEY_REQ_DEFAULT)
   );
 
   assign idle_o = prim_mubi_pkg::mubi4_test_true_strict(idle_mubi);

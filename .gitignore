@@ -1,0 +1,39 @@
+# Verilator build artifacts
+obj_dir/
+*.fst
+*.vcd
+
+# Compiled binaries and objects
+*.o
+*.a
+*.elf
+*.dis
+*.gch
+
+# Simulation outputs
+app_log
+signature
+sim_*.log
+rtl*.dump
+rtl.dump
+code.mem
+
+# Python virtual environment
+shakti_env/
+
+# External repos (managed separately)
+opentitan/
+
+# Firmware build directory
+p384/build/
+
+# Generated hex files (recreatable from extract_otbn_binary.py)
+p384/gen/*.hex
+
+# p384/run/ simulation outputs (not sources)
+p384/run/out
+p384/run/*.log
+p384/run/app_log
+p384/run/code.mem
+p384/run/rtl*.dump
+p384/run/signature

@@ -7,10 +7,10 @@ module tb_otbn_axi;
   localparam int unsigned AxiIdWidth = 4;
   localparam int CLK_PERIOD = 10;
 
-  localparam logic [TL_AW-1:0] ADDR_CMD       = 32'h0000_0010;  // otbn_reg_pkg: OTBN_CMD_OFFSET
-  localparam logic [TL_AW-1:0] ADDR_STATUS    = 32'h0000_0018;  // otbn_reg_pkg: OTBN_STATUS_OFFSET
-  localparam logic [TL_AW-1:0] ADDR_ERR_BITS  = 32'h0000_001C;  // otbn_reg_pkg: OTBN_ERR_BITS_OFFSET
-  localparam logic [TL_AW-1:0] ADDR_IMEM_BASE = 32'h0000_4000;  // otbn_reg_pkg: OTBN_IMEM_OFFSET
+  localparam logic [TL_AW-1:0] ADDR_CMD       = 32'h0000_0004;
+  localparam logic [TL_AW-1:0] ADDR_STATUS    = 32'h0000_0018;
+  localparam logic [TL_AW-1:0] ADDR_ERR_BITS  = 32'h0000_002C;
+  localparam logic [TL_AW-1:0] ADDR_IMEM_BASE = 32'h0000_4000;
 
   logic clk, rst_n;
   initial clk = 0;

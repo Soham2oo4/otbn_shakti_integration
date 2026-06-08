@@ -140,8 +140,12 @@ module tb_otbn_axi
       $display("  WR64 TIMEOUT addr=0x%08h (cyc=%0d)", addr, cyc);
       ok = 0;
     end
-    axi_cleanup();
-    tick();
+    // Deassert AW/W before the drain tick so the bridge can't re-latch
+    // the current address. Keep b_ready=1 so W_RESP → W_IDLE completes.
+    aw_valid = 0;
+    w_valid  = 0;
+    tick();       // bridge drains W_RESP → W_IDLE while b_ready is still 1
+    axi_cleanup();// zero b_ready (and any remaining signals)
   endtask
 
   task automatic axi_write32(
@@ -203,8 +207,10 @@ module tb_otbn_axi
       ok = 0;
       data64 = '0;
     end
-    axi_cleanup();
+    // Drain R_RESPONSE → R_IDLE while r_ready is still 1
+    ar_valid = 0;
     tick();
+    axi_cleanup();
   endtask
 
   task automatic axi_read32(
@@ -228,6 +234,7 @@ module tb_otbn_axi
     logic [31:0] rdata, status, err_bits;
     logic ok;
     int poll;
+    int window_fails;
 
     $display("=== tb_otbn_axi: starting ===");
     wait (rst_ni === 1'b1);
@@ -248,6 +255,47 @@ module tb_otbn_axi
       $display("OTBN not idle. Aborting.");
       $finish;
     end
+
+    // ---- IMEM window boundary test (verifies the 16 KiB window fix) ----
+    // IMEM_SIZE stays 0x2000 (ImemIndexWidth=11, SRAM[i] = a_address[13:3]).
+    // The bus window must be 16 KiB [0x4000:0x7FFF] to reach slot 2026 (0x7F50).
+    $display("\n--- IMEM window boundary test ---");
+    window_fails = 0;
+
+    // Slot 1023 (bus addr 0x5FF8): last slot in old 8 KiB window
+    axi_write32(ADDR_IMEM_BASE + 32'h1FF8, 32'hAA55_0FFF, 4'd6, 1'b0, ok);
+    axi_read32 (ADDR_IMEM_BASE + 32'h1FF8, 4'd7, 1'b0, rdata, ok);
+    if (rdata === 32'hAA55_0FFF)
+      $display("  IMEM[1023] (0x5FF8): 0x%08h  PASS", rdata);
+    else begin
+      $display("  IMEM[1023] (0x5FF8): 0x%08h  FAIL (expect 0xAA550FFF)", rdata);
+      window_fails++;
+    end
+
+    // Slot 1024 (bus addr 0x6000): first slot past old 8 KiB boundary
+    axi_write32(ADDR_IMEM_BASE + 32'h2000, 32'hAA55_1000, 4'd6, 1'b0, ok);
+    axi_read32 (ADDR_IMEM_BASE + 32'h2000, 4'd7, 1'b0, rdata, ok);
+    if (rdata === 32'hAA55_1000)
+      $display("  IMEM[1024] (0x6000): 0x%08h  PASS (window fix OK)", rdata);
+    else begin
+      $display("  IMEM[1024] (0x6000): 0x%08h  FAIL -- window fix missing!", rdata);
+      window_fails++;
+    end
+
+    // Slot 2026 (bus addr 0x7F50): last P-384 instruction slot
+    axi_write32(ADDR_IMEM_BASE + 32'h3F50, 32'hAA55_07EA, 4'd6, 1'b0, ok);
+    axi_read32 (ADDR_IMEM_BASE + 32'h3F50, 4'd7, 1'b0, rdata, ok);
+    if (rdata === 32'hAA55_07EA)
+      $display("  IMEM[2026] (0x7F50): 0x%08h  PASS (P-384 range OK)", rdata);
+    else begin
+      $display("  IMEM[2026] (0x7F50): 0x%08h  FAIL -- P-384 out of range!", rdata);
+      window_fails++;
+    end
+
+    if (window_fails == 0)
+      $display("  Window test: ALL PASS");
+    else
+      $display("  Window test: %0d FAILURES", window_fails);
 
     // Write ECALL to IMEM[0] — debug on
     $display("\n--- Write ECALL to IMEM[0] ---");
@@ -282,8 +330,8 @@ module tb_otbn_axi
     axi_read32(ADDR_ERR_BITS, 4'd5, 1'b0, err_bits, ok);
     $display("ERR_BITS = 0x%08h", err_bits);
 
-    if (err_bits == 0 && ok) $display("\n=== TEST PASSED ===");
-    else $display("\n=== TEST FAILED ===");
+    if (err_bits == 0 && ok && window_fails == 0) $display("\n=== TEST PASSED ===");
+    else $display("\n=== TEST FAILED (err_bits=0x%08h window_fails=%0d) ===", err_bits, window_fails);
 
     repeat(20) tick();
     $finish;
