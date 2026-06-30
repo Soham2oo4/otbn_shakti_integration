@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.6.0] - 2026-06-30
+--------------------
+- Internal FIFO depth changed back to 2 in c64 config
+
 [5.5.0] - 2026-05-15
 --------------------
 - Writes from ccore are completely serialized : wait for previous response before next request is sent
