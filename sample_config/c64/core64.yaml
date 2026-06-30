@@ -53,9 +53,9 @@ bus_protocol_configuration:
   bus_protocol: AXI4
   bus_width: 64
   axi4_transactor_fifo_depth: 2
-  axi4_internal_fifo_depth: 1
+  axi4_internal_fifo_depth: 2
   axi4_lite_transactor_fifo_depth: 2
-  axi4_lite_internal_fifo_depth: 1
+  axi4_lite_internal_fifo_depth: 2
   axi4_id_width: 4
   userspace_width: 1
 bsc_compile_options:
