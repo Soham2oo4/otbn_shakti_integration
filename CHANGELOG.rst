@@ -4,6 +4,10 @@ CHANGELOG
 
 This project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+[5.6.1] - 2026-07-01
+--------------------
+- soc_config upstream for removing python depencies
+
 [5.6.0] - 2026-06-30
 --------------------
 - Internal FIFO depth changed back to 2 in c64 config

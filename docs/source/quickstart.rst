@@ -127,9 +127,7 @@ To build the core with a sample test-soc using the default config do the followi
 
 .. code-block:: bash
 
-  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml --clean &> /dev/null 
-  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup
-  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info 
+  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --deps $PWD/test_soc/c64_c32/c64_deps.yaml   --verbose info
 
 The above step generates a ``makefile.inc`` file in the same folder and also
 clones other dependent repositories to build a test-soc and carry out

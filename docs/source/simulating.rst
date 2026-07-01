@@ -9,9 +9,7 @@ Generate Verilated Executable
 
   $ cd c-class
   $ pip install -r requirements.txt
-  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml --clean &> /dev/null
-  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup 
-  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
+  $ soc_config  -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --deps $PWD/test_soc/c64_c32/c64_deps.yaml   --verbose info
   $ make generate_verilog; make link_verilator;
   # for xxd versions 2023 and above
   $ export XXD_VERSION=2023
@@ -98,8 +96,7 @@ test-bench
 
 .. code-block:: bash
 
-  $ repomanager --yaml $PWD/test_soc/c64_c32/c64_deps.yaml -cup 
-  $ soc_config -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --verbose info
+  $ soc_config -ispec sample_config/c64/rv64i_isa.yaml   -customspec sample_config/c64/rv64i_custom.yaml   -cspec sample_config/c64/core64.yaml   -gspec sample_config/c64/csr_grouping64.yaml   -dspec sample_config/c64/rv64i_debug.yaml   --deps $PWD/test_soc/c64_c32/c64_deps.yaml   --verbose info
   $ make gdb # generate executable with open-ocd vpi enabled in the test-bench
 
 1. Simulate the RTL
