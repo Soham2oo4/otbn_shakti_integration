@@ -16,6 +16,7 @@ package Soc;
   import clint::*;
   import sign_dump::*;
   import err_slave::*;
+  import otbn_axi_import::*;
   // package imports
   import Connectable:: *;
   import GetPut:: *;
@@ -57,7 +58,9 @@ package Soc;
         slave_num = `Clint_slave_num;
       else if(addr>= `SignBase && addr<= `SignEnd)
         slave_num = `Sign_slave_num;
-        `ifdef etrace_support 
+      else if(addr>= `OtbnBase && addr<= `OtbnEnd)
+        slave_num = `Otbn_slave_num;
+        `ifdef etrace_support
       else if(addr>= `TraceBase && addr<= `TraceEnd)
         slave_num =  `Trace_slave_num;
       else if(addr >= `MemtraceBase && addr<= `MemtraceEnd)
@@ -118,6 +121,7 @@ package Soc;
     end
 
     Ifc_sign_dump signature<- mksign_dump();
+    Ifc_otbn_axi4 otbn <- mkotbn_axi4;
 	  Ifc_uart_axi4#(`paddr,`axi4_id_width ,`buswidth,`USERSPACE, 16) uart <- mkuart_axi4(curr_clk,curr_reset, 5, 0, 0);
     Ifc_clint_axi4#(`paddr ,`axi4_id_width, `buswidth, `USERSPACE, `num_harts, 2) clint <- mkclint_axi4();
     Ifc_err_slave_axi4#(`paddr,`axi4_id_width,`buswidth,`USERSPACE) err_slave <- mkerr_slave_axi4;
@@ -163,6 +167,7 @@ package Soc;
  	  mkConnection (fabric.v_to_slaves [`Uart_slave_num ],uart.slave);
   	mkConnection (fabric.v_to_slaves [`Clint_slave_num ],clint.slave);
     mkConnection (fabric.v_to_slaves [`Sign_slave_num ] , signature.slave);
+    mkConnection(fabric.v_to_slaves[`Otbn_slave_num] , otbn.slave);
     mkConnection (fabric.v_to_slaves [`Err_slave_num ] , err_slave.slave);
   	mkConnection(fabric.v_to_slaves[`Memory_slave_num] , main_memory.slave);
 		mkConnection(fabric.v_to_slaves[`BootRom_slave_num] , bootrom.slave);

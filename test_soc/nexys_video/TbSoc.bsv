@@ -86,7 +86,7 @@ package TbSoc;
     MakeResetIfc trst <- mkReset(0,False,tck_clk.new_clk);
   `endif
 
-    Ifc_bram_axi4#(`paddr, `buswidth, `USERSPACE,  25) bram <- mkbram_axi4('h8000_0000, "code.mem","BRAM");
+    Ifc_bram_axi4#(`paddr, `axi4_id_width, `buswidth, `USERSPACE,  25) bram <- mkbram_axi4('h8000_0000, "code.mem","BRAM");
     Ifc_bram_axi4lite#(`paddr, `buswidth, `USERSPACE,  15) xbram <- mkbram_axi4lite('h4_1000, "boot1.mem","BRAM");
     Ifc_bram_axi4lite#(`paddr, `buswidth, `USERSPACE,  15) eth0 <- mkbram_axi4lite('h4_1000, "boot1.mem","BRAM");
 
@@ -216,8 +216,11 @@ package TbSoc;
     rule connect_uart2_out(soc.chip_io.iocell_io.io9_cell_outen==1);
       soc.chip_io.iocell_io.io10_cell_in(uart2.io.sout);
     endrule
-    rule connect_uart2_in(soc.chip_io.iocell_io.io10_cell_outen==0);
-      uart2.io.sin(soc.chip_io.iocell_io.io10_cell_out);
+    // UART2 is unused by this simulation. Keep its receiver at the UART idle
+    // level so it does not decode a permanently-low pin as endless NUL bytes
+    // and overflow the testbench receive FIFO.
+    rule connect_uart2_in;
+      uart2.io.sin(1);
     endrule
     // --------------------------------------------------------//
 
@@ -233,29 +236,10 @@ package TbSoc;
     endrule
 
     rule drive_constants;
-      soc.chip_io.gpio_14(0);
-      soc.chip_io.gpio_15(0);
-      soc.chip_io.gpio_16(0);
-      soc.chip_io.gpio_17(0);
-      soc.chip_io.gpio_18(0);
-      soc.chip_io.gpio_19(0);
-      soc.chip_io.gpio_20(0);
-      soc.chip_io.gpio_21(0);
-      soc.chip_io.gpio_22(0);
-      soc.chip_io.gpio_23(0);
-      soc.chip_io.gpio_24(0);
-      soc.chip_io.gpio_25(0);
-      soc.chip_io.gpio_26(0);
-      soc.chip_io.gpio_27(0);
-      soc.chip_io.gpio_28(0);
-      soc.chip_io.gpio_29(0);
-      soc.chip_io.gpio_30(0);
-      soc.chip_io.gpio_31(0);
-      soc.chip_io.gpio_4(0);
-      soc.chip_io.gpio_7(0);
-      soc.chip_io.gpio_8(0);
       soc.chip_io.iocell_io.io7_cell_in(0);
-      soc.chip_io.iocell_io.io9_cell_in(0);
+      // UART2 RX is idle-high. Holding this pin low is interpreted as an
+      // endless stream of break/NUL characters by the SoC UART receiver.
+      soc.chip_io.iocell_io.io9_cell_in(1);
       soc.chip_io.iocell_io.io12_cell_in(0);
       soc.chip_io.iocell_io.io13_cell_in(0);
       soc.chip_io.iocell_io.io16_cell_in(0);
@@ -265,18 +249,22 @@ package TbSoc;
       soc.chip_io.iocell_io.io20_cell_in(0);
     endrule
 
-    rule rl_drive_consts_i2c;
-      soc.chip_io.i2c0_out.scl_in(0);
-      soc.chip_io.i2c1_out.scl_in(0);
-      soc.chip_io.i2c0_out.sda_in(0);
-      soc.chip_io.i2c1_out.sda_in(0);
-    endrule: rl_drive_consts_i2c
     rule rl_drive_consts_sspi;
       soc.chip_io.spi0_io.mosi_in(0);
       soc.chip_io.spi0_io.sclk_in(0);
       soc.chip_io.spi0_io.miso_in(0);
-      soc.chip_io.spi0_io.ncs_in(0);
+      soc.chip_io.spi0_io.ncs_in0(0);
     endrule
+
+  `ifdef bscan2e
+    rule rl_drive_bscan2e;
+      soc.wire_capture(0);
+      soc.wire_run_test(0);
+      soc.wire_sel(0);
+      soc.wire_shift(0);
+      soc.wire_update(0);
+    endrule
+  `endif
 
 
     rule rl_connect_interrupts;

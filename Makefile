@@ -84,8 +84,11 @@ generate_verilog: $(BSVBUILDDIR)/$(TOP_BIN)
 	@cp ${BS_VERILOG_LIB}/MakeResetA.v ${VERILOGDIR}
 	@cp ${BS_VERILOG_LIB}/SyncResetA.v ${VERILOGDIR}
 	@cp ${BS_VERILOG_LIB}/SyncHandshake.v ${VERILOGDIR}
+	@cp devices/otbn/otbn_shakti_shim.v ${VERILOGDIR}
 	@echo Compilation finished
 
+
+OTBN_BASE:=../otbn_standalone
 
 .PHONY: link_verilator
 link_verilator: ## Generate simulation executable using Verilator
@@ -93,9 +96,21 @@ link_verilator: ## Generate simulation executable using Verilator
 	@mkdir -p $(BSVOUTDIR) obj_dir
 	@echo "#define TOPMODULE V$(TOP_MODULE)" > sim_main.h
 	@echo '#include "V$(TOP_MODULE).h"' >> sim_main.h
+	@sed '/^#/d;/^$$/d' $(OTBN_BASE)/otbn_minimal.flist | sed 's|^|$(CURDIR)/$(OTBN_BASE)/|' > obj_dir/otbn_abs.flist
 	verilator $(VERILATOR_FLAGS) --cc $(TOP_MODULE).v -y $(VERILOGDIR) \
-		-y $(BS_VERILOG_LIB) -y common_verilog -y src/fpu/hardfloat/verilog_src  --exe
-	@ln -f -s ../$(TOP_DIR)/sim_main.cpp obj_dir/sim_main.cpp
+		-y $(BS_VERILOG_LIB) -y common_verilog -y src/fpu/hardfloat/verilog_src \
+		-Wno-MODDUP \
+		-y $(OTBN_BASE)/prim/rtl \
+		-y $(OTBN_BASE)/prim_generic/rtl \
+		-y $(OTBN_BASE)/rtl \
+		-y $(OTBN_BASE)/tlul/rtl \
+		-y $(OTBN_BASE)/otbn/rtl \
+		-y $(OTBN_BASE)/otp_ctrl/rtl \
+		-y $(OTBN_BASE)/keymgr/rtl \
+		-y $(OTBN_BASE)/top_earlgrey/rtl \
+		-f obj_dir/otbn_abs.flist \
+		--exe
+	@ln -f -s ../test_soc/c64_c32/sim_main.cpp obj_dir/sim_main.cpp
 	@ln -f -s ../sim_main.h obj_dir/sim_main.h
 	make $(VERILATOR_SPEED) VM_PARALLEL_BUILDS=1 -j4 -C obj_dir -f V$(TOP_MODULE).mk
 	@cp obj_dir/V$(TOP_MODULE) $(BSVOUTDIR)/out
@@ -257,6 +272,7 @@ generate_boot_files: ## to generate boot files for simulation
 	@echo "XLEN=$(XLEN)" > boot/Makefile.inc
 	@mkdir -p bin
 	@cd boot/; make;
+	@head -n 4096 boot/boot.hex > boot.mem
 	@cut -c1-8 boot/boot.hex > bin/boot.MSB
 	@if [ "$(XLEN)" = "64" ]; then\
 	  cut -c9-16 boot/boot.hex > bin/boot.LSB;\
@@ -281,7 +297,7 @@ board_build:
 	vivado -nojournal -nolog -mode tcl -notrace -source $(TOP_DIR)/tcl/create_project.tcl -tclargs fpga_top $(FPGA) $(ISA) $(JTAG_TYPE) $(VERILOGDIR) $(BUS_WIDTH)\
 	|| (echo "Could not create core project"; exit 1)
 	vivado -nojournal -log fpga_build.log -notrace -mode tcl -source $(TOP_DIR)/tcl/run.tcl \
-		-tclargs $(JOBS) || (echo "ERROR: While running synthesis")
+		-tclargs $(JOBS) || (echo "ERROR: While running synthesis"; exit 1)
 ifeq ($(MCS),true)
 	@make generate_mcs 
 endif
@@ -290,12 +306,16 @@ endif
 generate_mcs: ## Generate the FPGA Configuration Memory file.
 	vivado -nojournal -nolog -mode tcl -source $(TOP_DIR)/tcl/generate_mcs.tcl
 
+.PHONY: program
+program: ## Program the FPGA volatile configuration SRAM.
+	$(Vivado_loc) -nojournal -nolog -mode tcl -source $(TOP_DIR)/tcl/program.tcl
+
 .PHONY: program_mcs
 program_mcs: ## Program the FPGA Configuration Memory in order to use the onboard ftdi jtag chain
 	$(Vivado_loc) -nojournal -nolog -mode tcl -source $(TOP_DIR)/tcl/program_mcs.tcl
-	echo "Please Disconnect and reconnect Your Arty Board from your PC"
+	echo "Please disconnect and reconnect your Nexys Video board from your PC"
 	echo "After programming reset the device once and run \"sudo openocd \
-	-f shakti-arty.cfg\" to start a gdb server at localhost:3333 "
+	-f devices/jtagdtm/shakti-NexysVideo.cfg\" to start a gdb server at localhost:3333 "
 .PHONY: merge_cov
 merge_cov:
 	cd $(SHAKTI_HOME)/verification/workdir && ln -s $(SHAKTI_HOME)/verilog verilog

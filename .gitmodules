@@ -1,0 +1,4 @@
+[submodule "devices"]
+	path = devices
+	url = https://github.com/Soham2oo4/otbn_shakti_integration.git
+	branch = devices-otbn-p384

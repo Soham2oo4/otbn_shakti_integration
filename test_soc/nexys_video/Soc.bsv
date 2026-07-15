@@ -33,7 +33,8 @@ package Soc;
   import debug_types::*;     
 `endif
   import pinmux::*;
-  import pinmux_axi4lite :: * ;                
+  import pinmux_axi4lite :: * ;
+  import otbn_axi_import :: *;
 
   import Vector :: *;
 
@@ -53,6 +54,8 @@ package Soc;
       slave_num = `Debug_slave_num;
     else if(addr >= `BootBase && addr <= `BootEnd)
       slave_num = `Boot_slave_num;
+    else if(addr >= `OtbnBase && addr <= `OtbnEnd)
+      slave_num = `Otbn_slave_num;
     else if(addr >= `SlowBase && addr <= `SlowEnd)
       slave_num = `Slow_fabric_slave_num;
     else if(addr >= `PLICBase && addr <= `PLICEnd)
@@ -292,6 +295,7 @@ package Soc;
     Ifc_mixed_cluster mixed_cluster <- mkmixed_cluster;
     Ifc_err_slave_axi4lite#(`paddr,`buswidth,`USERSPACE) err_slave <- mkerr_slave_axi4lite;
     Ifc_bram_axi4#(`paddr,`axi4_id_width, `buswidth, `USERSPACE,  15) boot <- mkbram_axi4('h1000, "boot.mem","BOOT");
+    Ifc_otbn_axi4 otbn <- mkotbn_axi4;
     `ifdef simulate
       Ifc_sign_dump signature <- mksign_dump();
     `endif
@@ -379,6 +383,7 @@ package Soc;
   //`endif
     mkConnection (fabric.v_to_slaves [`Slow_fabric_slave_num], slow_fabric.v_from_masters[0]);
     mkConnection (fabric.v_to_slaves [`Boot_slave_num], boot.slave);
+    mkConnection (fabric.v_to_slaves [`Otbn_slave_num], otbn.slave);
 
     // sideband connection
     mkConnection(ccore.sb_clint_msip,clint.sb_clint_msip);
@@ -500,8 +505,12 @@ package Soc;
 
 		   let pinmux_uart1_rx <- (mixed_cluster.pinmuxtop_peripheral_side.uart1.rx.get);
 		   uart_cluster.uart1_io.sin(pinmux_uart1_rx);
-		   let pinmux_uart2_rx <- (mixed_cluster.pinmuxtop_peripheral_side.uart2.rx.get);
-		   uart_cluster.uart2_io.sin(pinmux_uart2_rx);
+		   // UART2 pinmux support is currently disabled in pinmux.bsv. Its RX
+		   // DWire therefore defaults low and continuously fills the UART FIFO.
+		   // Keep this unused receiver at the UART idle level until pinmux UART2
+		   // is implemented.
+		   let unused_pinmux_uart2_rx <- (mixed_cluster.pinmuxtop_peripheral_side.uart2.rx.get);
+		   uart_cluster.uart2_io.sin(1);
     endrule
 
 

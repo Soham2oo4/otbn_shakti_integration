@@ -1,14 +1,14 @@
 `ifdef debug
-`ifdef etrace_support 
+`ifdef etrace_support
+`define Num_Slaves 10
+`else
+`define Num_Slaves 8
+`endif
+`else
+`ifdef etrace_support
 `define Num_Slaves 9
 `else
 `define Num_Slaves 7
-`endif
-`else
-`ifdef etrace_support 
-`define Num_Slaves 8
-`else
-`define Num_Slaves 6
 `endif
 `endif
 `define Memory_slave_num 0
@@ -17,10 +17,11 @@
 `define Clint_slave_num 3
 `define Sign_slave_num 4
 `define Err_slave_num 5
-`define Debug_slave_num 6
-`ifdef etrace_support 
-`define Trace_slave_num 7
-`define Memtrace_slave_num 8
+`define Otbn_slave_num 6
+`define Debug_slave_num 7
+`ifdef etrace_support
+`define Trace_slave_num 8
+`define Memtrace_slave_num 9
 `endif
 // master numbers on fabric
 // slave numbers of fabric
@@ -36,9 +37,11 @@
 `define ClintEnd    'h020B_FFFF
 `define SignBase    'h0002_0000
 `define SignEnd     'h0002_000c
+`define OtbnBase    'h0003_0000
+`define OtbnEnd     'h0003_FFFF
 `define DebugBase   'h0000_0000
 `define DebugEnd    'h0000_0FFF
-`ifdef etrace_support 
+`ifdef etrace_support
 `define TraceBase     'h0006_0000
 `define TraceEnd      'h0006_0FFF
 `define MemtraceBase  'h7000_0000
