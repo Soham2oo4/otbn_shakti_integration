@@ -7,8 +7,8 @@
 #define UART_TX_DATA (UART_BASE + 4)
 #define UART_STATUS  (UART_BASE + 12)
 
-// SIGN_FINISH: writing to 0x2000C triggers $finish(0) in TbSoc
-#define SIGN_FINISH (*(volatile uint32_t *)0x2000CUL)
+// SIGN_FINISH: writing to 0x5000C triggers $finish(0) in TbSoc.
+#define SIGN_FINISH (*(volatile uint32_t *)0x5000CUL)
 
 static void uart_putc(char c) {
     // Wait while TX busy (bit 1 of status register)

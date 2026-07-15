@@ -153,7 +153,13 @@ module otbn_axi_wrapper
   // OTBN idle
   prim_mubi_pkg::mubi4_t idle_mubi;
 
-  otbn u_otbn (
+  // Use the OTBN FPGA register-file implementation.  The default RegFileFF
+  // implementation creates roughly 10k flip-flops and large 256-bit read
+  // muxes, which is not routable alongside the C-class core on XC7A200T.
+  // RegFileFPGA is designed to infer Xilinx RAM32M resources instead.
+  otbn #(
+    .RegFile(otbn_pkg::RegFileFPGA)
+  ) u_otbn (
     .clk_i,
     .rst_ni,
     .tl_i              (tl_h2d),

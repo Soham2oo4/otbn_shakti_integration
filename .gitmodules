@@ -1,0 +1,4 @@
+[submodule "c-class"]
+	path = c-class
+	url = https://github.com/Soham2oo4/otbn_shakti_integration.git
+	branch = c-class-otbn-p384-5.6.1
